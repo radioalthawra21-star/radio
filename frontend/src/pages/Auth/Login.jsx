@@ -154,11 +154,6 @@ const Login = () => {
               </Link>
             </p>
           </div>
-
-          <div className="mt-4 p-3 bg-info/10 rounded-lg">
-            <p className="text-sm text-dark font-semibold mb-2">بيانات الدخول للتجربة:</p>
-            <p className="text-sm text-gray-600">المدير العام: admin / admin</p>
-          </div>
         </div>
       </div>
     </div>
