@@ -6,12 +6,12 @@
 
 import axios from 'axios';
 
-// ✅ استخدام المتغير البيئي أو الرابط الافتراضي للإنتاج
+// ✅ استخدام المتغير البيئي - بدون /api في النهاية
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://cc-backend-2ogh.onrender.com';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: BASE_URL + '/api',
+  baseURL: BASE_URL + '/api',  // نضيف /api هنا مرة واحدة فقط
   headers: {
     'Content-Type': 'application/json'
   },
@@ -45,14 +45,3 @@ api.interceptors.response.use(
         error.message = backendMessage;
       }
       if (error.response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
-// Export api instance
-export default api;
