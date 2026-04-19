@@ -1,0 +1,249 @@
+@layer base {
+  :root {
+    --font-heading: 'CAIRO', sans-serif;
+    --font-body: 'CAIRO', sans-serif;
+    --app-logo: '/logo.png';
+    --app-name: 'راديو الثورة';
+  }
+  
+  html {
+    font-family: var(--font-body);
+    direction: rtl;
+    -webkit-locale: 'en';
+    locale: 'en';
+  }
+  
+  body {
+    direction: rtl;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    background-color: #E3D4BE;
+    color: #182E4E;
+    font-family: var(--font-body);
+  }
+  
+  * {
+    font-variant-numeric: tabular-nums;
+    -webkit-font-feature-settings: "tnum";
+    -moz-font-feature-settings: "tnum";
+    font-feature-settings: "tnum";
+  }
+  
+  input[type="date"],
+  input[type="time"],
+  input[type="number"] {
+    direction: ltr;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  input, select, textarea {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .english-numerals, .en-num {
+    font-family: 'Helvetica Neue', Arial, sans-serif !important;
+    font-variant-numeric: lining-nums !important;
+    -webkit-font-feature-settings: "lnum" !important;
+    font-feature-settings: "lnum" !important;
+    font-variant-alternates: normal !important;
+  }
+  
+  .english-numerals::before, .en-num::before {
+    content: attr(data-en-num);
+  }
+
+  h1, h2, h3, h4, h5, h6, .heading-text {
+    font-family: var(--font-heading);
+  }
+}
+
+/* Main CSS file with Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components */
+@layer components {
+  /* Button styles */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out;
+    font-family: var(--font-body);
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-opacity-90;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-opacity-90;
+  }
+  
+  .btn-interactive {
+    @apply bg-interactive text-white hover:bg-opacity-90;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white;
+  }
+  
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6;
+    font-family: var(--font-body);
+  }
+  
+  .card-hover {
+    @apply card hover:shadow-xl transition-shadow duration-300;
+  }
+  
+  /* Input styles */
+  .input, select.input {
+    @apply w-full px-4 py-2 border-2 border-dark rounded-lg focus:outline-none focus:border-interactive focus:ring-2 focus:ring-interactive focus:ring-opacity-20 transition-all duration-300 bg-white;
+    font-family: var(--font-body);
+  }
+  
+  select.input {
+    @apply cursor-pointer appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23182E4E'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 36px;
+  }
+  
+  select.input:focus {
+    @apply border-interactive ring-2 ring-interactive ring-opacity-20;
+  }
+  
+  /* Label styles */
+  .label {
+    @apply block text-sm font-semibold mb-2 text-dark;
+    font-family: var(--font-body);
+  }
+  
+  /* Badge styles */
+  .badge {
+    @apply px-2 py-1 rounded-full text-xs font-semibold;
+    font-family: var(--font-body);
+  }
+  
+  .badge-success {
+    @apply badge bg-success text-white;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning text-white;
+  }
+  
+  .badge-error {
+    @apply badge bg-error text-white;
+  }
+  
+  .badge-info {
+    @apply badge bg-info text-white;
+  }
+
+  /* Date input - force English */
+  input[type="date"] {
+    direction: ltr;
+    text-align: left;
+    font-family: var(--font-body);
+    font-variant-numeric: lining-nums !important;
+    -webkit-font-feature-settings: "lnum" !important;
+    font-feature-settings: "lnum" !important;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0);
+    font-family: system-ui, -apple-system, sans-serif !important;
+  }
+
+  /* Force English numerals everywhere */
+  .text-numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    -webkit-font-feature-settings: "tnum";
+    -moz-font-feature-settings: "tnum";
+  }
+  
+  /* Alternative method - using data attributes for date displays */
+  .date-display {
+    direction: ltr;
+    unicode-bidi: embed;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  /* Animation classes */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-200 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-secondary rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-interactive;
+  }
+}
+
+/* Print styles for PDF export */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Ultimate override - ensure all dates show English numerals */
+input[type="date"],
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator *,
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+  font-variant-numeric: lining-nums !important;
+}
