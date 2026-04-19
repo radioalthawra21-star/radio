@@ -1,18 +1,22 @@
 /**
  * API Service
  * Axios instance with interceptors for API calls
+ * Modified for production deployment
  */
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000';
+// ✅ استخدام المتغير البيئي أو الرابط الافتراضي للإنتاج
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://cc-backend-2ogh.onrender.com';
 
 // Create axios instance
 const api = axios.create({
   baseURL: BASE_URL + '/api',
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  // إضافة مهلة أطول للانتظار حتى يستيقظ سيرفر Render المجاني
+  timeout: 60000
 });
 
 // Request interceptor - add token to headers
