@@ -11,11 +11,10 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://cc-backend-2ogh.o
 
 // Create axios instance
 const api = axios.create({
-  baseURL: BASE_URL + '/api',  // نضيف /api هنا مرة واحدة فقط
+  baseURL: BASE_URL + '/api',
   headers: {
     'Content-Type': 'application/json'
   },
-  // إضافة مهلة أطول للانتظار حتى يستيقظ سيرفر Render المجاني
   timeout: 60000
 });
 
@@ -45,3 +44,14 @@ api.interceptors.response.use(
         error.message = backendMessage;
       }
       if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Export api instance
+export default api;
