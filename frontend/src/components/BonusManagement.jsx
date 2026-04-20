@@ -36,7 +36,12 @@ const BonusManagement = () => {
       ]);
       
       if (usersRes.success) {
-        setEmployees(usersRes.data.users.filter(u => u.role === 'employee' || u.role === 'manager'));
+        const allUsers = usersRes.data.users || [];
+        // Show all users except admin
+        const filtered = allUsers.filter(u => u.role && u.role !== 'admin');
+        console.log('All users from API:', allUsers);
+        console.log('Filtered (excluding admin):', filtered);
+        setEmployees(filtered);
       }
       if (bonusesRes.success) {
         setBonuses(bonusesRes.data.bonuses);
@@ -134,7 +139,7 @@ const BonusManagement = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">الموظف</label>
-            <select
+              <select
               name="employeeId"
               value={formData.employeeId}
               onChange={handleChange}
@@ -142,11 +147,15 @@ const BonusManagement = () => {
               required
             >
               <option value="">اختر الموظف</option>
-              {employees.map(emp => (
-                <option key={emp._id} value={emp._id}>
-                  {emp.name} - {emp.department}
-                </option>
-              ))}
+              {employees.length === 0 ? (
+                <option value="" disabled>لا يوجد موظفون متاحون</option>
+              ) : (
+                employees.map(emp => (
+                  <option key={emp._id} value={emp._id}>
+                    {emp.name} {emp.department ? `- ${emp.department.name || emp.department}` : ''}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
