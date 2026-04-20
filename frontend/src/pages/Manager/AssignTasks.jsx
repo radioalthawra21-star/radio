@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { createTask } from '../../services/taskService';
 import { playTaskAssignedSound } from '../../utils/audioUtils';
-import { getEmployeesByDepartment } from '../../services/userService';
+import { getEmployeesByDepartment, getAllUsers } from '../../services/userService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
@@ -40,9 +40,20 @@ const AssignTasks = () => {
   const fetchEmployees = async () => {
     try {
       setFetchingEmployees(true);
-      const response = await getEmployeesByDepartment(user.department);
-      if (response.success) {
-        setEmployees(response.data.employees);
+      let response;
+      // If admin, get all employees, otherwise get employees by department
+      if (user.role === 'admin') {
+        response = await getAllUsers();
+        if (response.success) {
+          // Filter out admin and only keep employees and managers
+          const filtered = (response.data.users || []).filter(u => u.role && u.role !== 'admin');
+          setEmployees(filtered);
+        }
+      } else {
+        response = await getEmployeesByDepartment(user.department);
+        if (response.success) {
+          setEmployees(response.data.employees);
+        }
       }
     } catch (error) {
       console.error('Error fetching employees:', error);

@@ -20,6 +20,7 @@ const menuItems = {
   ],
   admin: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
+    { path: '/admin/assign-tasks', label: 'إسناد المهام', icon: '👥' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
     { path: '/admin/reports', label: 'التقارير', icon: '📊' },
     { path: '/admin/rankings', label: 'الترتيب', icon: '🏆' },

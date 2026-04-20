@@ -164,6 +164,7 @@ const AllEmployees = () => {
         setEditingUser(null);
         setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: '' });
         fetchData();
+        window.dispatchEvent(new Event('usersUpdated'));
       } else {
         setError(response.message);
       }
@@ -195,6 +196,7 @@ const AllEmployees = () => {
       if (response.success) {
         setSuccess('تم حذف المستخدم بنجاح');
         fetchData();
+        window.dispatchEvent(new Event('usersUpdated'));
       }
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -207,6 +209,7 @@ const AllEmployees = () => {
       if (response.success) {
         setSuccess('تم تفعيل الحساب بنجاح');
         fetchData();
+        window.dispatchEvent(new Event('usersUpdated'));
       }
     } catch (error) {
       console.error('Error activating user:', error);

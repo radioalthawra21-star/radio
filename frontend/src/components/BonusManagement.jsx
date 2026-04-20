@@ -25,6 +25,15 @@ const BonusManagement = () => {
 
   useEffect(() => {
     fetchData();
+    
+    const handleUsersUpdate = () => {
+      fetchData();
+    };
+    
+    window.addEventListener('usersUpdated', handleUsersUpdate);
+    return () => {
+      window.removeEventListener('usersUpdated', handleUsersUpdate);
+    };
   }, []);
 
   const fetchData = async () => {

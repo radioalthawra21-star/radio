@@ -177,6 +177,11 @@ function App() {
                 } />
 
                 {/* Admin Routes */}
+                <Route path="/admin/assign-tasks" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AssignTasks />
+                  </ProtectedRoute>
+                } />
                 <Route path="/admin/employees" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AllEmployees />
