@@ -39,21 +39,43 @@ const BonusManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log('Fetching employees and bonuses...');
       const [usersRes, bonusesRes] = await Promise.all([
         getAllUsers(),
         getAllBonuses()
       ]);
       
-      if (usersRes.success) {
-        const allUsers = usersRes.data.users || [];
+      console.log('Users response:', usersRes);
+      console.log('Bonuses response:', bonusesRes);
+      
+      if (usersRes && usersRes.success) {
+        // Handle both possible structures
+        let allUsers = [];
+        if (Array.isArray(usersRes.data)) {
+          allUsers = usersRes.data;
+        } else if (usersRes.data && Array.isArray(usersRes.data.users)) {
+          allUsers = usersRes.data.users;
+        } else if (usersRes.data && usersRes.data.users && usersRes.data.users.users) {
+          allUsers = usersRes.data.users.users;
+        }
+        
+        console.log('All users array:', allUsers);
+        
         // Show all users except admin
-        const filtered = allUsers.filter(u => u.role && u.role !== 'admin');
-        console.log('All users from API:', allUsers);
-        console.log('Filtered (excluding admin):', filtered);
+        const filtered = allUsers.filter(u => u && u.role && u.role !== 'admin');
+        console.log('Filtered employees:', filtered);
         setEmployees(filtered);
+      } else {
+        console.log('No users found or error:', usersRes);
       }
-      if (bonusesRes.success) {
-        setBonuses(bonusesRes.data.bonuses);
+      if (bonusesRes && bonusesRes.success) {
+        let allBonuses = [];
+        if (Array.isArray(bonusesRes.data)) {
+          allBonuses = bonusesRes.data;
+        } else if (bonusesRes.data && Array.isArray(bonusesRes.data.bonuses)) {
+          allBonuses = bonusesRes.data.bonuses;
+        }
+        setBonuses(allBonuses);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
