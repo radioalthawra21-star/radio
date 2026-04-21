@@ -1,16 +1,27 @@
 /**
  * BonusManagement Component
  * Allows managers/admins to give bonus points to employees
+ * Role-based filtering:
+ * - Admin: sees all employees and managers
+ * - Manager: sees only employees in their department
  */
 
 import { useState, useEffect } from 'react';
 import { giveBonus, getAllBonuses } from '../services/bonusService';
-import { getAllUsers } from '../services/userService';
-import { formatDateArabic } from '../utils/dateUtils';
+import { getAllUsers } from '../../services/userService';
+import { getStoredUser } from '../../services/authService';
+import { formatDateArabic } from '../../utils/dateUtils';
 
 const BonusManagement = () => {
+  const currentUser = getStoredUser();
+  const userRole = currentUser?.role;
+  const userDepartment = currentUser?.department;
+  
   const [employees, setEmployees] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]);
   const [bonuses, setBonuses] = useState([]);
+  const [filteredBonuses, setFilteredBonuses] = useState([]);
+  const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
@@ -39,43 +50,50 @@ const BonusManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      console.log('=== Fetching employees and bonuses ===');
       
-      // Fetch users first
+      // Fetch users
       let usersData = [];
       try {
         const usersRes = await getAllUsers();
-        console.log('Users raw response:', JSON.stringify(usersRes).substring(0, 500));
         
         if (usersRes) {
-          // Handle different response structures
           if (Array.isArray(usersRes)) {
             usersData = usersRes;
           } else if (Array.isArray(usersRes.data)) {
             usersData = usersRes.data;
           } else if (usersRes.data && Array.isArray(usersRes.data.users)) {
             usersData = usersRes.data.users;
-          } else if (usersRes.data && usersRes.data.users && Array.isArray(usersRes.data.users)) {
-            usersData = usersRes.data.users;
           }
         }
         
-        console.log('Extracted usersData:', usersData);
+        // Store all employees for filtering
+        setAllEmployees(usersData);
         
-        // Show all users except admin
-        const filtered = usersData.filter(u => u && u.role !== 'admin');
-        console.log('Filtered employees:', filtered);
+        // Filter based on role
+        let filtered = [];
+        
+        if (userRole === 'admin') {
+          // Admin sees all employees and managers (not admin)
+          filtered = usersData.filter(u => u && u.role !== 'admin');
+        } else if (userRole === 'manager') {
+          // Manager sees only employees in their department
+          filtered = usersData.filter(u => 
+            u && 
+            u.role === 'employee' && 
+            u.department === userDepartment
+          );
+        }
+        
         setEmployees(filtered);
       } catch (userError) {
         console.error('Error fetching users:', userError);
         setEmployees([]);
       }
       
-      // Fetch bonuses separately
+      // Fetch bonuses
       let bonusesData = [];
       try {
         const bonusesRes = await getAllBonuses();
-        console.log('Bonuses raw response:', bonusesRes);
         
         if (bonusesRes) {
           if (Array.isArray(bonusesRes)) {
@@ -89,12 +107,48 @@ const BonusManagement = () => {
       } catch (bonusError) {
         console.error('Error fetching bonuses:', bonusError);
       }
+      
       setBonuses(bonusesData);
-      console.log('=== Finished fetching ===');
+      
+      // Filter bonuses based on role
+      let displayBonuses = bonusesData;
+      if (userRole === 'manager') {
+        // Manager sees only bonuses they created
+        displayBonuses = bonusesData.filter(b => 
+          b?.givenBy?._id === currentUser?._id || 
+          b?.givenBy === currentUser?._id
+        );
+      }
+      // Admin sees all bonuses
+      
+      setFilteredBonuses(displayBonuses);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEmployeeFilterChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedEmployeeFilter(selectedId);
+    
+    if (selectedId === '') {
+      // Show all based on role
+      if (userRole === 'manager') {
+        setFilteredBonuses(bonuses.filter(b => 
+          b?.givenBy?._id === currentUser?._id || 
+          b?.givenBy === currentUser?._id
+        ));
+      } else {
+        setFilteredBonuses(bonuses);
+      }
+    } else {
+      // Filter by selected employee
+      setFilteredBonuses(bonuses.filter(b => 
+        b?.employee?._id === selectedId || 
+        b?.employee === selectedId
+      ));
     }
   };
 
@@ -279,17 +333,34 @@ const BonusManagement = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-xl font-semibold mb-4">سجل المكافآت</h3>
         
-        {bonuses.length === 0 ? (
+        {/* Employee Filter Dropdown */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">فلترة حسب الموظف</label>
+          <select
+            value={selectedEmployeeFilter}
+            onChange={handleEmployeeFilterChange}
+            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+          >
+            <option value="">جميع المكافآت</option>
+            {allEmployees.map(emp => (
+              <option key={emp._id} value={emp._id}>
+                {emp.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        {filteredBonuses.length === 0 ? (
           <p className="text-gray-500">لا توجد مكافآت حتى الآن</p>
         ) : (
           <div className="space-y-3">
-            {bonuses.map(bonus => (
+            {filteredBonuses.map(bonus => (
               <div key={bonus._id} className="border rounded-lg p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{bonus.employee?.name}</p>
+                    <p className="font-semibold">{bonus.employee?.name || bonus.employee?.username || 'غير معروف'}</p>
                     <p className="text-sm text-gray-500">
-                      من قبل: {bonus.givenBy?.name}
+                      من قبل: {bonus.givenBy?.name || 'غير معروف'}
                     </p>
                     <p className="text-sm mt-1">{bonus.reason}</p>
                   </div>
