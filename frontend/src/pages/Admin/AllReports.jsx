@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { getTaskReports, getWeeklySummary, getDailySummary } from '../../services/taskService';
 import { getDepartmentStats } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
+import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -24,12 +25,7 @@ const AllReports = () => {
     endDate: ''
   });
 
-  const departmentNames = {
-    production: 'الإنتاج',
-    news: 'الأخبار',
-    marketing: 'التسويق',
-    ...Object.fromEntries(departments.map(d => [d._id || d.id, d.name]))
-  };
+  const { getDepartmentName } = useDepartments();
 
   useEffect(() => {
     const loadDepts = async () => {
@@ -96,7 +92,7 @@ const AllReports = () => {
     
     let yPos = 55;
     deptStats.forEach((dept) => {
-      const deptName = departmentNames[dept.department] || dept.department;
+      const deptName = getDepartmentName(dept.department);
       doc.text(`${deptName}: ${dept.employeeCount} موظف، أداء: ${dept.averagePerformanceScore}`, 14, yPos);
       yPos += 8;
     });
@@ -107,7 +103,7 @@ const AllReports = () => {
     const tableData = tasks.map(task => [
       task.title,
       task.assignedTo?.map(u => u.name).join(', ') || '-',
-      departmentNames[task.assignedTo?.[0]?.department] || '-',
+      getDepartmentName(task.assignedTo?.[0]?.department),
       task.duration?.toString() || '0',
       task.status === 'completed' ? 'مكتملة' : task.status === 'approved' ? 'معتمدة' : 'معلقة',
       formatDateArabic(task.taskDate)
@@ -232,7 +228,7 @@ const AllReports = () => {
           {deptStats.map((dept) => (
             <div key={dept.department} className="p-4 bg-gray-50 rounded-lg">
               <h3 className="font-semibold text-dark text-lg mb-2">
-                {departmentNames[dept.department] || dept.department}
+                {getDepartmentName(dept.department)}
               </h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
@@ -294,7 +290,7 @@ const AllReports = () => {
                       {task.assignedTo?.map(u => u.name).join(', ')}
                     </td>
                     <td className="p-3">
-                      {departmentNames[task.assignedTo?.[0]?.department] || '-'}
+                      {getDepartmentName(task.assignedTo?.[0]?.department)}
                     </td>
                     <td className="p-3">{task.duration} ساعة</td>
                     <td className="p-3">

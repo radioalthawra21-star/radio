@@ -9,6 +9,7 @@ import { getTasksToApprove } from '../../services/taskService';
 import { getDepartmentStats, getRankings } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
 import { getStoredUser } from '../../services/authService';
+import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 
 const AdminDashboard = () => {
@@ -20,12 +21,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState([]);
 
-  const departmentNames = {
-    production: 'الإنتاج',
-    news: 'الأخبار',
-    marketing: 'التسويق',
-    ...Object.fromEntries(departments.map(d => [d._id || d.id, d.name]))
-  };
+  const { getDepartmentName } = useDepartments();
 
   useEffect(() => {
     const loadDepts = async () => {
@@ -185,7 +181,7 @@ const AdminDashboard = () => {
                 <div key={dept.department} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-dark">
-                      {departmentNames[dept.department] || dept.department}
+                      {getDepartmentName(dept.department)}
                     </h3>
                     <span className="badge bg-secondary text-white">
                       {dept.employeeCount} موظف
@@ -239,7 +235,7 @@ const AdminDashboard = () => {
                     <div>
                       <p className="font-semibold text-dark">{rank.user.name}</p>
                       <p className="text-sm text-gray-500">
-                        {departmentNames[rank.user.department] || rank.user.department}
+                        {getDepartmentName(rank.user.department)}
                       </p>
                     </div>
                   </div>

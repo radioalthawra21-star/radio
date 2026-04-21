@@ -121,13 +121,59 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    handleMarkAsRead(notification._id);
+    
+    const { type, relatedTask, relatedUser } = notification;
+    
+    switch (type) {
+      case 'task_assigned':
+      case 'task_completed':
+      case 'task_evaluated':
+      case 'task_approved':
+      case 'task_rejected':
+        if (relatedTask) {
+          navigate(`/task/${relatedTask}`);
+        } else {
+          if (user?.role === 'employee') {
+            navigate('/my-tasks');
+          } else if (user?.role === 'manager') {
+            navigate('/manager/evaluate-tasks');
+          } else {
+            navigate('/admin/reports');
+          }
+        }
+        break;
+      case 'reward':
+        navigate('/admin/bonuses');
+        break;
+      case 'role_change':
+        break;
+      case 'new_user_registered':
+        navigate('/admin/employees');
+        break;
+      default:
+        break;
+    }
+    
+    setShowNotifications(false);
+  };
+
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('يرجى اختيار ملف صورة');
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('نوع الملف غير صالح. الأنواع المسموحة: JPG، PNG، WEBP');
+      return;
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      alert('حجم الملف كبير جداً. الحد الأقصى المسموح: 2 ميجابايت');
       return;
     }
 
@@ -144,7 +190,7 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
         if (user) {
           user.profileImage = response.data.user.profileImage;
         }
-        // Trigger re-render to show new image
+        alert('تم تحديث صورة الملف الشخصي بنجاح ✓');
         window.dispatchEvent(new Event('storage'));
       } else {
         alert(response.message || 'حدث خطأ في رفع الصورة');
@@ -223,10 +269,7 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
                   notifications.map((notification) => (
                     <div
                       key={notification._id}
-                      onClick={() => {
-                        handleMarkAsRead(notification._id);
-                        navigate(`/task/${notification.relatedTask || ''}`);
-                      }}
+                      onClick={() => handleNotificationClick(notification)}
                       className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${
                         !notification.isRead ? 'bg-secondary/10' : ''
                       }`}
@@ -265,7 +308,7 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <label className={`absolute bottom-0 right-8 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-colors ${uploadingImage ? 'opacity-50' : ''}`}>
+              <label className={`absolute bottom-0 right-8 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-colors ${uploadingImage ? 'opacity-50' : ''}`} title="تغيير الصورة الشخصية - الحجم الموصى به: 300×300 بكسل، الحد الأقصى: 2 ميجابايت">
                 {uploadingImage ? (
                   <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (

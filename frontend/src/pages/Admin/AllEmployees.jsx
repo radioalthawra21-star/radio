@@ -7,13 +7,8 @@ import { useState, useEffect } from 'react';
 import { getAllEmployees, getAllManagers, getPendingUsers, createUser, updateUser, deleteUser, activateUser } from '../../services/userService';
 import { getAllDepartments, createDepartment, deleteDepartment } from '../../services/departmentService';
 import { getStoredUser } from '../../services/authService';
+import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
-
-const departmentNames = {
-  production: 'الإنتاج',
-  news: 'الأخبار',
-  marketing: 'التسويق'
-};
 
 const roleNames = {
   employee: 'موظف',
@@ -28,6 +23,8 @@ const AllEmployees = () => {
   const isAdmin = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const userDepartment = currentUser?.department;
+
+  const { departments: hookDepartments, getDepartmentName } = useDepartments();
 
   const [employees, setEmployees] = useState([]);
   const [managers, setManagers] = useState([]);
@@ -111,10 +108,7 @@ const AllEmployees = () => {
   };
 
   const getAllDepartmentsMap = () => {
-    return {
-      ...departmentNames,
-      ...Object.fromEntries(customDepartments.map(d => [d.id, d.name]))
-    };
+    return Object.fromEntries(hookDepartments.map(d => [d._id || d.id, d.name]));
   };
 
   const allDepartments = getAllDepartmentsMap();
@@ -351,7 +345,7 @@ const AllEmployees = () => {
                       <td className="p-3 font-semibold">{mgr.name}</td>
                       <td className="p-3 text-gray-600">{mgr.username}</td>
                       <td className="p-3 text-gray-600">{mgr.email}</td>
-                      <td className="p-3">{departmentNames[mgr.department] || '-'}</td>
+                      <td className="p-3">{getDepartmentName(mgr.department)}</td>
                       <td className="p-3">
                         <span className={`badge ${mgr.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>
                           {mgr.isActive ? 'نشط' : 'غير نشط'}
@@ -403,7 +397,7 @@ const AllEmployees = () => {
                     <td className="p-3 font-semibold">{emp.name}</td>
                     <td className="p-3 text-gray-600">{emp.username}</td>
                     <td className="p-3 text-gray-600">{emp.email}</td>
-                    <td className="p-3">{departmentNames[emp.department] || '-'}</td>
+                    <td className="p-3">{getDepartmentName(emp.department)}</td>
                     <td className="p-3">
                       <span className={`badge ${
                         emp.performanceScore >= 70 ? 'bg-secondary text-white' :

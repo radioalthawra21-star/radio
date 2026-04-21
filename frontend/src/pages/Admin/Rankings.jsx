@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { getRankings } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
 import { getSettings } from '../../services/notificationService';
+import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 
 const Rankings = () => {
@@ -15,12 +16,7 @@ const Rankings = () => {
   const [minTasks, setMinTasks] = useState(5);
   const [departments, setDepartments] = useState([]);
 
-  const departmentNames = {
-    production: 'الإنتاج',
-    news: 'الأخبار',
-    marketing: 'التسويق',
-    ...Object.fromEntries(departments.map(d => [d._id || d.id, d.name]))
-  };
+  const { getDepartmentName } = useDepartments();
 
   useEffect(() => {
     const loadDepts = async () => {
@@ -111,7 +107,7 @@ const Rankings = () => {
                   <div>
                     <h3 className="font-semibold text-dark text-lg">{rank.user.name}</h3>
                     <p className="text-sm text-gray-600">
-                      {departmentNames[rank.user.department] || rank.user.department}
+                      {getDepartmentName(rank.user.department)}
                     </p>
                   </div>
                 </div>
@@ -138,7 +134,7 @@ const Rankings = () => {
                 </div>
                 <h3 className="font-semibold text-dark">{rankings[index].user.name}</h3>
                 <p className="text-gray-600 text-sm">
-                  {departmentNames[rankings[index].user.department]}
+                  {getDepartmentName(rankings[index].user.department)}
                 </p>
                 <p className="text-2xl font-bold text-interactive mt-2">
                   {rankings[index].performanceScore}
