@@ -39,40 +39,48 @@ const BonusManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      console.log('Fetching employees and bonuses...');
+      console.log('=== Fetching employees and bonuses ===');
       
       // Fetch users first
       let usersData = [];
       try {
         const usersRes = await getAllUsers();
-        console.log('Users response:', usersRes);
+        console.log('Users raw response:', JSON.stringify(usersRes).substring(0, 500));
         
-        if (usersRes && usersRes.success) {
-          if (Array.isArray(usersRes.data)) {
+        if (usersRes) {
+          // Handle different response structures
+          if (Array.isArray(usersRes)) {
+            usersData = usersRes;
+          } else if (Array.isArray(usersRes.data)) {
             usersData = usersRes.data;
           } else if (usersRes.data && Array.isArray(usersRes.data.users)) {
             usersData = usersRes.data.users;
+          } else if (usersRes.data && usersRes.data.users && Array.isArray(usersRes.data.users)) {
+            usersData = usersRes.data.users;
           }
         }
+        
+        console.log('Extracted usersData:', usersData);
+        
+        // Show all users except admin
+        const filtered = usersData.filter(u => u && u.role !== 'admin');
+        console.log('Filtered employees:', filtered);
+        setEmployees(filtered);
       } catch (userError) {
         console.error('Error fetching users:', userError);
+        setEmployees([]);
       }
-      
-      console.log('All users array:', usersData);
-      
-      // Show all users except admin
-      const filtered = usersData.filter(u => u && u.role && u.role !== 'admin');
-      console.log('Filtered employees:', filtered);
-      setEmployees(filtered);
       
       // Fetch bonuses separately
       let bonusesData = [];
       try {
         const bonusesRes = await getAllBonuses();
-        console.log('Bonuses response:', bonusesRes);
+        console.log('Bonuses raw response:', bonusesRes);
         
-        if (bonusesRes && bonusesRes.success) {
-          if (Array.isArray(bonusesRes.data)) {
+        if (bonusesRes) {
+          if (Array.isArray(bonusesRes)) {
+            bonusesData = bonusesRes;
+          } else if (Array.isArray(bonusesRes.data)) {
             bonusesData = bonusesRes.data;
           } else if (bonusesRes.data && Array.isArray(bonusesRes.data.bonuses)) {
             bonusesData = bonusesRes.data.bonuses;
@@ -82,6 +90,7 @@ const BonusManagement = () => {
         console.error('Error fetching bonuses:', bonusError);
       }
       setBonuses(bonusesData);
+      console.log('=== Finished fetching ===');
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
