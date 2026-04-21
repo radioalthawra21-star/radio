@@ -8,9 +8,9 @@
 
 import { useState, useEffect } from 'react';
 import { giveBonus, getAllBonuses } from '../services/bonusService';
-import { getAllUsers } from '../../services/userService';
-import { getStoredUser } from '../../services/authService';
-import { formatDateArabic } from '../../utils/dateUtils';
+import { getAllUsers } from '../services/userService';
+import { getStoredUser } from '../services/authService';
+import { formatDateArabic } from '../utils/dateUtils';
 
 const BonusManagement = () => {
   const currentUser = getStoredUser();
