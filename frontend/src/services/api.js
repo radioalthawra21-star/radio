@@ -55,3 +55,6 @@ api.interceptors.response.use(
 
 // Export api instance
 export default api;
+
+// Export uploads URL for profile images
+export const UPLOADS_URL = BASE_URL;

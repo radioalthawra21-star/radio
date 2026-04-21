@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyNotifications, markAsRead, markAllAsRead } from '../../services/notificationService';
 import { uploadProfileImage } from '../../services/authService';
+import { UPLOADS_URL } from '../../services/api';
 import { playTaskAssignedSound, playRoleChangeSound, playNotificationSound } from '../../utils/audioUtils';
 import { formatDateTimeArabic } from '../../utils/dateUtils';
 
@@ -292,12 +293,12 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                {user?.profileImage ? (
-                  <img 
-                    src={user.profileImage} 
-                    alt={user?.name} 
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+                 {user?.profileImage ? (
+                   <img
+                     src={user.profileImage?.startsWith('http') ? user.profileImage : `${UPLOADS_URL}${user.profileImage}`}
+                     alt={user?.name}
+                     className="w-8 h-8 rounded-full object-cover"
+                   />
                 ) : (
                   <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
                     {user?.name?.charAt(0) || 'م'}
