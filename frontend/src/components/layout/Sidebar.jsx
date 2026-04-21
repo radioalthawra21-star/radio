@@ -61,16 +61,6 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
 
   return (
     <>
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed right-0 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-l-lg transition-all duration-300 z-50"
-          style={{ transform: 'translateY(-50%)' }}
-        >
-          ◀
-        </button>
-      )}
-
       <aside 
         className={`fixed right-0 top-0 h-full text-white transition-all duration-300 z-50 ${
           isOpen ? 'w-64' : 'w-0 overflow-hidden'
@@ -84,12 +74,6 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
             ) : (
               <img src="/logo.png" alt="Logo" className="h-12" style={{ filter: 'brightness(0) invert(1)' }} />
             )}
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-interactive rounded-lg transition-colors"
-            >
-              ▶
-            </button>
           </div>
         </div>
 
