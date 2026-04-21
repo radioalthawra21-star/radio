@@ -26,6 +26,7 @@ import Rankings from './pages/Admin/Rankings';
 import BonusManagement from './components/BonusManagement';
 import DeveloperPanel from './pages/Developer/DeveloperPanel';
 import TaskDetail from './pages/TaskDetail';
+import Messages from './pages/Messages';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -212,11 +213,16 @@ function App() {
                      <BonusManagement />
                    </ProtectedRoute>
                  } />
-                 <Route path="/task/:id" element={
-                   <ProtectedRoute>
-                     <TaskDetail />
-                   </ProtectedRoute>
-                 } />
+                  <Route path="/task/:id" element={
+                    <ProtectedRoute>
+                      <TaskDetail />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/messages" element={
+                    <ProtectedRoute>
+                      <Messages />
+                    </ProtectedRoute>
+                  } />
                </Routes>
               </Layout>
             </ProtectedRoute>

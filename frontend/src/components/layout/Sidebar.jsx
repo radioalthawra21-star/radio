@@ -9,7 +9,8 @@ const menuItems = {
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
     { path: '/my-tasks', label: 'مهماتي', icon: '📋' },
     { path: '/add-task', label: 'إضافة مهمة', icon: '➕' },
-    { path: '/task-history', label: 'سجل المهام', icon: '📜' }
+    { path: '/task-history', label: 'سجل المهام', icon: '📜' },
+    { path: '/messages', label: 'الرسائل', icon: '✉️' }
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
