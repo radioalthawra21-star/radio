@@ -51,7 +51,6 @@ const BonusManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch users
       let usersData = [];
       try {
         const usersRes = await getAllUsers();
@@ -66,17 +65,13 @@ const BonusManagement = () => {
           }
         }
         
-        // Store all employees for filtering
         setAllEmployees(usersData);
         
-        // Filter based on role
         let filtered = [];
         
         if (userRole === 'admin') {
-          // Admin sees all employees and managers (not admin)
           filtered = usersData.filter(u => u && u.role !== 'admin');
         } else if (userRole === 'manager') {
-          // Manager sees only employees in their department
           filtered = usersData.filter(u => 
             u && 
             u.role === 'employee' && 
@@ -90,7 +85,6 @@ const BonusManagement = () => {
         setEmployees([]);
       }
       
-      // Fetch bonuses
       let bonusesData = [];
       try {
         const bonusesRes = await getAllBonuses();
@@ -110,16 +104,13 @@ const BonusManagement = () => {
       
       setBonuses(bonusesData);
       
-      // Filter bonuses based on role
       let displayBonuses = bonusesData;
       if (userRole === 'manager') {
-        // Manager sees only bonuses they created
         displayBonuses = bonusesData.filter(b => 
           b?.givenBy?._id === currentUser?._id || 
           b?.givenBy === currentUser?._id
         );
       }
-      // Admin sees all bonuses
       
       setFilteredBonuses(displayBonuses);
     } catch (error) {
@@ -134,7 +125,6 @@ const BonusManagement = () => {
     setSelectedEmployeeFilter(selectedId);
     
     if (selectedId === '') {
-      // Show all based on role
       if (userRole === 'manager') {
         setFilteredBonuses(bonuses.filter(b => 
           b?.givenBy?._id === currentUser?._id || 
@@ -144,7 +134,6 @@ const BonusManagement = () => {
         setFilteredBonuses(bonuses);
       }
     } else {
-      // Filter by selected employee
       setFilteredBonuses(bonuses.filter(b => 
         b?.employee?._id === selectedId || 
         b?.employee === selectedId
@@ -213,171 +202,165 @@ const BonusManagement = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <h2 className="text-2xl font-bold">إدارة المكافآت</h2>
+    <div className="p-6" dir="rtl">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">إدارة المكافآت</h2>
       
-      {/* Message */}
       {message && (
-        <div className={`p-4 rounded-lg ${
-          message.type === 'success' ? 'bg-secondary/10 text-secondary' : 'bg-red-100 text-red-800'
+        <div className={`mb-6 p-4 rounded-lg ${
+          message.type === 'success' 
+            ? 'bg-green-100 text-green-800 border border-green-300' 
+            : 'bg-red-100 text-red-800 border border-red-300'
         }`}>
           {message.text}
         </div>
       )}
 
-      {/* Add Bonus Form */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">إضافة مكافأة</h3>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">الموظف</label>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Add Bonus Form */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">إضافة مكافأة جديدة</h3>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">الموظف</label>
               <select
-              name="employeeId"
-              value={formData.employeeId}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              required
+                name="employeeId"
+                value={formData.employeeId}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                required
+              >
+                <option value="">-- اختر الموظف --</option>
+                {employees.length === 0 ? (
+                  <option value="" disabled>لا يوجد موظفون</option>
+                ) : (
+                  employees.map(emp => (
+                    <option key={emp._id} value={emp._id}>{emp.name}</option>
+                  ))
+                )}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">النقاط (0-100)</label>
+              <input
+                type="number"
+                dir="ltr"
+                name="points"
+                min="0"
+                max="100"
+                value={formData.points}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">نوع المكافأة</label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              >
+                <option value="reward">مكافأة</option>
+                <option value="prize">جائزة</option>
+                <option value="bonus">علاوة</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">نوع التقييم</label>
+              <select
+                name="criteria"
+                value={formData.criteria || ''}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                required
+              >
+                <option value="">-- اختر نوع التقييم --</option>
+                <option value="إكمال المهام">إكمال المهام</option>
+                <option value="جودة العمل">جودة العمل</option>
+                <option value="العمل الجماعي">العمل الجماعي</option>
+                <option value="المبادرة">المبادرة</option>
+                <option value="الالتزام">الالتزام</option>
+                <option value="أخرى">أخرى</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">السبب</label>
+              <textarea
+                name="reason"
+                value={formData.reason}
+                onChange={handleChange}
+                rows="3"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="اكتب سبب منح المكافأة..."
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              <option value="">اختر الموظف</option>
-              {employees.length === 0 ? (
-                <option value="" disabled>لا يوجد موظفون متاحون</option>
-              ) : (
-                employees.map(emp => (
-                  <option key={emp._id} value={emp._id}>
-                    {emp.name} {emp.department ? `- ${emp.department.name || emp.department}` : ''}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">النقاط (0-100)</label>
-            <input
-              type="number"
-              dir="ltr"
-              name="points"
-              min="0"
-              max="100"
-              value={formData.points}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">نوع المكافأة</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-            >
-              <option value="reward">مكافأة</option>
-              <option value="prize">جائزة</option>
-              <option value="bonus">علاوة</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">نوع الوزن</label>
-            <select
-              name="criteria"
-              value={formData.criteria || ''}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              required
-            >
-              <option value="">اختر نوع الوزن</option>
-              <option value="إكمال المهام">إكمال المهام</option>
-              <option value="جودة العمل">جودة العمل</option>
-              <option value="العمل الجماعي">العمل الجماعي</option>
-              <option value="المبادرة">المبادرة</option>
-              <option value="الالتزام">الالتزام</option>
-              <option value="أخرى">أخرى</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">السبب</label>
-            <textarea
-              name="reason"
-              value={formData.reason}
-              onChange={handleChange}
-              rows="3"
-              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-              placeholder="سبب منح المكافأة..."
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50"
-          >
-            {submitting ? 'جاري الإضافة...' : 'إضافة مكافأة'}
-          </button>
-        </form>
-      </div>
-
-      {/* Bonuses List */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">سجل المكافآت</h3>
-        
-        {/* Employee Filter Dropdown */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">فلترة حسب الموظف</label>
-          <select
-            value={selectedEmployeeFilter}
-            onChange={handleEmployeeFilterChange}
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-          >
-            <option value="">جميع المكافآت</option>
-            {allEmployees.map(emp => (
-              <option key={emp._id} value={emp._id}>
-                {emp.name}
-              </option>
-            ))}
-          </select>
+              {submitting ? 'جاري الإضافة...' : 'إضافة المكافأة'}
+            </button>
+          </form>
         </div>
-        
-        {filteredBonuses.length === 0 ? (
-          <p className="text-gray-500">لا توجد مكافآت حتى الآن</p>
-        ) : (
-          <div className="space-y-3">
-            {filteredBonuses.map(bonus => (
-              <div key={bonus._id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold">{bonus.employee?.name || bonus.employee?.username || 'غير معروف'}</p>
-                    <p className="text-sm text-gray-500">
-                      من قبل: {bonus.givenBy?.name || 'غير معروف'}
-                    </p>
-                    <p className="text-sm mt-1">{bonus.reason}</p>
-                  </div>
-                  <div className="text-left">
-                    <span className="inline-block bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm">
-                      +{bonus.points} نقطة
-                    </span>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {typeLabels[bonus.type]}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1 en-num">{formatDateArabic(bonus.createdAt)}</p>
+
+        {/* Bonuses List */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">سجل المكافآت</h3>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">فلترة حسب الموظف</label>
+            <select
+              value={selectedEmployeeFilter}
+              onChange={handleEmployeeFilterChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="">-- جميع المكافآت --</option>
+              {allEmployees.map(emp => (
+                <option key={emp._id} value={emp._id}>{emp.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          {filteredBonuses.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">لا توجد مكافآت</p>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {filteredBonuses.map(bonus => (
+                <div key={bonus._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-semibold text-gray-800">{bonus.employee?.name || 'غير معروف'}</p>
+                      <p className="text-sm text-gray-500">من: {bonus.givenBy?.name || 'غير معروف'}</p>
+                      <p className="text-sm text-gray-700 mt-1">{bonus.reason}</p>
+                    </div>
+                    <div className="text-left mr-4">
+                      <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                        +{bonus.points} نقطة
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">{typeLabels[bonus.type]}</p>
+                      <p className="text-xs text-gray-400 mt-1">{formatDateArabic(bonus.createdAt)}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ const menuItems = {
     { path: '/manager/assign-tasks', label: 'إسناد المهام', icon: '👥' },
     { path: '/manager/evaluate-tasks', label: 'تقييم المهام', icon: '⭐' },
     { path: '/manager/reports', label: 'تقارير القسم', icon: '📊' },
+    { path: '/admin/employees', label: 'الموظفين', icon: '👤' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' }
   ],
   admin: [

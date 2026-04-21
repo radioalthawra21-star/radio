@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { getAllEmployees, getAllManagers, getPendingUsers, createUser, updateUser, deleteUser, activateUser } from '../../services/userService';
 import { getAllDepartments, createDepartment, deleteDepartment } from '../../services/departmentService';
+import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
 const departmentNames = {
@@ -23,6 +24,11 @@ const roleNames = {
 const defaultColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
 const AllEmployees = () => {
+  const currentUser = getStoredUser();
+  const isAdmin = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
+  const userDepartment = currentUser?.department;
+
   const [employees, setEmployees] = useState([]);
   const [managers, setManagers] = useState([]);
   const [pendingUsers, setPendingUsers] = useState([]);
@@ -218,7 +224,15 @@ const AllEmployees = () => {
 
   const openCreateModal = () => {
     setEditingUser(null);
-    setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: '' });
+    // For manager, auto-select their department and only allow employee role
+    setFormData({ 
+      name: '', 
+      username: '', 
+      email: '', 
+      password: '', 
+      role: 'employee', 
+      department: isManager ? userDepartment : '' 
+    });
     setShowModal(true);
   };
 
@@ -231,32 +245,34 @@ const AllEmployees = () => {
         </button>
       </div>
 
-      <Card className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-dark">إدارة الأقسام</h2>
-          <button onClick={() => setShowDeptModal(true)} className="btn btn-outline text-sm">
-            ➕ إضافة قسم
-          </button>
-        </div>
-        {customDepartments.length === 0 ? (
-          <p className="text-center text-gray-500 py-4">لا توجد أقسام مخصصة</p>
-        ) : (
-          <div className="flex flex-wrap gap-3">
-            {customDepartments.map((dept) => (
-              <div key={dept.id} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: dept.color }}></span>
-                <span className="font-medium text-dark">{dept.name}</span>
-                <button
-                  onClick={() => handleDeleteDepartment(dept.id)}
-                  className="text-error hover:text-red-700 ml-2"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+      {isAdmin && (
+        <Card className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-dark">إدارة الأقسام</h2>
+            <button onClick={() => setShowDeptModal(true)} className="btn btn-outline text-sm">
+              ➕ إضافة قسم
+            </button>
           </div>
-        )}
-      </Card>
+          {customDepartments.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">لا توجد أقسام مخصصة</p>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {customDepartments.map((dept) => (
+                <div key={dept.id} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
+                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: dept.color }}></span>
+                  <span className="font-medium text-dark">{dept.name}</span>
+                  <button
+                    onClick={() => handleDeleteDepartment(dept.id)}
+                    className="text-error hover:text-red-700 ml-2"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
 
       {success && (
         <div className="bg-secondary/10 border border-secondary text-secondary p-3 rounded-lg mb-4">
@@ -264,7 +280,7 @@ const AllEmployees = () => {
         </div>
       )}
 
-      {pendingUsers.length > 0 && (
+      {isAdmin && pendingUsers.length > 0 && (
         <Card className="mb-6 border-2 border-primary">
           <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
             ⚠️ طلبات الانضمام المعلقة
@@ -307,18 +323,19 @@ const AllEmployees = () => {
       )}
 
       {/* Managers Section */}
-      <Card className="mb-6">
-        <h2 className="text-xl font-bold text-dark mb-4">مديري الأقسام</h2>
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary"></div>
-          </div>
-        ) : managers.length === 0 ? (
-          <p className="text-center text-gray-500 py-4">لا يوجد مديرين</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-right">
-<thead>
+      {isAdmin && (
+        <Card className="mb-6">
+          <h2 className="text-xl font-bold text-dark mb-4">مديري الأقسام</h2>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary"></div>
+            </div>
+          ) : managers.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">لا يوجد مديرين</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-right">
+                <thead>
                   <tr className="border-b-2 border-gray-300">
                     <th className="p-3">الاسم</th>
                     <th className="p-3">اسم المستخدم</th>
@@ -334,27 +351,28 @@ const AllEmployees = () => {
                       <td className="p-3 font-semibold">{mgr.name}</td>
                       <td className="p-3 text-gray-600">{mgr.username}</td>
                       <td className="p-3 text-gray-600">{mgr.email}</td>
-                    <td className="p-3">{departmentNames[mgr.department] || '-'}</td>
-                    <td className="p-3">
-                      <span className={`badge ${mgr.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>
-                        {mgr.isActive ? 'نشط' : 'غير نشط'}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <button
-                        onClick={() => handleEdit(mgr)}
-                        className="text-interactive hover:underline ml-2"
-                      >
-                        تعديل
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                      <td className="p-3">{departmentNames[mgr.department] || '-'}</td>
+                      <td className="p-3">
+                        <span className={`badge ${mgr.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>
+                          {mgr.isActive ? 'نشط' : 'غير نشط'}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <button
+                          onClick={() => handleEdit(mgr)}
+                          className="text-interactive hover:underline ml-2"
+                        >
+                          تعديل
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Employees Section */}
       <Card>
@@ -485,18 +503,20 @@ const AllEmployees = () => {
                 />
               </div>
               
-              <div className="mb-4">
-                <label className="label">الدور</label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="employee">موظف</option>
-                  <option value="manager">مدير قسم</option>
-                </select>
-              </div>
+              {isAdmin && (
+                <div className="mb-4">
+                  <label className="label">الدور</label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="input"
+                  >
+                    <option value="employee">موظف</option>
+                    <option value="manager">مدير قسم</option>
+                  </select>
+                </div>
+              )}
               
               <div className="mb-4">
                 <label className="label">القسم</label>
