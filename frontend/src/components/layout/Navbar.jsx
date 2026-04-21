@@ -125,6 +125,12 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('يرجى اختيار ملف صورة');
+      return;
+    }
+
     setUploadingImage(true);
     const formData = new FormData();
     formData.append('profileImage', file);
@@ -138,9 +144,14 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
         if (user) {
           user.profileImage = response.data.user.profileImage;
         }
+        // Trigger re-render to show new image
+        window.dispatchEvent(new Event('storage'));
+      } else {
+        alert(response.message || 'حدث خطأ في رفع الصورة');
       }
     } catch (error) {
       console.error('Error uploading profile image:', error);
+      alert('حدث خطأ في رفع الصورة. تأكد من أن الملف صورة صالحة.');
     } finally {
       setUploadingImage(false);
     }
