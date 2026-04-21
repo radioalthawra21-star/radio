@@ -74,6 +74,13 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
             ) : (
               <img src="/logo.png" alt="Logo" className="h-12" style={{ filter: 'brightness(0) invert(1)' }} />
             )}
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+              title="إغلاق القائمة"
+            >
+              ▶
+            </button>
           </div>
         </div>
 
