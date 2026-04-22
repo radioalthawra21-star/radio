@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { giveBonus, getAllBonuses } from '../services/bonusService';
+import { giveBonus, getAllBonuses, deleteBonus, approveBonus } from '../services/bonusService';
 import { getAllUsers } from '../services/userService';
 import { getStoredUser } from '../services/authService';
 import { formatDateArabic } from '../utils/dateUtils';
@@ -102,17 +102,18 @@ const BonusManagement = () => {
         console.error('Error fetching bonuses:', bonusError);
       }
       
-      setBonuses(bonusesData);
-      
-      let displayBonuses = bonusesData;
-      if (userRole === 'manager') {
-        displayBonuses = bonusesData.filter(b => 
-          b?.givenBy?._id === currentUser?._id || 
-          b?.givenBy === currentUser?._id
-        );
-      }
-      
-      setFilteredBonuses(displayBonuses);
+setBonuses(bonusesData);
+        
+        let displayBonuses = bonusesData;
+        if (userRole === 'manager') {
+          displayBonuses = bonusesData.filter(b => 
+            (b?.givenBy?._id === currentUser?._id || 
+            b?.givenBy === currentUser?._id ||
+            b?.employee?.department === userDepartment)
+          );
+        }
+        
+        setFilteredBonuses(displayBonuses);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -128,7 +129,8 @@ const BonusManagement = () => {
       if (userRole === 'manager') {
         setFilteredBonuses(bonuses.filter(b => 
           b?.givenBy?._id === currentUser?._id || 
-          b?.givenBy === currentUser?._id
+          b?.givenBy === currentUser?._id ||
+          b?.employee?.department === userDepartment
         ));
       } else {
         setFilteredBonuses(bonuses);
@@ -190,6 +192,40 @@ const BonusManagement = () => {
       setMessage({ type: 'error', text: 'حدث خطأ في إضافة المكافأة' });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleApprove = async (bonusId) => {
+    if (!confirm('هل أنت موافق على هذه المكافأة؟')) return;
+    try {
+      const response = await approveBonus(bonusId);
+      console.log('Approve response:', response);
+      if (response.success) {
+        setMessage({ type: 'success', text: 'تمت الموافقة بنجاح' });
+        fetchData();
+      } else {
+        setMessage({ type: 'error', text: response.message || 'حدث خطأ' });
+      }
+    } catch (error) {
+      console.error('Approve error:', error);
+      setMessage({ type: 'error', text: error.response?.data?.message || 'حدث خطأ في الموافقة' });
+    }
+  };
+
+  const handleDelete = async (bonusId) => {
+    if (!confirm('هل أنت متأكد من حذف هذه المكافأة؟')) return;
+    try {
+      const response = await deleteBonus(bonusId);
+      console.log('Delete response:', response);
+      if (response.success) {
+        setMessage({ type: 'success', text: 'تم الحذف بنجاح' });
+        fetchData();
+      } else {
+        setMessage({ type: 'error', text: response.message || 'حدث خطأ' });
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      setMessage({ type: 'error', text: error.response?.data?.message || 'حدث خطأ في الحذف' });
     }
   };
 
@@ -330,7 +366,7 @@ const BonusManagement = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
             >
               <option value="">-- جميع المكافآت --</option>
-              {allEmployees.map(emp => (
+              {(userRole === 'manager' ? employees : allEmployees).map(emp => (
                 <option key={emp._id} value={emp._id}>{emp.name}</option>
               ))}
             </select>
@@ -340,24 +376,56 @@ const BonusManagement = () => {
             <p className="text-gray-500 text-center py-8">لا توجد مكافآت</p>
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {filteredBonuses.map(bonus => (
-                <div key={bonus._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-gray-800">{bonus.employee?.name || 'غير معروف'}</p>
-                      <p className="text-sm text-gray-500">من: {bonus.givenBy?.name || 'غير معروف'}</p>
-                      <p className="text-sm text-gray-700 mt-1">{bonus.reason}</p>
-                    </div>
-                    <div className="text-left mr-4">
-                      <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                        +{bonus.points} نقطة
-                      </span>
-                      <p className="text-xs text-gray-500 mt-1">{typeLabels[bonus.type]}</p>
-                      <p className="text-xs text-gray-400 mt-1">{formatDateArabic(bonus.createdAt)}</p>
+              {filteredBonuses.map(bonus => {
+                const bonusDate = new Date(bonus.createdAt);
+                const now = new Date();
+                const hoursSince = (now - bonusDate) / (1000 * 60 * 60);
+                const canDelete = userRole === 'admin' || 
+                  (userRole === 'manager' && bonus.givenBy?._id === currentUser?._id && hoursSince <= 24);
+                const canApprove = userRole === 'admin' && !bonus.isApproved;
+                
+                return (
+                  <div key={bonus._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold text-gray-800">{bonus.employee?.name || 'غير معروف'}</p>
+                        <p className="text-sm text-gray-500">من: {bonus.givenBy?.name || 'غير معروف'}</p>
+                        <p className="text-sm text-gray-700 mt-1">{bonus.reason}</p>
+                      </div>
+                      <div className="text-left mr-4">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                          bonus.isApproved ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {bonus.isApproved ? '✓ موافق عليها' : '⌛ في الانتظار'}
+                        </span>
+                        <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium mt-1">
+                          +{bonus.points} نقطة
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">{typeLabels[bonus.type]}</p>
+                        <p className="text-xs text-gray-400 mt-1">{formatDateArabic(bonus.createdAt)}</p>
+                        <div className="flex gap-2 mt-2">
+                          {canApprove && (
+                            <button
+                              onClick={() => handleApprove(bonus._id)}
+                              className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                            >
+                              موافقة
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              onClick={() => handleDelete(bonus._id)}
+                              className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                            >
+                              حذف
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -6,10 +6,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTask } from '../../services/taskService';
+import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
 const AddTask = () => {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
+  const isManager = currentUser?.role === 'manager';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -52,7 +55,7 @@ const AddTask = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">إضافة مهمة جديدة</h1>
+      <h1 className="text-3xl font-bold text-dark mb-8">{isManager ? 'مهمة جديدة لي' : 'إضافة مهمة جديدة'}</h1>
 
       <Card>
         <form onSubmit={handleSubmit}>

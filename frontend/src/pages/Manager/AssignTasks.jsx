@@ -24,6 +24,7 @@ const AssignTasks = () => {
     difficulty: 50,
     duration: 1,
     dueDate: '',
+    dueTime: '',
     isUnusual: false
   });
 
@@ -76,10 +77,14 @@ const AssignTasks = () => {
     }
 
     try {
-      const response = await createTask({
+      const taskData = {
         ...formData,
         assignedTo: [formData.assignedTo]
-      });
+      };
+      if (formData.dueTime) {
+        taskData.dueDate = formData.dueDate ? `${formData.dueDate}T${formData.dueTime}` : formData.dueTime;
+      }
+      const response = await createTask(taskData);
       if (response.success) {
         setSuccess('تم إسناد المهمة بنجاح');
         playTaskAssignedSound();
@@ -90,6 +95,7 @@ const AssignTasks = () => {
           difficulty: 50,
           duration: 1,
           dueDate: '',
+          dueTime: '',
           isUnusual: false
         });
       } else {
@@ -152,11 +158,30 @@ const AssignTasks = () => {
                   required
                 >
                   <option value="">-- اختر الموظف --</option>
-                  {employees.map((emp) => (
-                    <option key={emp._id} value={emp._id}>
-                      {emp.name}
-                    </option>
-                  ))}
+                  {user.role === 'admin' ? (
+                    <>
+                      <optgroup label="رؤساء الأقسام">
+                        {employees.filter(e => e.role === 'manager').map((emp) => (
+                          <option key={emp._id} value={emp._id} className="font-bold">
+                            {emp.name} - مدير {emp.department === 'production' ? 'الإنتاج' : emp.department === 'news' ? 'الأخبار' : emp.department === 'marketing' ? 'التسويق' : emp.department}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="الموظفين">
+                        {employees.filter(e => e.role === 'employee').map((emp) => (
+                          <option key={emp._id} value={emp._id}>
+                            {emp.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </>
+                  ) : (
+                    employees.map((emp) => (
+                      <option key={emp._id} value={emp._id}>
+                        {emp.name}
+                      </option>
+                    ))
+                  )}
                 </select>
               )}
             </div>
@@ -173,7 +198,7 @@ const AssignTasks = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
               <label className="label">مستوى الصعوبة</label>
               <select
@@ -208,6 +233,18 @@ const AssignTasks = () => {
                 dir="ltr"
                 name="dueDate"
                 value={formData.dueDate}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="label">ساعة الاستحقاق</label>
+              <input
+                type="time"
+                lang="en"
+                dir="ltr"
+                name="dueTime"
+                value={formData.dueTime}
                 onChange={handleChange}
                 className="input"
               />

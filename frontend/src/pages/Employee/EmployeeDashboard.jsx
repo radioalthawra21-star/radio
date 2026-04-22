@@ -56,7 +56,7 @@ const EmployeeDashboard = () => {
     };
     const labels = {
       pending: 'قيد الانتظار',
-      in_progress: 'قيد التنفيذ',
+      in_progress: 'في التنفيذ',
       completed: 'مكتملة',
       approved: 'موافقة المدير',
       final_approved: 'موافقة نهائية'
@@ -80,45 +80,53 @@ const EmployeeDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">📊</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">إجمالي المهام</p>
-            <p className="text-2xl font-bold text-dark">{summary.total}</p>
-          </div>
-        </Card>
+        <Link to="/my-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">إجمالي المهام</p>
+              <p className="text-2xl font-bold text-dark">{summary.total}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">✓</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">المهام المكتملة</p>
-            <p className="text-2xl font-bold text-success">{summary.completed}</p>
-          </div>
-        </Card>
+        <Link to="/my-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">✓</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">المهام المكتملة</p>
+              <p className="text-2xl font-bold text-success">{summary.completed}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">⏳</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">قيد التنفيذ</p>
-            <p className="text-2xl font-bold text-warning">{summary.inProgress}</p>
-          </div>
-        </Card>
+        <Link to="/my-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">⏳</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">��يد التنفيذ</p>
+              <p className="text-2xl font-bold text-warning">{summary.inProgress}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">⏰</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">ساعات العمل</p>
-            <p className="text-2xl font-bold text-interactive">{summary.totalHours}</p>
-          </div>
-        </Card>
+        <Link to="/my-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">⏰</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">ساعات العمل</p>
+              <p className="text-2xl font-bold text-interactive">{summary.totalHours}</p>
+            </div>
+          </Card>
+        </Link>
       </div>
 
       {/* Quick Actions */}
@@ -126,8 +134,8 @@ const EmployeeDashboard = () => {
         <Link to="/add-task">
           <Card className="hover:shadow-xl transition-shadow cursor-pointer text-center">
             <div className="text-4xl mb-2">➕</div>
-            <h3 className="font-semibold text-dark">إضافة مهمة جديدة</h3>
-            <p className="text-sm text-gray-600">أضف مهمة قمت بها اليوم</p>
+            <h3 className="font-semibold text-dark">{user?.role === 'manager' ? 'مهمة جديدة لي' : 'إضافة مهمة جديدة'}</h3>
+            <p className="text-sm text-gray-600">{user?.role === 'manager' ? 'أضف مهمة قمت بها' : 'أضف مهمة قمت بها اليوم'}</p>
           </Card>
         </Link>
 

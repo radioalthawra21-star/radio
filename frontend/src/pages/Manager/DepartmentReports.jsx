@@ -79,7 +79,7 @@ const DepartmentReports = () => {
       doc.setFontSize(10);
       doc.text(`إجمالي المهام: ${summary.total}`, 14, 55);
       doc.text(`مكتملة: ${summary.completed}`, 14, 62);
-      doc.text(`قيد التنفيذ: ${summary.inProgress}`, 14, 69);
+      doc.text(`في التنفيذ: ${summary.inProgress}`, 14, 69);
       doc.text(`ساعات العمل: ${summary.totalHours}`, 14, 76);
     }
 
@@ -88,7 +88,10 @@ const DepartmentReports = () => {
       task.title,
       task.assignedTo?.map(u => u.name).join(', ') || '-',
       task.duration,
-      task.status === 'completed' ? 'مكتملة' : task.status,
+      task.status === 'completed' ? 'مكتملة' : 
+      task.status === 'approved' ? 'موافقة المدير' :
+      task.status === 'final_approved' ? 'موافقة نهائية' :
+      task.status === 'in_progress' ? 'في التنفيذ' : 'قيد الانتظار',
 formatDateArabic(task.taskDate)
     ]);
 
@@ -151,7 +154,7 @@ formatDateArabic(task.taskDate)
             <p className="text-3xl font-bold text-success">{summary.completed}</p>
           </Card>
           <Card className="text-center">
-            <p className="text-gray-600 text-sm">قيد التنفيذ</p>
+            <p className="text-gray-600 text-sm">في التنفيذ</p>
             <p className="text-3xl font-bold text-warning">{summary.inProgress}</p>
           </Card>
           <Card className="text-center">
@@ -236,7 +239,7 @@ formatDateArabic(task.taskDate)
                       } text-white`}>
                         {task.status === 'completed' ? 'مكتملة' :
                          task.status === 'approved' ? 'موافق عليها' :
-                         task.status === 'in_progress' ? 'قيد التنفيذ' : 'قيد الانتظار'}
+                         task.status === 'in_progress' ? 'في التنفيذ' : 'قيد الانتظار'}
                       </span>
                     </td>
                     <td className="p-3 text-gray-600">

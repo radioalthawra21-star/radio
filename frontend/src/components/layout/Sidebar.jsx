@@ -16,12 +16,12 @@ const menuItems = {
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
+    { path: '/add-task', label: 'إضافة مهمة', icon: '➕' },
     { path: '/manager/assign-tasks', label: 'إسناد المهام', icon: '👥' },
     { path: '/manager/evaluate-tasks', label: 'تقييم المهام', icon: '⭐' },
     { path: '/manager/reports', label: 'تقارير القسم', icon: '📊' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👤' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
-    { path: '/evaluate-manager', label: 'تقييم المدير', icon: '📝' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' }
   ],
   admin: [

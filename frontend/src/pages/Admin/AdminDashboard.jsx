@@ -88,62 +88,74 @@ const AdminDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">📊</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">إجمالي المهام</p>
-            <p className="text-2xl font-bold text-dark">{summary.total}</p>
-          </div>
-        </Card>
+        <Link to="/admin/reports">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">إجمالي المهام</p>
+              <p className="text-2xl font-bold text-dark">{summary.total}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">✓</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">مكتملة</p>
-            <p className="text-2xl font-bold text-success">{summary.completed}</p>
-          </div>
-        </Card>
+        <Link to="/admin/reports">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">✓</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">مكتملة</p>
+              <p className="text-2xl font-bold text-success">{summary.completed}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">👥</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">الأقسام</p>
-            <p className="text-2xl font-bold text-secondary">{departments.length}</p>
-          </div>
-        </Card>
+        <Link to="/admin/employees">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">👥</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">الأقسام</p>
+              <p className="text-2xl font-bold text-secondary">{departments.length}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">✓</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">await الموافقة</p>
-            <p className="text-2xl font-bold text-interactive">{tasksToApprove.length}</p>
-          </div>
-        </Card>
+        <Link to="/admin/reports">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">✓</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">في انتظار الموافقة</p>
+              <p className="text-2xl font-bold text-interactive">{tasksToApprove.length}</p>
+            </div>
+          </Card>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-2xl">👤</div>
-          <div>
-            <p className="text-gray-600 text-sm">الموظفين</p>
-            <p className="text-2xl font-bold text-blue-600">{userCounts.employees}</p>
-          </div>
-        </Card>
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-2xl">👔</div>
-          <div>
-            <p className="text-gray-600 text-sm">رؤساء الأقسام</p>
-            <p className="text-2xl font-bold text-purple-600">{userCounts.managers}</p>
-          </div>
-        </Card>
+        <Link to="/admin/employees">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-2xl">👤</div>
+            <div>
+              <p className="text-gray-600 text-sm">الموظفين</p>
+              <p className="text-2xl font-bold text-blue-600">{userCounts.employees}</p>
+            </div>
+          </Card>
+        </Link>
+        <Link to="/admin/employees">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-2xl">👔</div>
+            <div>
+              <p className="text-gray-600 text-sm">رؤساء الأقسام</p>
+              <p className="text-2xl font-bold text-purple-600">{userCounts.managers}</p>
+            </div>
+          </Card>
+        </Link>
       </div>
 
       {/* Quick Actions */}

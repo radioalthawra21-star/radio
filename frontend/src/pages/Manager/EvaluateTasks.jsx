@@ -76,7 +76,7 @@ const EvaluateTasks = () => {
     };
     const labels = {
       pending: 'قيد الانتظار',
-      in_progress: 'قيد التنفيذ',
+      in_progress: 'في التنفيذ',
       completed: 'مكتملة',
       approved: 'موافق عليها'
     };

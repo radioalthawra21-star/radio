@@ -20,4 +20,9 @@ export const deleteBonus = async (bonusId) => {
   return response.data;
 };
 
-export default { giveBonus, getEmployeeBonuses, getAllBonuses, deleteBonus };
+export const approveBonus = async (bonusId) => {
+  const response = await api.put(`/bonuses/${bonusId}/approve`);
+  return response.data;
+};
+
+export default { giveBonus, getEmployeeBonuses, getAllBonuses, deleteBonus, approveBonus };

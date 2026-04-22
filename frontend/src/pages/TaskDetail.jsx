@@ -67,11 +67,16 @@ const TaskDetail = () => {
           <h2 className="text-xl font-semibold">{task.title}</h2>
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
             task.status === 'completed' ? 'bg-green-100 text-green-800' : 
-            task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+            task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+            task.status === 'in_progress' ? 'bg-orange-100 text-orange-800' : 
+            task.status === 'approved' ? 'bg-green-100 text-green-800' : 
             'bg-blue-100 text-blue-800'
           }`}>
             {task.status === 'completed' ? 'مكتملة' : 
-             task.status === 'pending' ? 'قيد الانتظار' : 'جاري'}
+             task.status === 'pending' ? 'قيد الانتظار' :
+             task.status === 'in_progress' ? 'في التنفيذ' :
+             task.status === 'approved' ? 'موافقة المدير' :
+             task.status === 'final_approved' ? 'موافقة نهائية' : task.status}
           </span>
         </div>
         

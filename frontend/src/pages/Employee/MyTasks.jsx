@@ -55,15 +55,16 @@ const MyTasks = () => {
       final_approved: 'bg-success'
     };
     const labels = {
-      pending: 'قيد الانتظار',
-      in_progress: 'قيد التنفيذ',
+      pending: 'في الانتظار',
+      in_progress: 'في التنفيذ',
       completed: 'مكتملة',
-      approved: 'موافقة المدير',
+      approved: 'موافقة',
       final_approved: 'موافقة نهائية'
     };
+    const labelText = labels[status] || status;
     return (
       <span className={`badge ${badges[status] || 'bg-gray-500'} text-white`}>
-        {labels[status] || status}
+        {labelText}
       </span>
     );
   };
@@ -84,7 +85,7 @@ const MyTasks = () => {
             >
               <option value="">الكل</option>
               <option value="pending">قيد الانتظار</option>
-              <option value="in_progress">قيد التنفيذ</option>
+              <option value="in_progress">في التنفيذ</option>
               <option value="completed">مكتملة</option>
             </select>
           </div>

@@ -76,45 +76,53 @@ const ManagerDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">📊</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">إجمالي مهام القسم</p>
-            <p className="text-2xl font-bold text-dark">{summary.total}</p>
-          </div>
-        </Card>
+        <Link to="/manager/evaluate-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">إجمالي مهام القسم</p>
+              <p className="text-2xl font-bold text-dark">{summary.total}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">✓</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">مكتملة</p>
-            <p className="text-2xl font-bold text-success">{summary.completed}</p>
-          </div>
-        </Card>
+        <Link to="/manager/evaluate-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">✓</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">مكتملة</p>
+              <p className="text-2xl font-bold text-success">{summary.completed}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">⏳</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">قيد التنفيذ</p>
-            <p className="text-2xl font-bold text-warning">{summary.inProgress}</p>
-          </div>
-        </Card>
+        <Link to="/manager/evaluate-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">⏳</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">في التنفيذ</p>
+              <p className="text-2xl font-bold text-warning">{summary.inProgress}</p>
+            </div>
+          </Card>
+        </Link>
 
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
-            <span className="text-2xl">⭐</span>
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm">await التقييم</p>
-            <p className="text-2xl font-bold text-interactive">{tasksToEvaluate.length}</p>
-          </div>
-        </Card>
+        <Link to="/manager/evaluate-tasks">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">⭐</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">في انتظار التقييم</p>
+              <p className="text-2xl font-bold text-interactive">{tasksToEvaluate.length}</p>
+            </div>
+          </Card>
+        </Link>
       </div>
 
       {/* Quick Actions */}

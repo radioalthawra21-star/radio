@@ -207,7 +207,7 @@ const AllReports = () => {
             <p className="text-3xl font-bold text-success">{summary.completed}</p>
           </Card>
           <Card className="text-center">
-            <p className="text-gray-600 text-sm">قيد التنفيذ</p>
+            <p className="text-gray-600 text-sm">في التنفيذ</p>
             <p className="text-3xl font-bold text-warning">{summary.inProgress}</p>
           </Card>
           <Card className="text-center">
@@ -309,7 +309,7 @@ const AllReports = () => {
                         {task.status === 'completed' ? 'مكتملة' :
                          task.status === 'approved' ? 'موافق عليها' :
                          task.status === 'final_approved' ? 'نهائية' :
-                         task.status === 'in_progress' ? 'قيد التنفيذ' : 'قيد الانتظار'}
+                         task.status === 'in_progress' ? 'في التنفيذ' : 'قيد الانتظار'}
                       </span>
                     </td>
                     <td className="p-3">

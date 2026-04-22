@@ -43,7 +43,7 @@
   }
 
   .english-numerals, .en-num {
-    font-family: 'Helvetica Neue', Arial, sans-serif !important;
+    font-family: 'CAIRO', 'Tahoma', Arial, sans-serif !important;
     font-variant-numeric: lining-nums !important;
     -webkit-font-feature-settings: "lnum" !important;
     font-feature-settings: "lnum" !important;

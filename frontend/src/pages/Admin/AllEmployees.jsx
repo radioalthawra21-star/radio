@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { getAllEmployees, getAllManagers, getPendingUsers, createUser, updateUser, deleteUser, activateUser } from '../../services/userService';
+import { getAllEmployees, getAllManagers, getPendingUsers, getEmployeesByDepartment, createUser, updateUser, deleteUser, activateUser } from '../../services/userService';
 import { getAllDepartments, createDepartment, deleteDepartment } from '../../services/departmentService';
 import { getStoredUser } from '../../services/authService';
 import { useDepartments } from '../../hooks/useDepartments';
@@ -117,17 +117,27 @@ const AllEmployees = () => {
     try {
       setLoading(true);
       await loadDepartments();
-      const empResponse = await getAllEmployees();
-      if (empResponse.success) {
-        setEmployees(empResponse.data.employees);
-      }
-      const mgrResponse = await getAllManagers();
-      if (mgrResponse.success) {
-        setManagers(mgrResponse.data.managers);
-      }
-      const pendingResponse = await getPendingUsers();
-      if (pendingResponse.success) {
-        setPendingUsers(pendingResponse.data.users);
+      
+      if (isAdmin) {
+        const empResponse = await getAllEmployees();
+        if (empResponse.success) {
+          setEmployees(empResponse.data.employees);
+        }
+        const mgrResponse = await getAllManagers();
+        if (mgrResponse.success) {
+          setManagers(mgrResponse.data.managers);
+        }
+        const pendingResponse = await getPendingUsers();
+        if (pendingResponse.success) {
+          setPendingUsers(pendingResponse.data.users);
+        }
+      } else if (isManager) {
+        const empResponse = await getEmployeesByDepartment(userDepartment);
+        if (empResponse.success) {
+          setEmployees(empResponse.data.employees);
+        }
+        setManagers([]);
+        setPendingUsers([]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -169,7 +179,9 @@ const AllEmployees = () => {
         setError(response.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ');
+      console.error('Error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'حدث خطأ';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -525,7 +537,7 @@ const AllEmployees = () => {
                   <option value="news">الأخبار</option>
                   <option value="marketing">التسويق</option>
                   {customDepartments.map(d => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
+                    <option key={d.id} value={d.name}>{d.name}</option>
                   ))}
                 </select>
               </div>

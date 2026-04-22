@@ -59,7 +59,7 @@ const TaskHistory = () => {
     };
     const labels = {
       pending: 'قيد الانتظار',
-      in_progress: 'قيد التنفيذ',
+      in_progress: 'في التنفيذ',
       completed: 'مكتملة',
       approved: 'موافقة المدير',
       final_approve: 'موافقة نهائية'
@@ -89,7 +89,7 @@ const TaskHistory = () => {
             >
               <option value="">الكل</option>
               <option value="pending">قيد الانتظار</option>
-              <option value="in_progress">قيد التنفيذ</option>
+              <option value="in_progress">في التنفيذ</option>
               <option value="completed">مكتملة</option>
               <option value="approved">موافقة المدير</option>
             </select>
