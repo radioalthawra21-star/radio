@@ -92,9 +92,9 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
 
         {user && (
           <div className="p-4 border-b border-gray-700">
-            <div className="bg-primary/20 rounded-lg p-3">
-              <p className="font-semibold">{user.name}</p>
-              <p className="text-sm text-gray-300">
+            <div className="bg-primary/20 rounded-lg p-3 truncate">
+              <p className="font-semibold truncate">{user.name}</p>
+              <p className="text-sm text-gray-300 truncate">
                 {role === 'admin' ? 'المدير العام' : 
                  role === 'manager' ? `مدير ${departmentNames[user.department] || ''}` : 'موظف'}
               </p>
