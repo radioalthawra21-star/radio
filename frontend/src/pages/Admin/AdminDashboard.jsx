@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getTasksToApprove } from '../../services/taskService';
-import { getDepartmentStats, getRankings } from '../../services/userService';
+import { getDepartmentStats, getRankings, getUserCounts } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
 import { getStoredUser } from '../../services/authService';
 import { useDepartments } from '../../hooks/useDepartments';
@@ -20,6 +20,7 @@ const AdminDashboard = () => {
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState([]);
+  const [userCounts, setUserCounts] = useState({ employees: 0, managers: 0 });
 
   const { getDepartmentName } = useDepartments();
 
@@ -28,7 +29,7 @@ const AdminDashboard = () => {
       try {
         const res = await getAllDepartments();
         if (res.success) {
-          setDepartments(res.data.departments);
+          setDepartments(res.data.departments || []);
         }
       } catch (err) { console.error(err); }
     };
@@ -43,26 +44,30 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch tasks to approve
-      const approveResponse = await getTasksToApprove();
-      if (approveResponse.success) {
-        setTasksToApprove(approveResponse.data.tasks);
+      const [approveRes, deptRes, rankRes, countsRes] = await Promise.all([
+        getTasksToApprove(),
+        getDepartmentStats(),
+        getRankings(),
+        getUserCounts()
+      ]);
+
+      if (approveRes.success) {
+        setTasksToApprove(approveRes.data.tasks);
       }
 
-      // Fetch department stats
-      const deptResponse = await getDepartmentStats();
-      if (deptResponse.success) {
-        setDeptStats(deptResponse.data.stats);
-        // Calculate total tasks from all departments
-        const totalFromDepts = deptResponse.data.stats.reduce((sum, d) => sum + d.totalTasks, 0);
-        const completedFromDepts = deptResponse.data.stats.reduce((sum, d) => sum + d.completedTasks, 0);
+      if (deptRes.success) {
+        setDeptStats(deptRes.data.stats);
+        const totalFromDepts = deptRes.data.stats.reduce((sum, d) => sum + d.totalTasks, 0);
+        const completedFromDepts = deptRes.data.stats.reduce((sum, d) => sum + d.completedTasks, 0);
         setSummary({ total: totalFromDepts, completed: completedFromDepts });
       }
 
-      // Fetch rankings
-      const rankResponse = await getRankings();
-      if (rankResponse.success) {
-        setRankings(rankResponse.data.rankings.slice(0, 5));
+      if (rankRes.success) {
+        setRankings(rankRes.data.rankings.slice(0, 5));
+      }
+
+      if (countsRes.success) {
+        setUserCounts(countsRes.data);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -109,7 +114,7 @@ const AdminDashboard = () => {
           </div>
           <div>
             <p className="text-gray-600 text-sm">الأقسام</p>
-            <p className="text-2xl font-bold text-secondary">3</p>
+            <p className="text-2xl font-bold text-secondary">{departments.length}</p>
           </div>
         </Card>
 
@@ -120,6 +125,23 @@ const AdminDashboard = () => {
           <div>
             <p className="text-gray-600 text-sm">await الموافقة</p>
             <p className="text-2xl font-bold text-interactive">{tasksToApprove.length}</p>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-2xl">👤</div>
+          <div>
+            <p className="text-gray-600 text-sm">الموظفين</p>
+            <p className="text-2xl font-bold text-blue-600">{userCounts.employees}</p>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-2xl">👔</div>
+          <div>
+            <p className="text-gray-600 text-sm">رؤساء الأقسام</p>
+            <p className="text-2xl font-bold text-purple-600">{userCounts.managers}</p>
           </div>
         </Card>
       </div>

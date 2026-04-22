@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyNotifications, markAsRead, markAllAsRead } from '../../services/notificationService';
+import { getUnreadCount } from '../../services/messageService';
+import { getWellBeingStatus } from '../../services/wellBeingService';
 import { uploadProfileImage } from '../../services/authService';
 import { UPLOADS_URL } from '../../services/api';
-import { playTaskAssignedSound, playRoleChangeSound, playNotificationSound } from '../../utils/audioUtils';
+import { playTaskAssignedSound, playRoleChangeSound, playNotificationSound, playMessageSound } from '../../utils/audioUtils';
 import { formatDateTimeArabic } from '../../utils/dateUtils';
 
 const APP_LOGO_KEY = 'appLogo';
@@ -26,6 +28,9 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
   const userMenuRef = useRef(null);
   const [appLogo, setAppLogo] = useState(null);
   const [appName, setAppName] = useState(null);
+  const [messageUnreadCount, setMessageUnreadCount] = useState(0);
+  const [showWellBeingReminder, setShowWellBeingReminder] = useState(false);
+  const [dismissedReminder, setDismissedReminder] = useState(false);
 
   useEffect(() => {
     const logo = localStorage.getItem(APP_LOGO_KEY);
@@ -50,9 +55,17 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    checkNewMessages();
+    if (user?.role !== 'admin') {
+      checkWellBeingStatus();
+    }
+    const notificationInterval = setInterval(fetchNotifications, 30000);
+    const messageInterval = setInterval(checkNewMessages, 15000);
+    return () => {
+      clearInterval(notificationInterval);
+      clearInterval(messageInterval);
+    };
+  }, [user?.role]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -88,6 +101,8 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
             if (isNew || storedNotifications.length === 0) {
               if (latestNotification.type === 'task_assigned') {
                 playTaskAssignedSound();
+              } else if (latestNotification.type === 'new_message') {
+                playMessageSound();
               } else if (latestNotification.type === 'role_change' || latestNotification.type === 'reward') {
                 playRoleChangeSound();
               } else {
@@ -111,6 +126,52 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
+  };
+
+  const checkNewMessages = async () => {
+    try {
+      const response = await getUnreadCount();
+      if (response.success) {
+        const newCount = response.data?.count || 0;
+        if (newCount > messageUnreadCount) {
+          playMessageSound();
+          if (Notification.permission !== 'granted') {
+            Notification.requestPermission();
+          } else if (Notification.permission === 'granted') {
+            new Notification('رسالة جديدة', {
+              body: `لديك ${newCount} رسالة غير مقروءة`,
+              icon: '/logo.png',
+              tag: 'new-message'
+            });
+          }
+        }
+        setMessageUnreadCount(newCount);
+      }
+    } catch (error) {
+      console.error('Error checking messages:', error);
+    }
+  };
+
+  const checkWellBeingStatus = async () => {
+    try {
+      const stored = localStorage.getItem('wellBeingDismissedDate');
+      const today = new Date().toDateString();
+      if (stored === today) return;
+
+      const response = await getWellBeingStatus();
+      if (response.success && !response.data.hasSubmitted) {
+        setShowWellBeingReminder(true);
+        setDismissedReminder(true);
+      }
+    } catch (error) {
+      console.error('Error checking well-being:', error);
+    }
+  };
+
+  const dismissWellBeingReminder = () => {
+    localStorage.setItem('wellBeingDismissedDate', new Date().toDateString());
+    setShowWellBeingReminder(false);
+    playMessageSound();
   };
 
   const handleMarkAllAsRead = async () => {
@@ -152,6 +213,9 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
         break;
       case 'new_user_registered':
         navigate('/admin/employees');
+        break;
+      case 'new_message':
+        navigate('/messages');
         break;
       default:
         break;
@@ -214,6 +278,31 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
   const displayName = appName || 'راديو الثورة';
 
   return (
+    <>
+    {showWellBeingReminder && (
+      <div className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-xl">😊</span>
+          <span className="font-medium">تقرير الحالة اليومية - كيف تشعر اليوم؟</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/well-being')}
+            className="px-4 py-1 bg-white text-primary rounded-full font-semibold hover:bg-gray-100 transition-colors"
+          >
+            إكمال الآن
+          </button>
+          <button
+            onClick={dismissWellBeingReminder}
+            className="p-1 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    )}
     <nav className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
         <button 
@@ -235,6 +324,21 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
       </div>
 
       <div className="flex items-center gap-4">
+        <button 
+          onClick={() => navigate('/messages')}
+          className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          title="الرسائل"
+        >
+          <svg className="w-6 h-6 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          {messageUnreadCount > 0 && (
+            <span className="absolute -top-1 -left-1 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              {messageUnreadCount}
+            </span>
+          )}
+        </button>
+
         <div className="relative" ref={notificationRef}>
           <button 
             onClick={() => setShowNotifications(!showNotifications)}
@@ -286,46 +390,46 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
           )}
         </div>
 
-        <div className="relative" ref={userMenuRef}>
-          <div className="flex items-center gap-2">
+<div className="relative" ref={userMenuRef}>
+          <div className="flex items-center gap-3">
             <div className="relative">
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                  {user?.profileImage ? (
                    <img
                      src={user.profileImage?.startsWith('http') ? user.profileImage : `${UPLOADS_URL}${user.profileImage}`}
                      alt={user?.name}
-                     className="w-8 h-8 rounded-full object-cover"
+                     className="w-9 h-9 rounded-full object-cover"
                    />
-                ) : (
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                    {user?.name?.charAt(0) || 'م'}
-                  </div>
-                )}
-                <span className="text-dark font-medium">{user?.name}</span>
-                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <label className={`absolute bottom-0 right-8 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-colors ${uploadingImage ? 'opacity-50' : ''}`} title="تغيير الصورة الشخصية - الحجم الموصى به: 300×300 بكسل، الحد الأقصى: 2 ميجابايت">
-                {uploadingImage ? (
-                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                )}
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={handleProfileImageUpload}
-                  className="hidden"
-                  disabled={uploadingImage}
-                />
-              </label>
+                 ) : (
+                   <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                     {user?.name?.charAt(0) || 'م'}
+                   </div>
+                 )}
+                 <span className="text-dark font-medium whitespace-nowrap">{user?.name}</span>
+                 <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                 </svg>
+               </button>
+               <label className={`absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-dark transition-colors shadow-md ${uploadingImage ? 'opacity-50' : ''}`} title="تغيير الصورة الشخصية">
+                 {uploadingImage ? (
+                   <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                 ) : (
+                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                   </svg>
+                 )}
+                 <input 
+                   type="file" 
+                   accept="image/*"
+                   onChange={handleProfileImageUpload}
+                   className="hidden"
+                   disabled={uploadingImage}
+                 />
+               </label>
             </div>
           </div>
 
@@ -348,6 +452,7 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
         </div>
       </div>
     </nav>
+    </>
   );
 };
 

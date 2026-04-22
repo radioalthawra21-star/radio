@@ -10,12 +10,6 @@ import { getEmployeesByDepartment, getAllUsers } from '../../services/userServic
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
-const departmentNames = {
-  production: 'الإنتاج',
-  news: 'الأخبار',
-  marketing: 'التسويق'
-};
-
 const AssignTasks = () => {
   const user = getStoredUser();
   const [employees, setEmployees] = useState([]);
@@ -26,7 +20,7 @@ const AssignTasks = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    assignedTo: [],
+    assignedTo: '',
     difficulty: 50,
     duration: 1,
     dueDate: '',
@@ -41,11 +35,9 @@ const AssignTasks = () => {
     try {
       setFetchingEmployees(true);
       let response;
-      // If admin, get all employees, otherwise get employees by department
       if (user.role === 'admin') {
         response = await getAllUsers();
         if (response.success) {
-          // Filter out admin and only keep employees and managers
           const filtered = (response.data.users || []).filter(u => u.role && u.role !== 'admin');
           setEmployees(filtered);
         }
@@ -71,36 +63,30 @@ const AssignTasks = () => {
     setError('');
   };
 
-  const handleEmployeeSelect = (employeeId) => {
-    setFormData(prev => {
-      const selected = prev.assignedTo.includes(employeeId)
-        ? prev.assignedTo.filter(id => id !== employeeId)
-        : [...prev.assignedTo, employeeId];
-      return { ...prev, assignedTo: selected };
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setSuccess('');
 
-    if (formData.assignedTo.length === 0) {
-      setError('يرجى اختيار موظف واحد على الأقل');
+    if (!formData.assignedTo) {
+      setError('يرجى اختيار موظف');
       setLoading(false);
       return;
     }
 
     try {
-      const response = await createTask(formData);
+      const response = await createTask({
+        ...formData,
+        assignedTo: [formData.assignedTo]
+      });
       if (response.success) {
         setSuccess('تم إسناد المهمة بنجاح');
         playTaskAssignedSound();
         setFormData({
           title: '',
           description: '',
-          assignedTo: [],
+          assignedTo: '',
           difficulty: 50,
           duration: 1,
           dueDate: '',
@@ -124,7 +110,7 @@ const AssignTasks = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">إسناد المهام</h1>
+      <h1 className="text-3xl font-bold text-dark mb-8">إسناد المهمة</h1>
 
       <Card>
         <form onSubmit={handleSubmit}>
@@ -139,21 +125,43 @@ const AssignTasks = () => {
             </div>
           )}
 
-          {/* Task Title */}
-          <div className="mb-4">
-            <label className="label">عنوان المهمة *</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className="input"
-              placeholder="أدخل عنوان المهمة"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="label">عنوان المهمة *</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                className="input"
+                placeholder="أدخل عنوان المهمة"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="label">اختر الموظف *</label>
+              {fetchingEmployees ? (
+                <p className="text-gray-500">جاري تحميل الموظفين...</p>
+              ) : (
+                <select
+                  name="assignedTo"
+                  value={formData.assignedTo}
+                  onChange={handleChange}
+                  className="input"
+                  required
+                >
+                  <option value="">-- اختر الموظف --</option>
+                  {employees.map((emp) => (
+                    <option key={emp._id} value={emp._id}>
+                      {emp.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
 
-          {/* Description */}
           <div className="mb-4">
             <label className="label">الوصف</label>
             <textarea
@@ -165,42 +173,7 @@ const AssignTasks = () => {
             />
           </div>
 
-          {/* Select Employees */}
-          <div className="mb-4">
-            <label className="label">اختر الموظفين *</label>
-            {fetchingEmployees ? (
-              <p className="text-gray-500">جاري تحميل الموظفين...</p>
-            ) : employees.length === 0 ? (
-              <p className="text-gray-500">لا يوجد موظفين في هذا القسم</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
-                {employees.map((emp) => (
-                  <label
-                    key={emp._id}
-                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                      formData.assignedTo.includes(emp._id)
-                        ? 'border-interactive bg-interactive/10'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.assignedTo.includes(emp._id)}
-                      onChange={() => handleEmployeeSelect(emp._id)}
-                      className="w-5 h-5 text-interactive rounded focus:ring-interactive"
-                    />
-                    <div>
-                      <p className="font-semibold text-dark">{emp.name}</p>
-                      <p className="text-sm text-gray-500">{emp.email}</p>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Difficulty & Duration */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
               <label className="label">مستوى الصعوبة</label>
               <select
@@ -227,23 +200,20 @@ const AssignTasks = () => {
                 step="0.5"
               />
             </div>
+            <div>
+              <label className="label">تاريخ الاستحقاق</label>
+              <input
+                type="date"
+                lang="en"
+                dir="ltr"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
           </div>
 
-          {/* Due Date */}
-          <div className="mb-4">
-            <label className="label">تاريخ الاستحقاق</label>
-            <input
-              type="date"
-              lang="en"
-              dir="ltr"
-              name="dueDate"
-              value={formData.dueDate}
-              onChange={handleChange}
-              className="input"
-            />
-          </div>
-
-          {/* Unusual Task */}
           <div className="mb-6">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -257,7 +227,6 @@ const AssignTasks = () => {
             </label>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

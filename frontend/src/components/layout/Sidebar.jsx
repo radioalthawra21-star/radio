@@ -10,7 +10,9 @@ const menuItems = {
     { path: '/my-tasks', label: 'مهماتي', icon: '📋' },
     { path: '/add-task', label: 'إضافة مهمة', icon: '➕' },
     { path: '/task-history', label: 'سجل المهام', icon: '📜' },
-    { path: '/messages', label: 'الرسائل', icon: '✉️' }
+    { path: '/messages', label: 'الرسائل', icon: '✉️' },
+    { path: '/evaluate-manager', label: 'تقييم المدير', icon: '⭐' },
+    { path: '/well-being', label: 'الحالة اليومية', icon: '😊' }
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -18,7 +20,9 @@ const menuItems = {
     { path: '/manager/evaluate-tasks', label: 'تقييم المهام', icon: '⭐' },
     { path: '/manager/reports', label: 'تقارير القسم', icon: '📊' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👤' },
-    { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' }
+    { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
+    { path: '/evaluate-manager', label: 'تقييم المدير', icon: '📝' },
+    { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' }
   ],
   admin: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -27,6 +31,8 @@ const menuItems = {
     { path: '/admin/reports', label: 'التقارير', icon: '📊' },
     { path: '/admin/rankings', label: 'الترتيب', icon: '🏆' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
+    { path: '/admin/manager-evaluation', label: 'تقييم المديرين', icon: '📊' },
+    { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/admin/settings', label: 'الإعدادات', icon: '⚙️' }
   ]
 };

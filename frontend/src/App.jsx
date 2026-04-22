@@ -27,6 +27,10 @@ import BonusManagement from './components/BonusManagement';
 import DeveloperPanel from './pages/Developer/DeveloperPanel';
 import TaskDetail from './pages/TaskDetail';
 import Messages from './pages/Messages';
+import ManagerEvaluation from './pages/ManagerEvaluation';
+import ManagerEvaluationDashboard from './pages/ManagerEvaluationDashboard';
+import WellBeingCheckIn from './pages/WellBeingCheckIn';
+import WellBeingDashboard from './pages/WellBeingDashboard';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -218,11 +222,31 @@ function App() {
                       <TaskDetail />
                     </ProtectedRoute>
                   } />
-                  <Route path="/messages" element={
-                    <ProtectedRoute>
-                      <Messages />
-                    </ProtectedRoute>
-                  } />
+<Route path="/messages" element={
+                     <ProtectedRoute>
+                       <Messages />
+                     </ProtectedRoute>
+                   } />
+                   <Route path="/evaluate-manager" element={
+                     <ProtectedRoute>
+                       <ManagerEvaluation />
+                     </ProtectedRoute>
+                   } />
+                   <Route path="/admin/manager-evaluation" element={
+                     <ProtectedRoute allowedRoles={['admin']}>
+                       <ManagerEvaluationDashboard />
+                     </ProtectedRoute>
+                   } />
+                   <Route path="/well-being" element={
+                     <ProtectedRoute>
+                       <WellBeingCheckIn />
+                     </ProtectedRoute>
+                   } />
+                   <Route path="/admin/well-being" element={
+                     <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                       <WellBeingDashboard />
+                     </ProtectedRoute>
+                   } />
                </Routes>
               </Layout>
             </ProtectedRoute>

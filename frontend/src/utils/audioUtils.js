@@ -90,3 +90,30 @@ export const playRoleChangeSound = () => {
     console.log('Audio play failed:', e);
   }
 };
+
+export const playMessageSound = () => {
+  try {
+    const audioContext = ensureAudioContext();
+    
+    const frequencies = [1200, 1400, 1600];
+    frequencies.forEach((freq, i) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = freq;
+      oscillator.type = 'sine';
+      
+      const startTime = audioContext.currentTime + i * 0.12;
+      gainNode.gain.setValueAtTime(0.25, startTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.2);
+    });
+  } catch (e) {
+    console.log('Audio play failed:', e);
+  }
+};

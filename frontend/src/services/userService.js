@@ -83,6 +83,12 @@ export const activateUser = async (userId) => {
   return response.data;
 };
 
+// Get user counts
+export const getUserCounts = async () => {
+  const response = await api.get('/users/counts');
+  return response.data;
+};
+
 export default {
   getAllEmployees,
   getEmployeesByDepartment,
@@ -96,5 +102,6 @@ export default {
   getRankings,
   getDepartmentStats,
   getPendingUsers,
-  activateUser
+  activateUser,
+  getUserCounts
 };
