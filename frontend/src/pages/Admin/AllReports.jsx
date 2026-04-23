@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { getTaskReports, getWeeklySummary, getDailySummary } from '../../services/taskService';
-import { getDepartmentStats } from '../../services/userService';
+import { getDepartmentStats } from '../../services/userServiceEnhanced';  // ✅ Use enhanced service
 import { getAllDepartments } from '../../services/departmentService';
 import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
@@ -47,22 +47,35 @@ const AllReports = () => {
     try {
       setLoading(true);
       
+      // Reset data on new fetch
+      setDeptStats([]);
+      
       // Fetch tasks
       const taskResponse = await getTaskReports(filter);
       if (taskResponse.success) {
-        setTasks(taskResponse.data.tasks);
+        setTasks(taskResponse.data?.tasks || []);
       }
 
       // Fetch daily summary
       const summaryResponse = await getDailySummary();
       if (summaryResponse.success) {
-        setSummary(summaryResponse.data.summary);
+        setSummary(summaryResponse.data?.summary || null);
       }
 
       // Fetch department stats
-      const deptResponse = await getDepartmentStats();
-      if (deptResponse.success) {
-        setDeptStats(deptResponse.data.stats);
+      try {
+        const deptResponse = await getDepartmentStats();
+        if (deptResponse.success && deptResponse.data) {
+          // ✅ Handle multiple possible response formats
+          const stats = deptResponse.data.stats || deptResponse.data.departments || deptResponse.data || [];
+          setDeptStats(Array.isArray(stats) ? stats : []);
+        } else {
+          console.warn('Department stats response not successful:', deptResponse);
+          setDeptStats([]);
+        }
+      } catch (deptError) {
+        console.error('Department stats fetch failed:', deptError);
+        setDeptStats([]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -105,7 +118,11 @@ const AllReports = () => {
       task.assignedTo?.map(u => u.name).join(', ') || '-',
       getDepartmentName(task.assignedTo?.[0]?.department),
       task.duration?.toString() || '0',
+<<<<<<< HEAD
+      task.status === 'completed' ? 'مكتملة' : task.status === 'approved' || task.status === 'final_approved' ? 'موافقة' : 'قيد التنفيذ' ? 'قيد التنفيذ' : 'قيد الانتظار',
+=======
       task.status === 'completed' ? 'مكتملة' : task.status === 'approved' ? 'معتمدة' : 'معلقة',
+>>>>>>> 44ac23f3d46f7ffe4ac0f13b3250ed143fc32b60
       formatDateArabic(task.taskDate)
     ]);
 
@@ -224,33 +241,48 @@ const AllReports = () => {
       {/* Department Stats */}
       <Card className="mb-6">
         <h2 className="text-xl font-bold text-dark mb-4">إحصائيات الأقسام</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {deptStats.map((dept) => (
-            <div key={dept.department} className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold text-dark text-lg mb-2">
-                {getDepartmentName(dept.department)}
-              </h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-gray-500">الموظفين</p>
-                  <p className="font-bold text-dark">{dept.employeeCount}</p>
+        {deptStats.length === 0 && !loading ? (
+          <p className="text-center text-gray-500 py-4">لا توجد إحصائيات متاحة</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Array.isArray(deptStats) && deptStats.map((dept) => {
+              // ✅ Safe dept destructuring with defaults
+              const {
+                department = '',
+                employeeCount = 0,
+                averagePerformanceScore = 0,
+                totalTasks = 0,
+                completedTasks = 0
+              } = dept || {};
+              
+              return (
+                <div key={department || Math.random()} className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold text-dark text-lg mb-2">
+                    {getDepartmentName(department)}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-gray-500">الموظفين</p>
+                      <p className="font-bold text-dark">{employeeCount}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">معدل الأداء</p>
+                      <p className="font-bold text-interactive">{averagePerformanceScore}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">إجمالي المهام</p>
+                      <p className="font-bold text-dark">{totalTasks}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">مكتملة</p>
+                      <p className="font-bold text-success">{completedTasks}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-500">معدل الأداء</p>
-                  <p className="font-bold text-interactive">{dept.averagePerformanceScore || 0}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">إجمالي المهام</p>
-                  <p className="font-bold text-dark">{dept.totalTasks}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">مكتملة</p>
-                  <p className="font-bold text-success">{dept.completedTasks}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       {/* Tasks Table */}

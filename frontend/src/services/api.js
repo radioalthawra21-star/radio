@@ -15,7 +15,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 60000
+  timeout: 60000,
+  withCredentials: true  // ✅ Important for CORS with cookies/auth
 });
 
 // Request interceptor - add token to headers
@@ -38,17 +39,37 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    // ✅ Enhanced error handling
+    let userMessage = 'حدث خطأ في الاتصال بالخادم';
+    
     if (error.response) {
-      const backendMessage = error.response.data?.message;
-      if (backendMessage) {
-        error.message = backendMessage;
-      }
-      if (error.response.status === 401) {
+      // Server responded with error status
+      const { status, data } = error.response;
+      userMessage = data?.message || `خطأ في الخادم (${status})`;
+      
+      if (status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
+    } else if (error.request) {
+      // Request made but no response received
+      userMessage = 'لا يمكن الاتصال بالخادم. تحقق من الإنترنت';
+      console.error('Network Error - No response received');
+    } else {
+      // Error in request setup
+      userMessage = error.message || 'خطأ في إعداد الطلب';
     }
+    
+    console.error('API Error:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url
+    });
+    
+    // Add user-friendly message to error
+    error.userMessage = userMessage;
     return Promise.reject(error);
   }
 );
