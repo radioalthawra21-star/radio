@@ -4,29 +4,18 @@ const TypographyContext = createContext();
 
 const DEFAULT_FONTS = {
   heading: {
-    family: 'CAIRO',
-    source: 'google',
-    url: 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap'
+    family: 'system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, \'Noto Sans\', sans-serif, \'Apple Color Emoji\', \'Segoe UI Emoji\', \'Segoe UI Symbol\', \'Noto Color Emoji\'',
+    source: 'system',
+    url: ''
   },
   body: {
-    family: 'CAIRO',
-    source: 'google',
-    url: 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap'
+    family: 'system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, \'Noto Sans\', sans-serif, \'Apple Color Emoji\', \'Segoe UI Emoji\', \'Segoe UI Symbol\', \'Noto Color Emoji\'',
+    source: 'system',
+    url: ''
   }
 };
 
-export const GOOGLE_FONTS = [
-  { name: 'CAIRO', family: 'CAIRO', url: 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap' },
-  { name: 'Tajawal', family: 'Tajawal', url: 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap' },
-  { name: 'Almarai', family: 'Almarai', url: 'https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap' },
-  { name: 'Cairo', family: 'Cairo', url: 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap' },
-  { name: 'El Messiri', family: 'El+Messiri', url: 'https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap' },
-  { name: 'Markazi Text', family: 'Markazi+Text', url: 'https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;500;600;700&display=swap' },
-  { name: 'Changa', family: 'Changa', url: 'https://fonts.googleapis.com/css2?family=Changa:wght@400;500;600;700;800&display=swap' },
-  { name: 'Aldrich', family: 'Aldrich', url: 'https://fonts.googleapis.com/css2?family=Aldrich&display=swap' },
-  { name: 'Roboto', family: 'Roboto', url: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap' },
-  { name: 'Montserrat', family: 'Montserrat', url: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap' }
-];
+export const GOOGLE_FONTS = [];
 
 export const TypographyProvider = ({ children }) => {
   const [fonts, setFonts] = useState(() => {
@@ -34,7 +23,7 @@ export const TypographyProvider = ({ children }) => {
     return stored ? JSON.parse(stored) : DEFAULT_FONTS;
   });
 
-  const [loadedFonts, setLoadedFonts] = useState(['CAIRO']);
+  const [loadedFonts, setLoadedFonts] = useState([]);
 
   const loadFont = useCallback((fontConfig) => {
     if (!fontConfig || !fontConfig.url) return;

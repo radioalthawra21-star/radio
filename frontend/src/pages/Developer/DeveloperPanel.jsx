@@ -17,10 +17,10 @@ const DEFAULT_SETTINGS = {
     interactive: '#1C95A4',
     dark: '#182E4E'
   },
-  fonts: {
-    family: 'CAIRO',
-    scale: 'متوسط'
-  },
+    fonts: {
+        family: 'system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, \'Noto Sans\', sans-serif, \'Apple Color Emoji\', \'Segoe UI Emoji\', \'Segoe UI Symbol\', \'Noto Color Emoji\'',
+        scale: 'متوسط'
+    },
   styling: {
     borderRadius: 8,
     buttonStyle: 'دائري',
@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
   }
 };
 
-const FONT_FAMILIES = ['CAIRO', 'MONTSERRAT-ARABIC', 'Tajawal', 'El Messiri', 'Noto Sans Arabic'];
+const FONT_FAMILIES = ['MONTSERRAT-ARABIC', 'Tajawal', 'El Messiri', 'Noto Sans Arabic'];
 const FONT_SCALES = ['صغير', 'متوسط', 'كبير', 'كبير جداً'];
 const BUTTON_STYLES = ['دائري', 'مربع', 'حبة'];
 const SHADOWS = ['None', 'خفيف', 'متوسط', 'قوي'];

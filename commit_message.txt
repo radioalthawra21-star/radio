@@ -1,0 +1,29 @@
+feat: Development environment fixes & UI color scheme standardization
+
+Backend:
+- server.js: Added dotenv.config() and fixed CORS to support localhost:5173
+- userRoutes.js: Moved PUT /change-password before PUT /:id (fixes 403 error)
+- userController.js: Added changePassword controller method
+- .env: Updated PORT=3000 for local consistency
+
+Frontend:
+- api.js: Use relative '/api' URLs in dev (Vite proxy), absolute in prod
+- vite.config.js: Proxy target set to localhost:3000, host changed to 'localhost'
+- ChangePassword.jsx: New page with standardized brand color #182E4E
+
+Color Standardization (replacing all Tailwind blue-* classes):
+- Primary brand: #182E4E
+- Hover: #152842
+- Light accent: #CDD6E8
+
+Updated components:
+- Messages.jsx: buttons, tabs, badges, links, spinner
+- BonusManagement.jsx: form inputs, buttons, badges, spinner
+- Navbar.jsx: unread message badge
+- TaskDetail.jsx: default status badge
+- AdminDashboard.jsx: employee count color
+- WellBeingDashboard.jsx: workload bar color
+
+Text fixes:
+- EmployeeDashboard.jsx: Fixed garbled text to "في التنفيذ"
+- AllReports.jsx: Resolved merge conflict, standardized status labels

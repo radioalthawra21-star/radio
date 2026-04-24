@@ -1,7 +1,7 @@
 @layer base {
   :root {
-    --font-heading: 'CAIRO', sans-serif;
-    --font-body: 'CAIRO', sans-serif;
+    --font-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --app-logo: '/logo.png';
     --app-name: 'راديو الثورة';
   }
@@ -42,13 +42,13 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .english-numerals, .en-num {
-    font-family: 'CAIRO', 'Tahoma', Arial, sans-serif !important;
-    font-variant-numeric: lining-nums !important;
-    -webkit-font-feature-settings: "lnum" !important;
-    font-feature-settings: "lnum" !important;
-    font-variant-alternates: normal !important;
-  }
+   .english-numerals, .en-num {
+     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
+     font-variant-numeric: lining-nums !important;
+     -webkit-font-feature-settings: "lnum" !important;
+     font-feature-settings: "lnum" !important;
+     font-variant-alternates: normal !important;
+   }
   
   .english-numerals::before, .en-num::before {
     content: attr(data-en-num);

@@ -1,0 +1,21 @@
+# ⚠️ IMPORTANT: Project Structure & Git Workflow Context
+
+Please note that this project uses a **Multi-Repo Subtree Strategy**. It is NOT a standard single-repo monorepo.
+
+## 1. Repository Structure
+- **Local Root:** `C:\Users\Yazan Radio\Desktop\cc\` (Contains both frontend and backend folders).
+- **Remote Backend Repo:** `https://github.com/tayserh8-stack/backendradio.git`
+  - Contains ONLY the contents of the local `backend/` folder.
+  - Deployed to: **Render** (`cc-backend`).
+- **Remote Frontend Repo:** `https://github.com/tayserh8-stack/radio.git`
+  - Contains ONLY the contents of the local `frontend/` folder.
+  - Deployed to: **Netlify** (`radioalthawra`).
+
+## 2. Git Workflow Rules (CRITICAL)
+- **DO NOT** suggest standard `git push origin main`. This will fail or push to the wrong place.
+- **ALWAYS** use `git subtree push` to deploy changes.
+
+### For Backend Changes:
+If I modify files in `backend/`, use this command to deploy:
+```bash
+git subtree push --prefix backend https://ghp_cgldpgx0dpkms520cb32f@github.com/tayserh8-stack/backendradio.git main

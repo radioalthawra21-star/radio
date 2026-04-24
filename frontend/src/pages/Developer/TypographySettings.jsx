@@ -56,15 +56,14 @@ const TypographySettings = () => {
     <div className="space-y-6">
       <Card>
         <h3 className="text-lg font-bold text-dark mb-4">خط العناوين</h3>
-        <select
-          value={fonts.heading.family}
-          onChange={(e) => {
-            const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
-            if (font) updateFonts({ heading: font });
-          }}
-          className="input"
-          style={{ fontFamily: fonts.heading.family }}
-        >
+           <select
+             value={fonts.heading.family}
+             onChange={(e) => {
+               const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
+               if (font) updateFonts({ heading: font });
+             }}
+             className="input"
+           >
           {GOOGLE_FONTS.map(font => (
             <option key={font.family} value={font.family} style={{ fontFamily: font.family }}>
               {font.name}
@@ -91,15 +90,14 @@ const TypographySettings = () => {
             className="hidden"
           />
         </div>
-        <select
-          value={fonts.body.family}
-          onChange={(e) => {
-            const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
-            if (font) updateFonts({ body: font });
-          }}
-          className="input"
-          style={{ fontFamily: fonts.body.family }}
-        >
+           <select
+             value={fonts.body.family}
+             onChange={(e) => {
+               const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
+               if (font) updateFonts({ body: font });
+             }}
+             className="input"
+           >
           {GOOGLE_FONTS.map(font => (
             <option key={font.family} value={font.family} style={{ fontFamily: font.family }}>
               {font.name}
@@ -115,7 +113,7 @@ const TypographySettings = () => {
           <div className="space-y-2">
             {uploadedFonts.map(fontName => (
               <div key={fontName} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span style={{ fontFamily: fontName }}>{fontName}</span>
+                 <span>{fontName}</span>
                 <div className="flex gap-2">
                   {fonts.heading.family === fontName && (
                     <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">عنوان</span>
@@ -151,7 +149,7 @@ const TypographySettings = () => {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span style={{ fontFamily: fontName }}>{fontName}</span>
+                  <span>{fontName}</span>
                   {isHeading && <span className="text-xs text-primary">ع</span>}
                   {isBody && <span className="text-xs text-secondary">ن</span>}
                   {!isGoogle && (
@@ -176,7 +174,7 @@ const TypographySettings = () => {
           <p className="text-sm text-gray-500 mb-2">عنوان</p>
           <h2 
             className="text-2xl font-bold"
-            style={{ fontFamily: fonts.heading.family }}
+            style={{}}
           >
             {previewText.heading}
           </h2>
