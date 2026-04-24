@@ -282,7 +282,7 @@ const DeveloperPanel = () => {
   }
 
   return (
-    <div className="animate-fade-in" style={{ fontFamily: fonts.family }}>
+    <div className="animate-fade-in">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-dark">لوحة المطور</h1>
         <button onClick={() => setIsAuthenticated(false)} className="btn btn-outline">

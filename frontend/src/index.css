@@ -155,11 +155,11 @@
     font-feature-settings: "lnum" !important;
   }
 
-  input[type="date"]::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    filter: invert(0);
-    font-family: system-ui, -apple-system, sans-serif !important;
-  }
+   input[type="date"]::-webkit-calendar-picker-indicator {
+     cursor: pointer;
+     filter: invert(0);
+     font-family: var(--font-body) !important;
+   }
 
   /* Force English numerals everywhere */
   .text-numeric {

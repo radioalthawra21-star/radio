@@ -56,20 +56,20 @@ const TypographySettings = () => {
     <div className="space-y-6">
       <Card>
         <h3 className="text-lg font-bold text-dark mb-4">خط العناوين</h3>
-           <select
-             value={fonts.heading.family}
-             onChange={(e) => {
-               const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
-               if (font) updateFonts({ heading: font });
-             }}
-             className="input"
-           >
-          {GOOGLE_FONTS.map(font => (
-            <option key={font.family} value={font.family} style={{ fontFamily: font.family }}>
-              {font.name}
-            </option>
-          ))}
-        </select>
+         <select
+           value={fonts.heading.family}
+           onChange={(e) => {
+             const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
+             if (font) updateFonts({ heading: font });
+           }}
+           className="input"
+         >
+           {GOOGLE_FONTS.map(font => (
+             <option key={font.family} value={font.family} style={{}}>
+               {font.name}
+             </option>
+           ))}
+         </select>
         <p className="text-sm text-gray-500 mt-2">العناوين: {fonts.heading.family}</p>
       </Card>
 
@@ -90,20 +90,20 @@ const TypographySettings = () => {
             className="hidden"
           />
         </div>
-           <select
-             value={fonts.body.family}
-             onChange={(e) => {
-               const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
-               if (font) updateFonts({ body: font });
-             }}
-             className="input"
-           >
-          {GOOGLE_FONTS.map(font => (
-            <option key={font.family} value={font.family} style={{ fontFamily: font.family }}>
-              {font.name}
-            </option>
-          ))}
-        </select>
+         <select
+           value={fonts.body.family}
+           onChange={(e) => {
+             const font = GOOGLE_FONTS.find(f => f.family === e.target.value);
+             if (font) updateFonts({ body: font });
+           }}
+           className="input"
+         >
+           {GOOGLE_FONTS.map(font => (
+             <option key={font.family} value={font.family} style={{}}>
+               {font.name}
+             </option>
+           ))}
+         </select>
         <p className="text-sm text-gray-500 mt-2">النصوص: {fonts.body.family}</p>
       </Card>
 
@@ -184,7 +184,7 @@ const TypographySettings = () => {
           <p className="text-sm text-gray-500 mb-2">نص</p>
           <p 
             className="text-base"
-            style={{ fontFamily: fonts.body.family }}
+            style={{}}
           >
             {previewText.body}
           </p>
@@ -192,7 +192,7 @@ const TypographySettings = () => {
 
         <div className="p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-500 mb-2">جدول</p>
-          <table className="w-full text-right" style={{ fontFamily: fonts.body.family }}>
+           <table className="w-full text-right" style={{}}>
             <thead>
               <tr className="border-b">
                 <th className="p-2">الاسم</th>
