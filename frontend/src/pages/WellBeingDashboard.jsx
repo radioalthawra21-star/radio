@@ -156,7 +156,7 @@ const WellBeingDashboard = () => {
                 {[
                   { label: 'كثيرة جداً', count: stats.workloadDistribution?.tooHeavy || 0, color: 'bg-red-500' },
                   { label: 'طبيعية', count: stats.workloadDistribution?.normal || 0, color: 'bg-green-500' },
-                  { label: 'قليلة', count: stats.workloadDistribution?.light || 0, color: 'bg-blue-500' }
+                  { label: 'قليلة', count: stats.workloadDistribution?.light || 0, color: 'bg-[#182E4E]' }
                 ].map(item => (
                   <div key={item.label} className="flex items-center gap-3">
                     <span className="w-24 text-sm text-gray-600">{item.label}</span>

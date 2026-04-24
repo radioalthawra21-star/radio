@@ -70,7 +70,7 @@ const TaskDetail = () => {
             task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
             task.status === 'in_progress' ? 'bg-orange-100 text-orange-800' : 
             task.status === 'approved' ? 'bg-green-100 text-green-800' : 
-            'bg-blue-100 text-blue-800'
+            'bg-[#CDD6E8] text-[#182E4E]'
           }`}>
             {task.status === 'completed' ? 'مكتملة' : 
              task.status === 'pending' ? 'قيد الانتظار' :

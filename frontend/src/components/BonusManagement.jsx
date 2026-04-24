@@ -238,7 +238,7 @@ setBonuses(bonusesData);
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#182E4E]"></div>
       </div>
     );
   }
@@ -269,7 +269,7 @@ setBonuses(bonusesData);
                 name="employeeId"
                 value={formData.employeeId}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#182E4E] focus:border-[#182E4E] bg-white"
                 required
               >
                 <option value="">-- اختر الموظف --</option>
@@ -293,7 +293,7 @@ setBonuses(bonusesData);
                 max="100"
                 value={formData.points}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#182E4E] focus:border-[#182E4E]"
                 required
               />
             </div>
@@ -304,7 +304,7 @@ setBonuses(bonusesData);
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#182E4E] focus:border-[#182E4E] bg-white"
               >
                 <option value="reward">مكافأة</option>
                 <option value="prize">جائزة</option>
@@ -318,7 +318,7 @@ setBonuses(bonusesData);
                 name="criteria"
                 value={formData.criteria || ''}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#182E4E] focus:border-[#182E4E] bg-white"
                 required
               >
                 <option value="">-- اختر نوع التقييم --</option>
@@ -338,7 +338,7 @@ setBonuses(bonusesData);
                 value={formData.reason}
                 onChange={handleChange}
                 rows="3"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#182E4E] focus:border-[#182E4E]"
                 placeholder="اكتب سبب منح المكافأة..."
                 required
               />
@@ -347,7 +347,7 @@ setBonuses(bonusesData);
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="w-full bg-[#182E4E] text-white py-3 rounded-lg hover:bg-[#152842] disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
               {submitting ? 'جاري الإضافة...' : 'إضافة المكافأة'}
             </button>
@@ -360,11 +360,11 @@ setBonuses(bonusesData);
           
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">فلترة حسب الموظف</label>
-            <select
-              value={selectedEmployeeFilter}
-              onChange={handleEmployeeFilterChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-            >
+              <select
+                value={selectedEmployeeFilter}
+                onChange={handleEmployeeFilterChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#182E4E] focus:border-[#182E4E] bg-white"
+              >
               <option value="">-- جميع المكافآت --</option>
               {(userRole === 'manager' ? employees : allEmployees).map(emp => (
                 <option key={emp._id} value={emp._id}>{emp.name}</option>
@@ -394,7 +394,7 @@ setBonuses(bonusesData);
                       </div>
                       <div className="text-left mr-4">
                         <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                          bonus.isApproved ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                          bonus.isApproved ? 'bg-[#CDD6E8] text-[#182E4E]' : 'bg-yellow-100 text-yellow-700'
                         }`}>
                           {bonus.isApproved ? '✓ موافق عليها' : '⌛ في الانتظار'}
                         </span>
@@ -407,7 +407,7 @@ setBonuses(bonusesData);
                           {canApprove && (
                             <button
                               onClick={() => handleApprove(bonus._id)}
-                              className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                               className="text-xs bg-[#182E4E] text-white px-2 py-1 rounded hover:bg-[#152842]"
                             >
                               موافقة
                             </button>

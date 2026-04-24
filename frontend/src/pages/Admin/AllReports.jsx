@@ -118,11 +118,11 @@ const AllReports = () => {
       task.assignedTo?.map(u => u.name).join(', ') || '-',
       getDepartmentName(task.assignedTo?.[0]?.department),
       task.duration?.toString() || '0',
-<<<<<<< HEAD
-      task.status === 'completed' ? 'مكتملة' : task.status === 'approved' || task.status === 'final_approved' ? 'موافقة' : 'قيد التنفيذ' ? 'قيد التنفيذ' : 'قيد الانتظار',
-=======
-      task.status === 'completed' ? 'مكتملة' : task.status === 'approved' ? 'معتمدة' : 'معلقة',
->>>>>>> 44ac23f3d46f7ffe4ac0f13b3250ed143fc32b60
+       task.status === 'completed' ? 'مكتملة' :
+       task.status === 'approved' ? 'موافق عليها' :
+       task.status === 'final_approved' ? 'نهائية' :
+       task.status === 'in_progress' ? 'في التنفيذ' :
+       'قيد الانتظار',
       formatDateArabic(task.taskDate)
     ]);
 

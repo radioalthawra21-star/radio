@@ -110,7 +110,7 @@ const Messages = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#182E4E]"></div>
       </div>
     );
   }
@@ -121,7 +121,7 @@ const Messages = () => {
         <h2 className="text-2xl font-bold text-gray-800">الرسائل الداخلية</h2>
         <button
           onClick={() => setShowCompose(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          className="bg-[#182E4E] text-white px-4 py-2 rounded-lg hover:bg-[#152842]"
         >
           ➕ رسالة جديدة
         </button>
@@ -139,21 +139,21 @@ const Messages = () => {
       <div className="flex gap-4 mb-6 border-b">
         <button
           onClick={() => setActiveTab('inbox')}
-          className={`pb-2 px-4 ${
-            activeTab === 'inbox' 
-              ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' 
-              : 'text-gray-500'
-          }`}
+            className={`pb-2 px-4 ${
+              activeTab === 'inbox' 
+                ? 'border-b-2 border-[#182E4E] text-[#182E4E] font-semibold' 
+                : 'text-gray-500'
+            }`}
         >
           📥 الوارد ({unreadCount})
         </button>
         <button
           onClick={() => setActiveTab('sent')}
-          className={`pb-2 px-4 ${
-            activeTab === 'sent' 
-              ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' 
-              : 'text-gray-500'
-          }`}
+            className={`pb-2 px-4 ${
+              activeTab === 'sent' 
+                ? 'border-b-2 border-[#182E4E] text-[#182E4E] font-semibold' 
+                : 'text-gray-500'
+            }`}
         >
           📤 المرسلة ({sentMessages.length})
         </button>
@@ -170,11 +170,11 @@ const Messages = () => {
           {currentMessages.map(msg => (
             <div 
               key={msg._id} 
-              className={`p-4 rounded-lg shadow ${
-                !msg.isRead && activeTab === 'inbox' 
-                  ? 'bg-blue-50 border-l-4 border-blue-600' 
-                  : 'bg-white'
-              }`}
+                className={`p-4 rounded-lg shadow ${
+                  !msg.isRead && activeTab === 'inbox' 
+                    ? 'bg-[#CDD6E8] border-l-4 border-[#182E4E]' 
+                    : 'bg-white'
+                }`}
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -185,7 +185,7 @@ const Messages = () => {
                       <span className="text-sm text-gray-600">إلى: {msg.receiver?.name}</span>
                     )}
                     {!msg.isRead && activeTab === 'inbox' && (
-                      <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">جديد</span>
+                      <span className="bg-[#182E4E] text-white text-xs px-2 py-0.5 rounded-full">جديد</span>
                     )}
                   </div>
                   <h4 className="font-semibold text-gray-800">{msg.subject}</h4>
@@ -196,7 +196,7 @@ const Messages = () => {
                   {!msg.isRead && activeTab === 'inbox' && (
                     <button
                       onClick={() => handleRead(msg._id)}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
+                      className="text-[#182E4E] hover:text-[#152842] text-sm"
                     >
                       ✓ قراءة
                     </button>
@@ -264,7 +264,7 @@ const Messages = () => {
                 <button
                   type="submit"
                   disabled={composing}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 bg-[#182E4E] text-white py-2 rounded-lg hover:bg-[#152842] disabled:opacity-50"
                 >
                   {composing ? 'جاري الإرسال...' : 'إرسال'}
                 </button>

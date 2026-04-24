@@ -31,6 +31,7 @@ import ManagerEvaluation from './pages/ManagerEvaluation';
 import ManagerEvaluationDashboard from './pages/ManagerEvaluationDashboard';
 import WellBeingCheckIn from './pages/WellBeingCheckIn';
 import WellBeingDashboard from './pages/WellBeingDashboard';
+import ChangePassword from './pages/Employee/ChangePassword';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -158,11 +159,16 @@ function App() {
                     <AddTask />
                   </ProtectedRoute>
                 } />
-                <Route path="/task-history" element={
-                  <ProtectedRoute allowedRoles={['employee']}>
-                    <TaskHistory />
-                  </ProtectedRoute>
-                } />
+                 <Route path="/task-history" element={
+                   <ProtectedRoute allowedRoles={['employee']}>
+                     <TaskHistory />
+                   </ProtectedRoute>
+                 } />
+                 <Route path="/change-password" element={
+                   <ProtectedRoute>
+                     <ChangePassword />
+                   </ProtectedRoute>
+                 } />
 
                 {/* Manager Routes */}
                 <Route path="/manager/assign-tasks" element={

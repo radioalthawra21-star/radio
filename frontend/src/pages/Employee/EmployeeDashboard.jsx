@@ -110,7 +110,7 @@ const EmployeeDashboard = () => {
               <span className="text-2xl">⏳</span>
             </div>
             <div>
-              <p className="text-gray-600 text-sm">��يد التنفيذ</p>
+              <p className="text-gray-600 text-sm">في التنفيذ</p>
               <p className="text-2xl font-bold text-warning">{summary.inProgress}</p>
             </div>
           </Card>

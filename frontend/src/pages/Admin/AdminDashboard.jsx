@@ -140,10 +140,10 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Link to="/admin/employees">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
-            <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-2xl">👤</div>
+            <div className="w-12 h-12 bg-[#182E4E]/20 rounded-full flex items-center justify-center text-2xl">👤</div>
             <div>
               <p className="text-gray-600 text-sm">الموظفين</p>
-              <p className="text-2xl font-bold text-blue-600">{userCounts.employees}</p>
+              <p className="text-2xl font-bold text-[#182E4E]">{userCounts.employees}</p>
             </div>
           </Card>
         </Link>

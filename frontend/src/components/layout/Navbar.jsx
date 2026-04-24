@@ -333,7 +333,7 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           {messageUnreadCount > 0 && (
-            <span className="absolute -top-1 -left-1 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -left-1 bg-[#182E4E] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
               {messageUnreadCount}
             </span>
           )}
@@ -439,14 +439,22 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
                 <p className="font-semibold text-dark">{user?.name}</p>
                 <p className="text-sm text-gray-500">{getRoleLabel()}</p>
               </div>
-              <div className="p-2">
-                <button 
-                  onClick={onLogout}
-                  className="w-full text-right p-2 hover:bg-gray-100 rounded-lg text-error"
-                >
-                  تسجيل الخروج
-                </button>
-              </div>
+               <div className="p-2">
+                 <button 
+                   onClick={() => navigate('/change-password')}
+                   className="w-full text-right p-2 hover:bg-gray-100 rounded-lg"
+                 >
+                   تغيير كلمة المرور
+                 </button>
+               </div>
+               <div className="p-2">
+                 <button 
+                   onClick={onLogout}
+                   className="w-full text-right p-2 hover:bg-gray-100 rounded-lg text-error"
+                 >
+                   تسجيل الخروج
+                 </button>
+               </div>
             </div>
           )}
         </div>
