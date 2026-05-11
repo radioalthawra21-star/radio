@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getPayrollStats, getPayrollRecords } from '../../services/payrollService';
+import { getPayrollSummary, getAllPayrolls } from '../../services/payrollService';
 import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 import { BarChart, PieChart, LineChart } from '../../components/charts';
-import { StatCard } from '../../components/widgets/StatCard';
+import StatCard from '../../components/widgets/StatCard';
 import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
@@ -33,13 +33,13 @@ const PayrollReports = () => {
       setError(null);
       
       // Fetch payroll stats
-      const statsResponse = await getPayrollStats(filter);
+      const statsResponse = await getPayrollSummary(filter);
       if (statsResponse.success) {
         setPayrollStats(statsResponse.data);
       }
       
       // Fetch payroll records
-      const recordsResponse = await getPayrollRecords(filter);
+      const recordsResponse = await getAllPayrolls(filter);
       if (recordsResponse.success) {
         setPayrollRecords(recordsResponse.data || []);
         
@@ -273,7 +273,7 @@ const PayrollReports = () => {
           />
           <StatCard
             title="متوسط الزيادة السنوية"
-            value={formatNumber(payrollStats.annualIncrease || 0)} + '%'
+            value={formatNumber(payrollStats.annualIncrease || 0) + '%'}
             icon="📈"
             color="orange"
           />

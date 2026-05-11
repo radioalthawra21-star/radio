@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getLeaveStats, getLeaveRecords } from '../../services/taskService'; // Assuming leave is in task service
+import { getLeaveRequests } from '../../services/leaveService';
 import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 import { BarChart, PieChart, LineChart } from '../../components/charts';
-import { StatCard } from '../../components/widgets/StatCard';
+import StatCard from '../../components/widgets/StatCard';
 import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
@@ -32,14 +32,8 @@ const LeaveReports = () => {
       setLoading(true);
       setError(null);
       
-      // Fetch leave stats
-      const statsResponse = await getLeaveStats(filter);
-      if (statsResponse.success) {
-        setLeaveStats(statsResponse.data);
-      }
-      
       // Fetch leave records
-      const recordsResponse = await getLeaveRecords(filter);
+      const recordsResponse = await getLeaveRequests(filter);
       if (recordsResponse.success) {
         setLeaveRecords(recordsResponse.data || []);
         
@@ -396,15 +390,15 @@ const LeaveReports = () => {
                     <td className="px-6 py-4 text-left text-sm text-gray-500">{record.leaveType || '-'}</td>
                     <td className="px-6 py-4 text-left text-sm text-gray-500">{record.startDate ? formatDateArabic(record.startDate) : '-'}</td>
                     <td className="px-6 py-4 text-left text-sm text-gray-500">{record.endDate ? formatDateArabic(record.endDate) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{record.durationDays || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{record.durationDays || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm font-medium">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         record.isPaid === false ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                       }`}>
                         {record.isPaid === false ? 'غير مدفوعة' : 'مدفوعة'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-left text-sm>{record.notes || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm">{record.notes || '-'}</td>
                   </tr>
                 ))}
               </tbody>

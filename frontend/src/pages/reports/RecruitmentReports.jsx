@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useDepartments } from '../../hooks/useDepartments';
 import { getJobStats, getApplications, getJobPostings } from '../../services/recruitmentPerformanceService';
 import Card from '../../components/common/Card';
 import { BarChart, PieChart, LineChart } from '../../components/charts';
-import { StatCard } from '../../components/widgets/StatCard';
+import StatCard from '../../components/widgets/StatCard';
 import { formatNumber } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
@@ -100,7 +101,7 @@ const RecruitmentReports = () => {
     const monthlyData = {};
     
     applications.forEach(app => {
-      const date = application.createdAt ? new Date(application.createdAt) : new Date();
+      const date = app.createdAt ? new Date(app.createdAt) : new Date();
       const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = { total: 0, hired: 0 };
@@ -442,9 +443,9 @@ const RecruitmentReports = () => {
                   <tr key={index}>
                     <td className="px-6 py-4 text-left text-sm text-gray-900">{job.title || '-'}</td>
                     <td className="px-6 py-4 text-left text-sm text-gray-500">{job.department?.name || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{job.level || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{job.jobType || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{job.level || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{job.jobType || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm font-medium">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         job.status === 'draft' ? 'bg-gray-100 text-gray-800' :
                         job.status === 'open' ? 'bg-green-100 text-green-800' :
@@ -458,7 +459,7 @@ const RecruitmentReports = () => {
                          job.status === 'filled' ? 'ممتلئ' : '-' }
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-left text-sm>{job.applications || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm">{job.applications || '0'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -491,7 +492,7 @@ const RecruitmentReports = () => {
                     <td className="px-6 py-4 text-left text-sm text-gray-900">{app.applicantName || '-'}</td>
                     <td className="px-6 py-4 text-left text-sm text-gray-500>{app.jobPosting?.title || '-'}</td>
                     <td className="px-6 py-4 text-left text-sm text-gray-500>{app.employeeName || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium>
+                    <td className="px-6 py-4 text-left text-sm font-medium">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         app.status === 'applied' ? 'bg-yellow-100 text-yellow-800' :
                         app.status === 'screening' ? 'bg-blue-100 text-blue-800' :

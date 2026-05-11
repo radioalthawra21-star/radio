@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getAttendanceStats, getAttendanceRecords } from '../../services/taskService'; // Assuming attendance is in task service
+import { getAllAttendanceRecords, getDepartmentAttendance } from '../../services/attendanceService';
 import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 import { BarChart, PieChart, LineChart } from '../../components/charts';
-import { StatCard } from '../../components/widgets/StatCard';
+import StatCard from '../../components/widgets/StatCard';
 import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
@@ -33,13 +33,8 @@ const AttendanceReports = () => {
       setError(null);
       
       // Fetch attendance stats
-      const statsResponse = await getAttendanceStats(filter);
-      if (statsResponse.success) {
-        setAttendanceStats(statsResponse.data);
-      }
-      
       // Fetch attendance records
-      const recordsResponse = await getAttendanceRecords(filter);
+      const recordsResponse = await getAllAttendanceRecords(filter);
       if (recordsResponse.success) {
         setAttendanceRecords(recordsResponse.data || []);
         

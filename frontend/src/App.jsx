@@ -21,6 +21,12 @@ import DepartmentReports from './pages/Manager/DepartmentReports';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AllEmployees from './pages/Admin/AllEmployees';
 import AllReports from './pages/Admin/AllReports';
+// Reports sub-pages
+import AttendanceReports from './pages/reports/AttendanceReports';
+import LeaveReports from './pages/reports/LeaveReports';
+import DepartmentReportView from './pages/reports/DepartmentReports';
+import PayrollReportView from './pages/reports/PayrollReports';
+import RecruitmentReportsPage from './pages/reports/RecruitmentReports';
 import Settings from './pages/Admin/Settings';
 import Rankings from './pages/Admin/Rankings';
 import BonusManagement from './components/BonusManagement';
@@ -283,6 +289,31 @@ function App() {
                 <Route path="/admin/reports" element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AllReports />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/reports/attendance" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <AttendanceReports />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/reports/leave" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <LeaveReports />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/reports/department" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <DepartmentReportView />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/reports/payroll" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <PayrollReportView />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/reports/recruitment" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <RecruitmentReportsPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/settings" element={

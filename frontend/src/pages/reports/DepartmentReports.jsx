@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getDepartmentStats, getDepartmentEmployees } from '../../services/departmentService';
-import { getDepartmentPerformance } from '../../services/userService'; // Assuming performance data is in user service
+import { useDepartments } from '../../hooks/useDepartments';
+import { getDepartmentCosts } from '../../services/departmentService';
+import { getDepartmentStats, getAllEmployees } from '../../services/userService';
 import Card from '../../components/common/Card';
 import { BarChart, PieChart, LineChart } from '../../components/charts';
-import { StatCard } from '../../components/widgets/StatCard';
+import StatCard from '../../components/widgets/StatCard';
 import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
@@ -32,21 +33,15 @@ const DepartmentReports = () => {
       setError(null);
       
       // Fetch department stats
-      const statsResponse = await getDepartmentStats(filter);
+      const statsResponse = await getDepartmentStats();
       if (statsResponse.success) {
         setDeptStats(statsResponse.data);
       }
       
       // Fetch department employees
-      const employeesResponse = await getDepartmentEmployees(filter);
+      const employeesResponse = await getAllEmployees();
       if (employeesResponse.success) {
         setDeptEmployees(employeesResponse.data || []);
-      }
-      
-      // Fetch department performance
-      const performanceResponse = await getDepartmentPerformance(filter);
-      if (performanceResponse.success) {
-        setDeptPerformance(performanceResponse.data);
       }
       
       // Prepare chart data
@@ -365,18 +360,18 @@ const DepartmentReports = () => {
               <tbody className="divide-y divide-gray-200">
                 {deptEmployees.map((emp, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 text-left text-sm text-gray-900>{emp.name || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{emp.department ? getDepartmentName(emp.department) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{emp.position || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium>
+                    <td className="px-6 py-4 text-left text-sm text-gray-900">{emp.name || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{emp.department ? getDepartmentName(emp.department) : '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{emp.position || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm font-medium">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         emp.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {emp.status === 'active' ? 'نشط' : 'غير نشط'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-left text-sm>{emp.hireDate ? formatDateArabic(emp.hireDate) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm>{formatCurrency(emp.salary || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm">{emp.hireDate ? formatDateArabic(emp.hireDate) : '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm">{formatCurrency(emp.salary || 0)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -404,19 +399,19 @@ const DepartmentReports = () => {
               <tbody className="divide-y divide-gray-200">
                 {deptStats.departmentBreakdown.map((dept, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 text-left text-sm text-gray-900>{dept.name || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{dept.employeeCount || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{dept.activeEmployeeCount || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{formatNumber(dept.averagePerformance || 0)}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{formatCurrency(dept.averageSalary || 0)}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500>{formatNumber(dept.workHours || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-900">{dept.name || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{dept.employeeCount || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{dept.activeEmployeeCount || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{formatNumber(dept.averagePerformance || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{formatCurrency(dept.averageSalary || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500">{formatNumber(dept.workHours || 0)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
     </div>
   );
 };
