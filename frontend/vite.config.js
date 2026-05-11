@@ -6,9 +6,26 @@ export default defineConfig({
   server: {
     port: 5173,
     host: 'localhost',
+    watch: {
+      ignored: [
+        '**/node_modules/**',
+        '**/dist/**'
+      ]
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+        headers: {
+          'Connection': 'keep-alive'
+        }
+      },
+      '/uploads': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true
+      },
+      '/fonts': {
+        target: 'http://127.0.0.1:3000',
         changeOrigin: true
       }
     }

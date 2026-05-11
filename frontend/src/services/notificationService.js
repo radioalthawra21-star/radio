@@ -65,6 +65,14 @@ export const resetSettings = async () => {
   return response.data;
 };
 
+const simpleNotify = {
+  showSuccess: (msg) => { if (window.toastSuccess) window.toastSuccess(msg); else alert(msg); },
+  showError: (msg) => { if (window.toastError) window.toastError(msg); else alert(msg); },
+  showInfo: (msg) => { if (window.toastInfo) window.toastInfo(msg); else alert(msg); }
+};
+
+export const getNotificationService = () => simpleNotify;
+
 export default {
   getMyNotifications,
   markAsRead,

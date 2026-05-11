@@ -12,7 +12,10 @@ const menuItems = {
     { path: '/task-history', label: 'سجل المهام', icon: '📜' },
     { path: '/messages', label: 'الرسائل', icon: '✉️' },
     { path: '/evaluate-manager', label: 'تقييم المدير', icon: '⭐' },
-    { path: '/well-being', label: 'الحالة اليومية', icon: '😊' }
+    { path: '/well-being', label: 'الحالة اليومية', icon: '😊' },
+    { path: '/payroll/my-salary', label: 'راتبي', icon: '💰' },
+    { path: '/attendance', label: 'الحضور', icon: '🕐' },
+    { path: '/leave-request', label: 'طلب إجازة', icon: '📅' }
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -22,7 +25,12 @@ const menuItems = {
     { path: '/manager/reports', label: 'تقارير القسم', icon: '📊' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👤' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
-    { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' }
+    { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
+    { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
+    { path: '/payroll/workflow', label: 'سير العمل', icon: '🔄' },
+    { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
+    { path: '/admin/attendance', label: 'الحضور والانصراف', icon: '🕐' },
+    { path: '/admin/recruitment', label: 'التوظيف والأداء', icon: '👔' }
   ],
   admin: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -33,19 +41,46 @@ const menuItems = {
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/manager-evaluation', label: 'تقييم المديرين', icon: '📊' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
-    { path: '/admin/settings', label: 'الإعدادات', icon: '⚙️' }
+    { path: '/admin/settings', label: 'الإعدادات', icon: '⚙️' },
+    { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
+    { path: '/payroll/comprehensive', label: 'الرواتب الشامل', icon: '📊' },
+    { path: '/payroll/workflow', label: 'سير العمل', icon: '🔄' },
+    { path: '/payroll/integration', label: 'التكامل', icon: '🔗' },
+    { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
+    { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
+    { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
+    { path: '/admin/recruitment', label: 'التوظيف والأداء', icon: '👔' }
   ]
 };
 
 const departmentNames = {
-  production: 'الإنتاج',
+  financial: 'المالي',
+  it: 'تقنية المعلومات',
+  marketing: 'التسويق',
   news: 'الأخبار',
-  marketing: 'التسويق'
+  production: 'الإنتاج',
+  live_broadcast: 'البث المباشر',
+  hr: 'الموارد البشرية',
+  المالي: 'المالي',
+  'تقنية المعلومات': 'تقنية المعلومات',
+  التسويق: 'التسويق',
+  الأخبار: 'الأخبار',
+  الإنتاج: 'الإنتاج',
+  'البث المباشر': 'البث المباشر',
+  'الموارد البشرية': 'الموارد البشرية'
+};
+
+// Check if user is authorized to access news department features
+const isNewsAuthorized = (user) => {
+  if (!user) return false;
+  const dept = (user.department || '').trim().toLowerCase();
+  return dept === 'news' || dept.includes('news') || dept.includes('إعلام');
 };
 
 const Sidebar = ({ isOpen, setIsOpen, user }) => {
   const role = user?.role || 'employee';
   const items = menuItems[role] || menuItems.employee;
+  const newsAuthorized = isNewsAuthorized(user);
   const [appLogo, setAppLogo] = useState(null);
 
   useEffect(() => {
@@ -119,6 +154,29 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
               <span>{item.label}</span>
             </NavLink>
           ))}
+
+          {/* News Department Navigation - Conditional */}
+          {newsAuthorized && (
+            <>
+              <div className="border-t border-gray-600 my-2"></div>
+              <NavLink
+                key="/news"
+                to="/news"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors ${
+                    isActive 
+                      ? 'bg-interactive text-white' 
+                      : 'hover:bg-gray-700 text-gray-300'
+                  }`
+                }
+              >
+                <span className="text-xl">📰</span>
+                <span>لوحة الأخبار</span>
+              </NavLink>
+            </>
+          )}
+
+
         </nav>
       </aside>
     </>

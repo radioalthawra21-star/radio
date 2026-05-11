@@ -1,0 +1,14 @@
+﻿.attendance-management { direction: rtl; }
+.attendance-management .loading-spinner { text-align: center; padding: 2rem; color: #6b7280; }
+.attendance-management .error-message { background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+.attendance-management .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.attendance-management .filters input, .attendance-management .filters select { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
+.attendance-management .table-container { overflow-x: auto; }
+.attendance-management .data-table { width: 100%; border-collapse: collapse; }
+.attendance-management .data-table th, .attendance-management .data-table td { padding: 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb; }
+.attendance-management .data-table th { background: #f9fafb; font-weight: 600; color: #374151; }
+.attendance-management .data-table tr:hover { background: #f3f4f6; }
+.attendance-management .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; }
+.attendance-management .pagination button { padding: 0.375rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background: white; cursor: pointer; }
+.attendance-management .pagination button.active { background: #2563eb; color: white; border-color: #2563eb; }
+.attendance-management .pagination button:disabled { opacity: 0.5; cursor: default; }

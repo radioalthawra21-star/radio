@@ -33,3 +33,34 @@ uploads/*
 
 # Docker
 .docker/
+
+# Debug & temporary files
+*.err
+*.zip
+*.csv
+*.ps1
+backend/uploads/*
+!backend/uploads/.gitkeep
+frontend/build-debug.txt
+frontend/debug-*.js
+frontend/debug-*.jsx
+backend/debug-*.js
+backend/test-*.js
+backend/fix-*.js
+backend/check-*.js
+backend/verify-*.js
+backend/seed-*.js
+backend/migrate-*.js
+backend/inspect-*.js
+backend/scripts/
+backend/tests/
+all_files.csv
+duplicate_*
+find_duplicates*
+commit_message*.txt
+
+# Disabled git repos
+.git_disabled/
+
+# Hidden tool configs
+.sixth/

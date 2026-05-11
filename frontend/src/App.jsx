@@ -25,6 +25,9 @@ import Settings from './pages/Admin/Settings';
 import Rankings from './pages/Admin/Rankings';
 import BonusManagement from './components/BonusManagement';
 import DeveloperPanel from './pages/Developer/DeveloperPanel';
+import AlertsPanel from './pages/Developer/AlertsPanel';
+import ResourceMonitor from './pages/Developer/ResourceMonitor';
+import VisitorMonitor from './pages/Developer/VisitorMonitor';
 import TaskDetail from './pages/TaskDetail';
 import Messages from './pages/Messages';
 import ManagerEvaluation from './pages/ManagerEvaluation';
@@ -32,6 +35,35 @@ import ManagerEvaluationDashboard from './pages/ManagerEvaluationDashboard';
 import WellBeingCheckIn from './pages/WellBeingCheckIn';
 import WellBeingDashboard from './pages/WellBeingDashboard';
 import ChangePassword from './pages/Employee/ChangePassword';
+import Attendance from './pages/Employee/Attendance';
+import LeaveRequest from './pages/Employee/LeaveRequest';
+import LeaveManagement from './pages/Admin/LeaveManagement';
+import AttendanceManagement from './pages/Admin/AttendanceManagement';
+import AuditLogs from './pages/Admin/AuditLogs';
+import RecruitmentPerformanceManagement from './pages/RecruitmentPerformanceManagement';
+import NotAuthorized from './pages/Auth/NotAuthorized';
+
+// Payroll pages
+import PayrollManagement from './pages/Payroll/PayrollManagement';
+import PayrollPendingAssignments from './pages/PayrollPendingAssignments';
+import PayrollDashboard from './pages/PayrollDashboard';
+import PayrollProcessing from './pages/PayrollProcessing';
+import PayrollReports from './pages/PayrollReports';
+import PayrollAudit from './pages/PayrollAudit';
+import PayrollPolicies from './pages/PayrollPolicies';
+import PayrollWorkflow from './pages/PayrollWorkflow';
+import PayrollIntegration from './pages/PayrollIntegration';
+import PayslipView from './pages/Payroll/PayslipView';
+import PayslipDetail from './pages/Payroll/PayslipDetail';
+import ComprehensiveHRPayrollSystem from './pages/Payroll/ComprehensiveHRPayrollSystem';
+import { PayrollRouteWrapper } from './context/PayrollWrapper';
+
+// News pages
+import NewsDashboard from './pages/News/NewsDashboard';
+import EditorialPipeline from './pages/News/EditorialPipeline';
+import CoupletPipeline from './pages/News/CoupletPipeline';
+import PromptManagement from './pages/News/PromptManagement';
+import CoupletPromptManagement from './pages/News/CoupletPromptManagement';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -45,6 +77,30 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/" replace />;
   }
   
+   return children;
+ };
+
+// News department route - only for news department staff and admins
+const NewsRoute = ({ children, allowedRoles = [] }) => {
+  const user = getStoredUser();
+
+  if (!isLoggedIn()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/not-authorized" replace />;
+  }
+
+  // Department check: must be 'news' or Arabic equivalents OR role 'admin'
+  if (user.role !== 'admin') {
+    const dept = (user.department || '').trim().toLowerCase();
+    const isNewsDept = dept === 'news' || dept === 'الأخبار' || dept.includes('news') || dept.includes('إعلام');
+    if (!isNewsDept) {
+      return <Navigate to="/not-authorized" replace />;
+    }
+  }
+
   return children;
 };
 
@@ -114,11 +170,37 @@ function App() {
             </PublicRoute>
           } 
         />
+        <Route 
+          path="/not-authorized" 
+          element={
+            <ProtectedRoute>
+              <NotAuthorized />
+            </ProtectedRoute>
+          } 
+        />
 
         <Route 
           path="/developer" 
           element={
             <DeveloperPanel />
+          }
+        />
+        <Route 
+          path="/developer/alerts" 
+          element={
+            <AlertsPanel />
+          }
+        />
+        <Route 
+          path="/developer/resources" 
+          element={
+            <ResourceMonitor />
+          }
+        />
+        <Route 
+          path="/developer/visitors" 
+          element={
+            <VisitorMonitor />
           }
         />
 
@@ -213,6 +295,26 @@ function App() {
                     <Rankings />
                   </ProtectedRoute>
                 } />
+                <Route path="/admin/leave-management" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <LeaveManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/attendance" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <AttendanceManagement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/audit-logs" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AuditLogs />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/recruitment" element={
+                  <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                    <RecruitmentPerformanceManagement />
+                  </ProtectedRoute>
+                } />
 <Route path="/admin/bonuses" element={
                    <ProtectedRoute allowedRoles={['manager', 'admin']}>
                      <BonusManagement />
@@ -249,11 +351,146 @@ function App() {
                      </ProtectedRoute>
                    } />
                    <Route path="/admin/well-being" element={
-                     <ProtectedRoute allowedRoles={['admin', 'manager']}>
-                       <WellBeingDashboard />
-                     </ProtectedRoute>
-                   } />
-               </Routes>
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <WellBeingDashboard />
+                      </ProtectedRoute>
+                    } />
+
+                    {/* Employee self-service */}
+                    <Route path="/attendance" element={
+                      <ProtectedRoute>
+                        <Attendance />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/leave-request" element={
+                      <ProtectedRoute>
+                        <LeaveRequest />
+                      </ProtectedRoute>
+                    } />
+
+                    {/* Payroll Routes */}
+                    <Route path="/payroll" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <PayrollDashboard />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/management" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <PayrollManagement />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/comprehensive" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <ComprehensiveHRPayrollSystem />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/pending" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}>
+                        <PayrollRouteWrapper>
+                          <PayrollPendingAssignments />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/pending-assignments" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}>
+                        <PayrollRouteWrapper>
+                          <PayrollPendingAssignments />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/processing" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <PayrollProcessing />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/reports" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <PayrollReports />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/audit" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <PayrollRouteWrapper>
+                          <PayrollAudit />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/policies" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <PayrollPolicies />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/workflow" element={
+                      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+                        <PayrollRouteWrapper>
+                          <PayrollWorkflow />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payslip/:period" element={
+                      <ProtectedRoute>
+                        <PayslipView />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payslip/detail/:payrollId" element={
+                      <ProtectedRoute>
+                        <PayslipDetail />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/integration" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <PayrollRouteWrapper>
+                          <PayrollIntegration />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payroll/my-salary" element={
+                      <ProtectedRoute allowedRoles={['employee']}>
+                        <PayrollRouteWrapper>
+                          <PayrollManagement />
+                        </PayrollRouteWrapper>
+                      </ProtectedRoute>
+                    } />
+
+                    {/* News Routes - News Department & Admin Only */}
+                    <Route path="/news" element={
+                      <NewsRoute>
+                        <NewsDashboard />
+                      </NewsRoute>
+                    } />
+                    <Route path="/news/editorial-pipeline" element={
+                      <NewsRoute>
+                        <EditorialPipeline />
+                      </NewsRoute>
+                    } />
+                    <Route path="/news/prompts" element={
+                      <NewsRoute>
+                        <PromptManagement />
+                      </NewsRoute>
+                    } />
+                    <Route path="/news/couplet-pipeline" element={
+                      <NewsRoute>
+                        <CoupletPipeline />
+                      </NewsRoute>
+                    } />
+                    <Route path="/news/couplet-prompts" element={
+                      <NewsRoute>
+                        <CoupletPromptManagement />
+                      </NewsRoute>
+                    } />
+                </Routes>
               </Layout>
             </ProtectedRoute>
           } 

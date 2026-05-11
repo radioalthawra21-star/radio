@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getTasksToApprove } from '../../services/taskService';
+import { getPendingLeaveRequests } from '../../services/leaveService';
 import { getDepartmentStats, getRankings, getUserCounts } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
 import { getStoredUser } from '../../services/authService';
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState([]);
   const [userCounts, setUserCounts] = useState({ employees: 0, managers: 0 });
+  const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
 
   const { getDepartmentName } = useDepartments();
 
@@ -44,7 +46,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      const [approveRes, deptRes, rankRes, countsRes] = await Promise.all([
+      const [approveRes, deptRes, rankRes, countsRes, pendingLeavesRes] = await Promise.all([
         getTasksToApprove(),
         getDepartmentStats(),
         getRankings(),
@@ -68,6 +70,9 @@ const AdminDashboard = () => {
 
       if (countsRes.success) {
         setUserCounts(countsRes.data);
+      }
+      if (pendingLeavesRes?.success) {
+        setPendingLeavesCount(pendingLeavesRes.data?.count || 0);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -130,13 +135,36 @@ const AdminDashboard = () => {
               <span className="text-2xl">✓</span>
             </div>
             <div>
-              <p className="text-gray-600 text-sm">في انتظار الموافقة</p>
-              <p className="text-2xl font-bold text-interactive">{tasksToApprove.length}</p>
+              <p className="text-gray-600 text-sm">الأعضاء</p>
+              <p className="text-2xl font-bold text-interactive">{userCounts.employees + userCounts.managers}</p>
+            </div>
+          </Card>
+        </Link>
+
+        <Link to="/admin/leave-management">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📝</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">إجازات معلقة</p>
+              <p className="text-2xl font-bold text-warning">{pendingLeavesCount}</p>
+            </div>
+          </Card>
+        </Link>
+
+        <Link to="/payroll/pending-assignments">
+          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+            <div className="w-12 h-12 bg-danger/20 rounded-full flex items-center justify-center">
+              <span className="text-2xl">💰</span>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">الرواتب</p>
+              <p className="text-2xl font-bold text-danger">إدارة</p>
             </div>
           </Card>
         </Link>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Link to="/admin/employees">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
