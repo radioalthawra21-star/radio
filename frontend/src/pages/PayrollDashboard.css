@@ -1,0 +1,453 @@
+.payroll-dashboard {
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.payroll-dashboard .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.payroll-dashboard .section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+}
+
+.payroll-dashboard .section-title svg {
+  margin-right: 0.75rem;
+  color: #6366f1;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card .card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-card.blue .card-icon {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.dashboard-card.green .card-icon {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+}
+
+.dashboard-card.orange .card-icon {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: white;
+}
+
+.dashboard-card.purple .card-icon {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+}
+
+.dashboard-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-card p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.dashboard-card .trend {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.dashboard-card .trend.positive {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.dashboard-card .trend.negative {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Chart Containers */
+.chart-container {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.chart-container h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.chart-container h3 svg {
+  margin-right: 0.75rem;
+  color: #6366f1;
+}
+
+/* Progress Bars */
+.progress-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.progress-bar .progress {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progress-bar .progress.blue {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.progress-bar .progress.green {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.progress-bar .progress.orange {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+/* Recent Activity */
+.recent-activity {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.recent-activity .activity-header {
+  padding: 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+}
+
+.recent-activity .activity-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+}
+
+.recent-activity .activity-header h3 svg {
+  margin-right: 0.75rem;
+  color: #6366f1;
+}
+
+.recent-activity .activity-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.recent-activity .activity-item {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.2s ease;
+}
+
+.recent-activity .activity-item:hover {
+  background: #f8fafc;
+}
+
+.recent-activity .activity-item:last-child {
+  border-bottom: none;
+}
+
+.recent-activity .activity-item .activity-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.recent-activity .activity-item .activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.recent-activity .activity-item.success .activity-icon {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.recent-activity .activity-item.info .activity-icon {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.recent-activity .activity-item.warning .activity-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.recent-activity .activity-item .activity-details {
+  flex: 1;
+}
+
+.recent-activity .activity-item .activity-details .activity-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.recent-activity .activity-item .activity-details .activity-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.recent-activity .activity-item .activity-details .activity-time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #6366f1, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.metric-card:hover::after {
+  opacity: 1;
+}
+
+.metric-card .metric-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.metric-card .metric-icon.blue {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.metric-card .metric-icon.green {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+}
+
+.metric-card .metric-icon.orange {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: white;
+}
+
+.metric-card .metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.metric-card .metric-label {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.metric-card .metric-change {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.metric-card .metric-change.positive {
+  color: #059669;
+}
+
+.metric-card .metric-change.negative {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payroll-dashboard {
+    padding: 1rem;
+  }
+  
+  .dashboard-card {
+    padding: 1.5rem;
+  }
+  
+  .chart-container {
+    padding: 1.5rem;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .payroll-dashboard {
+    background: white !important;
+    padding: 0 !important;
+  }
+  
+  .dashboard-card,
+  .chart-container,
+  .recent-activity,
+  .metric-card {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out forwards;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus Styles */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

@@ -7,9 +7,11 @@
 import axios from 'axios';
 
 // ✅ استخدام المتغير البيئي - بدون /api في النهاية
-const BASE_URL = import.meta.env.PROD 
-  ? (import.meta.env.VITE_API_BASE_URL || 'https://cc-backend-2ogh.onrender.com')
-  : '';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL 
+  ? import.meta.env.VITE_API_BASE_URL
+  : import.meta.env.PROD 
+    ? 'https://cc-backend-2ogh.onrender.com'
+    : '';
 
 // Create axios instance
 const api = axios.create({

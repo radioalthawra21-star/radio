@@ -35,10 +35,12 @@ uploads/*
 .docker/
 
 # Debug & temporary files
+*.bak
 *.err
 *.zip
 *.csv
 *.ps1
+frontend/test-*.*
 backend/uploads/*
 !backend/uploads/.gitkeep
 frontend/build-debug.txt

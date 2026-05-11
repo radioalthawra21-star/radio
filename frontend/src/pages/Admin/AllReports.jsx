@@ -169,14 +169,19 @@ const AllReports = () => {
               onChange={(e) => setFilter({ ...filter, department: e.target.value })}
             >
               <option value="">الكل</option>
-              <option value="production">الإنتاج</option>
-              <option value="news">الأخبار</option>
-              <option value="marketing">التسويق</option>
-              {departments.map(dept => (
-                <option key={dept._id || dept.id} value={dept._id || dept.id}>
-                  {dept.name}
-                </option>
-              ))}
+              {departments.length > 0 ? (
+                departments.map(dept => (
+                  <option key={dept._id || dept.id} value={dept._id || dept.id}>
+                    {dept.name}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="production">الإنتاج</option>
+                  <option value="news">الأخبار</option>
+                  <option value="marketing">التسويق</option>
+                </>
+              )}
             </select>
           </div>
           <div>

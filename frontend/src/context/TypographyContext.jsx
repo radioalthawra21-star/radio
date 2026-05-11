@@ -4,13 +4,13 @@ const TypographyContext = createContext();
 
 const DEFAULT_FONTS = {
   heading: {
-    family: 'system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, \'Noto Sans\', sans-serif, \'Apple Color Emoji\', \'Segoe UI Emoji\', \'Segoe UI Symbol\', \'Noto Color Emoji\'',
-    source: 'system',
+    family: "'Montserrat Arabic', system-ui, sans-serif",
+    source: 'static',
     url: ''
   },
   body: {
-    family: 'system-ui, -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, \'Noto Sans\', sans-serif, \'Apple Color Emoji\', \'Segoe UI Emoji\', \'Segoe UI Symbol\', \'Noto Color Emoji\'',
-    source: 'system',
+    family: "'Montserrat Arabic Light', system-ui, sans-serif",
+    source: 'static',
     url: ''
   }
 };

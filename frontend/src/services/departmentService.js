@@ -10,13 +10,25 @@ export const createDepartment = async (data) => {
   return response.data;
 };
 
+export const updateDepartment = async (id, data) => {
+  const response = await api.put(`/departments/${id}`, data);
+  return response.data;
+};
+
 export const deleteDepartment = async (id) => {
   const response = await api.delete(`/departments/${id}`);
+  return response.data;
+};
+
+export const getDepartmentCosts = async () => {
+  const response = await api.get('/departments/costs');
   return response.data;
 };
 
 export default {
   getAllDepartments,
   createDepartment,
-  deleteDepartment
+  updateDepartment,
+  deleteDepartment,
+  getDepartmentCosts
 };

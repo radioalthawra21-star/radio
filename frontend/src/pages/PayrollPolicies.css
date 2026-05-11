@@ -1,0 +1,633 @@
+.payroll-policies-page {
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+/* Page Header */
+.payroll-policies-page h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.payroll-policies-page .text-gray-600 {
+  font-size: 1.125rem;
+  color: #64748b;
+}
+
+/* Main Grid Layout */
+.policies-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .policies-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Calculator Card */
+.calculator-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.calculator-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #f59e0b, #f97316, #ef4444);
+}
+
+.calculator-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calculator-title svg {
+  color: #f59e0b;
+}
+
+/* Input Grid */
+.calculator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.input-section {
+  background: #fef3c7;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #fde68a;
+}
+
+.input-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-section h3 svg {
+  color: #f59e0b;
+}
+
+.input-group {
+  margin-bottom: 1.25rem;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #92400e;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #fbbf24;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #92400e;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #fcd34d;
+}
+
+.input-group .currency-prefix {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+/* Results Section */
+.results-section {
+  background: #fef3c7;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #fde68a;
+}
+
+.results-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.results-section h3 svg {
+  color: #f59e0b;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed #fbbf24;
+}
+
+.result-row:last-child {
+  border-bottom: none;
+}
+
+.result-label {
+  font-size: 0.875rem;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.result-label .result-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.result-label .result-badge.gross {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.result-label .result-badge.deduction {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.result-label .result-badge.net {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.result-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.result-value.gross {
+  color: #059669;
+}
+
+.result-value.deduction {
+  color: #0a1138;
+}
+
+.result-value.net {
+  color: #96050c;
+  font-size: 1.5rem;
+}
+
+/* Deductions Breakdown */
+.deductions-breakdown {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #fbbf24;
+}
+
+.deduction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.deduction-label {
+  font-size: 0.75rem;
+  color: #92400e;
+}
+
+.deduction-rate {
+  font-size: 0.75rem;
+  color: #92400e;
+  margin: 0 0.5rem;
+}
+
+.deduction-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+/* Deduction Rules */
+.deduction-rules-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.deduction-rules-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.deduction-rules-card h2 svg {
+  color: #ef4444;
+}
+
+.rule-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.rule-type-card {
+  background: #fef3c7;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #fde68a;
+  transition: all 0.3s ease;
+}
+
+.rule-type-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.1);
+  border-color: #f59e0b;
+}
+
+.rule-type-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rule-type-card h3 svg {
+  color: #f59e0b;
+}
+
+.rule-detail {
+  font-size: 0.875rem;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+.rule-detail .rule-rate {
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.rule-detail .rule-max {
+  font-weight: 600;
+  color: #ef4444;
+}
+
+/* Compliance Requirements */
+.compliance-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.compliance-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.compliance-card h2 svg {
+  color: #3b82f6;
+}
+
+.compliance-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.compliance-rule {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.compliance-rule:hover {
+  background: #dbeafe;
+  transform: translateX(4px);
+}
+
+.compliance-rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.compliance-rule-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.compliance-rule-deadline {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+.compliance-rule-description {
+  font-size: 0.75rem;
+  color: #3b82f6;
+  line-height: 1.5;
+}
+
+.compliance-rule-penalty {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+/* Filing Deadlines */
+.filing-deadlines-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.filing-deadlines-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filing-deadlines-card h2 svg {
+  color: #f59e0b;
+}
+
+.deadlines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deadline-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: #fef3c7;
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+  transition: all 0.3s ease;
+}
+
+.deadline-item:hover {
+  background: #fed7aa;
+  transform: translateX(4px);
+}
+
+.deadline-task {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.deadline-meta {
+  text-align: right;
+}
+
+.deadline-frequency {
+  font-size: 0.75rem;
+  color: #92400e;
+  margin-bottom: 0.25rem;
+}
+
+.deadline-responsible {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Quick Reference */
+.quick-reference-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.quick-reference-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.quick-reference-card h2 svg {
+  color: #8b5cf6;
+}
+
+.reference-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.reference-item {
+  background: #f3e8ff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.reference-item:hover {
+  background: #e9d5ff;
+  transform: translateY(-2px);
+}
+
+.reference-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #7c3aed;
+  margin-bottom: 0.25rem;
+}
+
+.reference-label {
+  font-size: 0.75rem;
+  color: #6b21a8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payroll-policies-page {
+    padding: 1rem;
+  }
+  
+  .payroll-policies-page h1 {
+    font-size: 2rem;
+  }
+  
+  .calculator-card {
+    padding: 1.5rem;
+  }
+  
+  .calculator-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .rule-types-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reference-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .payroll-policies-page {
+    background: white !important;
+    padding: 0 !important;
+  }
+  
+  .calculator-card,
+  .deduction-rules-card,
+  .compliance-card,
+  .filing-deadlines-card,
+  .quick-reference-card {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}
+
+/* Animations */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-in-scale {
+  animation: fadeInScale 0.4s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-out forwards;
+}
+
+/* Focus Visible */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

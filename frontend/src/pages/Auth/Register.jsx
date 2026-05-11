@@ -256,12 +256,17 @@ const Register = () => {
                   required
                 >
                   <option value=''>اختر القسم</option>
-                  <option value='production'>الإنتاج</option>
-                  <option value='news'>الأخبار</option>
-                  <option value='marketing'>التسويق</option>
-                  {customDepartments.map(d => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
+                  {customDepartments.length > 0 ? (
+                    customDepartments.map(d => (
+                      <option key={d._id || d.id} value={d._id || d.id}>{d.name}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value='production'>الإنتاج</option>
+                      <option value='news'>الأخبار</option>
+                      <option value='marketing'>التسويق</option>
+                    </>
+                  )}
                 </select>
               )}
             </div>

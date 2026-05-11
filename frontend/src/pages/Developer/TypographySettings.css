@@ -1,0 +1,252 @@
+.typography-settings {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(28, 149, 164, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.typography-section {
+  margin-bottom: 24px;
+}
+
+.typography-section:last-child {
+  margin-bottom: 0;
+}
+
+.typography-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #182E4E;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #CD6F13;
+}
+
+.font-control-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.font-control-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  min-width: 100px;
+}
+
+.font-control-group select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.font-control-group select:focus {
+  border-color: #1C95A4;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(28, 149, 164, 0.1);
+}
+
+.font-upload-btn {
+  background: #1C95A4;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.font-upload-btn:hover {
+  background: #167a8a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(28, 149, 164, 0.3);
+}
+
+.current-font-display {
+  font-size: 13px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.current-font-display span {
+  font-weight: 600;
+  color: #182E4E;
+}
+
+.uploaded-fonts-list {
+  margin-top: 16px;
+}
+
+.uploaded-font-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.uploaded-font-item:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+
+.uploaded-font-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.uploaded-font-name {
+  font-weight: 600;
+  color: #182E4E;
+}
+
+.font-usage-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.font-usage-badge.heading {
+  background: rgba(28, 149, 164, 0.1);
+  color: #1C95A4;
+}
+
+.font-usage-badge.body {
+  background: rgba(205, 111, 19, 0.1);
+  color: #CD6F13;
+}
+
+.delete-font-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.delete-font-btn:hover {
+  background: rgba(231, 76, 60, 0.1);
+  transform: scale(1.05);
+}
+
+.all-fonts-display {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.all-fonts-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #182E4E;
+  margin-bottom: 12px;
+}
+
+.font-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #555;
+  margin: 4px;
+  transition: all 0.3s ease;
+}
+
+.font-tag:hover {
+  border-color: #1C95A4;
+  color: #1C95A4;
+  transform: translateY(-2px);
+}
+
+.font-tag.active-heading {
+  border-color: #1C95A4;
+  background: rgba(28, 149, 164, 0.1);
+  color: #1C95A4;
+}
+
+.font-tag.active-body {
+  border-color: #CD6F13;
+  background: rgba(205, 111, 19, 0.1);
+  color: #CD6F13;
+}
+
+.preview-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #182E4E;
+  margin-bottom: 16px;
+}
+
+.preview-box {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.preview-box h2 {
+  font-size: 20px;
+  margin: 0 0 8px 0;
+  color: #182E4E;
+}
+
+.preview-box p {
+  font-size: 14px;
+  margin: 0;
+  color: #666;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 8px 12px;
+  text-align: right;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 13px;
+}
+
+.preview-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #182E4E;
+}
+
+.hidden-input {
+  display: none;
+}

@@ -13,9 +13,20 @@ import 'jspdf-autotable';
 import { formatDateArabic } from '../../utils/dateUtils';
 
 const departmentNames = {
-  production: 'الإنتاج',
+  financial: 'المالي',
+  it: 'تقنية المعلومات',
+  marketing: 'التسويق',
   news: 'الأخبار',
-  marketing: 'التسويق'
+  production: 'الإنتاج',
+  live_broadcast: 'البث المباشر',
+  hr: 'الموارد البشرية',
+  المالي: 'المالي',
+  'تقنية المعلومات': 'تقنية المعلومات',
+  التسويق: 'التسويق',
+  الأخبار: 'الأخبار',
+  الإنتاج: 'الإنتاج',
+  'البث المباشر': 'البث المباشر',
+  'الموارد البشرية': 'الموارد البشرية'
 };
 
 const DepartmentReports = () => {

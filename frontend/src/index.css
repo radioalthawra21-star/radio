@@ -1,75 +1,95 @@
+/* Font face definitions - MUST be before Tailwind */
+@font-face {
+  font-family: 'Montserrat Arabic';
+  src: url('/fonts/MONTSERRAT-ARABIC-REGULAR.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat Arabic Light';
+  src: url('/fonts/MONTSERRAT-ARABIC-LIGHT.TTF') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Tailwind directives - MUST come first */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   :root {
-    --font-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-heading: 'Montserrat Arabic', system-ui, sans-serif;
+    --font-body: 'Montserrat Arabic Light', system-ui, sans-serif;
     --app-logo: '/logo.png';
     --app-name: 'راديو الثورة';
   }
-  
+
   html {
-    font-family: var(--font-body);
     direction: rtl;
-    -webkit-locale: 'en';
-    locale: 'en';
   }
-  
+
   body {
     direction: rtl;
     text-align: right;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--font-body);
     background-color: #E3D4BE;
     color: #182E4E;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  .heading-text, .title, .header-text, th, strong, b {
+    font-family: var(--font-heading);
+  }
+
+  .stat-value, .total-row td, .gross, .deductions, .net,
+  button, .btn, .btn-primary, .btn-secondary, .btn-success, .btn-info,
+  .btn-save, .btn-cancel, .edit-btn, .delete-btn,
+  .modal-content h2, .section-header h3, .system-header h1 {
+    font-family: var(--font-heading);
+  }
+
+  input, textarea, select, label, td, p, span, div, a, li, small,
+  .form-group, .filter-group, .employee-info, .dept-badge, .legend-item,
+  .currency-indicator, .exchange-rate-panel, .badge, .stat-info h3 {
     font-family: var(--font-body);
   }
-  
-  * {
-    font-variant-numeric: tabular-nums;
-    -webkit-font-feature-settings: "tnum";
-    -moz-font-feature-settings: "tnum";
-    font-feature-settings: "tnum";
-  }
-  
+
   input[type="date"],
   input[type="time"],
   input[type="number"] {
     direction: ltr;
     text-align: left;
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
   }
 
-  input, select, textarea {
-    font-variant-numeric: tabular-nums;
+  .english-numerals,
+  .en-num {
+    font-family: var(--font-body);
+    font-variant-numeric: lining-nums;
   }
 
-   .english-numerals, .en-num {
-     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
-     font-variant-numeric: lining-nums !important;
-     -webkit-font-feature-settings: "lnum" !important;
-     font-feature-settings: "lnum" !important;
-     font-variant-alternates: normal !important;
-   }
-  
   .english-numerals::before, .en-num::before {
     content: attr(data-en-num);
   }
 
-  h1, h2, h3, h4, h5, h6, .heading-text {
-    font-family: var(--font-heading);
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+
+  .monospace, .code, pre, code {
+    font-family: var(--font-body), monospace;
   }
 }
 
-/* Main CSS file with Tailwind directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Custom components */
 @layer components {
-  /* Button styles */
   .btn {
     @apply px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out;
-    font-family: var(--font-body);
   }
   
   .btn-primary {
@@ -88,20 +108,16 @@
     @apply border-2 border-primary text-primary hover:bg-primary hover:text-white;
   }
   
-  /* Card styles */
   .card {
     @apply bg-white rounded-xl shadow-lg p-6;
-    font-family: var(--font-body);
   }
   
   .card-hover {
     @apply card hover:shadow-xl transition-shadow duration-300;
   }
   
-  /* Input styles */
   .input, select.input {
     @apply w-full px-4 py-2 border-2 border-dark rounded-lg focus:outline-none focus:border-interactive focus:ring-2 focus:ring-interactive focus:ring-opacity-20 transition-all duration-300 bg-white;
-    font-family: var(--font-body);
   }
   
   select.input {
@@ -117,16 +133,12 @@
     @apply border-interactive ring-2 ring-interactive ring-opacity-20;
   }
   
-  /* Label styles */
   .label {
     @apply block text-sm font-semibold mb-2 text-dark;
-    font-family: var(--font-body);
   }
   
-  /* Badge styles */
   .badge {
     @apply px-2 py-1 rounded-full text-xs font-semibold;
-    font-family: var(--font-body);
   }
   
   .badge-success {
@@ -145,31 +157,22 @@
     @apply badge bg-info text-white;
   }
 
-  /* Date input - force English */
-  input[type="date"] {
-    direction: ltr;
-    text-align: left;
-    font-family: var(--font-body);
-    font-variant-numeric: lining-nums !important;
-    -webkit-font-feature-settings: "lnum" !important;
-    font-feature-settings: "lnum" !important;
-  }
-
-   input[type="date"]::-webkit-calendar-picker-indicator {
-     cursor: pointer;
-     filter: invert(0);
-     font-family: var(--font-body) !important;
-   }
-
-  /* Force English numerals everywhere */
   .text-numeric {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
-    -webkit-font-feature-settings: "tnum";
-    -moz-font-feature-settings: "tnum";
   }
-  
-  /* Alternative method - using data attributes for date displays */
+
+  .dynamic-num {
+    transition: font-size 120ms ease-out;
+  }
+
+  .text-cell {
+    max-width: 140px;
+    min-width: 80px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
   .date-display {
     direction: ltr;
     unicode-bidi: embed;
@@ -177,9 +180,7 @@
   }
 }
 
-/* Custom utilities */
 @layer utilities {
-  /* Animation classes */
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }
@@ -189,26 +190,15 @@
   }
   
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   
   @keyframes slideIn {
-    from {
-      transform: translateX(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
   }
   
-  /* Custom scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -227,23 +217,9 @@
   }
 }
 
-/* Print styles for PDF export */
 @media print {
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-}
-
-/* Ultimate override - ensure all dates show English numerals */
-input[type="date"],
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="date"]::-webkit-calendar-picker-indicator *,
-input[type="date"]::-webkit-datetime-edit,
-input[type="date"]::-webkit-datetime-edit-fields-wrapper,
-input[type="date"]::-webkit-datetime-edit-year-field,
-input[type="date"]::-webkit-datetime-edit-month-field,
-input[type="date"]::-webkit-datetime-edit-day-field {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
-  font-variant-numeric: lining-nums !important;
 }
