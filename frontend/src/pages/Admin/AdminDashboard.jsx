@@ -13,6 +13,11 @@ import { getStoredUser } from '../../services/authService';
 import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 
+const LEAVE_LABELS = {
+  annual: 'سنوية', sick: 'مرضية', exceptional: 'استثنائية',
+  death: 'وفاة', hourly: 'ساعية', emergency: 'طارئة',
+};
+
 const AdminDashboard = () => {
   const user = getStoredUser();
   const [tasksToApprove, setTasksToApprove] = useState([]);
@@ -23,6 +28,7 @@ const AdminDashboard = () => {
   const [departments, setDepartments] = useState([]);
   const [userCounts, setUserCounts] = useState({ employees: 0, managers: 0 });
   const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
+  const [gmPendingLeaves, setGmPendingLeaves] = useState([]);
 
   const { getDepartmentName } = useDepartments();
 
@@ -50,7 +56,8 @@ const AdminDashboard = () => {
         getTasksToApprove(),
         getDepartmentStats(),
         getRankings(),
-        getUserCounts()
+        getUserCounts(),
+        getPendingLeaveRequests()
       ]);
 
       if (approveRes.success) {
@@ -72,7 +79,9 @@ const AdminDashboard = () => {
         setUserCounts(countsRes.data);
       }
       if (pendingLeavesRes?.success) {
-        setPendingLeavesCount(pendingLeavesRes.data?.count || 0);
+        const allPending = pendingLeavesRes.data?.leaveRequests || [];
+        setPendingLeavesCount(allPending.length);
+        setGmPendingLeaves(allPending.filter(r => r.status === 'pending_general_manager'));
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -228,6 +237,38 @@ const AdminDashboard = () => {
           </Card>
         </Link>
       </div>
+
+      {gmPendingLeaves.length > 0 && (
+        <div className="mb-8">
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-dark">📝 إجازات تنتظر موافقتك</h2>
+              <Link to="/admin/gm-approve-leaves" className="text-sm text-primary hover:underline">
+                عرض الكل →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {gmPendingLeaves.slice(0, 5).map((req) => (
+                <div key={req._id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-100">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{LEAVE_LABELS[req.type] || req.type}</span>
+                    <div>
+                      <p className="font-semibold text-dark text-sm">{req.employee?.name}</p>
+                      <p className="text-xs text-gray-500">{req.employee?.department} · {req.days} يوم</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/admin/gm-approve-leaves"
+                    className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors"
+                  >
+                    موافقة
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Department Stats */}

@@ -183,7 +183,7 @@ const WellBeingDashboard = () => {
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex items-end justify-center h-32">
                       <div
-                        className={`w-full rounded-t transition-all ${day.avgMood ? 'bg-primary/40' : 'bg-gray-200'}`}
+                        className={`w-full rounded-t transition-all ${day.avgMood ? 'bg-dark/30' : 'bg-gray-200'}`}
                         style={{ height: `${height}%` }}
                       >
                         {day.avgMood && (

@@ -83,3 +83,4 @@ export default api;
 
 // Export uploads URL for profile images
 export const UPLOADS_URL = BASE_URL;
+export const API_BASE_URL = BASE_URL;

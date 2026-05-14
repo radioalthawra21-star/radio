@@ -1,16 +1,24 @@
-﻿import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllAttendanceRecords } from '../../services/attendanceService';
 import { getAllEmployees } from '../../services/userService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
-import StatusBadge from '../../components/common/StatusBadge';
-import './AttendanceManagement.css';
+import { formatDateArabic } from '../../utils/dateUtils';
+
+const ATTENDANCE_STATUS_MAP = {
+  present: { label: 'حاضر', class: 'bg-green-100 text-green-800' },
+  absent: { label: 'غائب', class: 'bg-red-100 text-red-800' },
+  late: { label: 'متأخر', class: 'bg-yellow-100 text-yellow-800' },
+  half_day: { label: 'نصف يوم', class: 'bg-orange-100 text-orange-800' },
+  on_leave: { label: 'في إجازة', class: 'bg-blue-100 text-blue-800' },
+  work_from_home: { label: 'عمل عن بعد', class: 'bg-purple-100 text-purple-800' }
+};
 
 const AttendanceManagement = () => {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
-  
+
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,17 +27,15 @@ const AttendanceManagement = () => {
   const [employeeFilter, setEmployeeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
-  
-  // Pagination
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // Load data
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const [attendanceRes, employeesRes] = await Promise.all([
         getAllAttendanceRecords({
           startDate: dateRange.start,
@@ -38,13 +44,13 @@ const AttendanceManagement = () => {
         }),
         getAllEmployees()
       ]);
-      
+
       if (attendanceRes.success) {
         setAttendanceRecords(attendanceRes.data.records || []);
       } else {
         setError('فشل في تحميل بيانات الحضور');
       }
-      
+
       if (employeesRes.success) {
         setEmployees(employeesRes.data.employees || []);
       }
@@ -60,7 +66,6 @@ const AttendanceManagement = () => {
     loadData();
   }, [loadData]);
 
-  // Get unique departments from employees
   const departments = useMemo(() => {
     const depts = new Set();
     employees.forEach(emp => {
@@ -69,20 +74,19 @@ const AttendanceManagement = () => {
     return Array.from(depts);
   }, [employees]);
 
-  // Filter logic
   const filteredRecords = useMemo(() => {
     return attendanceRecords.filter(record => {
-      if (employeeFilter !== 'all' && record.employeeId !== employeeFilter) return false;
+      const employeeId = record.employee?._id || record.employee;
+      if (employeeFilter !== 'all' && employeeId !== employeeFilter) return false;
       if (statusFilter !== 'all' && record.status !== statusFilter) return false;
       if (departmentFilter !== 'all') {
-        const emp = employees.find(e => e.id === record.employeeId);
+        const emp = employees.find(e => e.id === employeeId || e._id === employeeId);
         if (emp && emp.department !== departmentFilter) return false;
       }
       return true;
     });
   }, [attendanceRecords, employeeFilter, statusFilter, departmentFilter, employees]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   const paginatedRecords = filteredRecords.slice(
     (currentPage - 1) * itemsPerPage,
@@ -90,6 +94,15 @@ const AttendanceManagement = () => {
   );
 
   const handlePageChange = (page) => setCurrentPage(page);
+
+  const getStatusBadge = (status) => {
+    const config = ATTENDANCE_STATUS_MAP[status] || { label: status, class: 'bg-gray-100 text-gray-800' };
+    return (
+      <span className={`px-2 py-1 text-xs rounded-full ${config.class}`}>
+        {config.label}
+      </span>
+    );
+  };
 
   if (loading) {
     return <div className='loading-spinner'>جاري التحميل...</div>;
@@ -100,8 +113,7 @@ const AttendanceManagement = () => {
       <Card>
         <h2>إدارة الحضور</h2>
         {error && <div className='error-message'>{error}</div>}
-        
-        {/* Filters */}
+
         <div className='filters'>
           <input
             type='date'
@@ -113,10 +125,35 @@ const AttendanceManagement = () => {
             value={dateRange.end}
             onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
           />
-          {/* Add more filters as needed */}
+          <select
+            value={employeeFilter}
+            onChange={(e) => setEmployeeFilter(e.target.value)}
+          >
+            <option value='all'>جميع الموظفين</option>
+            {employees.map(emp => (
+              <option key={emp._id} value={emp._id}>{emp.name}</option>
+            ))}
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value='all'>جميع الحالات</option>
+            {Object.entries(ATTENDANCE_STATUS_MAP).map(([key, val]) => (
+              <option key={key} value={key}>{val.label}</option>
+            ))}
+          </select>
+          <select
+            value={departmentFilter}
+            onChange={(e) => setDepartmentFilter(e.target.value)}
+          >
+            <option value='all'>جميع الأقسام</option>
+            {departments.map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </select>
         </div>
 
-        {/* Table */}
         <div className='table-container'>
           <table className='data-table'>
             <thead>
@@ -129,12 +166,10 @@ const AttendanceManagement = () => {
             </thead>
             <tbody>
               {paginatedRecords.map(record => (
-                <tr key={record.id}>
-                  <td>{record.employeeName}</td>
-                  <td>{record.date}</td>
-                  <td>
-                    <StatusBadge status={record.status} />
-                  </td>
+                <tr key={record._id || record.id}>
+                  <td>{record.employee?.name || 'غير معروف'}</td>
+                  <td>{formatDateArabic(record.date)}</td>
+                  <td>{getStatusBadge(record.status)}</td>
                   <td>
                     <button onClick={() => {/* edit */}}>تعديل</button>
                   </td>
@@ -144,7 +179,6 @@ const AttendanceManagement = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className='pagination'>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
             <button

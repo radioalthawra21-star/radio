@@ -1,0 +1,10 @@
+export const register: (userData: any) => Promise<any>;
+export const login: (credentials: any) => Promise<any>;
+export const logout: () => void;
+export const getCurrentUser: () => Promise<any>;
+export const changePassword: (passwordData: any) => Promise<any>;
+export const updateProfile: (profileData: any) => Promise<any>;
+export const uploadProfileImage: (formData: FormData) => Promise<any>;
+export const isLoggedIn: () => boolean;
+export const getStoredUser: () => any;
+export const getToken: () => string | null;

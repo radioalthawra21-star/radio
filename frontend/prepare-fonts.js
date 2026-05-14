@@ -3,8 +3,8 @@
  * Copy these font files to the public folder for easy access
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const sourceDir = 'H:\\dd\\frontend';
 const targetDir = path.join(sourceDir, 'public', 'fonts');

@@ -28,6 +28,7 @@ const menuItems = {
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/payroll/workflow', label: 'سير العمل', icon: '🔄' },
+    { path: '/manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance', label: 'الحضور والانصراف', icon: '🕐' },
     { path: '/admin/recruitment', label: 'التوظيف والأداء', icon: '👔' }
@@ -46,6 +47,7 @@ const menuItems = {
     { path: '/payroll/comprehensive', label: 'الرواتب الشامل', icon: '📊' },
     { path: '/payroll/workflow', label: 'سير العمل', icon: '🔄' },
     { path: '/payroll/integration', label: 'التكامل', icon: '🔗' },
+    { path: '/admin/gm-approve-leaves', label: 'موافقة المدير العام', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
@@ -108,37 +110,38 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
         }`}
         style={{ backgroundColor: '#182E4E' }}
       >
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex items-center justify-between">
-            {appLogo ? (
-              <img src={appLogo} alt="Logo" className="h-12" style={{ filter: 'brightness(0) invert(1)' }} />
-            ) : (
-              <img src="/logo.png" alt="Logo" className="h-12" style={{ filter: 'brightness(0) invert(1)' }} />
-            )}
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-              title="إغلاق القائمة"
-            >
-              ▶
-            </button>
-          </div>
-        </div>
-
-        {user && (
-          <div className="p-4 border-b border-gray-700">
-            <div className="bg-primary/20 rounded-lg p-3 truncate">
-              <p className="font-semibold truncate">{user.name}</p>
-              <p className="text-sm text-gray-300 truncate">
-                {role === 'admin' ? 'المدير العام' : 
-                 role === 'manager' ? `مدير ${departmentNames[user.department] || ''}` : 'موظف'}
-              </p>
+        <div className="flex flex-col h-full">
+          <div className="p-4 border-b border-gray-700 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              {appLogo ? (
+                <img src={appLogo} alt="Logo" className="h-12" style={{ filter: 'brightness(0) invert(1)' }} />
+              ) : (
+                <img src="/logo.png" alt="Logo" className="h-12" style={{ filter: 'brightness(0) invert(1)' }} />
+              )}
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                title="إغلاق القائمة"
+              >
+                ▶
+              </button>
             </div>
           </div>
-        )}
 
-        <nav className="p-2">
-          {items.map((item) => (
+          {user && (
+            <div className="p-4 border-b border-gray-700 flex-shrink-0">
+              <div className="bg-primary/20 rounded-lg p-3 truncate">
+                <p className="font-semibold truncate">{user.name}</p>
+                <p className="text-sm text-gray-300 truncate">
+                  {role === 'admin' ? 'المدير العام' : 
+                   role === 'manager' ? `مدير ${departmentNames[user.department] || ''}` : 'موظف'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <nav className="flex-1 overflow-y-auto p-2">
+            {items.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -177,7 +180,8 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
           )}
 
 
-        </nav>
+          </nav>
+        </div>
       </aside>
     </>
   );

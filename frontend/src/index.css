@@ -93,11 +93,11 @@
   }
   
   .btn-primary {
-    @apply bg-primary text-white hover:bg-opacity-90;
+    @apply bg-primary text-white hover:bg-opacity-90 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
   }
   
   .btn-secondary {
-    @apply bg-secondary text-white hover:bg-opacity-90;
+    @apply bg-secondary text-white hover:bg-opacity-90 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
   }
   
   .btn-interactive {
@@ -217,9 +217,707 @@
   }
 }
 
+.btn-success {
+  @apply bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
+}
+
+.btn-info {
+  @apply bg-secondary text-white hover:bg-opacity-90 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
+}
+
+.btn-danger {
+  @apply bg-error text-white hover:bg-red-700 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
+}
+
+.btn-save {
+  @apply bg-success text-white hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
+}
+
+.btn-cancel {
+  @apply bg-gray-400 text-white hover:bg-gray-500 px-4 py-2 rounded-lg font-semibold transition-all duration-300;
+}
+
+/* ===== Payroll System - Loading State ===== */
+.loading-state {
+  @apply flex flex-col items-center justify-center py-20;
+}
+
+.spinner {
+  @apply w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4;
+}
+
+/* ===== Payroll System - Container ===== */
+.hr-payroll-system {
+  @apply p-6 max-w-full;
+}
+
+/* ===== System Header ===== */
+.system-header {
+  @apply mb-6;
+}
+
+.header-content {
+  @apply flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white rounded-xl shadow-md p-6;
+}
+
+.header-title h1 {
+  @apply text-2xl font-bold text-dark flex items-center gap-2;
+}
+
+.header-title h1 .icon {
+  @apply text-primary;
+}
+
+.header-title p {
+  @apply text-sm text-gray-500 mt-1;
+}
+
+.header-actions {
+  @apply flex flex-wrap gap-2;
+}
+
+.header-actions .btn-primary {
+  @apply flex items-center gap-1.5;
+}
+
+.header-actions .btn-secondary {
+  @apply flex items-center gap-1.5;
+}
+
+.header-actions .btn-success {
+  @apply flex items-center gap-1.5;
+}
+
+.header-actions .btn-info {
+  @apply flex items-center gap-1.5;
+}
+
+/* ===== Exchange Rate Panel ===== */
+.exchange-rate-panel {
+  @apply bg-white rounded-xl shadow-md p-5 mb-4 border-r-4 border-primary;
+}
+
+.exchange-rate-panel h3 {
+  @apply text-lg font-bold text-dark mb-3 flex items-center gap-2;
+}
+
+.exchange-rate-input-group {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.exchange-rate-input-group label {
+  @apply text-sm font-semibold text-gray-700;
+}
+
+.rate-input {
+  @apply border-2 border-gray-300 rounded-lg px-4 py-2 text-lg font-bold text-dark text-left w-32 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all;
+}
+
+.rate-hint {
+  @apply text-xs text-gray-500 mt-2;
+}
+
+/* ===== Currency Indicator ===== */
+.currency-indicator {
+  @apply flex items-center gap-3 mb-4;
+}
+
+.currency-badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold text-white;
+}
+
+.currency-badge.syp {
+  @apply bg-primary;
+}
+
+.currency-badge.usd {
+  @apply bg-success;
+}
+
+.rate-label {
+  @apply text-xs text-gray-500;
+}
+
+/* ===== Stats Grid ===== */
+.stats-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6;
+}
+
+.stat-card {
+  @apply bg-white rounded-xl shadow-md p-5 flex items-center gap-4 transition-all hover:shadow-lg;
+}
+
+.stat-icon {
+  @apply w-14 h-14 rounded-xl flex items-center justify-center text-2xl text-white flex-shrink-0;
+}
+
+.stat-icon.employees {
+  @apply bg-blue-500;
+}
+
+.stat-icon.gross {
+  @apply bg-success;
+}
+
+.stat-icon.deductions {
+  @apply bg-error;
+}
+
+.stat-icon.net {
+  @apply bg-secondary;
+}
+
+.stat-info h3 {
+  @apply text-xs text-gray-500 mb-1;
+}
+
+.stat-value {
+  @apply text-lg font-bold text-dark;
+}
+
+/* ===== Filters Section ===== */
+.filters-section {
+  @apply flex flex-col sm:flex-row gap-4 mb-6 bg-white rounded-xl shadow-md p-4;
+}
+
+.filter-group {
+  @apply flex items-center gap-2;
+}
+
+.filter-group label {
+  @apply text-sm font-semibold text-gray-700 flex items-center gap-1.5 whitespace-nowrap;
+}
+
+.filter-group select {
+  @apply border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all cursor-pointer;
+}
+
+.filter-group.search {
+  @apply flex-1 relative;
+}
+
+.search-icon {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400;
+}
+
+.filter-group.search input {
+  @apply w-full border border-gray-300 rounded-lg pr-10 pl-10 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all;
+}
+
+.clear-search {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600;
+}
+
+/* ===== Table Container ===== */
+.table-container {
+  @apply bg-white rounded-xl shadow-md overflow-hidden mb-6;
+}
+
+.payroll-table {
+  @apply w-full text-sm;
+}
+
+.payroll-table thead {
+  @apply bg-dark;
+}
+
+.payroll-table thead th {
+  @apply px-4 py-3 text-white font-semibold text-xs uppercase tracking-wider text-right whitespace-nowrap;
+}
+
+.payroll-table tbody tr {
+  @apply border-b border-gray-100 transition-colors hover:bg-gray-50;
+}
+
+.payroll-table tbody tr.selected {
+  @apply bg-blue-50 border-r-4 border-blue-500;
+}
+
+.payroll-table tbody td {
+  @apply px-4 py-3 align-middle;
+}
+
+.employee-info {
+  @apply flex flex-col;
+}
+
+.employee-info strong {
+  @apply text-sm font-semibold text-dark;
+}
+
+.employee-info small {
+  @apply text-xs text-gray-400;
+}
+
+.dept-badge {
+  @apply inline-block px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium;
+}
+
+.payroll-table tbody td.currency {
+  @apply text-left font-mono text-xs;
+}
+
+.payroll-table tbody td.gross {
+  @apply text-left font-semibold text-success;
+}
+
+.payroll-table tbody td.deductions {
+  @apply text-left font-semibold text-error;
+}
+
+.payroll-table tbody td.net {
+  @apply text-left font-bold text-secondary;
+}
+
+/* ===== Total Row (tfoot) ===== */
+.total-row {
+  @apply bg-gray-50 font-bold;
+}
+
+.total-row td {
+  @apply px-4 py-3 text-sm font-bold text-dark border-t-2 border-gray-300;
+}
+
+.total-row td.currency {
+  @apply text-left font-mono text-xs;
+}
+
+.total-row td.gross {
+  @apply text-success;
+}
+
+.total-row td.deductions {
+  @apply text-error;
+}
+
+.total-row td.net {
+  @apply text-secondary;
+}
+
+/* ===== Action Buttons ===== */
+.action-buttons {
+  @apply flex gap-1.5;
+}
+
+.edit-btn {
+  @apply p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors;
+}
+
+.delete-btn {
+  @apply p-2 text-error hover:bg-red-50 rounded-lg transition-colors;
+}
+
+/* ===== Legend ===== */
+.legend {
+  @apply flex gap-6 justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100 text-sm;
+}
+
+.legend-item {
+  @apply flex items-center gap-2 text-gray-600;
+}
+
+.legend-color {
+  @apply w-4 h-4 rounded-full inline-block;
+}
+
+.legend-color.gross {
+  @apply bg-success;
+}
+
+.legend-color.deductions {
+  @apply bg-error;
+}
+
+.legend-color.net {
+  @apply bg-secondary;
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4;
+  direction: rtl;
+}
+
+.modal-content {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6;
+}
+
+.modal-content h2 {
+  @apply text-xl font-bold text-dark mb-4;
+}
+
+.modal-actions {
+  @apply flex justify-start gap-3 mt-6 pt-4 border-t border-gray-200;
+}
+
+/* ===== Form Grid ===== */
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.form-group {
+  @apply flex flex-col;
+}
+
+.form-group label {
+  @apply text-sm font-semibold text-gray-700 mb-1.5;
+}
+
+.form-group input,
+.form-group select {
+  @apply border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all bg-white;
+}
+
+.form-group.readonly input {
+  @apply bg-gray-50 text-gray-600 border-gray-200 cursor-default;
+}
+
+.form-group input[readonly] {
+  @apply bg-gray-50 text-gray-600 border-gray-200 cursor-default;
+}
+
+.form-group input[type="number"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ===== Section Header ===== */
+.section-header {
+  @apply col-span-full;
+}
+
+.section-header h3 {
+  @apply text-base font-bold text-dark flex items-center gap-2 pb-2 border-b border-gray-200;
+}
+
+/* ===== Column Manager ===== */
+.column-manager-modal {
+  @apply max-w-lg;
+}
+
+.column-manager-section {
+  @apply mb-6;
+}
+
+.column-manager-section h3 {
+  @apply text-base font-bold text-dark mb-3 pb-2 border-b border-gray-200;
+}
+
+.column-toggle-row {
+  @apply flex items-center justify-between py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors;
+}
+
+.column-toggle-row label {
+  @apply text-sm text-gray-700 cursor-pointer;
+}
+
+.column-toggle-row input[type="checkbox"] {
+  @apply w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer;
+}
+
+.no-columns-msg {
+  @apply text-sm text-gray-400 text-center py-3;
+}
+
+.add-column-form {
+  @apply flex flex-col gap-3;
+}
+
+.add-column-form input,
+.add-column-form select {
+  @apply border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all bg-white;
+}
+
+.btn-delete-small {
+  @apply p-1.5 text-error hover:bg-red-50 rounded-lg transition-colors;
+}
+
+/* ===== Bulk Edit ===== */
+.bulk-toggle-container {
+  @apply mb-4;
+}
+
+.bulk-warning {
+  @apply mb-4 p-3 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800 text-sm;
+}
+
+/* ===== Spinning animation for refresh ===== */
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Payroll Dashboard ===== */
+.payroll-dashboard {
+  @apply p-6 max-w-full;
+}
+
+/* ===== Payroll Processing Page ===== */
+.payroll-processing-page {
+  @apply p-6 max-w-full;
+}
+
+/* ===== Payroll Reports Page ===== */
+.payroll-reports-page {
+  @apply p-6 max-w-full;
+}
+
+.payroll-reports-page .report-filters {
+  @apply bg-white rounded-xl shadow-md p-6 mb-8;
+}
+
+.payroll-reports-page .report-filters h2 {
+  @apply text-lg font-bold text-dark mb-4;
+}
+
+.payroll-reports-page .report-filters label {
+  @apply block text-sm font-semibold text-gray-700 mb-2;
+}
+
+.payroll-reports-page .report-filters select,
+.payroll-reports-page .report-filters input[type="date"] {
+  @apply w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all bg-white;
+}
+
+/* ===== Payroll Audit Page ===== */
+.payroll-audit-page {
+  @apply p-6 max-w-full;
+}
+
+.payroll-audit-page .capitalize {
+  text-transform: capitalize;
+}
+
+/* ===== Payroll Policies Page ===== */
+.payroll-workflow-page {
+  padding: 1.5rem;
+}
+
+.payroll-integration-page {
+  padding: 1.5rem;
+}
+
+.payroll-mysalary-page {
+  padding: 1.5rem;
+}
+
+.payroll-payslipview-page {
+  padding: 1.5rem;
+}
+
+.payroll-payslipdetail-page {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.payroll-payslipdetail-page .printable-area {
+  @apply bg-white;
+}
+
+@media print {
+  .payroll-payslipdetail-page {
+    background: white;
+    padding: 0;
+  }
+  .payroll-payslipdetail-page .page-header {
+    display: none !important;
+  }
+  .payroll-payslipdetail-page button {
+    display: none !important;
+  }
+}
+
+.payroll-policies-page {
+  @apply p-6 max-w-full;
+}
+
+.policies-main-grid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+}
+
+
+
+/* ===== Pending Payroll Page ===== */
+.pending-payroll-page {
+  @apply p-6 max-w-full;
+}
+
+/* ===== Common Page Styles ===== */
+.page-section {
+  @apply bg-white rounded-xl shadow-md p-6 mb-6;
+}
+
+.page-section h2 {
+  @apply text-lg font-bold text-dark mb-4 flex items-center gap-2;
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center py-16 text-gray-500;
+}
+
+.empty-state svg {
+  @apply w-16 h-16 text-gray-300 mb-4;
+}
+
+.empty-state h3 {
+  @apply text-lg font-semibold text-gray-700 mb-1;
+}
+
+.empty-state p {
+  @apply text-sm text-gray-500;
+}
+
+/* ===== Payroll Table Overrides ===== */
+.payroll-table-sm th {
+  @apply px-4 py-2 text-xs;
+}
+
+.payroll-table-sm td {
+  @apply px-4 py-2 text-sm;
+}
+
+.status-badge {
+  @apply inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-badge.paid {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-badge.approved {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-badge.pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge.draft {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* ===== Section Cards ===== */
+.section-card {
+  @apply bg-white rounded-xl shadow-md p-6;
+}
+
+.section-card h2 {
+  @apply text-lg font-bold text-dark mb-4 flex items-center gap-2;
+}
+
+/* ===== Salaries & Summary ===== */
+.salary-summary {
+  @apply bg-gray-50 rounded-xl p-5;
+}
+
+.salary-item {
+  @apply flex justify-between items-center py-2;
+}
+
+.salary-item .label {
+  @apply text-sm text-gray-600;
+}
+
+.salary-item .value {
+  @apply font-semibold;
+}
+
+/* ===== Account/Control Status Dots ===== */
+.control-status {
+  @apply flex items-center gap-2;
+}
+
+.control-dot {
+  @apply w-3 h-3 rounded-full;
+}
+
+.control-dot.active {
+  @apply bg-green-500;
+}
+
+.control-dot.inactive {
+  @apply bg-red-500;
+}
+
+/* ===== Employee Avatar in Tables ===== */
+.employee-avatar {
+  @apply w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm flex-shrink-0;
+}
+
+.employee-name-group {
+  @apply flex items-center gap-3;
+}
+
+.employee-name-group .name-details {
+  @apply flex flex-col;
+}
+
+.employee-name-group .name-details .full-name {
+  @apply font-semibold text-dark text-sm;
+}
+
+.employee-name-group .name-details .username {
+  @apply text-xs text-gray-500;
+}
+
+/* ===== Payroll Detail Modal ===== */
+.detail-overlay {
+  @apply fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4;
+}
+
+.detail-modal {
+  @apply bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+}
+
+.detail-header {
+  @apply p-6 border-b border-gray-200;
+}
+
+.detail-body {
+  @apply p-6 space-y-4;
+}
+
+.detail-footer {
+  @apply p-6 border-t border-gray-200 flex gap-3;
+}
+
+.detail-grid {
+  @apply grid grid-cols-2 gap-4 text-sm;
+}
+
+/* ===== Print Styles ===== */
 @media print {
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    background: white !important;
+  }
+
+  .hr-payroll-system {
+    padding: 0 !important;
+  }
+
+  .system-header .header-actions,
+  .filters-section,
+  .exchange-rate-panel,
+  .currency-indicator,
+  .legend,
+  .edit-btn,
+  .delete-btn {
+    display: none !important;
+  }
+
+  .stats-grid {
+    @apply grid-cols-4;
+  }
+
+  .table-container {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
   }
 }

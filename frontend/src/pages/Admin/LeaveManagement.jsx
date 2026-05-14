@@ -3,19 +3,26 @@ import { getLeaveRequests, updateLeaveStatus } from '../../services/leaveService
 import { getAllEmployees } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
 import Card from '../../components/common/Card';
-import StatusBadge from '../../components/common/StatusBadge';
 
 const leaveTypes = [
   { value: 'annual', label: 'إجازة سنوية' },
   { value: 'sick', label: 'إجازة مرضية' },
-  { value: 'emergency', label: 'إجازة طارئة' },
-  { value: 'maternity', label: 'إجازة وضع' },
-  { value: 'bereavement', label: 'إجازة وفاة' },
-  { value: 'unpaid', label: 'إجازة بدون راتب' },
+  { value: 'exceptional', label: 'إجازة استثنائية' },
+  { value: 'death', label: 'إجازة وفاة' },
   { value: 'hourly', label: 'إجازة ساعية' },
+  { value: 'emergency', label: 'إجازة طارئة' },
+  { value: 'unpaid', label: 'إجازة بدون راتب' },
   { value: 'mission', label: 'مأمورية' },
   { value: 'overtime', label: 'أجر إضافي' },
 ];
+
+const STATUS_LABELS = {
+  pending_manager: { label: 'بانتظار المدير', color: 'bg-yellow-100 text-yellow-800' },
+  pending_general_manager: { label: 'بانتظار المدير العام', color: 'bg-orange-100 text-orange-800' },
+  approved: { label: 'تمت الموافقة', color: 'bg-green-100 text-green-800' },
+  rejected: { label: 'مرفوض', color: 'bg-red-100 text-red-800' },
+  cancelled: { label: 'ملغي', color: 'bg-gray-100 text-gray-600' },
+};
 
 const tabs = [
   { id: 'pending', label: 'قيد المراجعة' },
@@ -38,7 +45,15 @@ const LeaveManagement = () => {
   const [dateTo, setDateTo] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState('');
   const itemsPerPage = 15;
+
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try { setUserRole(JSON.parse(stored).role); } catch {}
+    }
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
@@ -67,12 +82,29 @@ const LeaveManagement = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const handleStatusUpdate = async (id, newStatus) => {
+  const handleApprove = async (id, currentStatus) => {
     try {
-      const res = await updateLeaveStatus(id, { status: newStatus });
-      if (res.success) loadData();
+      const res = await updateLeaveStatus(id, { status: 'approved' });
+      if (res.success) {
+        setError('');
+        loadData();
+      }
     } catch (err) {
-      setError('فشل تحديث الحالة');
+      setError(err.userMessage || 'فشل تحديث الحالة');
+    }
+  };
+
+  const handleReject = async (id) => {
+    const reason = prompt('سبب الرفض:');
+    if (reason === null) return;
+    try {
+      const res = await updateLeaveStatus(id, { status: 'rejected', rejectionReason: reason });
+      if (res.success) {
+        setError('');
+        loadData();
+      }
+    } catch (err) {
+      setError(err.userMessage || 'فشل تحديث الحالة');
     }
   };
 
@@ -104,15 +136,23 @@ const LeaveManagement = () => {
     return found?.label || type;
   };
 
+  const getStatusInfo = (status) => {
+    return STATUS_LABELS[status] || { label: status, color: 'bg-gray-100 text-gray-600' };
+  };
+
+  const canApprove = (status) => {
+    return status === 'pending_manager' || status === 'pending_general_manager';
+  };
+
   const stats = {
     total: leaveRequests.length,
-    pending: leaveRequests.filter((r) => r.status === 'pending' || r.status === 'pending_manager').length,
+    pending: leaveRequests.filter((r) => r.status === 'pending_manager' || r.status === 'pending_general_manager').length,
     approved: leaveRequests.filter((r) => r.status === 'approved').length,
     rejected: leaveRequests.filter((r) => r.status === 'rejected').length,
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6" dir="rtl">
       <h1 className="text-2xl font-bold mb-6">إدارة الإجازات</h1>
       {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
 
@@ -175,6 +215,10 @@ const LeaveManagement = () => {
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-full p-2 border rounded" />
           </div>
         </div>
+
+        <div className="text-xs text-gray-400 mb-2">
+          ملاحظة: المدير يوافق على طلبات الإجازة للأيام 3 فأقل، أما أكثر من 3 أيام فتحتاج موافقة المدير العام بعد موافقة المدير المباشر
+        </div>
       </Card>
 
       <Card>
@@ -192,30 +236,49 @@ const LeaveManagement = () => {
                     <th className="p-3">النوع</th>
                     <th className="p-3">من</th>
                     <th className="p-3">إلى</th>
+                    <th className="p-3">الأيام</th>
                     <th className="p-3">الحالة</th>
                     <th className="p-3">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {paginated.map((r) => (
-                    <tr key={r._id || r.id} className="border-b hover:bg-gray-50">
-                      <td className="p-3">{getEmployeeName(r)}</td>
-                      <td className="p-3">{getLeaveTypeLabel(r.type)}</td>
-                      <td className="p-3">{r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-'}</td>
-                      <td className="p-3">{r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-'}</td>
-                      <td className="p-3"><StatusBadge status={r.status} /></td>
-                      <td className="p-3">
-                        {(r.status === 'pending' || r.status === 'pending_manager') ? (
-                          <div className="flex gap-2">
-                            <button onClick={() => handleStatusUpdate(r._id || r.id, 'approved')} className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm">قبول</button>
-                            <button onClick={() => handleStatusUpdate(r._id || r.id, 'rejected')} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm">رفض</button>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-500">تمت المعالجة</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {paginated.map((r) => {
+                    const statusInfo = getStatusInfo(r.status);
+                    return (
+                      <tr key={r._id || r.id} className="border-b hover:bg-gray-50">
+                        <td className="p-3">{getEmployeeName(r)}</td>
+                        <td className="p-3">{getLeaveTypeLabel(r.type)}</td>
+                        <td className="p-3">{r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-'}</td>
+                        <td className="p-3">{r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-'}</td>
+                        <td className="p-3">{r.days || 0}</td>
+                        <td className="p-3">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                            {statusInfo.label}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          {canApprove(r.status) ? (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleApprove(r._id || r.id, r.status)}
+                                className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
+                              >
+                                قبول
+                              </button>
+                              <button
+                                onClick={() => handleReject(r._id || r.id)}
+                                className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+                              >
+                                رفض
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">–</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

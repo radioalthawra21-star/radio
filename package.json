@@ -1,4 +1,12 @@
 {
+  "type": "module",
+  "scripts": {
+    "remove-bom": "node remove-bom.js",
+    "remove-bom:dry": "node remove-bom.js --dry-run",
+    "remove-bom:list": "node remove-bom.js --list",
+    "remove-bom:check": "node remove-bom.js --check",
+    "remove-bom:restore": "node remove-bom.js --restore"
+  },
   "dependencies": {
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

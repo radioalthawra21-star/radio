@@ -1,4 +1,4 @@
-﻿// frontend/src/features/payroll/hooks/usePayrollState.jsx
+// frontend/src/features/payroll/hooks/usePayrollState.jsx
 
 import { useState, useEffect, createContext, useContext } from 'react';
 

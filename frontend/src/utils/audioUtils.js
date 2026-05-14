@@ -1,119 +1,95 @@
-const ensureAudioContext = () => {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  const ctx = new AudioContext();
-  if (ctx.state === 'suspended') {
-    ctx.resume();
+let audioCtx = null;
+let unlocked = false;
+
+const getCtx = () => {
+  if (!audioCtx || audioCtx.state === 'closed') {
+    const C = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new C();
   }
-  return ctx;
+  return audioCtx;
 };
 
-export const playNotificationSound = () => {
+const unlockNow = () => {
+  if (unlocked) return;
+  const ctx = getCtx();
+  if (ctx.state === 'suspended') ctx.resume();
+  unlocked = true;
+};
+
+if (typeof window !== 'undefined') {
+  const unlock = () => {
+    unlockNow();
+    const evs = ['click', 'keydown', 'touchstart', 'mousedown'];
+    evs.forEach(e => window.removeEventListener(e, unlock, true));
+  };
+  const evs = ['click', 'keydown', 'touchstart', 'mousedown'];
+  evs.forEach(e => window.addEventListener(e, unlock, true));
+}
+
+const playWav = (freq, dur, vol = 0.4, delay = 0) => {
   try {
-    const audioContext = ensureAudioContext();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
+    const ctx = getCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+      console.log('AudioContext resumed');
+    }
+    if (ctx.state !== 'running') {
+      console.log('AudioContext state:', ctx.state);
+      return;
+    }
+    const sr = ctx.sampleRate;
+    const len = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, len, sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) {
+      const t = i / sr;
+      const env = t < 0.01 ? t / 0.01 : 1 - (t / dur);
+      d[i] = Math.sin(2 * Math.PI * freq * t) * vol * Math.max(0, env);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const gain = ctx.createGain();
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start(ctx.currentTime + delay);
+    src.stop(ctx.currentTime + delay + dur);
+    console.log('Playing sound:', freq, 'Hz,', dur, 's');
   } catch (e) {
-    console.log('Audio play failed:', e);
+    console.log('WAV play error:', e);
   }
 };
+
+const playSeq = (freqs, dur, vol, gap) => {
+  freqs.forEach((f, i) => playWav(f, dur, vol, i * gap));
+};
+
+export const playNotificationSound = () => playWav(800, 0.3, 0.4);
 
 export const playTaskAssignedSound = () => {
-  try {
-    const audioContext = ensureAudioContext();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 600;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.2);
-    
-    setTimeout(() => {
-      const osc2 = audioContext.createOscillator();
-      const gain2 = audioContext.createGain();
-      osc2.connect(gain2);
-      gain2.connect(audioContext.destination);
-      osc2.frequency.value = 800;
-      osc2.type = 'sine';
-      gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-      osc2.start(audioContext.currentTime);
-      osc2.stop(audioContext.currentTime + 0.3);
-    }, 150);
-  } catch (e) {
-    console.log('Audio play failed:', e);
-  }
+  playWav(600, 0.2, 0.4);
+  setTimeout(() => playWav(800, 0.3, 0.35), 180);
 };
 
 export const playRoleChangeSound = () => {
-  try {
-    const audioContext = ensureAudioContext();
-    
-    const frequencies = [400, 500, 600, 800];
-    frequencies.forEach((freq, i) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.value = freq;
-      oscillator.type = 'sine';
-      
-      const startTime = audioContext.currentTime + i * 0.1;
-      gainNode.gain.setValueAtTime(0.2, startTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
-      
-      oscillator.start(startTime);
-      oscillator.stop(startTime + 0.15);
-    });
-  } catch (e) {
-    console.log('Audio play failed:', e);
-  }
+  playSeq([400, 500, 600, 800], 0.15, 0.35, 0.12);
+};
+
+export const playLeaveRequestedSound = () => {
+  playSeq([523, 659, 784], 0.2, 0.38, 0.18);
+};
+
+export const playLeaveApprovedSound = () => {
+  playSeq([523, 659, 784, 1047], 0.2, 0.35, 0.14);
+};
+
+export const playLeaveRejectedSound = () => {
+  playSeq([400, 350, 300], 0.25, 0.35, 0.22);
+};
+
+export const playLeaveCancelledSound = () => {
+  playSeq([600, 500, 400], 0.2, 0.35, 0.18);
 };
 
 export const playMessageSound = () => {
-  try {
-    const audioContext = ensureAudioContext();
-    
-    const frequencies = [1200, 1400, 1600];
-    frequencies.forEach((freq, i) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.value = freq;
-      oscillator.type = 'sine';
-      
-      const startTime = audioContext.currentTime + i * 0.12;
-      gainNode.gain.setValueAtTime(0.25, startTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
-      
-      oscillator.start(startTime);
-      oscillator.stop(startTime + 0.2);
-    });
-  } catch (e) {
-    console.log('Audio play failed:', e);
-  }
+  playSeq([1200, 1400, 1600], 0.18, 0.38, 0.14);
 };

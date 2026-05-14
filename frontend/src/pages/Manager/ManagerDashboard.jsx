@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getTasksToEvaluate, getMyTasks, getDailySummary } from '../../services/taskService';
 import { getEmployeesByDepartment, getDepartmentStats } from '../../services/userService';
+import { getPendingLeaveRequests } from '../../services/leaveService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
@@ -36,6 +37,7 @@ const ManagerDashboard = () => {
     pending: 0
   });
   const [deptStats, setDeptStats] = useState(null);
+  const [pendingLeaves, setPendingLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = getStoredUser();
 
@@ -66,6 +68,14 @@ const ManagerDashboard = () => {
           setDeptStats(statsResponse.data.stats.find(s => s.department === user.department));
         }
       }
+
+      // Fetch pending leave requests
+      try {
+        const leaveRes = await getPendingLeaveRequests();
+        if (leaveRes.success) {
+          setPendingLeaves(leaveRes.data.leaveRequests || []);
+        }
+      } catch (e) { /* non-critical */ }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -170,6 +180,38 @@ const ManagerDashboard = () => {
           </Card>
         </Link>
       </div>
+
+      {pendingLeaves.length > 0 && (
+        <div className="mb-6">
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-dark">📝 طلبات إجازة تنتظر موافقتك</h2>
+              <Link to="/manager/approve-leaves" className="text-sm text-primary hover:underline">
+                عرض الكل ({pendingLeaves.length})
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {pendingLeaves.slice(0, 5).map((req) => (
+                <div key={req._id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-lg">📅</div>
+                    <div>
+                      <p className="font-semibold text-dark text-sm">{req.employee?.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {req.type === 'annual' ? 'سنوية' : req.type === 'sick' ? 'مرضية' : req.type === 'exceptional' ? 'استثنائية' : req.type === 'death' ? 'وفاة' : req.type === 'hourly' ? 'ساعية' : req.type} · {req.days} يوم
+                        {req.days > 3 && <span className="mr-1 text-orange-600">(أكثر من 3)</span>}
+                      </p>
+                    </div>
+                  </div>
+                  <Link to="/manager/approve-leaves" className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors">
+                    مراجعة
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Tasks to Evaluate */}
       <Card>

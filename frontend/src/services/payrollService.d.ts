@@ -1,0 +1,15 @@
+export const getEmployeePayroll: (employeeId: string, params?: any) => Promise<any>;
+export const getAllPayrolls: (params?: any) => Promise<any>;
+export const generatePayroll: (payrollData: any) => Promise<any>;
+export const updatePayroll: (payrollId: string, payrollData: any) => Promise<any>;
+export const approvePayroll: (payrollId: string) => Promise<any>;
+export const markPayrollAsPaid: (payrollId: string, paymentData: any) => Promise<any>;
+export const deletePayroll: (payrollId: string) => Promise<any>;
+export const getPayrollSummary: (params?: any) => Promise<any>;
+export const generatePayslip: (payrollId: string) => Promise<any>;
+export const getPendingPayrollAssignments: (params?: any) => Promise<any>;
+export const getRecentPayments: () => Promise<any>;
+export const assignSalaryToPendingPayroll: (payrollId: string, salaryData: any) => Promise<any>;
+export const getCurrentPayslip: (period?: string) => Promise<any>;
+export const exportPayslipPDF: (payrollId: string) => Promise<any>;
+export const downloadPayslipPDF: (payrollId: string, payslipData: any) => Promise<void>;

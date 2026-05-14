@@ -4,6 +4,9 @@ import { createLeaveRequest, getLeaveRequests, getLeaveBalance, cancelLeaveReque
 const LEAVE_TYPES = [
   { value: 'annual', label: 'إجازة سنوية', icon: '🏖️', color: 'text-blue-600', bg: 'bg-blue-50' },
   { value: 'sick', label: 'إجازة مرضية', icon: '🩺', color: 'text-red-600', bg: 'bg-red-50' },
+  { value: 'exceptional', label: 'إجازة استثنائية', icon: '⭐', color: 'text-purple-600', bg: 'bg-purple-50' },
+  { value: 'death', label: 'إجازة وفاة', icon: '🕊️', color: 'text-gray-600', bg: 'bg-gray-100' },
+  { value: 'hourly', label: 'إجازة ساعية', icon: '⏰', color: 'text-teal-600', bg: 'bg-teal-50' },
   { value: 'emergency', label: 'إجازة طارئة', icon: '🚨', color: 'text-orange-600', bg: 'bg-orange-50' },
   { value: 'maternity', label: 'إجازة وضع', icon: '👶', color: 'text-pink-600', bg: 'bg-pink-50' },
   { value: 'paternity', label: 'إجازة أبوة', icon: '👨‍👧', color: 'text-purple-600', bg: 'bg-purple-50' },
@@ -12,7 +15,8 @@ const LEAVE_TYPES = [
 ];
 
 const STATUS_MAP = {
-  pending: { label: 'قيد الانتظار', color: 'bg-yellow-100 text-yellow-800' },
+  pending_manager: { label: 'بانتظار موافقة المدير', color: 'bg-yellow-100 text-yellow-800' },
+  pending_general_manager: { label: 'بانتظار موافقة المدير العام', color: 'bg-orange-100 text-orange-800' },
   approved: { label: 'تمت الموافقة', color: 'bg-green-100 text-green-800' },
   rejected: { label: 'مرفوض', color: 'bg-red-100 text-red-800' },
   cancelled: { label: 'ملغي', color: 'bg-gray-100 text-gray-600' },
@@ -48,7 +52,7 @@ const LeaveRequest = () => {
         getLeaveRequests(),
         getLeaveBalance()
       ]);
-      if (reqRes.success) setRequests(reqRes.data.leaveRequests);
+      if (reqRes.success) setRequests(reqRes.data.requests || reqRes.data.leaveRequests || []);
       if (balRes.success) setBalances(balRes.data.balances);
     } catch (err) {
       setError(err.userMessage || 'خطأ في تحميل البيانات');
@@ -73,10 +77,12 @@ const LeaveRequest = () => {
     try {
       const res = await createLeaveRequest(form);
       if (res.success) {
-        setSuccess('تم تقديم طلب الإجازة بنجاح');
+        setSuccess(res.message || 'تم تقديم طلب الإجازة بنجاح');
         setShowForm(false);
         setForm({ type: 'annual', startDate: '', endDate: '', isHalfDay: false, reason: '', coveragePlan: '' });
         loadData();
+      } else {
+        setError(res.message || 'حدث خطأ في تقديم الطلب');
       }
     } catch (err) {
       setError(err.userMessage || 'خطأ في تقديم الطلب');
@@ -85,8 +91,11 @@ const LeaveRequest = () => {
     }
   };
 
-  const handleCancel = async (id) => {
-    if (!window.confirm('هل أنت متأكد من إلغاء طلب الإجازة؟')) return;
+  const handleCancel = async (id, status) => {
+    const msg = status === 'approved' || status === 'synced_to_payroll'
+      ? 'تمت الموافقة على هذه الإجازة مسبقاً. سيتم إلغاؤها وإشعار مدير الفريق. هل أنت متأكد؟'
+      : 'هل أنت متأكد من إلغاء طلب الإجازة؟';
+    if (!window.confirm(msg)) return;
     try {
       const res = await cancelLeaveRequest(id);
       if (res.success) {
@@ -102,9 +111,11 @@ const LeaveRequest = () => {
     return new Date(dateStr).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  const getLeaveTypeInfo = (type) => LEAVE_TYPES.find(t => t.value === type) || LEAVE_TYPES[0];
+  const getLeaveTypeInfo = (type) => LEAVE_TYPES.find(t => t.value === type) || { label: type, icon: '📋', color: 'text-gray-600', bg: 'bg-gray-50' };
 
-  const balanceEntries = LEAVE_TYPES.filter(t => t.value !== 'compensatory');
+  const mainBalanceTypes = LEAVE_TYPES.filter(t => !['compensatory'].includes(t.value));
+
+  const canCancel = (status) => ['pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(status);
 
   return (
     <div className="p-6 max-w-6xl mx-auto" dir="rtl">
@@ -229,9 +240,13 @@ const LeaveRequest = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-            {balanceEntries.map(({ value, label, icon, color, bg }) => {
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+            {mainBalanceTypes.slice(0, 5).map(({ value, label, icon, color, bg }) => {
               const bal = balances[value];
+              const isHourly = value === 'hourly';
+              const remaining = bal ? (isHourly ? Math.max(0, bal.remainingHours) : Math.max(0, bal.remainingBalance)) : '–';
+              const total = bal ? (isHourly ? `${Math.round(bal.totalBalance * 8)} ساعة` : `${bal.totalBalance} يوم`) : '';
+              const used = bal ? (isHourly ? `${Math.round(bal.usedHours)} س` : `${bal.usedDays} يوم`) : '';
               return (
                 <div key={value} className={`${bg} rounded-xl p-4 border border-gray-100`}>
                   <div className="flex items-center gap-2 mb-2">
@@ -239,11 +254,11 @@ const LeaveRequest = () => {
                     <span className="text-xs text-gray-500">{label}</span>
                   </div>
                   <div className={`text-2xl font-bold ${color}`}>
-                    {bal ? Math.max(0, bal.remainingBalance) : '–'}
+                    {remaining}
                   </div>
                   <div className="text-xs text-gray-400 mt-1">
-                    {bal ? `من ${bal.totalBalance}` : ''}
-                    {bal && bal.usedDays > 0 ? ` | مستخدم ${bal.usedDays}` : ''}
+                    {bal ? `من ${total}` : ''}
+                    {bal && (isHourly ? bal.usedHours > 0 : bal.usedDays > 0) ? ` | مستخدم ${used}` : ''}
                   </div>
                 </div>
               );
@@ -263,37 +278,49 @@ const LeaveRequest = () => {
               <div className="divide-y divide-gray-100">
                 {requests.map((req) => {
                   const typeInfo = getLeaveTypeInfo(req.type);
-                  const statusInfo = STATUS_MAP[req.status] || STATUS_MAP.pending;
+                  const statusInfo = STATUS_MAP[req.status] || STATUS_MAP.pending_manager;
                   return (
-                    <div key={req._id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 ${typeInfo.bg} rounded-xl flex items-center justify-center text-lg`}>
-                          {typeInfo.icon}
+                    <div key={req._id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 ${typeInfo.bg} rounded-xl flex items-center justify-center text-lg`}>
+                            {typeInfo.icon}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900 text-sm">{typeInfo.label}</h4>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {formatDate(req.startDate)} → {formatDate(req.endDate)}
+                              {req.isHalfDay ? ' (نصف يوم)' : ''}
+                              <span className="mx-1">·</span>
+                              {req.days} يوم
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">{req.reason?.slice(0, 80)}{req.reason?.length > 80 ? '...' : ''}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 text-sm">{typeInfo.label}</h4>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {formatDate(req.startDate)} → {formatDate(req.endDate)}
-                            {req.isHalfDay ? ' (نصف يوم)' : ''}
-                            <span className="mx-1">·</span>
-                            {req.days} يوم
-                          </p>
-                          <p className="text-xs text-gray-400 mt-0.5">{req.reason?.slice(0, 60)}{req.reason?.length > 60 ? '...' : ''}</p>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                            {statusInfo.label}
+                          </span>
+                          {canCancel(req.status) && (
+                            <button
+                              onClick={() => handleCancel(req._id, req.status)}
+                              className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                            >
+                              إلغاء
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                          {statusInfo.label}
-                        </span>
-                        {req.status === 'pending' && (
-                          <button
-                            onClick={() => handleCancel(req._id)}
-                            className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors"
-                          >
-                            إلغاء
-                          </button>
-                        )}
-                      </div>
+                      {req.status === 'rejected' && req.rejectionReason && (
+                        <div className="mt-2 mr-14 p-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-700">
+                          سبب الرفض: {req.rejectionReason}
+                        </div>
+                      )}
+                      {req.status === 'pending_general_manager' && (
+                        <div className="mt-2 mr-14 p-2 bg-orange-50 border border-orange-100 rounded-lg text-xs text-orange-700">
+                          تمت موافقة المدير المباشر، بانتظار موافقة المدير العام
+                        </div>
+                      )}
                     </div>
                   );
                 })}
