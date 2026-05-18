@@ -15,7 +15,8 @@ const menuItems = {
     { path: '/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/payroll/my-salary', label: 'راتبي', icon: '💰' },
     { path: '/attendance', label: 'الحضور', icon: '🕐' },
-    { path: '/leave-request', label: 'طلب إجازة', icon: '📅' }
+    { path: '/leave-request', label: 'طلب إجازة', icon: '📅' },
+    { path: '/financial-misc', label: 'متفرقات مالية', icon: '💳' }
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -29,7 +30,8 @@ const menuItems = {
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
-    { path: '/admin/attendance', label: 'الحضور', icon: '🕐' }
+    { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
+    { path: '/financial-misc', label: 'متفرقات مالية', icon: '💳' }
   ],
   hr: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -38,7 +40,8 @@ const menuItems = {
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/admin/reports/department', label: 'تقارير الأقسام', icon: '📊' },
-    { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' }
+    { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
+    { path: '/financial-misc', label: 'متفرقات مالية', icon: '💳' }
   ],
   admin: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -53,7 +56,9 @@ const menuItems = {
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
-    { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' }
+    { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
+    { path: '/financial-misc', label: 'متفرقات مالية', icon: '💳' },
+    { path: '/financial-misc/report', label: 'تقرير متفرقات مالية', icon: '📊' }
   ]
 };
 
