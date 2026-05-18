@@ -27,11 +27,18 @@ const menuItems = {
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
-    { path: '/payroll/workflow', label: 'سير العمل', icon: '🔄' },
     { path: '/manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
-    { path: '/admin/attendance', label: 'الحضور والانصراف', icon: '🕐' },
-    { path: '/admin/recruitment', label: 'التوظيف والأداء', icon: '👔' }
+    { path: '/admin/attendance', label: 'الحضور', icon: '🕐' }
+  ],
+  hr: [
+    { path: '/', label: 'لوحة التحكم', icon: '🏠' },
+    { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
+    { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
+    { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
+    { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
+    { path: '/admin/reports/department', label: 'تقارير الأقسام', icon: '📊' },
+    { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' }
   ],
   admin: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -44,14 +51,9 @@ const menuItems = {
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/admin/settings', label: 'الإعدادات', icon: '⚙️' },
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
-    { path: '/payroll/comprehensive', label: 'الرواتب الشامل', icon: '📊' },
-    { path: '/payroll/workflow', label: 'سير العمل', icon: '🔄' },
-    { path: '/payroll/integration', label: 'التكامل', icon: '🔗' },
-    { path: '/admin/gm-approve-leaves', label: 'موافقة المدير العام', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
-    { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
-    { path: '/admin/recruitment', label: 'التوظيف والأداء', icon: '👔' }
+    { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' }
   ]
 };
 
@@ -63,6 +65,7 @@ const departmentNames = {
   production: 'الإنتاج',
   live_broadcast: 'البث المباشر',
   hr: 'الموارد البشرية',
+  'human resources': 'الموارد البشرية',
   المالي: 'المالي',
   'تقنية المعلومات': 'تقنية المعلومات',
   التسويق: 'التسويق',
@@ -134,6 +137,7 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
                 <p className="font-semibold truncate">{user.name}</p>
                 <p className="text-sm text-gray-300 truncate">
                   {role === 'admin' ? 'المدير العام' : 
+                   role === 'hr' ? 'مسؤول الموارد البشرية' : 
                    role === 'manager' ? `مدير ${departmentNames[user.department] || ''}` : 'موظف'}
                 </p>
               </div>

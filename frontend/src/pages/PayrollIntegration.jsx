@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaNetworkWired, FaDatabase, FaCloud, FaLock, FaShieldAlt, FaCheckCircle, FaTimesCircle, FaSyncAlt, FaServer, FaExchangeAlt, FaHistory, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 const defaultIntegrations = [
@@ -30,6 +31,7 @@ const statusMeta = {
 const methodColors = { GET: 'bg-blue-100 text-blue-800', POST: 'bg-green-100 text-green-800', PUT: 'bg-yellow-100 text-yellow-800' };
 
 const PayrollIntegration = () => {
+  const navigate = useNavigate();
   const [integrations] = useState(defaultIntegrations);
   const [apiLogs] = useState(apiLogsData);
 
@@ -58,6 +60,10 @@ const PayrollIntegration = () => {
             </h1>
             <p className="text-gray-600 mt-1">اتصالات أنظمة HRIS و ERP والبنوك والامتثال</p>
           </div>
+          <button onClick={() => navigate('/payroll')}
+            className="bg-white border border-gray-300 px-4 py-2 rounded-lg flex items-center text-gray-700 hover:bg-gray-50 transition-colors">
+            <FaArrowRight className="h-4 w-4 ml-2" /> العودة إلى لوحة الرواتب
+          </button>
         </div>
       </div>
 

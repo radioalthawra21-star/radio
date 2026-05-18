@@ -318,7 +318,9 @@ const LeaveRequest = () => {
                       )}
                       {req.status === 'pending_general_manager' && (
                         <div className="mt-2 mr-14 p-2 bg-orange-50 border border-orange-100 rounded-lg text-xs text-orange-700">
-                          تمت موافقة المدير المباشر، بانتظار موافقة المدير العام
+                          {req.managerSuggestedDays
+                            ? `وافق المدير المباشر على ${req.managerSuggestedDays} يوم من أصل ${req.days}، بانتظار موافقة المدير العام`
+                            : 'تمت موافقة المدير المباشر، بانتظار موافقة المدير العام'}
                         </div>
                       )}
                     </div>

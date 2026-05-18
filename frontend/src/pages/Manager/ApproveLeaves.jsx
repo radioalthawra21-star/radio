@@ -20,6 +20,8 @@ const ApproveLeaves = () => {
   const [success, setSuccess] = useState('');
   const [rejectionModal, setRejectionModal] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [approveModal, setApproveModal] = useState(null);
+  const [approvedDays, setApprovedDays] = useState(null);
 
   useEffect(() => {
     loadPending();
@@ -38,11 +40,25 @@ const ApproveLeaves = () => {
     }
   };
 
-  const handleApprove = async (id, days) => {
+  const handleApproveFull = async (id) => {
     try {
       const res = await updateLeaveStatus(id, { status: 'approved' });
       if (res.success) {
         setSuccess(res.message || 'تمت الموافقة');
+        loadPending();
+      }
+    } catch (err) {
+      setError(err.userMessage || 'فشل الموافقة');
+    }
+  };
+
+  const handleApprovePartial = async (id, days) => {
+    try {
+      const res = await updateLeaveStatus(id, { status: 'approved', approvedDays: days });
+      if (res.success) {
+        setSuccess(res.message || 'تمت الموافقة');
+        setApproveModal(null);
+        setApprovedDays(null);
         loadPending();
       }
     } catch (err) {
@@ -63,6 +79,11 @@ const ApproveLeaves = () => {
     } catch (err) {
       setError(err.userMessage || 'فشل الرفض');
     }
+  };
+
+  const openApproveModal = (req) => {
+    setApprovedDays(req.days);
+    setApproveModal(req);
   };
 
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }) : '-';
@@ -139,7 +160,7 @@ const ApproveLeaves = () => {
                 </div>
                 <div className="flex items-center gap-2 mr-4">
                   <button
-                    onClick={() => handleApprove(req._id, req.days)}
+                    onClick={() => req.days > 3 ? openApproveModal(req) : handleApproveFull(req._id)}
                     className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
                   >
                     ✔ موافقة
@@ -154,6 +175,58 @@ const ApproveLeaves = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {approveModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => { setApproveModal(null); setApprovedDays(null); }}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">موافقة على إجازة أكثر من 3 أيام</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              {LEAVE_TYPE_LABELS[approveModal.type] || approveModal.type} - {approveModal.employee?.name} ({approveModal.days} يوم)
+            </p>
+            <div className="space-y-3">
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <button
+                  onClick={() => { handleApproveFull(approveModal._id); setApproveModal(null); }}
+                  className="w-full text-green-800 hover:text-green-900 text-sm font-medium transition-colors text-center py-2"
+                >
+                  ✔ قبول كامل الإجازة ({approveModal.days} يوم)
+                </button>
+              </div>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+                <div className="relative flex justify-center"><span className="px-3 bg-white text-xs text-gray-400">أو</span></div>
+              </div>
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <label className="block text-sm font-medium text-blue-800 mb-3">تحديد عدد أيام محدد:</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max={approveModal.days}
+                    value={approvedDays}
+                    onChange={(e) => setApprovedDays(Math.min(Number(e.target.value), approveModal.days))}
+                    className="w-20 p-2 border border-blue-200 rounded-lg text-sm text-center bg-white"
+                  />
+                  <span className="text-sm text-blue-700">يوم من أصل {approveModal.days}</span>
+                  <button
+                    onClick={() => { handleApprovePartial(approveModal._id, approvedDays); }}
+                    disabled={!approvedDays || approvedDays < 1}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50"
+                  >
+                    تأكيد
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => { setApproveModal(null); setApprovedDays(null); }}
+              className="mt-4 w-full p-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              إلغاء
+            </button>
+          </div>
         </div>
       )}
 

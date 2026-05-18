@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { FaMoneyBillWave, FaBuilding, FaSpinner, FaSyncAlt, FaUserPlus, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaMoneyBillWave, FaBuilding, FaSpinner, FaSyncAlt, FaUserPlus, FaCheckCircle, FaExclamationTriangle, FaArrowLeft } from 'react-icons/fa';
 import { getPendingPayrollAssignments, assignSalaryToPendingPayroll } from '../services/payrollService';
 import Card from '../components/common/Card';
 import PendingAssignmentModal from './Payroll/PendingAssignmentModal';
 
 const PayrollPendingAssignments = () => {
+  const navigate = useNavigate();
   const [pendingEntries, setPendingEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -89,9 +91,14 @@ const PayrollPendingAssignments = () => {
     <div className="pending-payroll-page">
       <div className="page-header mb-8">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-dark mb-2">مراجعة بيانات الرواتب الجديدة</h1>
-            <p className="text-gray-600">قائمة الموظفين الجدد بانتظار إدخال بيانات الراتب</p>
+          <div className="header-title-row">
+            <button onClick={() => navigate('/payroll')} className="back-btn" title="العودة إلى لوحة الرواتب">
+              <FaArrowLeft /> العودة
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-dark mb-2">مراجعة بيانات الرواتب الجديدة</h1>
+              <p className="text-gray-600">قائمة الموظفين الجدد بانتظار إدخال بيانات الراتب</p>
+            </div>
           </div>
           <button onClick={() => fetchPendingEntries(pagination.currentPage)}
             className="btn-secondary flex items-center gap-2">

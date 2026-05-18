@@ -7,7 +7,7 @@ import ManagerDashboard from '../pages/Manager/ManagerDashboard';
 export const dashboardRoutes = ({ user }) => (
   <>
     <Route path="/" element={
-      user?.role === 'admin' ? <AdminDashboard /> :
+      user?.role === 'admin' || user?.role === 'hr' ? <AdminDashboard /> :
       user?.role === 'manager' ? <ManagerDashboard /> :
       <EmployeeDashboard />
     } />

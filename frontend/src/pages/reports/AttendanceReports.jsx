@@ -8,6 +8,21 @@ import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { FaSignInAlt, FaSignOutAlt, FaHourglassHalf, FaCalendarAlt } from 'react-icons/fa';
+
+const ATTENDANCE_STATUS_MAP = {
+  present: { label: 'حاضر', class: 'bg-green-100 text-green-800 border border-green-200' },
+  absent: { label: 'غائب', class: 'bg-red-100 text-red-800 border border-red-200' },
+  late: { label: 'متأخر', class: 'bg-yellow-100 text-yellow-800 border border-yellow-200' },
+  half_day: { label: 'نصف يوم', class: 'bg-orange-100 text-orange-800 border border-orange-200' },
+  on_leave: { label: 'في إجازة', class: 'bg-blue-100 text-blue-800 border border-blue-200' },
+  work_from_home: { label: 'عمل عن بعد', class: 'bg-purple-100 text-purple-800 border border-purple-200' }
+};
+
+const formatTime = (iso) =>
+  iso
+    ? new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
+    : '-';
 
 const AttendanceReports = () => {
   const [attendanceStats, setAttendanceStats] = useState(null);
@@ -36,10 +51,11 @@ const AttendanceReports = () => {
       // Fetch attendance records
       const recordsResponse = await getAllAttendanceRecords(filter);
       if (recordsResponse.success) {
-        setAttendanceRecords(recordsResponse.data || []);
+        const records = (recordsResponse.data?.records || []).filter(r => r.employee);
+        setAttendanceRecords(records);
         
         // Prepare chart data
-        const chartData = prepareChartData(recordsResponse.data || []);
+        const chartData = prepareChartData(records);
         setChartData(chartData);
       }
     } catch (err) {
@@ -138,13 +154,13 @@ const AttendanceReports = () => {
     // Table
     doc.setRtl(false);
     const tableData = attendanceRecords.map(record => [
-      record.employeeName || '-',
+      record.employee?.name || '-',
       record.date ? formatDateArabic(record.date) : '-',
-      record.status === 'present' ? 'حاضر' : record.status === 'absent' ? 'غائب' : 'متأخر',
-      record.checkInTime || '-',
-      record.checkOutTime || '-',
-      record.hoursWorked || '0',
-      record.notes || '-'
+      ATTENDANCE_STATUS_MAP[record.status]?.label || record.status || '-',
+      record.checkIn?.time ? formatTime(record.checkIn.time) : '-',
+      record.checkOut?.time ? formatTime(record.checkOut.time) : '-',
+      record.duration ? `${record.duration.toFixed(1)}` : '0',
+      record.checkIn?.notes || record.checkOut?.notes || '-'
     ]);
     
     doc.autoTable({
@@ -180,7 +196,7 @@ const AttendanceReports = () => {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in" dir="rtl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-dark">تقارير الحضور والانصراف</h1>
         <button onClick={exportToPDF} className="btn btn-primary">
@@ -331,38 +347,70 @@ const AttendanceReports = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الموظف</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">التاريخ</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">وقت الدخول</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">وقت الخروج</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الساعات العاملة</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ملاحظات</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">الموظف</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">التاريخ</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">الحالة</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-center">وقت الدخول</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-center">وقت الخروج</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-center">الساعات العاملة</th>
+                  <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">ملاحظات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {attendanceRecords.map((record, index) => (
-                  <tr key={index} className={record.status === 'present' ? 'bg-green-50' : record.status === 'absent' ? 'bg-red-50' : 'bg-yellow-50'}>
-                    <td className="px-6 py-4 text-left text-sm text-gray-900">{record.employeeName || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{record.date ? formatDateArabic(record.date) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        record.status === 'present' ? 'bg-green-100 text-green-800' :
-                        record.status === 'absent' ? 'bg-red-100 text-red-800' :
-                        record.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {record.status === 'present' ? 'حاضر' : 
-                         record.status === 'absent' ? 'غائب' : 
-                         record.status === 'late' ? 'متأخر' : '-' }
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-left text-sm">{record.checkInTime || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm">{record.checkOutTime || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm">{record.hoursWorked || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm">{record.notes || '-'}</td>
-                  </tr>
-                ))}
+                {attendanceRecords.map((record, index) => {
+                  const statusInfo = ATTENDANCE_STATUS_MAP[record.status];
+                  return (
+                    <tr key={record._id || index} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">{record.employee?.name || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                        <span className="date-display inline-flex items-center gap-1.5">
+                          <FaCalendarAlt className="text-[10px] text-gray-400" />
+                          {record.date ? formatDateArabic(record.date) : '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${statusInfo?.class || 'bg-gray-100 text-gray-800 border border-gray-200'}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                          {statusInfo?.label || record.status || '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {record.checkIn?.time ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
+                            <FaSignInAlt className="text-[10px]" />
+                            {formatTime(record.checkIn.time)}
+                          </span>
+                        ) : <span className="text-gray-400 text-xs">--:--</span>}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {record.checkOut?.time ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">
+                            <FaSignOutAlt className="text-[10px]" />
+                            {formatTime(record.checkOut.time)}
+                          </span>
+                        ) : record.checkIn?.time ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-lg border border-yellow-100">
+                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                            لم يسجل خروج
+                          </span>
+                        ) : <span className="text-gray-400 text-xs">--:--</span>}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {record.checkIn?.time && record.checkOut?.time ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+                            <FaHourglassHalf className="text-[10px] text-gray-400" />
+                            {record.duration ? `${record.duration.toFixed(1)} س` : '-'}
+                          </span>
+                        ) : record.checkIn?.time ? (
+                          <span className="text-xs text-gray-400">قيد العمل</span>
+                        ) : <span className="text-xs text-gray-400">--</span>}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {record.checkIn?.notes || record.checkOut?.notes || '-'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

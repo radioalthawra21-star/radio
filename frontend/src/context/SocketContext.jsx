@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../services/api';
 import {
@@ -7,6 +7,8 @@ import {
 } from '../utils/audioUtils';
 
 const SocketContext = createContext(null);
+
+const SOCKET_URL = API_BASE_URL || 'http://127.0.0.1:3000';
 
 const showToast = (title, message) => {
   const existing = document.getElementById('nt-toast');
@@ -29,13 +31,16 @@ const showToast = (title, message) => {
     <div style="opacity:0.8;font-size:13px">${message}</div>
   `;
 
-  const style = document.createElement('style');
-  style.id = 'nt-style';
-  style.textContent = `
-    @keyframes ntFadeIn { from { opacity:0; transform:translateX(-50%) translateY(-20px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }
-    @keyframes ntFadeOut { from { opacity:1 } to { opacity:0; transform:translateX(-50%) translateY(-20px) } }
-  `;
-  if (!document.getElementById('nt-style')) document.head.appendChild(style);
+  const style = document.getElementById('nt-style');
+  if (!style) {
+    const newStyle = document.createElement('style');
+    newStyle.id = 'nt-style';
+    newStyle.textContent = `
+      @keyframes ntFadeIn { from { opacity:0; transform:translateX(-50%) translateY(-20px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }
+      @keyframes ntFadeOut { from { opacity:1 } to { opacity:0; transform:translateX(-50%) translateY(-20px) } }
+    `;
+    document.head.appendChild(newStyle);
+  }
 
   document.body.appendChild(toast);
   setTimeout(() => {
@@ -46,21 +51,45 @@ const showToast = (title, message) => {
 
 export const SocketProvider = ({ children }) => {
   const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
+  const [connected, setConnected] = useState(false);
+  const isMountedRef = useRef(true);
+  const cleanupRef = useRef(null);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const socket = io(API_BASE_URL || undefined, {
+    const socketInstance = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 10000,
+      autoConnect: true,
     });
 
-    socket.on('connect_error', (err) => {
-      console.warn('Socket connection error:', err.message);
+    socketInstance.on('connect_error', (err) => {
+      console.warn('⚠️ Socket connection error:', err.message);
+      if (isMountedRef.current) setConnected(false);
     });
 
-    socket.on('notification', (notification) => {
+    socketInstance.on('connect', () => {
+      console.log('✅ Socket connected:', socketInstance.id);
+      if (isMountedRef.current) setConnected(true);
+    });
+
+    socketInstance.on('disconnect', (reason) => {
+      console.log('🔌 Socket disconnected:', reason);
+      if (isMountedRef.current) setConnected(false);
+    });
+
+    const handleNotification = (notification) => {
+      if (!isMountedRef.current) return;
+
       const notifType = notification?.type;
       const title = notification?.title || 'إشعار جديد';
       const message = notification?.message || '';
@@ -96,20 +125,44 @@ export const SocketProvider = ({ children }) => {
 
       showToast(title, message);
       window.dispatchEvent(new CustomEvent('new-notification', { detail: notification }));
-    });
-
-    socketRef.current = socket;
-
-    return () => {
-      socket.disconnect();
     };
+
+    socketInstance.on('notification', handleNotification);
+
+    socketRef.current = socketInstance;
+    setSocket(socketInstance);
+
+    const cleanup = () => {
+      isMountedRef.current = false;
+      socketInstance.off('notification', handleNotification);
+      socketInstance.off('connect_error');
+      socketInstance.off('connect');
+      socketInstance.off('disconnect');
+      if (socketInstance.connected) {
+        socketInstance.disconnect();
+      }
+      socketRef.current = null;
+    };
+
+    cleanupRef.current = cleanup;
+
+    return cleanup;
   }, []);
 
+  const contextValue = useMemo(() => ({ socket, connected }), [socket, connected]);
+
   return (
-    <SocketContext.Provider value={socketRef.current}>
+    <SocketContext.Provider value={contextValue}>
       {children}
     </SocketContext.Provider>
   );
 };
 
-export const useSocket = () => useContext(SocketContext);
+export const useSocket = () => {
+  const context = useContext(SocketContext);
+  if (!context) {
+    console.warn('⚠️ useSocket must be used within SocketProvider');
+    return { socket: null, connected: false };
+  }
+  return context;
+};

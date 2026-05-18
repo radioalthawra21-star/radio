@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useDepartments } from '../../hooks/useDepartments';
-import { getDepartmentCosts } from '../../services/departmentService';
-import { getDepartmentStats, getAllEmployees } from '../../services/userService';
+import { getDepartmentStats } from '../../services/departmentService';
+import { getAllEmployees } from '../../services/userService';
 import Card from '../../components/common/Card';
-import { BarChart, PieChart, LineChart } from '../../components/charts';
+import { PieChart, LineChart } from '../../components/charts';
 import StatCard from '../../components/widgets/StatCard';
 import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+
+const safeNum = (v) => (v && !isNaN(v) ? Number(v) : 0);
+
+const calcGross = (emp) =>
+  safeNum(emp.baseSalary) + safeNum(emp.housingAllowance) + safeNum(emp.transportAllowance) +
+  safeNum(emp.otherAllowances) + safeNum(emp.bonus) + safeNum(emp.overtime);
+
+const calcDeductions = (emp) =>
+  safeNum(emp.socialInsurance) + safeNum(emp.tax) + safeNum(emp.otherDeductions) + safeNum(emp.hoursShortfall);
 
 const DepartmentReports = () => {
   const [deptStats, setDeptStats] = useState(null);
@@ -31,24 +40,25 @@ const DepartmentReports = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Fetch department stats
-      const statsResponse = await getDepartmentStats();
-      if (statsResponse.success) {
-        setDeptStats(statsResponse.data);
+
+      const [statsRes, employeesRes] = await Promise.all([
+        getDepartmentStats(),
+        getAllEmployees()
+      ]);
+
+      if (statsRes?.success) setDeptStats(statsRes.data);
+      if (employeesRes?.success) {
+        const empData = employeesRes.data?.employees || employeesRes.data || [];
+        setDeptEmployees(Array.isArray(empData) ? empData : []);
       }
-      
-      // Fetch department employees
-      const employeesResponse = await getAllEmployees();
-      if (employeesResponse.success) {
-        setDeptEmployees(employeesResponse.data || []);
-      }
-      
-      // Prepare chart data
+
+      const empArray = employeesRes?.success
+        ? (employeesRes.data?.employees || employeesRes.data || [])
+        : [];
       const chartData = prepareChartData(
-        deptStats || null,
-        deptEmployees || [],
-        deptPerformance || null
+        statsRes?.success ? statsRes.data : null,
+        Array.isArray(empArray) ? empArray : [],
+        null
       );
       setChartData(chartData);
     } catch (err) {
@@ -146,21 +156,29 @@ const DepartmentReports = () => {
     doc.setFontSize(16);
     doc.text('قائمة الموظفين حسب القسم', 105, 20, { align: 'center' });
     
-    const employeeTableData = deptEmployees.map(emp => [
-      emp.name || '-',
-      emp.department ? getDepartmentName(emp.department) : '-',
-      emp.position || '-',
-      emp.status === 'active' ? 'نشط' : 'غير نشط',
-      emp.hireDate ? formatDateArabic(emp.hireDate) : '-',
-      formatCurrency(emp.salary || 0)
-    ]);
+    const employeeTableData = deptEmployees.map(emp => {
+      const gross = calcGross(emp);
+      const deductions = calcDeductions(emp);
+      const net = gross - deductions;
+      return [
+        emp.name || '-',
+        emp.department ? getDepartmentName(emp.department) : '-',
+        emp.jobTitle || emp.position || '-',
+        emp.isActive ? 'نشط' : 'غير نشط',
+        emp.startDate ? formatDateArabic(emp.startDate) : '-',
+        formatCurrency(emp.baseSalary || 0),
+        formatCurrency(gross - safeNum(emp.baseSalary)),
+        formatCurrency(deductions),
+        formatCurrency(net)
+      ];
+    });
     
     doc.autoTable({
-      head: [['الموظف', 'القسم', 'المنصب', 'الحالة', 'تاريخ التوظيف', 'الراتب']],
+      head: [['الموظف', 'القسم', 'المنصب', 'الحالة', 'تاريخ التوظيف', 'الراتب الأساسي', 'البدلات', 'الخصومات', 'الصافي']],
       body: employeeTableData,
       startY: 40,
       theme: 'grid',
-      styles: { fontSize: 8 },
+      styles: { fontSize: 7 },
       headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
     });
     
@@ -202,11 +220,14 @@ const DepartmentReports = () => {
 
   if (error) {
     return (
-      <div className="animate-fade-in">
+      <Card className="p-6 animate-fade-in">
         <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg">
           {error}
         </div>
-      </div>
+        <button onClick={() => window.location.reload()} className="btn btn-primary mt-4">
+          إعادة المحاولة
+        </button>
+      </Card>
     );
   }
 
@@ -311,8 +332,8 @@ const DepartmentReports = () => {
               <h3 className="text-lg font-bold text-dark mb-4">توزيع الموظفين حسب القسم</h3>
               <PieChart
                 data={{
-                  labels: Object.keys(chartData.deptDistribution.labels),
-                  data: Object.values(chartData.deptDistribution.data)
+                  labels: chartData.deptDistribution.labels,
+                  data: chartData.deptDistribution.data
                 }}
                 width={400}
                 height={300}
@@ -349,31 +370,40 @@ const DepartmentReports = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الموظف</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">القسم</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">المنصب</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">تاريخ التوظيف</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الراتب</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">الموظف</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">القسم</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">المنصب</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">الراتب الأساسي</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">البدلات</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">الخصومات</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">صافي الراتب</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {deptEmployees.map((emp, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 text-left text-sm text-gray-900">{emp.name || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{emp.department ? getDepartmentName(emp.department) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{emp.position || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        emp.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {emp.status === 'active' ? 'نشط' : 'غير نشط'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-left text-sm">{emp.hireDate ? formatDateArabic(emp.hireDate) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm">{formatCurrency(emp.salary || 0)}</td>
-                  </tr>
-                ))}
+                {deptEmployees.map((emp, index) => {
+                  const gross = calcGross(emp);
+                  const deductions = calcDeductions(emp);
+                  const net = gross - deductions;
+                  return (
+                    <tr key={index}>
+                      <td className="px-3 py-4 text-left text-sm text-gray-900">{emp.name || '-'}</td>
+                      <td className="px-3 py-4 text-left text-sm text-gray-500">{emp.department ? getDepartmentName(emp.department) : '-'}</td>
+                      <td className="px-3 py-4 text-left text-sm text-gray-500">{emp.jobTitle || emp.position || '-'}</td>
+                      <td className="px-3 py-4 text-left text-sm font-medium">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          emp.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {emp.isActive ? 'نشط' : 'غير نشط'}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 text-left text-sm font-mono text-gray-700">{formatCurrency(emp.baseSalary || 0)}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono text-green-600">{formatCurrency(gross - safeNum(emp.baseSalary))}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono text-red-600">{formatCurrency(deductions)}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono font-bold text-gray-900">{formatCurrency(net)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -381,7 +411,7 @@ const DepartmentReports = () => {
       </Card>
 
       {/* Department Breakdown Table */}
-      {deptStats?.departmentBreakdown && (
+      {Array.isArray(deptStats?.departmentBreakdown) && (
         <Card className="mb-6">
           <h2 className="text-xl font-bold text-dark mb-4">إحصائيات الأقسام المفصلة</h2>
           <div className="overflow-x-auto">

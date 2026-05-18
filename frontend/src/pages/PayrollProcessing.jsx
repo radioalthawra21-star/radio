@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { FaCalculator, FaMoneyBillWave, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFileInvoice, FaCheckDouble, FaSpinner } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaCalculator, FaMoneyBillWave, FaCheckCircle, FaTimesCircle, FaClock, FaEye, FaFileInvoice, FaCheckDouble, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 import DynamicNumber from '../components/DynamicNumber';
 import { getAllPayrolls } from '../services/payrollService';
 import api from '../services/api';
@@ -10,6 +11,7 @@ const STATUS = {
 };
 
 const PayrollProcessing = () => {
+  const navigate = useNavigate();
   const [payrolls, setPayrolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -72,20 +74,27 @@ const PayrollProcessing = () => {
     <div className="payroll-processing-page">
       <div className="page-header mb-8">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-dark flex items-center">
-              <FaCalculator className="h-8 w-8 ml-3 text-purple-600" />
-              معالجة الرواتب
-            </h1>
-            <p className="text-gray-600 mt-1">اعتماد وتسجيل كشوف رواتب الموظفين</p>
-          </div>
-          {pendingPayrolls.length > 0 && (
-            <button onClick={handleApproveAll} disabled={processing}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-purple-700 disabled:opacity-50 transition-colors">
-              <FaCheckDouble className="h-4 w-4 ml-2" />
-              {processing ? 'جاري الاعتماد...' : `اعتماد الكل (${pendingPayrolls.length})`}
+          <div className="header-title-row">
+            <button onClick={() => navigate('/payroll')} className="back-btn" title="العودة إلى لوحة الرواتب">
+              <FaArrowLeft /> العودة
             </button>
-          )}
+            <div>
+              <h1 className="text-3xl font-bold text-dark flex items-center">
+                <FaCalculator className="h-8 w-8 ml-3 text-purple-600" />
+                معالجة الرواتب
+              </h1>
+              <p className="text-gray-600 mt-1">اعتماد وتسجيل كشوف رواتب الموظفين</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {pendingPayrolls.length > 0 && (
+              <button onClick={handleApproveAll} disabled={processing}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-purple-700 disabled:opacity-50 transition-colors">
+                <FaCheckDouble className="h-4 w-4 ml-2" />
+                {processing ? 'جاري الاعتماد...' : `اعتماد الكل (${pendingPayrolls.length})`}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

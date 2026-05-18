@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FaTasks, FaCheckCircle, FaClock, FaExclamationTriangle, FaArrowRight, FaCalendarAlt, FaFlag, FaUserTie, FaFileAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaTasks, FaCheckCircle, FaClock, FaExclamationTriangle, FaArrowRight, FaCalendarAlt, FaFlag, FaUserTie, FaFileAlt, FaArrowLeft } from 'react-icons/fa';
 
 const WORKFLOW_STEPS = [
   {
@@ -79,6 +80,7 @@ const criticalDeadlines = [
 ];
 
 const PayrollWorkflow = () => {
+  const navigate = useNavigate();
   const [steps] = useState(WORKFLOW_STEPS);
 
   return (
@@ -92,6 +94,10 @@ const PayrollWorkflow = () => {
             </h1>
             <p className="text-gray-600 mt-1">مسار معالجة الرواتب من البداية للنهاية وتتبع المواعيد النهائية</p>
           </div>
+          <button onClick={() => navigate('/payroll')}
+            className="bg-white border border-gray-300 px-4 py-2 rounded-lg flex items-center text-gray-700 hover:bg-gray-50 transition-colors">
+            <FaArrowRight className="h-4 w-4 ml-2" /> العودة إلى لوحة الرواتب
+          </button>
         </div>
       </div>
 

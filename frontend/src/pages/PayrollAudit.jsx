@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FaShieldAlt, FaCheckCircle, FaExclamationTriangle, FaTimesCircle, FaChartBar, FaDatabase, FaNetworkWired, FaClock, FaSearch } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaShieldAlt, FaCheckCircle, FaExclamationTriangle, FaTimesCircle, FaChartBar, FaDatabase, FaNetworkWired, FaClock, FaSearch, FaArrowLeft } from 'react-icons/fa';
 
 const STATUS_CONFIG = {
   success: { icon: FaCheckCircle, color: 'text-green-600', bg: 'bg-green-50 border-green-200', label: 'نجاح' },
@@ -11,6 +12,7 @@ const STATUS_CONFIG = {
 };
 
 const PayrollAudit = () => {
+  const navigate = useNavigate();
   const [auditData] = useState({
     totalTransactions: 228, verifiedTransactions: 226, pendingReview: 2,
     discrepancies: 0, accuracyRate: 99.1, lastAuditDate: '2026-03-15'
@@ -52,12 +54,19 @@ const PayrollAudit = () => {
   return (
     <div className="payroll-audit-page">
       <div className="page-header mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-dark flex items-center">
-            <FaShieldAlt className="h-8 w-8 ml-3 text-blue-600" />
-            المراجعة الداخلية والضوابط
-          </h1>
-          <p className="text-gray-600 mt-1">فصل المهام، المطابقة، ومراقبة الامتثال</p>
+        <div className="flex items-center justify-between">
+          <div className="header-title-row">
+            <button onClick={() => navigate('/payroll')} className="back-btn" title="العودة إلى لوحة الرواتب">
+              <FaArrowLeft /> العودة
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-dark flex items-center">
+                <FaShieldAlt className="h-8 w-8 ml-3 text-blue-600" />
+                المراجعة الداخلية والضوابط
+              </h1>
+              <p className="text-gray-600 mt-1">فصل المهام، المطابقة، ومراقبة الامتثال</p>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import Card from '../../components/common/Card';
 
 const roleNames = {
-  employee: 'موظف', manager: 'مدير قسم', admin: 'المدير العام'
+  employee: 'موظف', manager: 'مدير قسم', hr: 'مسؤول الموارد البشرية', admin: 'المدير العام'
 };
 
 export default function UserFormModal({
@@ -48,6 +48,7 @@ export default function UserFormModal({
               <select name="role" value={formData.role} onChange={handleChange} className="input">
                 <option value="employee">موظف</option>
                 <option value="manager">مدير قسم</option>
+                <option value="hr">مسؤول الموارد البشرية</option>
               </select>
             </div>
           )}

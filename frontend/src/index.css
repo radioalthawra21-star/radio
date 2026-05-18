@@ -248,20 +248,24 @@
 
 /* ===== Payroll System - Container ===== */
 .hr-payroll-system {
-  @apply p-6 max-w-full;
+  @apply p-3 max-w-full;
 }
 
 /* ===== System Header ===== */
 .system-header {
-  @apply mb-6;
+  @apply mb-4;
 }
 
 .header-content {
-  @apply flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white rounded-xl shadow-md p-6;
+  @apply flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 bg-white rounded-xl shadow-md p-4;
+}
+
+.header-title-row {
+  @apply flex items-center gap-3;
 }
 
 .header-title h1 {
-  @apply text-2xl font-bold text-dark flex items-center gap-2;
+  @apply text-xl font-bold text-dark flex items-center gap-2;
 }
 
 .header-title h1 .icon {
@@ -269,7 +273,11 @@
 }
 
 .header-title p {
-  @apply text-sm text-gray-500 mt-1;
+  @apply text-xs text-gray-500 mt-0.5;
+}
+
+.back-btn {
+  @apply flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors whitespace-nowrap;
 }
 
 .header-actions {
@@ -294,11 +302,11 @@
 
 /* ===== Exchange Rate Panel ===== */
 .exchange-rate-panel {
-  @apply bg-white rounded-xl shadow-md p-5 mb-4 border-r-4 border-primary;
+  @apply bg-white rounded-xl shadow-md p-3 mb-3 border-r-4 border-primary;
 }
 
 .exchange-rate-panel h3 {
-  @apply text-lg font-bold text-dark mb-3 flex items-center gap-2;
+  @apply text-sm font-bold text-dark mb-2 flex items-center gap-2;
 }
 
 .exchange-rate-input-group {
@@ -340,15 +348,15 @@
 
 /* ===== Stats Grid ===== */
 .stats-grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4;
 }
 
 .stat-card {
-  @apply bg-white rounded-xl shadow-md p-5 flex items-center gap-4 transition-all hover:shadow-lg;
+  @apply bg-white rounded-xl shadow-md p-3 flex items-center gap-3 transition-all hover:shadow-lg;
 }
 
 .stat-icon {
-  @apply w-14 h-14 rounded-xl flex items-center justify-center text-2xl text-white flex-shrink-0;
+  @apply w-10 h-10 rounded-xl flex items-center justify-center text-lg text-white flex-shrink-0;
 }
 
 .stat-icon.employees {
@@ -372,12 +380,12 @@
 }
 
 .stat-value {
-  @apply text-lg font-bold text-dark;
+  @apply text-sm font-bold text-dark;
 }
 
 /* ===== Filters Section ===== */
 .filters-section {
-  @apply flex flex-col sm:flex-row gap-4 mb-6 bg-white rounded-xl shadow-md p-4;
+  @apply flex flex-col sm:flex-row gap-3 mb-4 bg-white rounded-xl shadow-md p-3;
 }
 
 .filter-group {
@@ -410,11 +418,23 @@
 
 /* ===== Table Container ===== */
 .table-container {
-  @apply bg-white rounded-xl shadow-md overflow-hidden mb-6;
+  @apply bg-white rounded-xl shadow-md mb-4 overflow-x-auto;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded hover:bg-gray-400;
 }
 
 .payroll-table {
-  @apply w-full text-sm;
+  @apply w-full text-xs;
 }
 
 .payroll-table thead {
@@ -422,7 +442,7 @@
 }
 
 .payroll-table thead th {
-  @apply px-4 py-3 text-white font-semibold text-xs uppercase tracking-wider text-right whitespace-nowrap;
+  @apply px-2 py-2 text-white font-semibold text-[10px] uppercase tracking-wider text-right whitespace-nowrap;
 }
 
 .payroll-table tbody tr {
@@ -434,7 +454,7 @@
 }
 
 .payroll-table tbody td {
-  @apply px-4 py-3 align-middle;
+  @apply px-2 py-1.5 align-middle;
 }
 
 .employee-info {
@@ -442,31 +462,31 @@
 }
 
 .employee-info strong {
-  @apply text-sm font-semibold text-dark;
+  @apply text-xs font-semibold text-dark;
 }
 
 .employee-info small {
-  @apply text-xs text-gray-400;
+  @apply text-[10px] text-gray-400;
 }
 
 .dept-badge {
-  @apply inline-block px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium;
+  @apply inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-medium;
 }
 
 .payroll-table tbody td.currency {
-  @apply text-left font-mono text-xs;
+  @apply text-left font-mono text-[10px] whitespace-nowrap;
 }
 
 .payroll-table tbody td.gross {
-  @apply text-left font-semibold text-success;
+  @apply text-left font-semibold text-success text-[10px] whitespace-nowrap;
 }
 
 .payroll-table tbody td.deductions {
-  @apply text-left font-semibold text-error;
+  @apply text-left font-semibold text-error text-[10px] whitespace-nowrap;
 }
 
 .payroll-table tbody td.net {
-  @apply text-left font-bold text-secondary;
+  @apply text-left font-bold text-secondary text-[10px] whitespace-nowrap;
 }
 
 /* ===== Total Row (tfoot) ===== */
@@ -475,11 +495,11 @@
 }
 
 .total-row td {
-  @apply px-4 py-3 text-sm font-bold text-dark border-t-2 border-gray-300;
+  @apply px-2 py-1.5 text-xs font-bold text-dark border-t-2 border-gray-300;
 }
 
 .total-row td.currency {
-  @apply text-left font-mono text-xs;
+  @apply text-left font-mono text-[10px];
 }
 
 .total-row td.gross {
@@ -496,20 +516,20 @@
 
 /* ===== Action Buttons ===== */
 .action-buttons {
-  @apply flex gap-1.5;
+  @apply flex gap-1;
 }
 
 .edit-btn {
-  @apply p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors;
+  @apply p-1 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors text-xs;
 }
 
 .delete-btn {
-  @apply p-2 text-error hover:bg-red-50 rounded-lg transition-colors;
+  @apply p-1 text-error hover:bg-red-50 rounded-lg transition-colors text-xs;
 }
 
 /* ===== Legend ===== */
 .legend {
-  @apply flex gap-6 justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100 text-sm;
+  @apply flex gap-4 justify-center p-2 bg-white rounded-xl shadow-sm border border-gray-100 text-xs;
 }
 
 .legend-item {

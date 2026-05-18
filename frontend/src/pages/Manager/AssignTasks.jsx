@@ -163,7 +163,7 @@ const AssignTasks = () => {
                       <optgroup label="رؤساء الأقسام">
                         {employees.filter(e => e.role === 'manager').map((emp) => (
                           <option key={emp._id} value={emp._id} className="font-bold">
-                            {emp.name} - مدير {emp.department === 'production' || emp.department === 'الإنتاج' ? 'الإنتاج' : emp.department === 'news' || emp.department === 'الأخبار' ? 'الأخبار' : emp.department === 'marketing' || emp.department === 'التسويق' ? 'التسويق' : emp.department === 'financial' || emp.department === 'المالي' ? 'المالي' : emp.department === 'it' || emp.department === 'تقنية المعلومات' ? 'تقنية المعلومات' : emp.department === 'live_broadcast' || emp.department === 'البث المباشر' ? 'البث المباشر' : emp.department === 'hr' || emp.department === 'الموارد البشرية' ? 'الموارد البشرية' : emp.department}
+                            {emp.name} - مدير {emp.department === 'production' || emp.department === 'الإنتاج' ? 'الإنتاج' : emp.department === 'news' || emp.department === 'الأخبار' ? 'الأخبار' : emp.department === 'marketing' || emp.department === 'التسويق' ? 'التسويق' : emp.department === 'financial' || emp.department === 'المالي' ? 'المالي' : emp.department === 'it' || emp.department === 'تقنية المعلومات' ? 'تقنية المعلومات' : emp.department === 'live_broadcast' || emp.department === 'البث المباشر' ? 'البث المباشر' : emp.department === 'hr' || emp.department === 'human resources' || emp.department === 'الموارد البشرية' ? 'الموارد البشرية' : emp.department}
                           </option>
                         ))}
                       </optgroup>

@@ -25,10 +25,16 @@ export const getDepartmentCosts = async () => {
   return response.data;
 };
 
+export const getDepartmentStats = async () => {
+  const response = await api.get('/departments/stats');
+  return response.data;
+};
+
 export default {
   getAllDepartments,
   createDepartment,
   updateDepartment,
   deleteDepartment,
-  getDepartmentCosts
+  getDepartmentCosts,
+  getDepartmentStats
 };

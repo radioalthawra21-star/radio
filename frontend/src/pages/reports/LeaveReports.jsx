@@ -35,10 +35,12 @@ const LeaveReports = () => {
       // Fetch leave records
       const recordsResponse = await getLeaveRequests(filter);
       if (recordsResponse.success) {
-        setLeaveRecords(recordsResponse.data || []);
+        const records = recordsResponse.data?.requests || recordsResponse.data || [];
+        const recordsArray = Array.isArray(records) ? records : [];
+        setLeaveRecords(recordsArray);
         
         // Prepare chart data
-        const chartData = prepareChartData(recordsResponse.data || []);
+        const chartData = prepareChartData(recordsArray);
         setChartData(chartData);
       }
     } catch (err) {

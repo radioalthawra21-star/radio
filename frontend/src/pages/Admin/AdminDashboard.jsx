@@ -97,7 +97,7 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold text-dark">
           مرحباً، {user?.name}
         </h1>
-        <p className="text-gray-600 mt-2">لوحة تحكم المدير العام</p>
+        <p className="text-gray-600 mt-2">{user?.role === 'hr' ? 'لوحة تحكم الموارد البشرية' : 'لوحة تحكم المدير العام'}</p>
       </div>
 
       {/* Stats Cards */}
@@ -243,7 +243,7 @@ const AdminDashboard = () => {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-dark">📝 إجازات تنتظر موافقتك</h2>
-              <Link to="/admin/gm-approve-leaves" className="text-sm text-primary hover:underline">
+              <Link to="/admin/leave-management" className="text-sm text-primary hover:underline">
                 عرض الكل →
               </Link>
             </div>
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <Link
-                    to="/admin/gm-approve-leaves"
+                    to="/admin/leave-management"
                     className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary-dark transition-colors"
                   >
                     موافقة

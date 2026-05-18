@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { FaUser, FaMoneyBillWave, FaCalculator, FaDownload, FaPrint, FaSync, FaPlus, FaEdit, FaTrash, FaColumns, FaExchangeAlt, FaCog, FaSearch, FaFilter, FaTimes, FaUsers, FaBalanceScale } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaUser, FaMoneyBillWave, FaCalculator, FaDownload, FaPrint, FaSync, FaPlus, FaEdit, FaTrash, FaColumns, FaExchangeAlt, FaCog, FaSearch, FaFilter, FaTimes, FaUsers, FaBalanceScale, FaArrowLeft } from 'react-icons/fa';
 import DynamicNumber from '../../components/DynamicNumber';
 import { JOB_GRADES, DEDUCTION_RATES, ALL_COLUMNS, ALL_COLUMN_KEYS, DEPARTMENTS, getDeptName, getDeptKey, ROLE_LABELS } from './comprehensive/config';
 import { safeNum, generateMockEmployees, fetchFromApi, exportToExcel } from './comprehensive/utils';
@@ -29,6 +30,7 @@ const loadJSON = (key, fallback) => {
 };
 
 const ComprehensiveHRPayrollSystem = () => {
+  const navigate = useNavigate();
   const fetchDataRef = useRef(null);
 
   const [employees, setEmployees] = useState([]);
@@ -346,9 +348,14 @@ const ComprehensiveHRPayrollSystem = () => {
     <div className="hr-payroll-system">
       <div className="system-header">
         <div className="header-content">
-          <div className="header-title">
-            <h1><FaUser className="icon" />نظام الموارد البشرية والرواتب المتكامل</h1>
-            <p>إدارة شاملة للموظفين وكشوف الرواتب مع حسابات تلقائية</p>
+          <div className="header-title-row">
+            <button onClick={() => navigate('/payroll')} className="back-btn" title="العودة إلى لوحة الرواتب">
+              <FaArrowLeft /> العودة
+            </button>
+            <div className="header-title">
+              <h1><FaUser className="icon" />نظام الموارد البشرية والرواتب المتكامل</h1>
+              <p>إدارة شاملة للموظفين وكشوف الرواتب مع حسابات تلقائية</p>
+            </div>
           </div>
           <div className="header-actions">
             <button onClick={() => setShowColumnManager(true)} className="btn-secondary" title="إدارة الأعمدة">

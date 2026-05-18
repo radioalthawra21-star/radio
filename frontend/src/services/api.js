@@ -51,7 +51,7 @@ api.interceptors.response.use(
       const { status, data } = error.response;
       userMessage = data?.message || `خطأ في الخادم (${status})`;
       
-      if (status === 401) {
+      if (status === 401 && !error.config?.url?.includes('/auth/login')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';

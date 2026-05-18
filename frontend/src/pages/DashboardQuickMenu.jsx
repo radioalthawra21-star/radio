@@ -4,10 +4,8 @@ import { NavLink } from 'react-router-dom';
 const links = [
   { to: '/payroll/management', emoji: '📋', label: 'إدارة الرواتب' },
   { to: '/payroll/processing', emoji: '⚙️', label: 'معالجة الرواتب' },
-  { to: '/payroll/reports', emoji: '📊', label: 'تقارير الرواتب' },
   { to: '/payroll/audit', emoji: '🔍', label: 'تدقيق الرواتب' },
   { to: '/payroll/pending', emoji: '⏳', label: 'الرواتب المعلقة' },
-  { to: '/payroll/policies', emoji: '📋', label: 'سياسات الرواتب' },
 ];
 
 const DashboardQuickMenu = () => {

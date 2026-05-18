@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { FaChartBar, FaUsers, FaMoneyBillWave, FaDownload, FaPrint, FaChartLine, FaChartPie, FaSpinner, FaFileInvoice, FaClock, FaCheckCircle, FaBalanceScale } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaChartBar, FaUsers, FaMoneyBillWave, FaDownload, FaPrint, FaChartLine, FaChartPie, FaSpinner, FaFileInvoice, FaClock, FaCheckCircle, FaBalanceScale, FaTasks, FaCalculator, FaShieldAlt, FaNetworkWired } from 'react-icons/fa';
 import DynamicNumber from '../components/DynamicNumber';
 import PayrollActions from '../features/payroll/components/PayrollActions';
 import DashboardQuickMenu from './DashboardQuickMenu';
@@ -8,7 +9,16 @@ import { usePayroll } from '../features/payroll/hooks/usePayrollState.jsx';
 import { getDepartmentCosts } from '../services/departmentService';
 import { getPayrollSummary, getRecentPayments } from '../services/payrollService';
 
+const quickNavItems = [
+  { path: '/payroll/management', label: 'إدارة الرواتب', icon: FaFileInvoice, color: 'bg-blue-500', desc: 'إدارة كشوف الرواتب' },
+  { path: '/payroll/processing', label: 'معالجة الرواتب', icon: FaCalculator, color: 'bg-purple-600', desc: 'اعتماد وتسجيل الكشوف' },
+  { path: '/payroll/audit', label: 'تدقيق الرواتب', icon: FaShieldAlt, color: 'bg-green-600', desc: 'المراجعة والضوابط' },
+  { path: '/payroll/workflow', label: 'سير العمل', icon: FaTasks, color: 'bg-orange-500', desc: 'مسار معالجة الرواتب' },
+  { path: '/payroll/integration', label: 'التكامل', icon: FaNetworkWired, color: 'bg-indigo-600', desc: 'اتصالات الأنظمة' },
+];
+
 const PayrollDashboard = () => {
+  const navigate = useNavigate();
   const { canEdit, canCreate, canExport } = usePayroll();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -101,6 +111,31 @@ const PayrollDashboard = () => {
               <FaPrint className="h-4 w-4 ml-2" /> طباعة التقرير
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="section-card mb-8">
+        <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
+          <FaTasks className="text-primary" />
+          الانتقال السريع
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {quickNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className="group bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-primary/30 transition-all text-right"
+              >
+                <div className={`w-10 h-10 ${item.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                  <Icon className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.label}</h3>
+                <p className="text-xs text-gray-500">{item.desc}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 

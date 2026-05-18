@@ -5,13 +5,16 @@ import { getUnreadCount } from '../../services/messageService';
 import { playTaskAssignedSound, playRoleChangeSound, playNotificationSound, playMessageSound } from '../../utils/audioUtils';
 import { formatDateTimeArabic } from '../../utils/dateUtils';
 
-const showToast = (title, msg) => {
+const showToast = (title, msg, url) => {
   const existing = document.getElementById('nt-toast');
   if (existing) existing.remove();
   const t = document.createElement('div');
   t.id = 'nt-toast';
-  t.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1a2e;color:#fff;padding:14px 24px;border-radius:12px;direction:rtl;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:420px;text-align:center;animation:ntFadeIn 0.3s ease;border:1px solid rgba(255,255,255,0.1)';
+  t.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1a2e;color:#fff;padding:14px 24px;border-radius:12px;direction:rtl;font-family:system-ui,sans-serif;font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:420px;text-align:center;animation:ntFadeIn 0.3s ease;border:1px solid rgba(255,255,255,0.1);cursor:pointer';
   t.innerHTML = `<div style="font-weight:600;margin-bottom:4px">${title}</div><div style="opacity:0.8;font-size:13px">${msg}</div>`;
+  if (url) {
+    t.onclick = () => { window.location.href = url; };
+  }
   if (!document.getElementById('nt-style')) {
     const s = document.createElement('style'); s.id = 'nt-style';
     s.textContent = '@keyframes ntFadeIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}@keyframes ntFadeOut{from{opacity:1}to{opacity:0;transform:translateX(-50%) translateY(-20px)}}';
@@ -81,13 +84,16 @@ const NotificationPanel = () => {
           if (latest) {
             const stored = JSON.parse(localStorage.getItem('lastNotifications') || '[]');
             const isNew = !stored.find(n => n._id === latest._id);
-            if (isNew) {
-              const t = latest.title || 'إشعار جديد';
-              const m = latest.message || '';
-              if (latest.type === 'task_assigned') { playTaskAssignedSound(); showToast(t, m); }
-              else if (latest.type === 'new_message') { playMessageSound(); showToast(t, m); }
-              else if (latest.type === 'role_change' || latest.type === 'reward') { playRoleChangeSound(); showToast(t, m); }
-              else { playNotificationSound(); showToast(t, m); }
+              if (isNew) {
+                const t = latest.title || 'إشعار جديد';
+                const m = latest.message || '';
+                let url = null;
+                if (['leave_pending_gm', 'leave_needs_gm'].includes(latest.type)) url = '/admin/leave-management';
+                else if (['leave_approved', 'leave_rejected'].includes(latest.type)) url = '/employee/my-leaves';
+                if (latest.type === 'task_assigned') { playTaskAssignedSound(); showToast(t, m, url); }
+                else if (latest.type === 'new_message') { playMessageSound(); showToast(t, m, url); }
+                else if (latest.type === 'role_change' || latest.type === 'reward') { playRoleChangeSound(); showToast(t, m, url); }
+                else { playNotificationSound(); showToast(t, m, url); }
             }
           }
         }
@@ -157,7 +163,7 @@ const NotificationPanel = () => {
       case 'leave_approved':
       case 'leave_rejected': navigate('/leave-request'); break;
       case 'leave_pending_gm':
-      case 'leave_needs_gm': navigate('/admin/gm-approve-leaves'); break;
+      case 'leave_needs_gm': navigate('/admin/leave-management'); break;
       case 'payroll': navigate('/payroll/comprehensive'); break;
       case 'recruitment': navigate('/admin/recruitment'); break;
       case 'performance': navigate('/admin/manager-evaluation'); break;

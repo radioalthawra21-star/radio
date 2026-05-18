@@ -6,7 +6,8 @@ import { UPLOADS_URL } from '../../services/api';
 const departmentNames = {
   financial: 'المالي', it: 'تقنية المعلومات', marketing: 'التسويق',
   news: 'الأخبار', production: 'الإنتاج', live_broadcast: 'البث المباشر',
-  hr: 'الموارد البشرية', المالي: 'المالي', 'تقنية المعلومات': 'تقنية المعلومات',
+  hr: 'الموارد البشرية', 'human resources': 'الموارد البشرية',
+  المالي: 'المالي', 'تقنية المعلومات': 'تقنية المعلومات',
   التسويق: 'التسويق', الأخبار: 'الأخبار', الإنتاج: 'الإنتاج',
   'البث المباشر': 'البث المباشر', 'الموارد البشرية': 'الموارد البشرية'
 };
@@ -30,6 +31,7 @@ const UserMenu = ({ user, onLogout }) => {
   const getRoleLabel = () => {
     if (!user) return '';
     if (user.role === 'admin') return 'المدير العام';
+    if (user.role === 'hr') return 'مسؤول الموارد البشرية';
     if (user.role === 'manager') return `مدير ${departmentNames[user.department] || ''}`;
     return 'موظف';
   };

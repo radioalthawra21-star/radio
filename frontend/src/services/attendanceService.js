@@ -37,10 +37,16 @@ export const getDepartmentAttendance = async (department, params = {}) => {
   return response.data;
 };
 
+export const updateAttendanceRecord = async (id, data) => {
+  const response = await api.put(`/attendance/${id}`, data);
+  return response.data;
+};
+
 export default {
   getAllAttendanceRecords,
   getTodayAttendance,
   checkIn,
   checkOut,
-  getDepartmentAttendance
+  getDepartmentAttendance,
+  updateAttendanceRecord
 };
