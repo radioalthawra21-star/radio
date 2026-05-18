@@ -89,7 +89,14 @@ const isNewsAuthorized = (user) => {
 
 const Sidebar = ({ isOpen, setIsOpen, user }) => {
   const role = user?.role || 'employee';
-  const items = menuItems[role] || menuItems.employee;
+  const username = user?.username || '';
+  let items = menuItems[role] || menuItems.employee;
+
+  // Hide payroll from managers except Mostafa (HR manager)
+  if (role === 'manager' && username !== 'mostafa') {
+    items = items.filter(item => !item.path.startsWith('/payroll'));
+  }
+
   const newsAuthorized = isNewsAuthorized(user);
   const [appLogo, setAppLogo] = useState(null);
 
