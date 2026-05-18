@@ -57,7 +57,6 @@ const menuItems = {
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance', label: 'الحضور', icon: '🕐' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
-    { path: '/financial-misc', label: 'متفرقات مالية', icon: '💳' },
     { path: '/financial-misc/report', label: 'تقرير متفرقات مالية', icon: '📊' }
   ]
 };
