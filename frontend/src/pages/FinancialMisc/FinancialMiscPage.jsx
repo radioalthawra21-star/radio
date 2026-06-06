@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaCheck, FaSearch, FaDownload, FaMoneyBillWave, FaUndo, FaArrowUp, FaArrowDown, FaDollarSign, FaExchangeAlt, FaCog, FaFilePdf, FaArchive, FaHistory } from 'react-icons/fa';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import Card from '../../components/common/Card';
 import * as financialMiscService from '../../services/financialMiscService';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 const emptyRow = { _id: null, type: 'expense', description: '', date: new Date().toISOString().split('T')[0], amount: '', notes: '', _new: true };
 
@@ -65,6 +65,7 @@ export default function FinancialMiscPage({ readOnly: routeReadOnly }) {
   const [showRatePanel, setShowRatePanel] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const persistRate = (rate) => {
     const v = Number(rate) || 25000;
@@ -225,53 +226,150 @@ export default function FinancialMiscPage({ readOnly: routeReadOnly }) {
   );
   const displayItems = [...newRows, ...filtered];
 
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.setRtl(true);
-    const pageW = doc.internal.pageSize.getWidth();
-    doc.setFontSize(18);
-    doc.text('تقرير متفرقات مالية', pageW / 2, 20, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(`تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}`, pageW / 2, 28, { align: 'center' });
-    if (monthFilter) {
-      const d = new Date(monthFilter + '-01');
-      doc.text(`الشهر: ${d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long' })}`, pageW / 2, 34, { align: 'center' });
-    }
-    const conv = (n) => currency === 'SYP' ? (n * exchangeRate).toLocaleString('ar-SA') + ' ل.س' : n.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' $';
-    doc.setFontSize(12);
-    doc.text(`إجمالي الإيرادات: ${conv(incomeTotal)}`, pageW - 14, 44, { align: 'right' });
-    doc.text(`إجمالي المصروفات: ${conv(expenseTotal)}`, pageW - 14, 52, { align: 'right' });
-    doc.text(`الصافي: ${conv(netTotal)}`, pageW - 14, 60, { align: 'right' });
-    doc.setRtl(false);
-    const tableData = filtered.map(i => [
-      i.number || '-',
-      getTypeMeta(getItemType(i)).label,
-      i.description || '-',
-      formatDate(i.date),
-      currency === 'SYP' ? (i.amount * exchangeRate).toLocaleString('ar-SA') + ' ل.س' : i.amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' $',
-      i.notes || '-'
-    ]);
-    doc.autoTable({
-      head: [['#', 'النوع', 'البيان', 'التاريخ', `المبلغ (${currency})`, 'ملاحظات']],
-      body: tableData,
-      startY: 67,
-      theme: 'grid',
-      styles: { fontSize: 7, halign: 'right' },
-      headStyles: { fillColor: [24, 46, 78], textColor: 255, fontStyle: 'bold', halign: 'right' },
-      columnStyles: {
-        0: { cellWidth: 10 },
-        1: { cellWidth: 18 },
-        2: { cellWidth: 'auto' },
-        3: { cellWidth: 25 },
-        4: { cellWidth: 30, halign: 'left' },
-        5: { cellWidth: 30 }
+  const exportPDF = async () => {
+    setPdfLoading(true);
+    try {
+      const container = document.createElement('div');
+      Object.assign(container.style, {
+        position: 'absolute', left: '-9999px', top: '0',
+        width: '190mm', padding: '10mm', background: 'white',
+        direction: 'rtl', textAlign: 'right',
+        fontFamily: 'Arial, sans-serif'
+      });
+
+      const tot = (n) => currency === 'SYP'
+        ? (n * exchangeRate).toLocaleString('ar-SA') + ' ل.س'
+        : n.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' $';
+
+      const monthName = monthFilter
+        ? new Date(monthFilter + '-01').toLocaleDateString('ar-SA', { year: 'numeric', month: 'long' })
+        : '';
+
+      const pdfTitle = showArchived
+        ? (monthName ? `تقرير أرشيف شهر ${monthName}` : 'تقرير أرشيف متفرقات مالية')
+        : (monthName ? `تقرير متفرقات مالية - شهر ${monthName}` : 'تقرير متفرقات مالية');
+
+      const filterLabel = monthName
+        ? `<p style="margin:2px 0;font-size:10px;color:#666;">${showArchived ? 'الأرشيف' : 'الشهر'}: ${monthName}</p>`
+        : '';
+
+      const filename = (showArchived ? 'أرشيف_' : '') + (monthName ? monthName.replace(/[\/\s]/g, '_') + '_' : '') + 'متفرقات_مالية.pdf';
+
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:12px;">
+          <h1 style="margin:0;font-size:18px;">${pdfTitle}</h1>
+          <p style="margin:2px 0;font-size:10px;color:#666;">تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>
+          ${filterLabel}
+        </div>
+        <div style="display:flex;justify-content:space-around;margin-bottom:12px;font-size:11px;">
+          <div style="text-align:center;"><span style="color:#16a34a;font-weight:bold;">إجمالي الإيرادات</span><br><b style="color:#16a34a;">${tot(incomeTotal)}</b></div>
+          <div style="text-align:center;"><span style="color:#dc2626;font-weight:bold;">إجمالي المصروفات</span><br><b style="color:#dc2626;">${tot(expenseTotal)}</b></div>
+          <div style="text-align:center;"><span style="font-weight:bold;">الصافي</span><br><b style="color:${netTotal < 0 ? '#dc2626' : '#16a34a'};">${tot(netTotal)}</b></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:9px;" dir="rtl">
+          <thead>
+            <tr style="background:#182e4e;color:#fff;">
+              <th style="padding:5px;border:1px solid #ccc;text-align:right;">#</th>
+              <th style="padding:5px;border:1px solid #ccc;text-align:right;">النوع</th>
+              <th style="padding:5px;border:1px solid #ccc;text-align:right;">البيان</th>
+              <th style="padding:5px;border:1px solid #ccc;text-align:right;">التاريخ</th>
+              <th style="padding:5px;border:1px solid #ccc;text-align:left;">المبلغ (${currency})</th>
+              <th style="padding:5px;border:1px solid #ccc;text-align:right;">ملاحظات</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map(i => `
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:4px;border:1px solid #eee;">${i.number || '-'}</td>
+                <td style="padding:4px;border:1px solid #eee;color:${getItemType(i) === 'income' ? '#16a34a' : '#dc2626'};">${getTypeMeta(getItemType(i)).label}</td>
+                <td style="padding:4px;border:1px solid #eee;">${i.description || '-'}</td>
+                <td style="padding:4px;border:1px solid #eee;">${formatDate(i.date)}</td>
+                <td style="padding:4px;border:1px solid #eee;text-align:left;direction:ltr;font-family:monospace;">${currency === 'SYP' ? (i.amount * exchangeRate).toLocaleString('ar-SA') + ' ل.س' : i.amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' $'}</td>
+                <td style="padding:4px;border:1px solid #eee;">${i.notes || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div style="text-align:center;font-size:8px;color:#999;margin-top:10px;">
+          سعر الصرف: 1$ = ${exchangeRate.toLocaleString('ar-SA')} ل.س
+        </div>
+      `;
+
+      document.body.appendChild(container);
+      await document.fonts.ready;
+      await new Promise(r => setTimeout(r, 300));
+
+      const canvas = await html2canvas(container, {
+        scale: 2, useCORS: true, logging: false,
+        backgroundColor: '#ffffff',
+        width: container.scrollWidth,
+        height: container.scrollHeight
+      });
+
+      document.body.removeChild(container);
+
+      const imgData = canvas.toDataURL('image/png');
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const ratio = canvas.height / canvas.width;
+      const imgH = pageW * ratio;
+
+      if (imgH <= pageH) {
+        doc.addImage(imgData, 'PNG', 0, 0, pageW, imgH);
+      } else {
+        const rowsPerPage = Math.floor(pageH / (imgH / filtered.length));
+        let start = 0;
+        let page = 0;
+        while (start < filtered.length) {
+          if (page > 0) doc.addPage();
+          const end = Math.min(start + Math.max(rowsPerPage, 1), filtered.length);
+          const slice = filtered.slice(start, end);
+          const tmp = document.createElement('div');
+          Object.assign(tmp.style, {
+            position: 'absolute', left: '-9999px', top: '0',
+            width: '190mm', padding: '10mm', background: 'white',
+            direction: 'rtl', textAlign: 'right',
+            fontFamily: 'Arial, sans-serif'
+          });
+          tmp.innerHTML = container.innerHTML.replace(
+            /<tbody>[\s\S]*?<\/tbody>/,
+            '<tbody>' + slice.map(i => `
+              <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:4px;border:1px solid #eee;">${i.number || '-'}</td>
+                <td style="padding:4px;border:1px solid #eee;color:${getItemType(i) === 'income' ? '#16a34a' : '#dc2626'};">${getTypeMeta(getItemType(i)).label}</td>
+                <td style="padding:4px;border:1px solid #eee;">${i.description || '-'}</td>
+                <td style="padding:4px;border:1px solid #eee;">${formatDate(i.date)}</td>
+                <td style="padding:4px;border:1px solid #eee;text-align:left;direction:ltr;font-family:monospace;">${currency === 'SYP' ? (i.amount * exchangeRate).toLocaleString('ar-SA') + ' ل.س' : i.amount.toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' $'}</td>
+                <td style="padding:4px;border:1px solid #eee;">${i.notes || '-'}</td>
+              </tr>
+            `).join('') +
+            '</tbody>'
+          );
+          document.body.appendChild(tmp);
+          await new Promise(r => setTimeout(r, 100));
+          const sliceCanvas = await html2canvas(tmp, {
+            scale: 2, useCORS: true, logging: false,
+            backgroundColor: '#ffffff',
+            width: tmp.scrollWidth, height: tmp.scrollHeight
+          });
+          document.body.removeChild(tmp);
+          const sliceData = sliceCanvas.toDataURL('image/png');
+          const sliceRatio = sliceCanvas.height / sliceCanvas.width;
+          const sliceH = pageW * sliceRatio;
+          doc.addImage(sliceData, 'PNG', 0, 0, pageW, sliceH);
+          start = end;
+          page++;
+        }
       }
-    });
-    const finalY = doc.lastAutoTable.finalY + 7;
-    doc.setRtl(true);
-    doc.setFontSize(8);
-    doc.text(`سعر الصرف: 1$ = ${exchangeRate.toLocaleString('ar-SA')} ل.س`, pageW / 2, finalY, { align: 'center' });
-    doc.save('متفرقات_مالية.pdf');
+
+      doc.save(filename);
+    } catch (err) {
+      console.error('PDF Error:', err);
+      alert('حدث خطأ في تصدير PDF: ' + err.message);
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   return (
@@ -301,8 +399,8 @@ export default function FinancialMiscPage({ readOnly: routeReadOnly }) {
           <button onClick={toggleCurrency} className={`btn flex items-center gap-1 ${currency === 'SYP' ? 'btn-interactive' : 'btn-success'}`}>
             <FaExchangeAlt /> {currency === 'USD' ? 'ل.س' : '$'}
           </button>
-          <button onClick={exportPDF} className="btn btn-outline flex items-center gap-1">
-            <FaFilePdf /> PDF
+          <button onClick={exportPDF} disabled={pdfLoading} className="btn btn-outline flex items-center gap-1">
+            <FaFilePdf /> {pdfLoading ? '...' : 'PDF'}
           </button>
           {canEdit && !showArchived && (
             <button onClick={addNewRow} className="btn btn-primary flex items-center gap-1">

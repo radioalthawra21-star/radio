@@ -151,7 +151,7 @@ const NotificationPanel = () => {
       case 'task_evaluated':
       case 'task_approved':
       case 'task_rejected':
-        if (relatedTask) navigate(`/task/${relatedTask}`);
+        if (relatedTask) navigate(`/task/${relatedTask._id || relatedTask}`);
         else navigate('/my-tasks');
         break;
       case 'reward': navigate('/admin/bonuses'); break;

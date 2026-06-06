@@ -42,6 +42,8 @@ const auditLogRoutes = require('./routes/auditLogRoutes');
 const recruitmentPerformanceRoutes = require('./routes/recruitmentPerformanceRoutes');
 const financialMiscRoutes = require('./routes/financialMiscRoutes');
 const coupletPromptRoutes = require('./routes/coupletPromptRoutes');
+const pdfRoutes = require('./routes/pdfRoutes');
+const zktecoRoutes = require('./routes/zktecoRoutes');
 
 // Initialize Express app
 const app = express();
@@ -79,8 +81,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Socket.IO for real-time notifications
 const io = new Server(server, {
@@ -212,6 +214,8 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/recruitment', recruitmentPerformanceRoutes);
 app.use('/api/financial-misc', financialMiscRoutes);
+app.use('/api/pdf', pdfRoutes);
+app.use('/api/zkteco', zktecoRoutes);
 
 // Health check endpoint (مهم لـ Render)
 app.get('/api/health', (req, res) => {

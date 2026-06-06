@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createLeaveRequest, getLeaveRequests, getLeaveBalance, cancelLeaveRequest } from '../../services/leaveService';
+import { createLeaveRequest, getLeaveRequests, getLeaveBalance, cancelLeaveRequest, deleteLeaveRequestPermanent } from '../../services/leaveService';
 
 const LEAVE_TYPES = [
   { value: 'annual', label: 'إجازة سنوية', icon: '🏖️', color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -115,7 +115,22 @@ const LeaveRequest = () => {
 
   const mainBalanceTypes = LEAVE_TYPES.filter(t => !['compensatory'].includes(t.value));
 
+  const handleDeletePermanent = async (id) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذه الإجازة نهائياً من السجل؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    try {
+      const res = await deleteLeaveRequestPermanent(id);
+      if (res.success) {
+        setSuccess('تم حذف الإجازة من السجل');
+        loadData();
+      }
+    } catch (err) {
+      setError(err.userMessage || 'فشل حذف الإجازة');
+    }
+  };
+
   const canCancel = (status) => ['pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(status);
+
+  const canDelete = (status) => ['rejected', 'cancelled'].includes(status);
 
   return (
     <div className="p-6 max-w-6xl mx-auto" dir="rtl">
@@ -307,6 +322,15 @@ const LeaveRequest = () => {
                               className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors"
                             >
                               إلغاء
+                            </button>
+                          )}
+                          {canDelete(req.status) && (
+                            <button
+                              onClick={() => handleDeletePermanent(req._id)}
+                              className="text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                              title="حذف نهائي من السجل"
+                            >
+                              حذف
                             </button>
                           )}
                         </div>

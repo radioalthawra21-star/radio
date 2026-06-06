@@ -1,0 +1,13 @@
+backend\controllers\auditLogController.js
+backend\controllers\zktecoController.js
+backend\models\User.js
+backend\routes\zktecoRoutes.js
+backend\server.js
+bridge\config.js
+bridge\index.js
+bridge\package.json
+frontend\src\global.d.ts
+stderr.txt
+stdout.txt
+ztk نصي.txt
+البصمة.txt

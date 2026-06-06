@@ -1,0 +1,121 @@
+Project Structure Overview
+========================
+
+Root Directory
+--------------
+- .sixth/                 # Configuration for AI assistant
+  - skills/               # Skills directory (empty)
+- .vscode/                # VS Code configuration
+  - extensions.json       # Recommended extensions
+- backend/                # Node.js/Express backend application
+  - config/               # Configuration files
+  - controllers/          # Request controllers
+  - docs/                 # Documentation
+  - middleware/           # Custom middleware
+  - models/               # Database models
+  - public/               # Static files
+    - fonts/              # Font files
+  - routes/               # API route definitions
+  - scripts/              # Utility scripts
+  - services/             # Business logic services
+  - tests/                # Test files
+  - uploads/              # File uploads
+    - cv/                 # CV uploads
+  - utils/                # Utility functions
+  - server.js             # Main server entry point
+  - package.json          # Backend dependencies
+  - package-lock.json     # Locked dependency versions
+  - swagger.json          # API documentation
+  - Dockerfile            # Backend Docker configuration
+  - .env                  # Environment variables
+- bridge/                 # Bridge/connector service
+  - index.js              # Main bridge file
+  - config.js             # Bridge configuration
+  - package.json          # Bridge dependencies
+  - .env.example          # Example environment variables
+- dist/                   # Distribution files
+  - assets/               # Static assets
+  - index.html            # Main HTML file
+- frontend/               # React/Vite frontend application
+  - public/               # Public static files
+    - index.html          # Main HTML file
+    - logo.png            # Application logo
+  - src/                  # Source code
+    - components/         # Reusable UI components
+      - charts/           # Chart components
+      - common/           # Common components
+      - layout/           # Layout components
+      - widgets/          # Widget components
+    - context/            # React context providers
+    - features/           # Feature-specific code
+      - payroll/          # Payroll feature
+        - components/     # Payroll components
+        - hooks/          # Payroll hooks
+    - hooks/              # Custom React hooks
+    - pages/              # Page components
+      - Admin/            # Admin pages
+      - Auth/             # Authentication pages
+      - Developer/        # Developer pages
+      - Employee/         # Employee pages
+      - FinancialMisc/    # Financial misc pages
+      - Manager/          # Manager pages
+      - News/             # News pages
+      - Payroll/          # Payroll pages
+        - comprehensive/  # Comprehensive payroll views
+      - recruitment/      # Recruitment pages
+      - reports/          # Reports pages
+    - routes/             # Frontend routing
+    - services/           # API service calls
+    - utils/              # Utility functions
+    - App.jsx             # Main App component
+    - main.jsx            # Entry point
+    - index.css           # Global styles
+  - package.json          # Frontend dependencies
+  - package-lock.json     # Locked dependency versions
+  - vite.config.ts        # Vite configuration
+  - tailwind.config.js    # Tailwind CSS configuration
+  - postcss.config.js     # PostCSS configuration
+  - tsconfig.json         # TypeScript configuration
+  - .env                  # Environment variables
+  - .env.local            # Local environment variables
+  - Dockerfile            # Frontend Docker configuration
+  - netlify.toml          # Netlify deployment config
+- graphify-out/           # Code analysis output
+  - .graphify_chunks/     # Graph chunks
+  - cache/                # Cached analysis data
+    - ast/                # AST cache
+    - semantic/           # Semantic cache
+  - graph.html            # Visualized code graph
+  - graph.json            # Code graph data
+  - .graphify_*.json      # Various analysis files
+  - GRAPH_REPORT.md       # Analysis report
+  - manifest.json         # File manifest
+  - cost.json             # Analysis cost
+- node_modules/           # Project dependencies
+- package-lock.json       # Root lock file (if any)
+- package.json            # Root package file (if any)
+- tsconfig.json           # Root TypeScript config (if any)
+- vite.config.ts          # Root Vite config (if any)
+- remove-bom.js           # BOM removal utility
+- prepare-fonts.js        # Font preparation script
+- index.html              # Root HTML file
+- 0ملون.png               # Image file
+- all_files.csv           # CSV data file
+- CORS_FIX.patch          # CORS fix patch
+- docker-compose.yml      # Docker Compose configuration
+- mogo.txt                # Text file
+- stderr.txt              # Standard error log
+- stdout.txt              # Standard output log
+- tsconfig.json           # TypeScript configuration
+- ztk نصي.txt            # Notes file
+- البصمة.txt             # Fingerprint file
+- بدون عنوان.png          # Untitled image
+- برومت المستودعين المنفصلين .txt  # Separate warehouses note
+- برومت اوامر للبرمجة.zip # Programming commands zip
+
+Key Technologies
+----------------
+- Backend: Node.js, Express
+- Frontend: React, Vite, TypeScript, Tailwind CSS
+- Database: Likely MongoDB or MySQL (based on models)
+- Additional: Socket.IO (real-time communication), Zod (validation)

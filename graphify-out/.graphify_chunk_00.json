@@ -1,0 +1,93 @@
+﻿{
+  "nodes": [
+    {
+      "id": "0ملون_png_branding_image",
+      "label": "0 Colored Branding Image",
+      "file_type": "image",
+      "source_file": "0ملون.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_logo_png",
+      "label": "Frontend Logo Image",
+      "file_type": "image",
+      "source_file": "frontend/logo.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "بدون_عنوان_png_screenshot",
+      "label": "Untitled Screenshot",
+      "file_type": "image",
+      "source_file": "بدون عنوان.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "payroll_management_system_app",
+      "label": "Payroll Management System (Radio Al-Thawra)",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "0ملون_png_branding_image",
+      "target": "payroll_management_system_app",
+      "relation": "represents_branding_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "0ملون.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_logo_png",
+      "target": "payroll_management_system_app",
+      "relation": "is_logo_of",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/logo.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "0ملون_png_branding_image",
+      "target": "frontend_logo_png",
+      "relation": "shares_dimensions_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "0ملون.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "بدون_عنوان_png_screenshot",
+      "target": "payroll_management_system_app",
+      "relation": "depicts_ui_of",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "بدون عنوان.png",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

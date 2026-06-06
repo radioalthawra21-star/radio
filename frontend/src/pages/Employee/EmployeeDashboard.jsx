@@ -9,6 +9,7 @@ import { getMyTasks, getDailySummary } from '../../services/taskService';
 import { getStoredUser } from '../../services/authService';
 import { getCurrentPayslip } from '../../services/payrollService';
 import { getLeaveBalance } from '../../services/leaveService';
+import { getWeeklyHours } from '../../services/attendanceService';
 import Card from '../../components/common/Card';
 
 const EmployeeDashboard = () => {
@@ -21,6 +22,7 @@ const EmployeeDashboard = () => {
   });
   const [payslip, setPayslip] = useState(null);
   const [leaveBal, setLeaveBal] = useState(null);
+  const [weeklyHours, setWeeklyHours] = useState(null);
   const [loading, setLoading] = useState(true);
   const user = getStoredUser();
 
@@ -31,11 +33,12 @@ const EmployeeDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [tasksRes, summaryRes, payslipRes, balanceRes] = await Promise.allSettled([
+      const [tasksRes, summaryRes, payslipRes, balanceRes, weeklyRes] = await Promise.allSettled([
         getMyTasks(),
         getDailySummary(),
         getCurrentPayslip(),
         getLeaveBalance(),
+        getWeeklyHours(),
       ]);
       if (tasksRes.status === 'fulfilled' && tasksRes.value?.success) {
         setTasks(tasksRes.value.data.tasks.slice(0, 5));
@@ -48,6 +51,9 @@ const EmployeeDashboard = () => {
       }
       if (balanceRes.status === 'fulfilled' && balanceRes.value?.success) {
         setLeaveBal(balanceRes.value.data.balances);
+      }
+      if (weeklyRes.status === 'fulfilled' && weeklyRes.value?.success) {
+        setWeeklyHours(weeklyRes.value.data);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -126,17 +132,24 @@ const EmployeeDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/my-tasks">
-          <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
-            <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
-              <span className="text-2xl">⏰</span>
-            </div>
-            <div>
-              <p className="text-gray-600 text-sm">ساعات العمل</p>
-              <p className="text-2xl font-bold text-interactive">{summary.totalHours}</p>
-            </div>
-          </Card>
-        </Link>
+<Link to="/attendance">
+  <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
+    <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
+      <span className="text-2xl">⏰</span>
+    </div>
+    <div>
+      <p className="text-gray-600 text-sm">ساعات العمل (هذا الأسبوع)</p>
+      <p className="text-2xl font-bold text-interactive">
+        {weeklyHours ? `${weeklyHours.totalHours} س` : '--'}
+      </p>
+      <p className="text-xs text-gray-400 mt-0.5">
+        {weeklyHours
+          ? `${weeklyHours.workDays} أيام · متبقي ${weeklyHours.remainingHours} س`
+          : ''}
+      </p>
+    </div>
+  </Card>
+</Link>
       </div>
 
       {/* Payroll & Leave Summary */}

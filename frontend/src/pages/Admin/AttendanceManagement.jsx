@@ -15,6 +15,7 @@ import StatCard from '../../components/widgets/StatCard';
 import { formatNumber } from '../../utils/analyticsUtils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { ARABIC_FONT } from '../../utils/pdfFonts';
 
 const ATTENDANCE_STATUS_MAP = {
   present: { label: 'حاضر', class: 'bg-green-100 text-green-800 border border-green-200' },
@@ -187,8 +188,8 @@ const AttendanceManagement = () => {
       body: tableData,
       startY: stats ? 95 : 40,
       theme: 'grid',
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
+      styles: { font: ARABIC_FONT, fontSize: 8 },
+      headStyles: { font: ARABIC_FONT, fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
     });
 
     doc.save('attendance-report.pdf');

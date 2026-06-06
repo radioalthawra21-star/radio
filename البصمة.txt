@@ -1,0 +1,135 @@
+📦 نظام الحضور والانصراف
+│
+├── 🗄️ طبقة البيانات (Model)
+│   └── Attendance.js
+│       ├── AttendanceStatus enum
+│       │   ├── present    (حاضر)
+│       │   ├── absent     (غائب)
+│       │   ├── late       (متأخر)
+│       │   ├── half_day   (نصف يوم)
+│       │   ├── on_leave   (في إجازة)
+│       │   └── work_from_home (عمل عن بعد)
+│       │
+│       ├── CheckInStatus enum
+│       │   ├── on_time    (في الموعد)
+│       │   ├── late       (متأخر)
+│       │   └── very_late  (متأخر جداً)
+│       │
+│       └── Attendance Schema
+│           ├── employee → ref: User
+│           ├── date
+│           ├── checkIn { time, status, location, notes }
+│           ├── checkOut { time, location, notes }
+│           ├── duration (ساعات العمل)
+│           ├── expectedHours (8 ساعات)
+│           ├── overtime (ساعات إضافية)
+│           ├── status → AttendanceStatus
+│           ├── leave → ref: LeaveRequest
+│           ├── workFromHome: Boolean
+│           ├── lateReason
+│           ├── approvedBy → ref: User
+│           ├── isApproved: Boolean
+│           └── department
+│
+├── 🎮 طبقة التحكم (Controller)
+│   └── attendanceController.js
+│       ├── checkIn()                  ← POST
+│       │   ├── يتحقق من وجود الموظف
+│       │   ├── يتحقق من النشاط
+│       │   ├── يمنع تسجيل الحضور مرتين
+│       │   └── يحسب التأخير (9:00 صباحاً)
+│       │
+│       ├── checkOut()                 ← POST
+│       │   ├── يتأكد من وجود تسجيل حضور
+│       │   └── يحسب مدة العمل + overtime
+│       │
+│       ├── getTodayAttendance()       ← GET
+│       ├── getAttendanceHistory()     ← GET
+│       │   └── يسمح للمدير بمشاهدة قسمه فقط
+│       ├── getAttendanceStats()       ← GET
+│       ├── getDepartmentAttendance()  ← GET
+│       │   └── للمدير/HR فقط
+│       └── updateAttendance()         ← PUT
+│           └── للمشرف/HR فقط
+│
+├── 🛣️ طبقة المسارات (Routes)
+│   └── attendanceRoutes.js
+│       ├── POST /check-in         ← protect (أي موظف)
+│       ├── POST /check-out        ← protect (أي موظف)
+│       ├── GET  /today            ← protect
+│       ├── GET  /history          ← protect (مع تصفية حسب الصلاحية)
+│       ├── GET  /stats            ← protect
+│       ├── GET  /department/:dept ← protect + managerOrAdmin
+│       └── PUT  /:id              ← protect + hrAndAdmin
+│
+├── 🔌 طبقة الخدمات (Service - Frontend)
+│   └── attendanceService.js
+│       ├── getAllAttendanceRecords(params)
+│       ├── getTodayAttendance()
+│       ├── checkIn(data)
+│       ├── checkOut(data)
+│       ├── getDepartmentAttendance(dept, params)
+│       └── updateAttendanceRecord(id, data)
+│
+├── 🎨 واجهة الموظف (Employee UI)
+│   └── Attendance.jsx
+│       ├── عرض إحصائيات (حاضر/متأخر/غائب/نسبة حضور)
+│       ├── بطاقة اليوم
+│       │   ├── زر "تسجيل حضور" (أخضر)
+│       │   ├── زر "تسجيل انصراف" (أحمر)
+│       │   └── عرض المدة المستغرقة
+│       └── جدول سجل الحضور السابق
+│
+├── 📊 واجهة الإدارة (Admin UI)
+│   └── AttendanceManagement.jsx
+│       ├── جميع سجلات الحضور
+│       ├── تصفية حسب القسم والتاريخ
+│       └── تعديل السجلات
+│
+└── 📈 تقارير (Reports)
+    └── AttendanceReports.jsx
+        ├── إحصائيات الحضور لكل قسم
+        ├── تصدير PDF
+        └── رسوم بيانية
+
+═══════════════════════════════════════════
+🔗 العلاقات مع الأنظمة الأخرى:
+═══════════════════════════════════════════
+
+User ───→ Attendance (كل موظف له سجل حضور)
+Payroll ←── Attendance (الرواتب مرتبطة بالحضور)
+LeaveRequest ←── Attendance (الإجازات تؤثر على حالة الحضور)
+CompensationService ←── Attendance (حساب التعويضات)
+DepartmentController ←── Attendance (إحصائيات الأقسام)
+
+═══════════════════════════════════════════
+تيار العمل الكامل (Complete Flow):
+═══════════════════════════════════════════
+
+الموظف يضغط "تسجيل حضور"
+  → Attendance.jsx → checkIn() → attendanceService.js
+  → API: POST /api/attendance/check-in → authMiddleware.protect()
+  → attendanceController.checkIn()
+  → Attendance.findOne(اليوم) ← يمنع الحضور المزدوج
+  → attendance.checkInEmployee(time) ← يحسب التأخير عن 9:00 صباحاً
+  → يحفظ في MongoDB → رد: "تم تسجيل الحضور بنجاح"
+
+الموظف يضغط "تسجيل انصراف"
+  → Attendance.jsx → checkOut() → attendanceService.js
+  → API: POST /api/attendance/check-out → authMiddleware.protect()
+  → attendanceController.checkOut()
+  → Attendance.findOne(اليوم) ← يتأكد من وجود تسجيل حضور
+  → attendance.checkOutEmployee(time) ← يحسب duration + overtime
+  → يحفظ في MongoDB → رد: "تم تسجيل الانصراف بنجاح"
+
+═══════════════════════════════════════════
+المصادر من الرسم البياني (Graphify):
+═══════════════════════════════════════════
+
+المسار: backend/models/Attendance.js (277 سطر)
+المسار: backend/controllers/attendanceController.js (431 سطر)
+المسار: backend/routes/attendanceRoutes.js (53 سطر)
+المسار: frontend/src/services/attendanceService.js (52 سطر)
+المسار: frontend/src/pages/Employee/Attendance.jsx (367 سطر)
+المسار: frontend/src/pages/Admin/AttendanceManagement.jsx
+المسار: frontend/src/pages/reports/AttendanceReports.jsx

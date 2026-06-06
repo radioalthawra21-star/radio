@@ -141,12 +141,28 @@ const adminOrHR = (req, res, next) => {
   }
 };
 
+/**
+ * Middleware to check if user is General Manager (admin only, not hr)
+ */
+const generalManagerOnly = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  if (role === 'admin') {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'غير مصرح لك بالوصول - هذه الصفحة للمدير العام فقط'
+    });
+  }
+};
+
 module.exports = {
   protect,
   adminOnly,
   adminOrHR,
   managerOrAdmin,
   employeeOnly,
+  generalManagerOnly,
   generateToken,
   JWT_SECRET
 };

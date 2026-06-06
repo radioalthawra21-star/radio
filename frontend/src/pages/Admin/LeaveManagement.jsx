@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getLeaveRequests, updateLeaveStatus } from '../../services/leaveService';
+import { getLeaveRequests, updateLeaveStatus, deleteLeaveRequestPermanent } from '../../services/leaveService';
 import { getAllEmployees } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
 import Card from '../../components/common/Card';
@@ -9,6 +9,7 @@ import { formatNumber } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { ARABIC_FONT } from '../../utils/pdfFonts';
 
 const leaveTypes = [
   { value: 'annual', label: 'إجازة سنوية' },
@@ -166,8 +167,8 @@ const LeaveManagement = () => {
       body: tableData,
       startY: reportStats ? 95 : 40,
       theme: 'grid',
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
+      styles: { font: ARABIC_FONT, fontSize: 8 },
+      headStyles: { font: ARABIC_FONT, fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
     });
 
     doc.save('leave-report.pdf');
@@ -265,6 +266,19 @@ const LeaveManagement = () => {
     }
   };
 
+  const handleDeletePermanent = async (id) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذه الإجازة نهائياً من السجل؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    try {
+      const res = await deleteLeaveRequestPermanent(id);
+      if (res.success) {
+        setSuccess(res.message || 'تم الحذف بنجاح');
+        loadData();
+      }
+    } catch (err) {
+      setError(err.userMessage || 'فشل حذف الإجازة');
+    }
+  };
+
   const openApproveModal = (req) => {
     setGmApprovedDays(req.managerSuggestedDays || req.days);
     setApproveModal(req);
@@ -349,24 +363,35 @@ const LeaveManagement = () => {
                     </span>
                   </td>
                   <td className="p-3">
-                    {canApprove(r.status) ? (
-                      <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
+                      {canApprove(r.status) ? (
+                        <>
+                          <button
+                            onClick={() => handleApprove(r._id || r.id, null)}
+                            className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
+                          >
+                            قبول
+                          </button>
+                          <button
+                            onClick={() => handleRejectSimple(r._id || r.id)}
+                            className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+                          >
+                            رفض
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-sm text-gray-500">–</span>
+                      )}
+                      {(userRole === 'admin' || userRole === 'hr') && !canApprove(r.status) && (
                         <button
-                          onClick={() => handleApprove(r._id || r.id, null)}
-                          className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
+                          onClick={() => handleDeletePermanent(r._id || r.id)}
+                          className="px-3 py-1 bg-gray-100 text-red-600 rounded hover:bg-red-100 text-sm"
+                          title="حذف نهائي من السجل"
                         >
-                          قبول
+                          حذف
                         </button>
-                        <button
-                          onClick={() => handleRejectSimple(r._id || r.id)}
-                          className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
-                        >
-                          رفض
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-500">–</span>
-                    )}
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

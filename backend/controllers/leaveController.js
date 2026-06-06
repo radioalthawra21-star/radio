@@ -519,8 +519,43 @@ const validateLeaveRequest = async (req, res) => {
   }
 };
 
+const deleteLeaveRequestPermanent = async (req, res) => {
+  try {
+    const leaveRequest = await LeaveRequest.findById(req.params.id).populate('employee', 'name email department');
+    if (!leaveRequest) return res.status(404).json({ success: false, message: 'الطلب غير موجود' });
+
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'hr';
+    const empId = leaveRequest.employee?._id?.toString() || leaveRequest.employee?.toString();
+    const userId = req.user._id.toString();
+    const isOwner = empId === userId;
+
+    if (!isAdmin && !isOwner)
+      return res.status(403).json({ success: false, message: `غير مصرح لك (${userId} vs ${empId})` });
+
+    if (!isAdmin && isOwner && !['rejected', 'cancelled'].includes(leaveRequest.status))
+      return res.status(400).json({ success: false, message: 'لا يمكن حذف هذا الطلب. يمكن حذف الطلبات المرفوضة أو الملغية فقط' });
+
+    try {
+      await Attendance.deleteMany({ leave: leaveRequest._id });
+    } catch (e) { console.error('Error deleting attendance records:', e.message); }
+
+    try {
+      const PayrollItem = mongoose.model('PayrollItem');
+      await PayrollItem.deleteMany({ sourceModel: 'LeaveRequest', sourceId: leaveRequest._id });
+    } catch (e) { console.error('Error deleting payroll items:', e.message); }
+
+    await LeaveRequest.deleteOne({ _id: leaveRequest._id });
+
+    res.json({ success: true, message: 'تم حذف الإجازة من السجل نهائياً' });
+  } catch (error) {
+    console.error('Error deleting leave request:', error);
+    res.status(500).json({ success: false, message: 'حدث خطأ في حذف الإجازة' });
+  }
+};
+
 module.exports = {
   createLeaveRequest, validateLeaveRequest, getLeaveRequests, getLeaveRequestById,
   updateLeaveStatus: updateLeaveRequestStatus, cancelLeaveRequest,
   getLeaveBalance, getPendingLeaveRequests, getDepartmentLeaveCalendar,
+  deleteLeaveRequestPermanent,
 };

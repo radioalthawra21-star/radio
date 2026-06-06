@@ -20,6 +20,11 @@ export const cancelLeaveRequest = async (id) => {
   return res.data;
 };
 
+export const deleteLeaveRequestPermanent = async (id) => {
+  const res = await api.delete(`/leave/${id}/permanent`);
+  return res.data;
+};
+
 export const getLeaveBalance = async () => {
   const res = await api.get('/leave/balance');
   return res.data;
@@ -43,6 +48,6 @@ export const validateLeaveRequest = async (data) => {
 
 export default {
   createLeaveRequest, getLeaveRequests, getLeaveRequestById,
-  cancelLeaveRequest, getLeaveBalance, updateLeaveStatus,
+  cancelLeaveRequest, deleteLeaveRequestPermanent, getLeaveBalance, updateLeaveStatus,
   getPendingLeaveRequests, validateLeaveRequest,
 };

@@ -8,6 +8,7 @@ import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { ARABIC_FONT } from '../../utils/pdfFonts';
 import { FaSignInAlt, FaSignOutAlt, FaHourglassHalf, FaCalendarAlt } from 'react-icons/fa';
 
 const ATTENDANCE_STATUS_MAP = {
@@ -168,8 +169,8 @@ const AttendanceReports = () => {
       body: tableData,
       startY: attendanceStats ? 100 : 40,
       theme: 'grid',
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
+      styles: { font: ARABIC_FONT, fontSize: 8 },
+      headStyles: { font: ARABIC_FONT, fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
     });
     
     doc.save('attendance-report.pdf');

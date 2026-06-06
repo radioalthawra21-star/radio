@@ -1,0 +1,15 @@
+{
+  "name": "zkteco-bridge",
+  "version": "1.0.0",
+  "description": "Bridge service between ZKTeco attendance device and main API server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "node-zklib": "^1.0.0",
+    "axios": "^1.7.0",
+    "dotenv": "^16.3.1"
+  }
+}

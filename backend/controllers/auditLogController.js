@@ -3,6 +3,7 @@
  * Handles audit log retrieval, filtering, statistics, and export
  */
 
+const mongoose = require('mongoose');
 const { AuditLog, AuditAction } = require('../models/AuditLog');
 
 /**
@@ -29,7 +30,11 @@ const getAuditLogs = async (req, res) => {
     
     // Filter by user
     if (userId) {
-      query.user = userId;
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        query._id = null;
+      } else {
+        query.user = userId;
+      }
     }
     
     // Filter by action
@@ -282,7 +287,11 @@ const exportAuditLogs = async (req, res) => {
     const query = {};
     
     if (userId) {
-      query.user = userId;
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        query._id = null;
+      } else {
+        query.user = userId;
+      }
     }
     
     if (action && Object.values(AuditAction).includes(action)) {

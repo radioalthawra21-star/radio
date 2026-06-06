@@ -1,0 +1,7 @@
+backend\docs\SCHEMA.md
+backend\مستند نصي جديد.txt
+docker-compose.yml
+frontend\index.html
+index.html
+mogo.txt
+برومت المستودعين المنفصلين .txt

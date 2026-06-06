@@ -11,6 +11,7 @@ import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { ARABIC_FONT } from '../../utils/pdfFonts';
 import { formatDateArabic } from '../../utils/dateUtils';
 
 const AllReports = () => {
@@ -132,11 +133,12 @@ const AllReports = () => {
       startY: yPos + 10,
       theme: 'grid',
       styles: {
-        font: 'helvetica',
+        font: ARABIC_FONT,
         fontSize: 9,
         halign: 'center'
       },
       headStyles: {
+        font: ARABIC_FONT,
         fillColor: [205, 111, 19],
         textColor: 255,
         fontStyle: 'bold'

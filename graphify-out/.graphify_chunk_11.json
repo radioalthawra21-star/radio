@@ -1,0 +1,571 @@
+{
+  "nodes": [
+    {
+      "id": "frontend_src_hooks_useDepartments",
+      "label": "Use Departments Hook",
+      "file_type": "code",
+      "source_file": "frontend/src/hooks/useDepartments.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_main",
+      "label": "Application Entry Point",
+      "file_type": "code",
+      "source_file": "frontend/src/main.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_AdminDashboard",
+      "label": "Admin Dashboard",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_AllEmployees",
+      "label": "All Employees",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_AllReports",
+      "label": "All Reports",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AllReports.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_AttendanceManagement",
+      "label": "Attendance Management",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AttendanceManagement.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_AuditFilterBar",
+      "label": "Audit Filter Bar",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AuditFilterBar.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_AuditLogs",
+      "label": "Audit Logs",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AuditLogs.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_DeptFormModal",
+      "label": "Department Form Modal",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/DeptFormModal.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_EmployeeProfilePage",
+      "label": "Employee Profile Page",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/EmployeeProfilePage.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_GMApproveLeaves",
+      "label": "GM Approve Leaves",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/GMApproveLeaves.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_LeaveManagement",
+      "label": "Leave Management",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/LeaveManagement.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_Rankings",
+      "label": "Employee Rankings",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/Rankings.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_Settings",
+      "label": "Evaluation Settings",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/Settings.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_UserFormModal",
+      "label": "User Form Modal",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/UserFormModal.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Admin_auditLogUtils",
+      "label": "Audit Log Utilities",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/auditLogUtils.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Auth_Login",
+      "label": "Login Page",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Auth/Login.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Auth_NotAuthorized",
+      "label": "Not Authorized Page",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Auth/NotAuthorized.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Auth_Register",
+      "label": "Register Page",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Auth/Register.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_DashboardQuickMenu",
+      "label": "Dashboard Quick Menu",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/DashboardQuickMenu.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Developer_AlertsPanel",
+      "label": "Developer Alerts Panel",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/AlertsPanel.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend_src_pages_Developer_BrandingTab",
+      "label": "Branding Configuration Tab",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/BrandingTab.jsx",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "frontend_src_pages_Admin_AdminDashboard",
+      "target": "frontend_src_pages_Admin_LeaveManagement",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AdminDashboard",
+      "target": "frontend_src_pages_Admin_AllEmployees",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AdminDashboard",
+      "target": "frontend_src_pages_Admin_Rankings",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AdminDashboard",
+      "target": "frontend_src_pages_Admin_AllReports",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AdminDashboard",
+      "target": "frontend_src_pages_Admin_Settings",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_LeaveManagement",
+      "target": "frontend_src_pages_Admin_GMApproveLeaves",
+      "relation": "routes_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "frontend/src/pages/Admin/LeaveManagement.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_LeaveManagement",
+      "target": "frontend_src_pages_Admin_GMApproveLeaves",
+      "relation": "shares_leave_type_constants",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/LeaveManagement.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllEmployees",
+      "target": "frontend_src_pages_Admin_UserFormModal",
+      "relation": "composes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllEmployees",
+      "target": "frontend_src_pages_Admin_DeptFormModal",
+      "relation": "composes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllEmployees",
+      "target": "frontend_src_pages_Admin_AdminDashboard",
+      "relation": "navigates_from",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllEmployees",
+      "target": "frontend_src_pages_Admin_UserFormModal",
+      "relation": "shares_role_names",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_pages_Admin_AuditLogs",
+      "target": "frontend_src_pages_Admin_AuditFilterBar",
+      "relation": "composes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AuditLogs.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_AuditLogs",
+      "target": "frontend_src_pages_Admin_auditLogUtils",
+      "relation": "uses_utility",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AuditLogs.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Auth_Register",
+      "target": "frontend_src_pages_Auth_Login",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Auth/Register.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Auth_Login",
+      "target": "frontend_src_pages_Admin_AdminDashboard",
+      "relation": "redirects_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Auth/Login.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Auth_Login",
+      "target": "frontend_src_pages_Auth_Register",
+      "relation": "navigates_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Auth/Login.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Auth_Login",
+      "target": "frontend_src_pages_Auth_Register",
+      "relation": "shares_branding_localStorage",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Auth/Login.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_pages_Developer_AlertsPanel",
+      "target": "frontend_src_pages_Developer_BrandingTab",
+      "relation": "coexists_in_section",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "frontend/src/pages/Developer/AlertsPanel.jsx",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "frontend_src_pages_Admin_EmployeeProfilePage",
+      "target": "frontend_src_pages_Admin_AllEmployees",
+      "relation": "navigates_from",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "frontend/src/pages/Admin/EmployeeProfilePage.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_pages_Admin_EmployeeProfilePage",
+      "target": "frontend_src_pages_Developer_AlertsPanel",
+      "relation": "shares_theme_colors",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/EmployeeProfilePage.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_pages_Admin_EmployeeProfilePage",
+      "target": "frontend_src_pages_Developer_BrandingTab",
+      "relation": "shares_theme_colors",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/EmployeeProfilePage.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_pages_Admin_Settings",
+      "target": "frontend_src_pages_Admin_Rankings",
+      "relation": "affects",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "frontend/src/pages/Admin/Settings.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllReports",
+      "target": "frontend_src_pages_Admin_AttendanceManagement",
+      "relation": "shares_pdf_generation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllReports.jsx",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllReports",
+      "target": "frontend_src_pages_Admin_LeaveManagement",
+      "relation": "shares_pdf_generation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllReports.jsx",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "frontend_src_pages_Admin_AllReports",
+      "target": "frontend_src_pages_Admin_AdminDashboard",
+      "relation": "shares_department_stats",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllReports.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_pages_Admin_AttendanceManagement",
+      "target": "frontend_src_pages_Admin_LeaveManagement",
+      "relation": "shares_chart_components",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AttendanceManagement.jsx",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "frontend_src_pages_Admin_AttendanceManagement",
+      "target": "frontend_src_pages_Admin_AllEmployees",
+      "relation": "shares_employee_service",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AttendanceManagement.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_pages_Auth_NotAuthorized",
+      "target": "frontend_src_pages_Auth_Login",
+      "relation": "redirects_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "frontend/src/pages/Auth/NotAuthorized.jsx",
+      "source_location": null,
+      "weight": 0.6
+    },
+    {
+      "source": "frontend_src_pages_Developer_AlertsPanel",
+      "target": "frontend_src_pages_Developer_BrandingTab",
+      "relation": "shares_theme_colors",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Developer/AlertsPanel.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "frontend_src_main",
+      "target": "frontend_src_pages_Auth_Login",
+      "relation": "bootstraps",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "frontend/src/main.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "frontend_src_pages_Admin_AttendanceManagement",
+      "target": "frontend_src_pages_Admin_AllReports",
+      "relation": "shares_pdf_generation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AttendanceManagement.jsx",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "frontend_src_pages_Admin_LeaveManagement",
+      "target": "frontend_src_pages_Admin_AdminDashboard",
+      "relation": "navigates_from",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

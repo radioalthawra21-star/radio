@@ -5,12 +5,12 @@ import FinancialMiscPage from '../pages/FinancialMisc/FinancialMiscPage';
 export const financialMiscRoutes = (
   <>
     <Route path="/financial-misc" element={
-      <ProtectedRoute allowedRoles={['manager', 'hr', 'employee']}>
+      <ProtectedRoute allowedRoles={['admin']}>
         <FinancialMiscPage />
       </ProtectedRoute>
     } />
     <Route path="/financial-misc/report" element={
-      <ProtectedRoute allowedRoles={['admin', 'manager']}>
+      <ProtectedRoute allowedRoles={['admin']}>
         <FinancialMiscPage readOnly={true} />
       </ProtectedRoute>
     } />

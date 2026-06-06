@@ -6,6 +6,7 @@ const router = express.Router();
 const {
   createLeaveRequest, validateLeaveRequest, getLeaveRequests, getLeaveRequestById,
   updateLeaveStatus, cancelLeaveRequest, getLeaveBalance, getPendingLeaveRequests, getDepartmentLeaveCalendar,
+  deleteLeaveRequestPermanent,
 } = require('../controllers/leaveController');
 const { protect, managerOrAdmin, adminOnly } = require('../middleware/authMiddleware');
 
@@ -16,6 +17,7 @@ router.get('/balance', protect, getLeaveBalance);
 router.get('/pending', protect, managerOrAdmin, getPendingLeaveRequests);
 router.get('/:id', protect, getLeaveRequestById);
 router.put('/:id/status', protect, managerOrAdmin, updateLeaveStatus);
+router.delete('/:id/permanent', protect, deleteLeaveRequestPermanent);
 router.delete('/:id', protect, cancelLeaveRequest);
 router.get('/calendar/:department', protect, managerOrAdmin, getDepartmentLeaveCalendar);
 

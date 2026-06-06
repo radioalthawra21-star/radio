@@ -1,0 +1,725 @@
+{
+  "nodes": [
+    {
+      "id": "config_db",
+      "label": "Database Configuration",
+      "file_type": "code",
+      "source_file": "backend/config/db.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_attendance",
+      "label": "Attendance Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_auditlog",
+      "label": "Audit Log Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/auditLogController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_auth",
+      "label": "Auth Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_bonus",
+      "label": "Bonus Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/bonusController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_coupletpipeline",
+      "label": "Couplet Pipeline Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/coupletPipelineController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_coupletprompt",
+      "label": "Couplet Prompt Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/coupletPromptController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_department",
+      "label": "Department Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_document",
+      "label": "Document Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/documentController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_editorialpipeline",
+      "label": "Editorial Pipeline Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/editorialPipelineController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_employeeprofile",
+      "label": "Employee Profile Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/employeeProfileController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_financialmisc",
+      "label": "Financial Misc Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/financialMiscController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_leave",
+      "label": "Leave Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_managerevaluation",
+      "label": "Manager Evaluation Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/managerEvaluationController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_notification",
+      "label": "Notification Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/notificationController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_payroll",
+      "label": "Payroll Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_prompt",
+      "label": "Prompt Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/promptController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_recruitmentperformance",
+      "label": "Recruitment & Performance Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/recruitmentPerformanceController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_settings",
+      "label": "Settings Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/settingsController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_task",
+      "label": "Task Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/taskController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_user",
+      "label": "User Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "controllers_wellbeing",
+      "label": "Well-Being Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/wellBeingController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "services_ai",
+      "label": "AI Service",
+      "file_type": "code",
+      "source_file": "backend/services/aiService.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "services_compensation",
+      "label": "Compensation Service",
+      "file_type": "code",
+      "source_file": "backend/services/compensationService.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "middleware_auth",
+      "label": "Auth Middleware",
+      "file_type": "code",
+      "source_file": "backend/middleware/authMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "middleware_cvupload",
+      "label": "CV Upload Middleware",
+      "file_type": "code",
+      "source_file": "backend/middleware/cvUploadMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "controllers_leave",
+      "target": "services_compensation",
+      "relation": "delegates_financial_calculation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_coupletpipeline",
+      "target": "services_ai",
+      "relation": "calls_ai_service",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/coupletPipelineController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_editorialpipeline",
+      "target": "services_ai",
+      "relation": "calls_ai_service",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/editorialPipelineController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_auth",
+      "target": "middleware_auth",
+      "relation": "uses_token_generation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_employeeprofile",
+      "target": "middleware_cvupload",
+      "relation": "uses_filename_decoder",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/employeeProfileController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_editorialpipeline",
+      "target": "controllers_coupletpipeline",
+      "relation": "shares_identical_pipeline_stages",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/editorialPipelineController.js",
+      "source_location": null,
+      "weight": 0.95
+    },
+    {
+      "source": "controllers_leave",
+      "target": "controllers_attendance",
+      "relation": "creates_attendance_on_approve",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_bonus",
+      "target": "controllers_user",
+      "relation": "updates_performance_score",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/bonusController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "controllers_task",
+      "target": "controllers_user",
+      "relation": "recalculates_performance_on_evaluation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/taskController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_user",
+      "target": "controllers_payroll",
+      "relation": "syncs_salary_to_pending_payrolls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_department",
+      "target": "controllers_payroll",
+      "relation": "aggregates_payroll_costs",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_department",
+      "target": "controllers_attendance",
+      "relation": "aggregates_dept_attendance_stats",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_payroll",
+      "target": "controllers_auditlog",
+      "relation": "optional_audit_log_dependency",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "controllers_leave",
+      "target": "controllers_notification",
+      "relation": "sends_status_notifications",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_bonus",
+      "target": "controllers_notification",
+      "relation": "sends_notifications_on_create",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/bonusController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_auth",
+      "target": "controllers_notification",
+      "relation": "notifies_admin_on_register",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_payroll",
+      "target": "controllers_notification",
+      "relation": "notifies_employee_on_generate",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_task",
+      "target": "controllers_notification",
+      "relation": "notifies_on_status_change",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/taskController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_recruitmentperformance",
+      "target": "controllers_notification",
+      "relation": "notifies_on_status_change",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/recruitmentPerformanceController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_payroll",
+      "target": "controllers_user",
+      "relation": "updates_user_salary_on_assign",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_user",
+      "target": "controllers_department",
+      "relation": "aggregates_dept_user_stats",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_wellbeing",
+      "target": "controllers_user",
+      "relation": "queries_users_by_department",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/wellBeingController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_document",
+      "target": "controllers_user",
+      "relation": "checks_user_access_permissions",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/documentController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_department",
+      "target": "controllers_user",
+      "relation": "aggregates_users_for_stats",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_leave",
+      "target": "config_db",
+      "relation": "uses_mongoose_transactions",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "controllers_auth",
+      "target": "controllers_department",
+      "relation": "shared_department_enumeration_mapping",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "controllers_auth",
+      "target": "controllers_user",
+      "relation": "overlaps_change_password_functionality",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "controllers_user",
+      "target": "controllers_task",
+      "relation": "calculates_performance_from_tasks",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_user",
+      "target": "controllers_settings",
+      "relation": "reads_evaluation_weights",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_managerevaluation",
+      "target": "controllers_user",
+      "relation": "queries_managers_for_evaluation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/managerEvaluationController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_recruitmentperformance",
+      "target": "controllers_department",
+      "relation": "queries_departments_for_filtering",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/recruitmentPerformanceController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_leave",
+      "target": "controllers_payroll",
+      "relation": "syncs_compensation_to_payroll_items",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_payroll",
+      "target": "controllers_recruitmentperformance",
+      "relation": "uses_payrollitem_model_runtime",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.8,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "controllers_leave",
+      "target": "controllers_managerevaluation",
+      "relation": "shared_approval_workflow_pattern",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.5
+    },
+    {
+      "source": "controllers_payroll",
+      "target": "config_db",
+      "relation": "processes_salary_calculations",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_user",
+      "target": "config_db",
+      "relation": "calculates_performance_formula",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_department",
+      "target": "controllers_settings",
+      "relation": "reads_evaluation_settings",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "weight": 0.6
+    },
+    {
+      "source": "controllers_coupletpipeline",
+      "target": "controllers_coupletprompt",
+      "relation": "loads_prompts_for_pipeline",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/coupletPipelineController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_editorialpipeline",
+      "target": "controllers_prompt",
+      "relation": "loads_prompts_for_pipeline",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/editorialPipelineController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "controllers_coupletprompt",
+      "target": "controllers_prompt",
+      "relation": "mirrors_crud_operations",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "backend/controllers/coupletPromptController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "controllers_attendance",
+      "target": "controllers_leave",
+      "relation": "tracks_employee_leave_in_attendance",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "controllers_payroll",
+      "target": "controllers_leave",
+      "relation": "calculates_leave_balances_in_payslip",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "controllers_leave",
+      "target": "controllers_wellbeing",
+      "relation": "shared_realtime_notification_pattern",
+      "confidence": "INFERRED",
+      "confidence_score": 0.6,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.4
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

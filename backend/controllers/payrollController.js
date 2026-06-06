@@ -169,6 +169,7 @@ const generatePayslip = async (req, res) => {
 
     // Generate payslip data
     const payslipData = {
+      payrollId: payroll._id,
       payslipNumber: payroll.payslipNumber,
       companyInfo: {
         name: 'شركة إدارة الموارد البشرية',
@@ -1208,6 +1209,7 @@ const getCurrentPayslip = async (req, res) => {
 
     // Build payslip structure
     const payslipData = {
+      payrollId: payroll._id,
       payslipNumber: payroll.payslipNumber,
       periodStart: payroll.periodStart,
       periodEnd: payroll.periodEnd,

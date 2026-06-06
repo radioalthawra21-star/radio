@@ -214,6 +214,13 @@ const userSchema = new mongoose.Schema({
   cvUploadedAt: {
     type: Date,
     default: null
+  },
+
+  // ZKTeco device user ID (لربط مستخدم النظام مع بصمة الجهاز)
+  zkUserId: {
+    type: String,
+    default: null,
+    sparse: true
   }
 }, {
   timestamps: true

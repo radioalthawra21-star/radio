@@ -420,6 +420,373 @@ const updateAttendance = async (req, res) => {
   }
 };
 
+/**
+ * Get late attendance report
+ * GET /api/attendance/reports/late
+ */
+const getLateReport = async (req, res) => {
+  try {
+    const { startDate, endDate, department, page = 1, limit = 50 } = req.query;
+    let query = { status: AttendanceStatus.LATE };
+
+    const role = req.user.role ? req.user.role.toLowerCase() : '';
+    const dept = req.user.department ? req.user.department.toLowerCase() : '';
+    const isHrDept = dept === 'hr' || dept === 'human resources' || dept === 'الموارد البشرية';
+
+    if (role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept)) {
+      if (department) query.department = department;
+    } else if (role === 'manager') {
+      query.department = req.user.department;
+    } else {
+      query.employee = req.user._id;
+    }
+
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const records = await Attendance.find(query)
+      .populate('employee', 'name email department jobTitle')
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Attendance.countDocuments(query);
+    const lateMinutes = records.reduce((sum, r) => {
+      if (r.checkIn && r.checkIn.time) {
+        const checkInTime = new Date(r.checkIn.time);
+        const workStart = new Date(checkInTime);
+        workStart.setHours(9, 0, 0, 0);
+        if (checkInTime > workStart) {
+          return sum + Math.round((checkInTime - workStart) / 60000);
+        }
+      }
+      return sum;
+    }, 0);
+
+    res.json({
+      success: true,
+      data: {
+        records,
+        count: records.length,
+        total,
+        totalLateMinutes: lateMinutes,
+        averageLateMinutes: records.length > 0 ? Math.round(lateMinutes / records.length) : 0,
+        page: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error getting late report:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في جلب تقرير التأخير',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get work hours report
+ * GET /api/attendance/reports/work-hours
+ */
+const getWorkHoursReport = async (req, res) => {
+  try {
+    const { startDate, endDate, employeeId, department, page = 1, limit = 50 } = req.query;
+    let query = {};
+
+    const role = req.user.role ? req.user.role.toLowerCase() : '';
+    const dept = req.user.department ? req.user.department.toLowerCase() : '';
+    const isHrDept = dept === 'hr' || dept === 'human resources' || dept === 'الموارد البشرية';
+
+    if (role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept)) {
+      if (employeeId) query.employee = employeeId;
+      if (department) query.department = department;
+    } else if (role === 'manager') {
+      if (employeeId) {
+        query.employee = employeeId;
+      } else {
+        query.department = req.user.department;
+      }
+    } else {
+      query.employee = req.user._id;
+    }
+
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const records = await Attendance.find(query)
+      .populate('employee', 'name email department jobTitle')
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Attendance.countDocuments(query);
+    const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
+    const totalOvertime = records.reduce((sum, r) => sum + (r.overtime || 0), 0);
+    const completedDays = records.filter(r => r.checkIn && r.checkIn.time && r.checkOut && r.checkOut.time).length;
+
+    res.json({
+      success: true,
+      data: {
+        records,
+        count: records.length,
+        total,
+        statistics: {
+          totalDays: records.length,
+          completedDays,
+          pendingCheckout: records.filter(r => r.checkIn && r.checkIn.time && (!r.checkOut || !r.checkOut.time)).length,
+          totalHours: Math.round(totalHours * 100) / 100,
+          totalOvertime: Math.round(totalOvertime * 100) / 100,
+          averageHoursPerDay: records.length > 0 ? Math.round((totalHours / records.length) * 100) / 100 : 0,
+          averageHoursPerCompletedDay: completedDays > 0 ? Math.round((totalHours / completedDays) * 100) / 100 : 0
+        },
+        page: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error getting work hours report:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في جلب تقرير ساعات العمل',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get employee attendance report (detailed)
+ * GET /api/attendance/reports/employee/:employeeId
+ */
+const getEmployeeAttendanceReport = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const { startDate, endDate } = req.query;
+
+    const role = req.user.role ? req.user.role.toLowerCase() : '';
+    const dept = req.user.department ? req.user.department.toLowerCase() : '';
+    const isHrDept = dept === 'hr' || dept === 'human resources' || dept === 'الموارد البشرية';
+    const isAdmin = role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept);
+    const isSelf = req.user._id.toString() === employeeId;
+    const isManagerOfDept = role === 'manager' && req.user.department;
+
+    if (!isAdmin && !isSelf && !isManagerOfDept) {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بالوصول إلى هذا التقرير'
+      });
+    }
+
+    const employee = await User.findById(employeeId).select('-password');
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'الموظف غير موجود' });
+    }
+
+    let query = { employee: employeeId };
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+
+    const records = await Attendance.find(query).sort({ date: -1 });
+    const totalDays = records.length;
+    const present = records.filter(r => r.status === AttendanceStatus.PRESENT).length;
+    const absent = records.filter(r => r.status === AttendanceStatus.ABSENT).length;
+    const late = records.filter(r => r.status === AttendanceStatus.LATE).length;
+    const halfDay = records.filter(r => r.status === AttendanceStatus.HALF_DAY).length;
+    const onLeave = records.filter(r => r.status === AttendanceStatus.ON_LEAVE).length;
+    const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
+    const totalOvertime = records.reduce((sum, r) => sum + (r.overtime || 0), 0);
+    const lateMinutes = records.reduce((sum, r) => {
+      if (r.checkIn && r.checkIn.time && r.status === AttendanceStatus.LATE) {
+        const checkInTime = new Date(r.checkIn.time);
+        const workStart = new Date(checkInTime);
+        workStart.setHours(9, 0, 0, 0);
+        if (checkInTime > workStart) {
+          return sum + Math.round((checkInTime - workStart) / 60000);
+        }
+      }
+      return sum;
+    }, 0);
+
+    const daysWithCheckOut = records.filter(r => r.checkOut && r.checkOut.time).length;
+
+    res.json({
+      success: true,
+      data: {
+        employee: {
+          id: employee._id,
+          name: employee.name,
+          email: employee.email,
+          department: employee.department,
+          jobTitle: employee.jobTitle
+        },
+        reportPeriod: { startDate: startDate || null, endDate: endDate || null },
+        summary: {
+          totalDays,
+          present,
+          absent,
+          late,
+          halfDay,
+          onLeave,
+          totalHours: Math.round(totalHours * 100) / 100,
+          totalOvertime: Math.round(totalOvertime * 100) / 100,
+          averageHoursPerDay: totalDays > 0 ? Math.round((totalHours / totalDays) * 100) / 100 : 0,
+          attendanceRate: totalDays > 0 ? Math.round(((present + halfDay) / totalDays) * 100) : 0,
+          lateRate: totalDays > 0 ? Math.round((late / totalDays) * 100) : 0,
+          totalLateMinutes: lateMinutes,
+          averageLateMinutes: late > 0 ? Math.round(lateMinutes / late) : 0,
+          daysWithCheckOut
+        },
+        records
+      }
+    });
+  } catch (error) {
+    console.error('Error getting employee attendance report:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في جلب تقرير حضور الموظف',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get attendance dashboard statistics
+ * GET /api/attendance/dashboard
+ */
+const getDashboardStats = async (req, res) => {
+  try {
+    const role = req.user.role ? req.user.role.toLowerCase() : '';
+    const dept = req.user.department ? req.user.department.toLowerCase() : '';
+    const isHrDept = dept === 'hr' || dept === 'human resources' || dept === 'الموارد البشرية';
+    const isAdminOrHr = role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+
+    let todayQuery = {};
+    let monthlyQuery = { date: { $gte: startOfMonth, $lt: tomorrow } };
+    let weeklyQuery = { date: { $gte: startOfWeek, $lt: tomorrow } };
+
+    if (!isAdminOrHr) {
+      todayQuery.employee = req.user._id;
+      monthlyQuery.employee = req.user._id;
+      weeklyQuery.employee = req.user._id;
+    } else if (role === 'manager') {
+      todayQuery.department = req.user.department;
+      monthlyQuery.department = req.user.department;
+      weeklyQuery.department = req.user.department;
+    }
+
+    todayQuery.date = { $gte: today, $lt: tomorrow };
+
+    const [todayRecords, monthlyRecords, weeklyRecords, totalEmployees] = await Promise.all([
+      Attendance.find(todayQuery).populate('employee', 'name department jobTitle').lean(),
+      Attendance.find(monthlyQuery).populate('employee', 'name department jobTitle').lean(),
+      Attendance.find(weeklyQuery).populate('employee', 'name department jobTitle').lean(),
+      isAdminOrHr ? User.countDocuments({ isActive: true }) : Promise.resolve(null)
+    ]);
+
+    const computeStats = (records) => {
+      const total = records.length;
+      const present = records.filter(r => r.status === AttendanceStatus.PRESENT).length;
+      const absent = records.filter(r => r.status === AttendanceStatus.ABSENT).length;
+      const late = records.filter(r => r.status === AttendanceStatus.LATE).length;
+      const halfDay = records.filter(r => r.status === AttendanceStatus.HALF_DAY).length;
+      const onLeave = records.filter(r => r.status === AttendanceStatus.ON_LEAVE).length;
+      const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
+      const checkedIn = records.filter(r => r.checkIn && r.checkIn.time && (!r.checkOut || !r.checkOut.time)).length;
+      const completed = records.filter(r => r.checkIn && r.checkIn.time && r.checkOut && r.checkOut.time).length;
+      return {
+        total, present, absent, late, halfDay, onLeave,
+        totalHours: Math.round(totalHours * 100) / 100,
+        checkedIn, completed,
+        attendanceRate: total > 0 ? Math.round(((present + halfDay) / total) * 100) : 0
+      };
+    };
+
+    res.json({
+      success: true,
+      data: {
+        today: computeStats(todayRecords),
+        weekly: computeStats(weeklyRecords),
+        monthly: computeStats(monthlyRecords),
+        totalEmployees,
+        todayRecords,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error getting dashboard stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في جلب إحصائيات لوحة الحضور',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+const getWeeklyHours = async (req, res) => {
+  try {
+    const employeeId = req.user._id;
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const sunday = new Date(now);
+    sunday.setDate(now.getDate() - dayOfWeek);
+    sunday.setHours(0, 0, 0, 0);
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+    saturday.setHours(23, 59, 59, 999);
+
+    const records = await Attendance.find({
+      employee: employeeId,
+      date: { $gte: sunday, $lte: saturday },
+      status: { $in: ['present', 'late', 'half_day', 'work_from_home'] },
+    });
+
+    const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
+    const totalOvertime = records.reduce((sum, r) => sum + (r.overtime || 0), 0);
+    const workDays = records.length;
+    const expectedHours = workDays * 8;
+
+    res.json({
+      success: true,
+      data: {
+        weekStart: sunday,
+        weekEnd: saturday,
+        totalHours: Math.round(totalHours * 100) / 100,
+        totalOvertime: Math.round(totalOvertime * 100) / 100,
+        workDays,
+        expectedHours,
+        remainingHours: Math.max(0, Math.round((expectedHours - totalHours) * 100) / 100),
+      },
+    });
+  } catch (error) {
+    console.error('Error getting weekly hours:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في حساب ساعات العمل الأسبوعية',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   checkIn,
   checkOut,
@@ -427,5 +794,10 @@ module.exports = {
   getAttendanceHistory,
   getAttendanceStats,
   getDepartmentAttendance,
-  updateAttendance
+  updateAttendance,
+  getLateReport,
+  getWorkHoursReport,
+  getEmployeeAttendanceReport,
+  getDashboardStats,
+  getWeeklyHours,
 };

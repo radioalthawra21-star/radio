@@ -37,7 +37,12 @@ export default defineConfig({
       },
       '/fonts': {
         target: 'http://127.0.0.1:3000',
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.url?.endsWith('.ttf') || req.url?.endsWith('.woff') || req.url?.endsWith('.woff2') || req.url?.endsWith('.otf')) {
+            return req.url;
+          }
+        }
       }
     }
   }

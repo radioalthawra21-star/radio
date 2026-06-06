@@ -9,6 +9,7 @@ import { formatNumber, formatCurrency } from '../../utils/analyticsUtils';
 import { formatDateArabic } from '../../utils/dateUtils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { ARABIC_FONT } from '../../utils/pdfFonts';
 
 const safeNum = (v) => (v && !isNaN(v) ? Number(v) : 0);
 
@@ -178,8 +179,8 @@ const DepartmentReports = () => {
       body: employeeTableData,
       startY: 40,
       theme: 'grid',
-      styles: { fontSize: 7 },
-      headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
+      styles: { font: ARABIC_FONT, fontSize: 7 },
+      headStyles: { font: ARABIC_FONT, fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
     });
     
     // Table - Department Statistics
@@ -201,7 +202,7 @@ const DepartmentReports = () => {
       ]),
       startY: 40,
       theme: 'grid',
-      styles: { fontSize: 8 },
+      styles: { font: ARABIC_FONT, fontSize: 8 },
       headStyles: { fillColor: [33, 150, 243], textColor: 255, fontStyle: 'bold' }
     });
     

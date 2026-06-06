@@ -1,0 +1,460 @@
+{
+  "nodes": [
+    {
+      "id": "auditLogController",
+      "label": "auditLogController.js",
+      "file_type": "code",
+      "source_file": "backend/controllers/auditLogController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "zktecoController",
+      "label": "zktecoController.js",
+      "file_type": "code",
+      "source_file": "backend/controllers/zktecoController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "userModel",
+      "label": "User Model",
+      "file_type": "code",
+      "source_file": "backend/models/User.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "zktecoRoutes",
+      "label": "zktecoRoutes.js",
+      "file_type": "code",
+      "source_file": "backend/routes/zktecoRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "server",
+      "label": "server.js",
+      "file_type": "code",
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeConfig",
+      "label": "bridge config.js",
+      "file_type": "code",
+      "source_file": "bridge/config.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeIndex",
+      "label": "bridge index.js",
+      "file_type": "code",
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "globalDts",
+      "label": "global.d.ts",
+      "file_type": "code",
+      "source_file": "frontend/src/global.d.ts",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "zktecoIntegrationDoc",
+      "label": "ZKTeco Bridge Service Documentation",
+      "file_type": "document",
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeArchitecture",
+      "label": "Bridge Architecture (Local ↔ VPS)",
+      "file_type": "rationale",
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeSecurityModel",
+      "label": "x-bridge-key Security Model",
+      "file_type": "rationale",
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "zktecoDevice",
+      "label": "ZKTeco ETK-45A_ID",
+      "file_type": "rationale",
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "attendanceSystemDoc",
+      "label": "Attendance System Overview",
+      "file_type": "document",
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "attendanceFlow",
+      "label": "Check-in / Check-out Complete Flow",
+      "file_type": "rationale",
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "attendanceSystemRelations",
+      "label": "Attendance Cross-System Relationships",
+      "file_type": "rationale",
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "zktecoController_verifyBridge",
+      "label": "verifyBridge middleware",
+      "file_type": "code",
+      "source_file": "backend/controllers/zktecoController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "zktecoController_receiveAttendance",
+      "label": "receiveAttendance",
+      "file_type": "code",
+      "source_file": "backend/controllers/zktecoController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeIndex_sendToApi",
+      "label": "sendToApi",
+      "file_type": "code",
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeIndex_fetchAttendance",
+      "label": "fetchAttendance",
+      "file_type": "code",
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridgeIndex_syncAttendance",
+      "label": "syncAttendance",
+      "file_type": "code",
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "server_initializeData",
+      "label": "initializeData",
+      "file_type": "code",
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "server",
+      "target": "zktecoRoutes",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoRoutes",
+      "target": "zktecoController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/zktecoRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoController_receiveAttendance",
+      "target": "userModel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/zktecoController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "server_initializeData",
+      "target": "userModel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeIndex",
+      "target": "bridgeConfig",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeIndex_syncAttendance",
+      "target": "bridgeIndex_fetchAttendance",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeIndex_syncAttendance",
+      "target": "bridgeIndex_sendToApi",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeIndex_sendToApi",
+      "target": "zktecoController_receiveAttendance",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "bridge/index.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoIntegrationDoc",
+      "target": "bridgeIndex",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoIntegrationDoc",
+      "target": "zktecoController",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoIntegrationDoc",
+      "target": "bridgeConfig",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoIntegrationDoc",
+      "target": "userModel",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeArchitecture",
+      "target": "bridgeIndex",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeSecurityModel",
+      "target": "zktecoController_verifyBridge",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridgeSecurityModel",
+      "target": "bridgeIndex_sendToApi",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoDevice",
+      "target": "bridgeIndex",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "ztk نصي.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceSystemDoc",
+      "target": "userModel",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceSystemDoc",
+      "target": "attendanceFlow",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceSystemDoc",
+      "target": "attendanceSystemRelations",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceFlow",
+      "target": "zktecoController_receiveAttendance",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceSystemRelations",
+      "target": "userModel",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "البصمة.txt",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "auditLogController",
+      "target": "userModel",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "backend/controllers/auditLogController.js",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}
