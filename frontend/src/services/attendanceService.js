@@ -180,6 +180,11 @@ export const bulkMapUsers = async (mappings) => {
   return response.data;
 };
 
+export const getMonthlyTimesheet = async (employeeId, month, year) => {
+  const response = await api.get(`/attendance/timesheet/monthly/${employeeId}?month=${month}&year=${year}`);
+  return response.data;
+};
+
 export default {
   getAllAttendanceRecords,
   getTodayAttendance,
@@ -208,5 +213,6 @@ export default {
   getSystemUsersForMapping,
   getBiometricDashboardStats,
   bulkMapUsers,
-  getMappedUsersActivity
+  getMappedUsersActivity,
+  getMonthlyTimesheet
 };

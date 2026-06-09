@@ -30,11 +30,13 @@ const menuItems = {
     { path: '/manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
+    { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
   ],
   hr: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
+    { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/admin/reports/department', label: 'تقارير الأقسام', icon: '📊' },
@@ -53,6 +55,7 @@ const menuItems = {
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
+    { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
     { path: '/financial-misc/report', label: 'تقرير متفرقات مالية', icon: '📊' }
   ]

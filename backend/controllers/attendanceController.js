@@ -834,6 +834,154 @@ const getWeeklyHours = async (req, res) => {
   }
 };
 
+/**
+ * Get monthly timesheet for an employee (read-only biometric attendance report)
+ * GET /api/attendance/timesheet/monthly/:employeeId?month=M&year=Y
+ */
+const getMonthlyTimesheet = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const month = parseInt(req.query.month) || (new Date().getMonth() + 1);
+    const year = parseInt(req.query.year) || new Date().getFullYear();
+
+    const role = req.user.role ? req.user.role.toLowerCase() : '';
+    const dept = req.user.department ? req.user.department.toLowerCase() : '';
+    const isHrDept = dept === 'hr' || dept === 'human resources' || dept === 'الموارد البشرية';
+    const isAdmin = role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept);
+    const isSelf = req.user._id.toString() === employeeId;
+    const isManagerOfDept = role === 'manager' && req.user.department;
+
+    if (!isAdmin && !isSelf && !isManagerOfDept) {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بالوصول إلى هذا التقرير'
+      });
+    }
+
+    const employee = await User.findById(employeeId).select('name email department jobTitle');
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'الموظف غير موجود' });
+    }
+
+    const monthStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
+    const monthEnd = new Date(year, month, 0, 23, 59, 59, 999);
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const records = await Attendance.find({
+      employee: employeeId,
+      date: { $gte: monthStart, $lte: monthEnd }
+    }).sort({ date: 1, 'checkIn.time': 1 }).lean();
+
+    const recordsByDate = {};
+    for (const r of records) {
+      const d = new Date(r.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if (!recordsByDate[key]) recordsByDate[key] = [];
+      recordsByDate[key].push(r);
+    }
+
+    const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const daily = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month - 1, day);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayRecords = recordsByDate[key] || [];
+      const dayOfWeek = date.getDay();
+
+      let entry = {
+        date: key,
+        dayName: dayNames[dayOfWeek],
+        dayOfWeek,
+        firstCheckIn: null,
+        lastCheckOut: null,
+        totalWorkedHours: 0,
+        attendanceStatus: null,
+        hasRecord: false
+      };
+
+      if (dayRecords.length > 0) {
+        const firstRecord = dayRecords[0];
+        const lastRecord = dayRecords[dayRecords.length - 1];
+
+        entry.hasRecord = true;
+        entry.firstCheckIn = firstRecord.checkIn && firstRecord.checkIn.time ? firstRecord.checkIn.time : null;
+
+        if (lastRecord.checkOut && lastRecord.checkOut.time) {
+          entry.lastCheckOut = lastRecord.checkOut.time;
+        } else if (dayRecords.length > 1) {
+          for (let i = dayRecords.length - 1; i >= 0; i--) {
+            if (dayRecords[i].checkOut && dayRecords[i].checkOut.time) {
+              entry.lastCheckOut = dayRecords[i].checkOut.time;
+              break;
+            }
+          }
+        }
+
+        entry.totalWorkedHours = lastRecord.duration || 0;
+        entry.attendanceStatus = lastRecord.status;
+        entry.checkInStatus = firstRecord.checkIn ? firstRecord.checkIn.status : null;
+        entry.checkOutStatus = lastRecord.checkOut ? lastRecord.checkOut.status : null;
+        entry.overtime = lastRecord.overtime || 0;
+        entry.expectedHours = lastRecord.expectedHours || 8;
+        entry.isLate = lastRecord.status === 'late';
+        entry.isEarlyDeparture = lastRecord.checkOut && lastRecord.checkOut.status === 'early';
+      }
+
+      daily.push(entry);
+    }
+
+    const attendanceDays = daily.filter(d => d.hasRecord && d.attendanceStatus !== 'absent' && d.attendanceStatus !== 'on_leave');
+    const presentDays = daily.filter(d => d.attendanceStatus === 'present');
+    const lateDays = daily.filter(d => d.attendanceStatus === 'late');
+    const halfDays = daily.filter(d => d.attendanceStatus === 'half_day');
+    const absentDays = daily.filter(d => d.attendanceStatus === 'absent');
+    const onLeaveDays = daily.filter(d => d.attendanceStatus === 'on_leave');
+    const earlyDepartureDays = daily.filter(d => d.isEarlyDeparture);
+    const incompleteDays = daily.filter(d => d.hasRecord && (!d.firstCheckIn || !d.lastCheckOut));
+
+    const summary = {
+      totalDaysInMonth: daysInMonth,
+      totalWorkingDays: attendanceDays.length,
+      totalAttendanceDays: presentDays.length + lateDays.length + halfDays.length,
+      totalPresentDays: presentDays.length,
+      totalLateDays: lateDays.length,
+      totalHalfDays: halfDays.length,
+      totalAbsenceDays: absentDays.length,
+      totalOnLeaveDays: onLeaveDays.length,
+      totalLateArrivals: lateDays.length,
+      totalEarlyDepartures: earlyDepartureDays.length,
+      totalIncompleteDays: incompleteDays.length,
+      totalOvertimeHours: Math.round(daily.reduce((sum, d) => sum + (d.overtime || 0), 0) * 100) / 100,
+      totalWorkedHours: Math.round(daily.reduce((sum, d) => sum + (d.totalWorkedHours || 0), 0) * 100) / 100,
+      noRecordDays: daily.filter(d => !d.hasRecord).length
+    };
+
+    res.json({
+      success: true,
+      data: {
+        employee: {
+          id: employee._id,
+          name: employee.name,
+          email: employee.email,
+          department: employee.department,
+          jobTitle: employee.jobTitle
+        },
+        period: { month, year, monthStart, monthEnd },
+        summary,
+        daily
+      }
+    });
+  } catch (error) {
+    console.error('Error generating monthly timesheet:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في إنشاء كشف الحضور الشهري',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   checkIn,
   checkOut,
@@ -847,4 +995,5 @@ module.exports = {
   getEmployeeAttendanceReport,
   getDashboardStats,
   getWeeklyHours,
+  getMonthlyTimesheet,
 };

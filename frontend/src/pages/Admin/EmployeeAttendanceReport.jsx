@@ -4,7 +4,7 @@ import {
   FaUser, FaCalendarAlt, FaClock, FaSignInAlt, FaSignOutAlt,
   FaHourglassHalf, FaChartBar, FaArrowRight, FaSearch,
   FaCheckCircle, FaExclamationTriangle, FaInfoCircle,
-  FaFilePdf, FaPrint
+  FaFilePdf, FaPrint, FaFileInvoice
 } from 'react-icons/fa';
 import { getEmployeeAttendanceReport } from '../../services/attendanceService';
 import { formatNumber } from '../../utils/analyticsUtils';
@@ -128,6 +128,11 @@ const EmployeeAttendanceReport = () => {
           </button>
           <button className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2">
             <FaFilePdf className="w-3.5 h-3.5" /> تصدير PDF
+          </button>
+          <button onClick={() => navigate(`/admin/timesheet/${employeeId}`)}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            style={{ backgroundColor: '#182E4E', color: 'white' }}>
+            <FaFileInvoice className="w-3.5 h-3.5" /> كشف الحضور الشهري
           </button>
         </div>
       </div>

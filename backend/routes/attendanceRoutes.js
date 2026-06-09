@@ -13,6 +13,7 @@ const {
   getEmployeeAttendanceReport,
   getDashboardStats,
   getWeeklyHours,
+  getMonthlyTimesheet,
 } = require('../controllers/attendanceController');
 const { protect, managerOrAdmin, adminOnly } = require('../middleware/authMiddleware');
 
@@ -28,6 +29,7 @@ router.get('/dashboard', protect, getDashboardStats);
 router.get('/reports/late', protect, getLateReport);
 router.get('/reports/work-hours', protect, getWorkHoursReport);
 router.get('/reports/employee/:employeeId', protect, getEmployeeAttendanceReport);
+router.get('/timesheet/monthly/:employeeId', protect, getMonthlyTimesheet);
 
 router.get('/department/:department', protect, managerOrAdmin, getDepartmentAttendance);
 

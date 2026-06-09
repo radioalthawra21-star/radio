@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  FaClock, FaCalendarAlt, FaHistory, FaSync,
+  FaClock, FaCalendarAlt, FaHistory, FaSync, FaFileInvoice,
   FaUserCheck, FaUserTimes, FaUserClock, FaHome, FaInfoCircle,
   FaTimes, FaCircle
 } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { getTodayAttendance, getAllAttendanceRecords, syncZKTecoDevice } from '../../services/attendanceService';
 
 const STATUS_MAP = {
@@ -15,6 +16,7 @@ const STATUS_MAP = {
 };
 
 const Attendance = () => {
+  const navigate = useNavigate();
   const [todayRecord, setTodayRecord] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -195,11 +197,19 @@ const Attendance = () => {
             </div>
             سجل اليوم
           </h2>
-          <button onClick={handleSync} disabled={syncing}
-            className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
-            <FaSync className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'جاري المزامنة...' : 'مزامنة مع جهاز البصمة'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={handleSync} disabled={syncing}
+              className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
+              <FaSync className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'جاري المزامنة...' : 'مزامنة مع جهاز البصمة'}
+            </button>
+            <button onClick={() => navigate('/timesheet')}
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              style={{ backgroundColor: '#182E4E', color: 'white' }}>
+              <FaFileInvoice className="w-3.5 h-3.5" />
+              كشف الحضور الشهري
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col items-center justify-center py-6">
