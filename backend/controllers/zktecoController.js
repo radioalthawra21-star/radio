@@ -82,9 +82,12 @@ async function receiveAttendance(req, res) {
     }).lean();
     const existingMap = new Map();
     for (const e of existingAll) {
+      const eNorm = new Date(e.date);
+      eNorm.setHours(0, 0, 0, 0);
+      const eDateKey = eNorm.toISOString().split('T')[0];
       const key = e.employee
-        ? `emp_${e.employee}_${new Date(e.date).toISOString().split('T')[0]}`
-        : `dev_${e.deviceUserId}_${new Date(e.date).toISOString().split('T')[0]}`;
+        ? `emp_${e.employee}_${eDateKey}`
+        : `dev_${e.deviceUserId}_${eDateKey}`;
       if (!existingMap.has(key)) existingMap.set(key, []);
       existingMap.get(key).push(e);
     }
@@ -132,7 +135,7 @@ async function receiveAttendance(req, res) {
 
         if (existingRecords.length === 0) {
           const doc = {
-            date: ts,
+            date: user ? dayStart : ts,
             expectedHours: 8,
             status: attendanceStatus,
             checkIn: {
@@ -300,9 +303,12 @@ async function syncDeviceAttendance(req, res) {
     }).lean();
     const existingMap = new Map();
     for (const e of existingAll) {
+      const eNorm = new Date(e.date);
+      eNorm.setHours(0, 0, 0, 0);
+      const eDateKey = eNorm.toISOString().split('T')[0];
       const key = e.employee
-        ? `emp_${e.employee}_${new Date(e.date).toISOString().split('T')[0]}`
-        : `dev_${e.deviceUserId}_${new Date(e.date).toISOString().split('T')[0]}`;
+        ? `emp_${e.employee}_${eDateKey}`
+        : `dev_${e.deviceUserId}_${eDateKey}`;
       if (!existingMap.has(key)) existingMap.set(key, []);
       existingMap.get(key).push(e);
     }
@@ -320,10 +326,11 @@ async function syncDeviceAttendance(req, res) {
           continue;
         }
 
+        const { dayStart, dayEnd } = getDayRange(ts);
         const rawZkId = String(record.zkUserId || record.deviceUserId || '');
         const user = await findUserByZkId(rawZkId);
         const zkId = rawZkId;
-        const dateStr = ts.toISOString().split('T')[0];
+        const dateStr = dayStart.toISOString().split('T')[0];
 
         const dedupKey = user
           ? `emp_${user._id}_${dateStr}_${record.zkRecordId || ''}`
@@ -346,7 +353,7 @@ async function syncDeviceAttendance(req, res) {
 
         if (existingRecords.length === 0) {
           const doc = {
-            date: ts,
+            date: user ? dayStart : ts,
             expectedHours: 8,
             status: attendanceStatus,
             checkIn: {
