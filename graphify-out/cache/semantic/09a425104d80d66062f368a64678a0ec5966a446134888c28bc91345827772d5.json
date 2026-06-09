@@ -1,1 +1,1 @@
-{"nodes": [{"id": "globalDts", "label": "global.d.ts", "file_type": "code", "source_file": "frontend/src/global.d.ts", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}
+{"nodes": [{"id": "global.d.ts", "label": "global.d.ts", "file_type": "code", "source_file": "frontend/src/global.d.ts"}], "edges": [], "hyperedges": []}

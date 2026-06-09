@@ -1,0 +1,1 @@
+{"nodes": [{"id": "Attendance", "label": "Attendance.jsx", "file_type": "code", "source_file": "frontend/src/pages/Employee/Attendance.jsx"}], "edges": [{"source": "Attendance", "target": "EmployeeDashboard", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.95, "source_file": "frontend/src/pages/Employee/Attendance.jsx"}], "hyperedges": []}

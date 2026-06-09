@@ -22,6 +22,11 @@ const CheckInStatus = {
   VERY_LATE: 'very_late'
 };
 
+const CheckOutStatus = {
+  ON_TIME: 'on_time',
+  EARLY: 'early'
+};
+
 // Attendance Schema
 const attendanceSchema = new mongoose.Schema({
   // Employee reference
@@ -52,6 +57,11 @@ const attendanceSchema = new mongoose.Schema({
   // Check-out time
   checkOut: {
     time: Date,
+    status: {
+      type: String,
+      enum: Object.values(CheckOutStatus),
+      default: CheckOutStatus.ON_TIME
+    },
     location: String,
     notes: String
   },
@@ -125,6 +135,7 @@ const attendanceSchema = new mongoose.Schema({
 // Indexes for efficient queries
 attendanceSchema.index({ employee: 1, date: -1 }, { unique: true });
 attendanceSchema.index({ date: -1 });
+attendanceSchema.index({ date: -1, 'checkIn.time': -1, createdAt: -1 });
 attendanceSchema.index({ department: 1, date: -1 });
 attendanceSchema.index({ status: 1, date: -1 });
 
@@ -161,52 +172,73 @@ attendanceSchema.methods.calculateDuration = function() {
 };
 
 // Method to check in
-attendanceSchema.methods.checkInEmployee = function(checkInTime, location, notes) {
+attendanceSchema.methods.checkInEmployee = function(checkInTime, location, notes, opts = {}) {
   const now = checkInTime || new Date();
+  const workHour = opts.workStartHour ?? 9;
+  const workMinute = opts.workStartMinute ?? 0;
+  const gracePeriod = opts.lateGracePeriodMinutes ?? 0;
+  const veryLateThreshold = opts.veryLateThresholdMinutes ?? 120;
+
   const workStartTime = new Date(now);
-  workStartTime.setHours(9, 0, 0, 0); // 9:00 AM work start
-  
+  workStartTime.setHours(workHour, workMinute, 0, 0);
+
+  const graceEndTime = new Date(workStartTime.getTime() + gracePeriod * 60 * 1000);
+
   let status = CheckInStatus.ON_TIME;
   let lateReason = null;
-  
-  if (now > workStartTime) {
+
+  if (now > graceEndTime) {
     const diffMinutes = (now - workStartTime) / (1000 * 60);
-    if (diffMinutes > 120) {
+    if (diffMinutes > veryLateThreshold) {
       status = CheckInStatus.VERY_LATE;
     } else {
       status = CheckInStatus.LATE;
     }
   }
-  
+
   this.checkIn = {
     time: now,
     status: status,
     location: location || 'Office',
     notes: notes || null
   };
-  
+
   // Update attendance status
   if (status === CheckInStatus.LATE || status === CheckInStatus.VERY_LATE) {
     this.status = AttendanceStatus.LATE;
     this.lateReason = notes;
   }
-  
+
   return this;
 };
 
 // Method to check out
-attendanceSchema.methods.checkOutEmployee = function(checkOutTime, location, notes) {
+attendanceSchema.methods.checkOutEmployee = function(checkOutTime, location, notes, opts = {}) {
   const now = checkOutTime || new Date();
-  
+  const workEndHour = opts.workEndHour ?? 17;
+  const workEndMinute = opts.workEndMinute ?? 0;
+  const earlyGrace = opts.earlyLeaveGracePeriodMinutes ?? 0;
+
+  const workEndTime = new Date(now);
+  workEndTime.setHours(workEndHour, workEndMinute, 0, 0);
+
+  const graceEndTime = new Date(workEndTime.getTime() + earlyGrace * 60 * 1000);
+
   this.checkOut = {
     time: now,
+    status: now < workEndTime ? CheckOutStatus.EARLY : CheckOutStatus.ON_TIME,
     location: location || 'Office',
     notes: notes || null
   };
-  
+
+  // Check early departure with grace period
+  if (now < graceEndTime && now >= workEndTime) {
+    this.checkOut.status = CheckOutStatus.ON_TIME;
+  }
+
   // Calculate duration
   this.calculateDuration();
-  
+
   return this;
 };
 
@@ -273,5 +305,6 @@ const Attendance = mongoose.model('Attendance', attendanceSchema);
 module.exports = { 
   Attendance, 
   AttendanceStatus, 
-  CheckInStatus 
+  CheckInStatus,
+  CheckOutStatus
 };

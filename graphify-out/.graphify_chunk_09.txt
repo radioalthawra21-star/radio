@@ -1,0 +1,26 @@
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\AGENTS.md
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\PROJECT_STRUCTURE.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\backend\docs\SCHEMA.md
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\backend\ع╙╩غ╧ غ╒و ╠╧و╧.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\docker-compose.yml
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\mogo.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\stderr.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\stdout.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\ztk غ╒و.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\ع╬╟╪╤.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\┬طو╔_╤╚╪_╠ف╟╥_ZKTeco.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\╚╤µع╩ ╟طع╙╩µ╧┌وغ ╟طعغ▌╒طوغ .txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\╟ط╚╒ع╔.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\╬╪µ╟╩_╩╘█وط_غ┘╟ع_╟ط╚╒ع╔.txt
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\backend\utils\test_output.pdf
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\.kilo\agent-manager.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\.kilo\package.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\backend\package.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\backend\swagger.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\bridge\package.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\bridge\synced_ids.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\package.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\tsconfig.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\tsconfig.node.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\package.json
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\tsconfig.json

@@ -1,8 +1,19 @@
 {
   "nodes": [
     {
+      "id": "attendanceController",
+      "label": "Attendance Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
       "id": "auditLogController",
-      "label": "auditLogController.js",
+      "label": "Audit Log Controller",
       "file_type": "code",
       "source_file": "backend/controllers/auditLogController.js",
       "source_location": null,
@@ -12,8 +23,217 @@
       "contributor": null
     },
     {
+      "id": "authController",
+      "label": "Auth Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bonusController",
+      "label": "Bonus Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/bonusController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "coupletPipelineController",
+      "label": "Couplet Pipeline Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/coupletPipelineController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "coupletPromptController",
+      "label": "Couplet Prompt Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/coupletPromptController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "departmentController",
+      "label": "Department Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "documentController",
+      "label": "Document Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/documentController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "editorialPipelineController",
+      "label": "Editorial Pipeline Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/editorialPipelineController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "employeeProfileController",
+      "label": "Employee Profile Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/employeeProfileController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "financialMiscController",
+      "label": "Financial Misc Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/financialMiscController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "leaveController",
+      "label": "Leave Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "managerEvaluationController",
+      "label": "Manager Evaluation Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/managerEvaluationController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "notificationController",
+      "label": "Notification Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/notificationController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "payrollController",
+      "label": "Payroll Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "promptController",
+      "label": "Prompt Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/promptController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "recruitmentPerformanceController",
+      "label": "Recruitment Performance Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/recruitmentPerformanceController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "settingsController",
+      "label": "Settings Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/settingsController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "taskController",
+      "label": "Task Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/taskController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "userController",
+      "label": "User Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wellBeingController",
+      "label": "Well Being Controller",
+      "file_type": "code",
+      "source_file": "backend/controllers/wellBeingController.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
       "id": "zktecoController",
-      "label": "zktecoController.js",
+      "label": "ZKTeco Controller",
       "file_type": "code",
       "source_file": "backend/controllers/zktecoController.js",
       "source_location": null,
@@ -23,7 +243,425 @@
       "contributor": null
     },
     {
-      "id": "userModel",
+      "id": "configDb",
+      "label": "Database Config",
+      "file_type": "code",
+      "source_file": "backend/config/db.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkApi",
+      "label": "Check API Script",
+      "file_type": "code",
+      "source_file": "backend/check_api.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkApi2",
+      "label": "Check API Script 2",
+      "file_type": "code",
+      "source_file": "backend/check_api2.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkAttendanceTemp",
+      "label": "Check Attendance Temp",
+      "file_type": "code",
+      "source_file": "backend/check_attendance_temp.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkMongo",
+      "label": "Check Mongo 1",
+      "file_type": "code",
+      "source_file": "backend/check_mongo.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkMongo2",
+      "label": "Check Mongo 2",
+      "file_type": "code",
+      "source_file": "backend/check_mongo2.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkMongo3",
+      "label": "Check Mongo 3",
+      "file_type": "code",
+      "source_file": "backend/check_mongo3.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "checkToday",
+      "label": "Check Today Script",
+      "file_type": "code",
+      "source_file": "backend/check_today.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "textpipeline_6stage",
+      "label": "6-Stage Arabic Text Pipeline",
+      "file_type": "rationale",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "attendancetracking_system",
+      "label": "Attendance & Biometric Tracking",
+      "file_type": "rationale",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "notification_system",
+      "label": "Notification System",
+      "file_type": "rationale",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "authMiddleware",
+      "label": "authMiddleware.js",
+      "file_type": "code",
+      "source_file": "backend/middleware/authMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cvUploadMiddleware",
+      "label": "cvUploadMiddleware.js",
+      "file_type": "code",
+      "source_file": "backend/middleware/cvUploadMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "documentUploadMiddleware",
+      "label": "documentUploadMiddleware.js",
+      "file_type": "code",
+      "source_file": "backend/middleware/documentUploadMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "newsDepartment",
+      "label": "newsDepartment.js",
+      "file_type": "code",
+      "source_file": "backend/middleware/newsDepartment.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "uploadMiddleware",
+      "label": "uploadMiddleware.js",
+      "file_type": "code",
+      "source_file": "backend/middleware/uploadMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Attendance",
+      "label": "Attendance Model",
+      "file_type": "code",
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "AuditLog",
+      "label": "AuditLog Model",
+      "file_type": "code",
+      "source_file": "backend/models/AuditLog.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "BiometricErrorLog",
+      "label": "BiometricErrorLog Model",
+      "file_type": "code",
+      "source_file": "backend/models/BiometricErrorLog.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Bonus",
+      "label": "Bonus Model",
+      "file_type": "code",
+      "source_file": "backend/models/Bonus.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "CoupletPrompt",
+      "label": "CoupletPrompt Model",
+      "file_type": "code",
+      "source_file": "backend/models/CoupletPrompt.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Department",
+      "label": "Department Model",
+      "file_type": "code",
+      "source_file": "backend/models/Department.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "DeviceLog",
+      "label": "DeviceLog Model",
+      "file_type": "code",
+      "source_file": "backend/models/DeviceLog.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Document",
+      "label": "Document Model",
+      "file_type": "code",
+      "source_file": "backend/models/Document.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "FinancialMisc",
+      "label": "FinancialMisc Model",
+      "file_type": "code",
+      "source_file": "backend/models/FinancialMisc.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "LeaveRequest",
+      "label": "LeaveRequest Model",
+      "file_type": "code",
+      "source_file": "backend/models/LeaveRequest.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "ManagerEvaluation",
+      "label": "ManagerEvaluation Model",
+      "file_type": "code",
+      "source_file": "backend/models/ManagerEvaluation.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Message",
+      "label": "Message Model",
+      "file_type": "code",
+      "source_file": "backend/models/Message.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Notification",
+      "label": "Notification Model",
+      "file_type": "code",
+      "source_file": "backend/models/Notification.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Payroll",
+      "label": "Payroll Model",
+      "file_type": "code",
+      "source_file": "backend/models/Payroll.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "PayrollItem",
+      "label": "PayrollItem Model",
+      "file_type": "code",
+      "source_file": "backend/models/PayrollItem.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Prompt",
+      "label": "Prompt Model",
+      "file_type": "code",
+      "source_file": "backend/models/Prompt.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "JobPosting",
+      "label": "JobPosting Model",
+      "file_type": "code",
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "CandidateApplication",
+      "label": "CandidateApplication Model",
+      "file_type": "code",
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "PerformanceReview",
+      "label": "PerformanceReview Model",
+      "file_type": "code",
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "KPI",
+      "label": "KPI Model",
+      "file_type": "code",
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Settings",
+      "label": "Settings Model",
+      "file_type": "code",
+      "source_file": "backend/models/Settings.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "Task",
+      "label": "Task Model",
+      "file_type": "code",
+      "source_file": "backend/models/Task.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "User",
       "label": "User Model",
       "file_type": "code",
       "source_file": "backend/models/User.js",
@@ -34,8 +672,349 @@
       "contributor": null
     },
     {
-      "id": "zktecoRoutes",
-      "label": "zktecoRoutes.js",
+      "id": "WellBeingCheckIn",
+      "label": "WellBeingCheckIn Model",
+      "file_type": "code",
+      "source_file": "backend/models/WellBeingCheckIn.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "attendanceRoutes",
+      "label": "attendanceRoutes.js",
+      "file_type": "code",
+      "source_file": "backend/routes/attendanceRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auditLogRoutes",
+      "label": "auditLogRoutes.js",
+      "file_type": "code",
+      "source_file": "backend/routes/auditLogRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "authRoutes",
+      "label": "authRoutes.js",
+      "file_type": "code",
+      "source_file": "backend/routes/authRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bonusRoutes",
+      "label": "bonusRoutes.js",
+      "file_type": "code",
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "jsonwebtoken",
+      "label": "jsonwebtoken library",
+      "file_type": "code",
+      "source_file": "backend/middleware/authMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "mongoose",
+      "label": "mongoose ODM",
+      "file_type": "code",
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "multer",
+      "label": "multer middleware",
+      "file_type": "code",
+      "source_file": "backend/middleware/cvUploadMiddleware.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bcryptjs",
+      "label": "bcryptjs library",
+      "file_type": "code",
+      "source_file": "backend/models/User.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "attendanceController",
+      "label": "attendanceController",
+      "file_type": "code",
+      "source_file": "backend/routes/attendanceRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auditLogController",
+      "label": "auditLogController",
+      "file_type": "code",
+      "source_file": "backend/routes/auditLogRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "authController",
+      "label": "authController",
+      "file_type": "code",
+      "source_file": "backend/routes/authRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bonusController",
+      "label": "bonusController",
+      "file_type": "code",
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/coupletPipelineRoutes.js",
+      "label": "Couplet Pipeline Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/coupletPipelineRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/coupletPromptRoutes.js",
+      "label": "Couplet Prompt Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/coupletPromptRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/departmentRoutes.js",
+      "label": "Department Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/departmentRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/documentRoutes.js",
+      "label": "Document Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/documentRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/editorialPipelineRoutes.js",
+      "label": "Editorial Pipeline Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/editorialPipelineRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/financialMiscRoutes.js",
+      "label": "Financial Misc Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/financialMiscRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/leaveRoutes.js",
+      "label": "Leave Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/leaveRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/managerEvaluationRoutes.js",
+      "label": "Manager Evaluation Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/managerEvaluationRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/messageRoutes.js",
+      "label": "Message Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/messageRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/notificationRoutes.js",
+      "label": "Notification Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/notificationRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/payrollRoutes.js",
+      "label": "Payroll Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/payrollRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/pdfRoutes.js",
+      "label": "PDF Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/pdfRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/promptRoutes.js",
+      "label": "Prompt Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/promptRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/recruitmentPerformanceRoutes.js",
+      "label": "Recruitment & Performance Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/recruitmentPerformanceRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/settingsRoutes.js",
+      "label": "Settings Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/settingsRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/taskRoutes.js",
+      "label": "Task Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/taskRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/userRoutes.js",
+      "label": "User Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/userRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/wellBeingRoutes.js",
+      "label": "Well-Being Routes",
+      "file_type": "code",
+      "source_file": "backend/routes/wellBeingRoutes.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/routes/zktecoRoutes.js",
+      "label": "ZKTeco Routes",
       "file_type": "code",
       "source_file": "backend/routes/zktecoRoutes.js",
       "source_location": null,
@@ -45,8 +1024,8 @@
       "contributor": null
     },
     {
-      "id": "server",
-      "label": "server.js",
+      "id": "backend/server.js",
+      "label": "Express Server Entrypoint",
       "file_type": "code",
       "source_file": "backend/server.js",
       "source_location": null,
@@ -56,8 +1035,63 @@
       "contributor": null
     },
     {
-      "id": "bridgeConfig",
-      "label": "bridge config.js",
+      "id": "backend/services/aiService.js",
+      "label": "AI Service (Deepseek/Gemini)",
+      "file_type": "code",
+      "source_file": "backend/services/aiService.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/services/compensationService.js",
+      "label": "Compensation Calculation Engine",
+      "file_type": "code",
+      "source_file": "backend/services/compensationService.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/services/pdfService.js",
+      "label": "PDF Service (thin wrapper)",
+      "file_type": "code",
+      "source_file": "backend/services/pdfService.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/services/zktecoService.js",
+      "label": "ZKTeco Device Service",
+      "file_type": "code",
+      "source_file": "backend/services/zktecoService.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "backend/utils/pdfGenerator.js",
+      "label": "PDF Generator (Puppeteer)",
+      "file_type": "code",
+      "source_file": "backend/utils/pdfGenerator.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "bridge/config.js",
+      "label": "Bridge Configuration",
       "file_type": "code",
       "source_file": "bridge/config.js",
       "source_location": null,
@@ -67,8 +1101,8 @@
       "contributor": null
     },
     {
-      "id": "bridgeIndex",
-      "label": "bridge index.js",
+      "id": "bridge/index.js",
+      "label": "ZKTeco Bridge Service",
       "file_type": "code",
       "source_file": "bridge/index.js",
       "source_location": null,
@@ -78,98 +1112,1297 @@
       "contributor": null
     },
     {
-      "id": "globalDts",
+      "id": "frontend/postcss.config.js",
+      "label": "PostCSS Config (Tailwind)",
+      "file_type": "code",
+      "source_file": "frontend/postcss.config.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend/prepare-fonts.js",
+      "label": "Font Preparation Script",
+      "file_type": "code",
+      "source_file": "frontend/prepare-fonts.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "frontend/remove-bom.js",
+      "label": "BOM Removal Utility",
+      "file_type": "code",
+      "source_file": "frontend/remove-bom.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "App.jsx",
+      "label": "App (root component)",
+      "file_type": "code",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": null
+    },
+    {
+      "id": "BonusForm.jsx",
+      "label": "BonusForm (bonus submission form)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/BonusForm.jsx",
+      "source_location": null
+    },
+    {
+      "id": "BonusList.jsx",
+      "label": "BonusList (bonus listing/filtering)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/BonusList.jsx",
+      "source_location": null
+    },
+    {
+      "id": "BonusManagement.jsx",
+      "label": "BonusManagement (bonus CRUD orchestrator)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/BonusManagement.jsx",
+      "source_location": null
+    },
+    {
+      "id": "DynamicNumber.jsx",
+      "label": "DynamicNumber (auto-scaling font number)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/DynamicNumber.jsx",
+      "source_location": null
+    },
+    {
+      "id": "RecentPaymentsTable.jsx",
+      "label": "RecentPaymentsTable (recent payments display)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/RecentPaymentsTable.jsx",
+      "source_location": null
+    },
+    {
+      "id": "RouteGuards.jsx",
+      "label": "RouteGuards (ProtectedRoute/NewsRoute/PublicRoute)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/RouteGuards.jsx",
+      "source_location": null
+    },
+    {
+      "id": "AttendanceNavBar.jsx",
+      "label": "AttendanceNavBar (attendance navigation tabs)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/attendance/AttendanceNavBar.jsx",
+      "source_location": null
+    },
+    {
+      "id": "AttendanceTimeline.jsx",
+      "label": "AttendanceTimeline (timeline display)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/attendance/AttendanceTimeline.jsx",
+      "source_location": null
+    },
+    {
+      "id": "BarChart.jsx",
+      "label": "BarChart (Chart.js bar chart wrapper)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/charts/BarChart.jsx",
+      "source_location": null
+    },
+    {
+      "id": "LineChart.jsx",
+      "label": "LineChart (Chart.js line chart wrapper)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/charts/LineChart.jsx",
+      "source_location": null
+    },
+    {
+      "id": "PieChart.jsx",
+      "label": "PieChart (Chart.js pie chart wrapper)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/charts/PieChart.jsx",
+      "source_location": null
+    },
+    {
+      "id": "ChartsIndex.jsx",
+      "label": "Charts barrel export",
+      "file_type": "code",
+      "source_file": "frontend/src/components/charts/index.jsx",
+      "source_location": null
+    },
+    {
+      "id": "Card.jsx",
+      "label": "Card (reusable card container)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/common/Card.jsx",
+      "source_location": null
+    },
+    {
+      "id": "StatusBadge.jsx",
+      "label": "StatusBadge (active/inactive badge)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/common/StatusBadge.jsx",
+      "source_location": null
+    },
+    {
+      "id": "Layout.jsx",
+      "label": "Layout (sidebar+navbar wrapper)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/layout/Layout.jsx",
+      "source_location": null
+    },
+    {
+      "id": "Navbar.jsx",
+      "label": "Navbar (top navigation bar)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/layout/Navbar.jsx",
+      "source_location": null
+    },
+    {
+      "id": "NotificationPanel.jsx",
+      "label": "NotificationPanel (notification dropdown + toast)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/layout/NotificationPanel.jsx",
+      "source_location": null
+    },
+    {
+      "id": "Sidebar.jsx",
+      "label": "Sidebar (role-based navigation sidebar)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/layout/Sidebar.jsx",
+      "source_location": null
+    },
+    {
+      "id": "UserMenu.jsx",
+      "label": "UserMenu (user dropdown menu)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/layout/UserMenu.jsx",
+      "source_location": null
+    },
+    {
+      "id": "WellBeingBanner.jsx",
+      "label": "WellBeingBanner (daily well-being reminder banner)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/layout/WellBeingBanner.jsx",
+      "source_location": null
+    },
+    {
+      "id": "StatCard.jsx",
+      "label": "StatCard (statistics card widget)",
+      "file_type": "code",
+      "source_file": "frontend/src/components/widgets/StatCard.jsx",
+      "source_location": null
+    },
+    {
+      "id": "WidgetsIndex.jsx",
+      "label": "Widgets barrel export",
+      "file_type": "code",
+      "source_file": "frontend/src/components/widgets/index.jsx",
+      "source_location": null
+    },
+    {
+      "id": "PayrollWrapper.tsx",
+      "label": "PayrollWrapper (PayrollProvider HOC/wrapper)",
+      "file_type": "code",
+      "source_file": "frontend/src/context/PayrollWrapper.tsx",
+      "source_location": null
+    },
+    {
+      "id": "SocketContext.jsx",
+      "label": "SocketContext (socket.io React context)",
+      "file_type": "code",
+      "source_file": "frontend/src/context/SocketContext.jsx",
+      "source_location": null
+    },
+    {
+      "id": "TypographyContext.jsx",
+      "label": "TypographyContext (font/typography React context)",
+      "file_type": "code",
+      "source_file": "frontend/src/context/TypographyContext.jsx",
+      "source_location": null
+    },
+    {
+      "id": "ColumnManagerModal.jsx",
+      "label": "ColumnManagerModal (payroll column management modal)",
+      "file_type": "code",
+      "source_file": "frontend/src/features/payroll/components/ColumnManagerModal.jsx",
+      "source_location": null
+    },
+    {
+      "id": "DeleteColumnModal.jsx",
+      "label": "DeleteColumnModal (delete column confirmation)",
+      "file_type": "code",
+      "source_file": "frontend/src/features/payroll/components/DeleteColumnModal.jsx",
+      "source_location": null
+    },
+    {
+      "id": "EditablePayrollTable.jsx",
+      "label": "EditablePayrollTable (editable payroll grid)",
+      "file_type": "code",
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx",
+      "source_location": null
+    },
+    {
+      "id": "PayrollActions.jsx",
+      "label": "PayrollActions (payroll action buttons)",
+      "file_type": "code",
+      "source_file": "frontend/src/features/payroll/components/PayrollActions.jsx",
+      "source_location": null
+    },
+    {
+      "id": "payrollTableUtils",
+      "label": "payrollTableUtils.js",
+      "file_type": "code",
+      "source_file": "frontend/src/features/payroll/components/payrollTableUtils.js"
+    },
+    {
+      "id": "usePayrollState",
+      "label": "usePayrollState.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/features/payroll/hooks/usePayrollState.jsx"
+    },
+    {
+      "id": "global.d.ts",
       "label": "global.d.ts",
       "file_type": "code",
-      "source_file": "frontend/src/global.d.ts",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
+      "source_file": "frontend/src/global.d.ts"
     },
     {
-      "id": "zktecoIntegrationDoc",
-      "label": "ZKTeco Bridge Service Documentation",
+      "id": "useDepartments",
+      "label": "useDepartments.js",
+      "file_type": "code",
+      "source_file": "frontend/src/hooks/useDepartments.js"
+    },
+    {
+      "id": "main.jsx",
+      "label": "main.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/main.jsx"
+    },
+    {
+      "id": "AdminDashboard",
+      "label": "AdminDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx"
+    },
+    {
+      "id": "AllEmployees",
+      "label": "AllEmployees.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx"
+    },
+    {
+      "id": "AllReports",
+      "label": "AllReports.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AllReports.jsx"
+    },
+    {
+      "id": "AttendanceDashboard",
+      "label": "AttendanceDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AttendanceDashboard.jsx"
+    },
+    {
+      "id": "AttendanceManagement",
+      "label": "AttendanceManagement.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AttendanceManagement.jsx"
+    },
+    {
+      "id": "AuditLogs",
+      "label": "AuditLogs.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AuditLogs.jsx"
+    },
+    {
+      "id": "AuditFilterBar",
+      "label": "AuditFilterBar.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/AuditFilterBar.jsx"
+    },
+    {
+      "id": "BiometricManagement",
+      "label": "BiometricManagement.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/BiometricManagement.jsx"
+    },
+    {
+      "id": "DeptFormModal",
+      "label": "DeptFormModal.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/DeptFormModal.jsx"
+    },
+    {
+      "id": "EmployeeAttendanceReport",
+      "label": "EmployeeAttendanceReport.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/EmployeeAttendanceReport.jsx"
+    },
+    {
+      "id": "EmployeeProfilePage",
+      "label": "EmployeeProfilePage.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/EmployeeProfilePage.jsx"
+    },
+    {
+      "id": "GMApproveLeaves",
+      "label": "GMApproveLeaves.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/GMApproveLeaves.jsx"
+    },
+    {
+      "id": "LeaveManagement",
+      "label": "LeaveManagement.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/LeaveManagement.jsx"
+    },
+    {
+      "id": "Rankings",
+      "label": "Rankings.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/Rankings.jsx"
+    },
+    {
+      "id": "Settings",
+      "label": "Settings.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/Settings.jsx"
+    },
+    {
+      "id": "UserFormModal",
+      "label": "UserFormModal.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/UserFormModal.jsx"
+    },
+    {
+      "id": "auditLogUtils",
+      "label": "auditLogUtils.js",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Admin/auditLogUtils.js"
+    },
+    {
+      "id": "Login",
+      "label": "Login.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Auth/Login.jsx"
+    },
+    {
+      "id": "NotAuthorized",
+      "label": "NotAuthorized.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Auth/NotAuthorized.jsx"
+    },
+    {
+      "id": "Register",
+      "label": "Register.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Auth/Register.jsx"
+    },
+    {
+      "id": "DashboardQuickMenu",
+      "label": "DashboardQuickMenu.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/DashboardQuickMenu.jsx"
+    },
+    {
+      "id": "AlertsPanel",
+      "label": "AlertsPanel.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/AlertsPanel.jsx"
+    },
+    {
+      "id": "BrandingTab",
+      "label": "BrandingTab.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/BrandingTab.jsx"
+    },
+    {
+      "id": "DesignTab",
+      "label": "DesignTab.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/DesignTab.jsx"
+    },
+    {
+      "id": "DeveloperConfig",
+      "label": "DeveloperConfig.js",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/DeveloperConfig.js"
+    },
+    {
+      "id": "DeveloperPanel",
+      "label": "DeveloperPanel.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/DeveloperPanel.jsx"
+    },
+    {
+      "id": "ResourceMonitor",
+      "label": "ResourceMonitor.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/ResourceMonitor.jsx"
+    },
+    {
+      "id": "TypographySettings",
+      "label": "TypographySettings.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/TypographySettings.jsx"
+    },
+    {
+      "id": "VisitorMonitor",
+      "label": "VisitorMonitor.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Developer/VisitorMonitor.jsx"
+    },
+    {
+      "id": "AddTask",
+      "label": "AddTask.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/AddTask.jsx"
+    },
+    {
+      "id": "Attendance",
+      "label": "Attendance.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/Attendance.jsx"
+    },
+    {
+      "id": "ChangePassword",
+      "label": "ChangePassword.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/ChangePassword.jsx"
+    },
+    {
+      "id": "EmployeeDashboard",
+      "label": "EmployeeDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "id": "LeaveRequest",
+      "label": "LeaveRequest.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/LeaveRequest.jsx"
+    },
+    {
+      "id": "MyTasks",
+      "label": "MyTasks.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/MyTasks.jsx"
+    },
+    {
+      "id": "TaskHistory",
+      "label": "TaskHistory.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Employee/TaskHistory.jsx"
+    },
+    {
+      "id": "FinancialMiscPage",
+      "label": "FinancialMiscPage.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/FinancialMisc/FinancialMiscPage.jsx"
+    },
+    {
+      "id": "ManagerEvaluation",
+      "label": "ManagerEvaluation.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ManagerEvaluation.jsx"
+    },
+    {
+      "id": "ManagerEvaluationDashboard",
+      "label": "ManagerEvaluationDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/ManagerEvaluationDashboard.jsx"
+    },
+    {
+      "id": "ApproveLeaves",
+      "label": "ApproveLeaves.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Manager/ApproveLeaves.jsx"
+    },
+    {
+      "id": "AssignTasks",
+      "label": "AssignTasks.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Manager/AssignTasks.jsx"
+    },
+    {
+      "id": "DepartmentReports",
+      "label": "DepartmentReports.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Manager/DepartmentReports.jsx"
+    },
+    {
+      "id": "EvaluateTasks",
+      "label": "EvaluateTasks.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Manager/EvaluateTasks.jsx"
+    },
+    {
+      "id": "ManagerDashboard",
+      "label": "ManagerDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Manager/ManagerDashboard.jsx"
+    },
+    {
+      "id": "Messages",
+      "label": "Messages.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Messages.jsx"
+    },
+    {
+      "id": "CoupletPipeline",
+      "label": "CoupletPipeline.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/News/CoupletPipeline.jsx"
+    },
+    {
+      "id": "CoupletPromptManagement",
+      "label": "CoupletPromptManagement.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/News/CoupletPromptManagement.jsx"
+    },
+    {
+      "id": "EditorialPipeline",
+      "label": "EditorialPipeline.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/News/EditorialPipeline.jsx"
+    },
+    {
+      "id": "NewsDashboard",
+      "label": "NewsDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/News/NewsDashboard.jsx"
+    },
+    {
+      "id": "PromptManagement",
+      "label": "PromptManagement.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/News/PromptManagement.jsx"
+    },
+    {
+      "id": "PayrollAudit",
+      "label": "PayrollAudit.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/PayrollAudit.jsx"
+    },
+    {
+      "id": "PayrollDashboard",
+      "label": "PayrollDashboard.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/PayrollDashboard.jsx"
+    },
+    {
+      "id": "PayrollIntegration",
+      "label": "PayrollIntegration.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/PayrollIntegration.jsx"
+    },
+    {
+      "id": "PayrollPendingAssignments",
+      "label": "PayrollPendingAssignments.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/PayrollPendingAssignments.jsx"
+    },
+    {
+      "id": "PayrollProcessing",
+      "label": "PayrollProcessing.jsx",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/PayrollProcessing.jsx"
+    },
+    {
+      "id": "frontend/src/pages/PayrollWorkflow.jsx",
+      "label": "PayrollWorkflow",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/PayrollWorkflow.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "label": "ComprehensiveHRPayrollSystem",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/MySalary.jsx",
+      "label": "MySalary",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/MySalary.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/PayrollManagement.jsx",
+      "label": "PayrollManagement",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/PayrollManagement.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/PayslipDetail.jsx",
+      "label": "PayslipDetail",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/PayslipDetail.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/PayslipView.tsx",
+      "label": "PayslipView",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/PayslipView.tsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/PendingAssignmentModal.jsx",
+      "label": "PendingAssignmentModal",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/PendingAssignmentModal.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx",
+      "label": "ColumnManager",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/comprehensive/DeleteConfirm.jsx",
+      "label": "DeleteConfirm",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/comprehensive/DeleteConfirm.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx",
+      "label": "EditModal",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/comprehensive/config.js",
+      "label": "PayrollConfig",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/comprehensive/config.js"
+    },
+    {
+      "id": "frontend/src/pages/Payroll/comprehensive/utils.js",
+      "label": "PayrollUtils",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/Payroll/comprehensive/utils.js"
+    },
+    {
+      "id": "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "label": "RecruitmentPerformanceManagement",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/RecruitmentPerformanceManagement.jsx"
+    },
+    {
+      "id": "frontend/src/pages/TaskDetail.jsx",
+      "label": "TaskDetail",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/TaskDetail.jsx"
+    },
+    {
+      "id": "frontend/src/pages/WellBeingCheckIn.jsx",
+      "label": "WellBeingCheckIn",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/WellBeingCheckIn.jsx"
+    },
+    {
+      "id": "frontend/src/pages/WellBeingDashboard.jsx",
+      "label": "WellBeingDashboard",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/WellBeingDashboard.jsx"
+    },
+    {
+      "id": "frontend/src/pages/recruitment/PerformanceSection.jsx",
+      "label": "PerformanceSection",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/recruitment/PerformanceSection.jsx"
+    },
+    {
+      "id": "frontend/src/pages/recruitment/RecruitmentComponents.jsx",
+      "label": "RecruitmentComponents",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/recruitment/RecruitmentComponents.jsx"
+    },
+    {
+      "id": "frontend/src/pages/recruitment/RecruitmentSection.jsx",
+      "label": "RecruitmentSection",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/recruitment/RecruitmentSection.jsx"
+    },
+    {
+      "id": "frontend/src/pages/reports/AttendanceReports.jsx",
+      "label": "AttendanceReports",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/reports/AttendanceReports.jsx"
+    },
+    {
+      "id": "frontend/src/pages/reports/DepartmentReports.jsx",
+      "label": "DepartmentReports",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/reports/DepartmentReports.jsx"
+    },
+    {
+      "id": "frontend/src/pages/reports/LeaveReports.jsx",
+      "label": "LeaveReports",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/reports/LeaveReports.jsx"
+    },
+    {
+      "id": "frontend/src/pages/reports/RecruitmentReports.jsx",
+      "label": "RecruitmentReports",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/reports/RecruitmentReports.jsx"
+    },
+    {
+      "id": "frontend/src/routes/AdminRoutes.jsx",
+      "label": "AdminRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "id": "frontend/src/routes/AppRoutes.jsx",
+      "label": "AppRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "id": "frontend/src/routes/AuthRoutes.jsx",
+      "label": "AuthRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/AuthRoutes.jsx"
+    },
+    {
+      "id": "frontend/src/routes/DashboardRoutes.jsx",
+      "label": "DashboardRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/DashboardRoutes.jsx"
+    },
+    {
+      "id": "frontend/src/routes/DeveloperRoutes.jsx",
+      "label": "DeveloperRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/DeveloperRoutes.jsx"
+    },
+    {
+      "id": "frontend/src/routes/FinancialMiscRoutes.jsx",
+      "label": "FinancialMiscRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/FinancialMiscRoutes.jsx"
+    },
+    {
+      "id": "frontend/src/routes/NewsRoutes.jsx",
+      "label": "NewsRoutes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/NewsRoutes.jsx"
+    },
+    {
+      "id": "PayrollRoutes.jsx",
+      "label": "Payroll Routes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/PayrollRoutes.jsx"
+    },
+    {
+      "id": "SelfServiceRoutes.jsx",
+      "label": "Self-Service Routes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/SelfServiceRoutes.jsx"
+    },
+    {
+      "id": "TaskRoutes.jsx",
+      "label": "Task Routes",
+      "file_type": "code",
+      "source_file": "frontend/src/routes/TaskRoutes.jsx"
+    },
+    {
+      "id": "api.d.ts",
+      "label": "API Type Declarations",
+      "file_type": "code",
+      "source_file": "frontend/src/services/api.d.ts"
+    },
+    {
+      "id": "api.js",
+      "label": "API Axios Instance",
+      "file_type": "code",
+      "source_file": "frontend/src/services/api.js"
+    },
+    {
+      "id": "attendanceService.js",
+      "label": "Attendance Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/attendanceService.js"
+    },
+    {
+      "id": "auditLogService.js",
+      "label": "Audit Log Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/auditLogService.js"
+    },
+    {
+      "id": "authService.d.ts",
+      "label": "Auth Service Type Declarations",
+      "file_type": "code",
+      "source_file": "frontend/src/services/authService.d.ts"
+    },
+    {
+      "id": "authService.js",
+      "label": "Auth Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/authService.js"
+    },
+    {
+      "id": "bonusService.js",
+      "label": "Bonus Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/bonusService.js"
+    },
+    {
+      "id": "coupletPipelineService.js",
+      "label": "Couplet Pipeline Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/coupletPipelineService.js"
+    },
+    {
+      "id": "coupletPromptService.js",
+      "label": "Couplet Prompt Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/coupletPromptService.js"
+    },
+    {
+      "id": "departmentService.js",
+      "label": "Department Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/departmentService.js"
+    },
+    {
+      "id": "documentService.js",
+      "label": "Document Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/documentService.js"
+    },
+    {
+      "id": "editorialPipelineService.js",
+      "label": "Editorial Pipeline Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/editorialPipelineService.js"
+    },
+    {
+      "id": "financialMiscService.js",
+      "label": "Financial Misc Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/financialMiscService.js"
+    },
+    {
+      "id": "leaveService.d.ts",
+      "label": "Leave Service Type Declarations",
+      "file_type": "code",
+      "source_file": "frontend/src/services/leaveService.d.ts"
+    },
+    {
+      "id": "leaveService.js",
+      "label": "Leave Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/leaveService.js"
+    },
+    {
+      "id": "managerEvaluationService.js",
+      "label": "Manager Evaluation Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/managerEvaluationService.js"
+    },
+    {
+      "id": "messageService.js",
+      "label": "Message Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/messageService.js"
+    },
+    {
+      "id": "notificationService.js",
+      "label": "Notification & Settings Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/notificationService.js"
+    },
+    {
+      "id": "payrollService.d.ts",
+      "label": "Payroll Service Type Declarations",
+      "file_type": "code",
+      "source_file": "frontend/src/services/payrollService.d.ts"
+    },
+    {
+      "id": "payrollService.js",
+      "label": "Payroll Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/payrollService.js"
+    },
+    {
+      "id": "pdfDownloadService.js",
+      "label": "PDF Download Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/pdfDownloadService.js"
+    },
+    {
+      "id": "promptService.js",
+      "label": "Editorial Prompt Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/promptService.js"
+    },
+    {
+      "id": "recruitmentPerformanceService.js",
+      "label": "Recruitment & Performance Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/recruitmentPerformanceService.js"
+    },
+    {
+      "id": "taskService.js",
+      "label": "Task Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/taskService.js"
+    },
+    {
+      "id": "userService.js",
+      "label": "User Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/userService.js"
+    },
+    {
+      "id": "userServiceEnhanced.js",
+      "label": "Enhanced User Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/userServiceEnhanced.js"
+    },
+    {
+      "id": "wellBeingService.js",
+      "label": "Well-Being Service",
+      "file_type": "code",
+      "source_file": "frontend/src/services/wellBeingService.js"
+    },
+    {
+      "id": "analyticsUtils",
+      "label": "Analytics Computation Utilities",
+      "file_type": "code",
+      "source_file": "frontend/src/utils/analyticsUtils.js"
+    },
+    {
+      "id": "audioUtils",
+      "label": "Web Audio Notification Sounds",
+      "file_type": "code",
+      "source_file": "frontend/src/utils/audioUtils.js"
+    },
+    {
+      "id": "dateUtils",
+      "label": "Arabic Date Formatting",
+      "file_type": "code",
+      "source_file": "frontend/src/utils/dateUtils.js"
+    },
+    {
+      "id": "numberUtils",
+      "label": "Arabic Number/Currency Formatting",
+      "file_type": "code",
+      "source_file": "frontend/src/utils/numberUtils.js"
+    },
+    {
+      "id": "pdfFonts",
+      "label": "Arabic PDF Font Loading & jsPDF Patching",
+      "file_type": "code",
+      "source_file": "frontend/src/utils/pdfFonts.js"
+    },
+    {
+      "id": "tailwindConfig",
+      "label": "Tailwind CSS Theme Configuration",
+      "file_type": "code",
+      "source_file": "frontend/tailwind.config.js"
+    },
+    {
+      "id": "frontendViteConfig",
+      "label": "Frontend Vite Dev Server Config",
+      "file_type": "code",
+      "source_file": "frontend/vite.config.ts"
+    },
+    {
+      "id": "rootViteConfig",
+      "label": "Root Vite Config",
+      "file_type": "code",
+      "source_file": "vite.config.ts"
+    },
+    {
+      "id": "removeBom",
+      "label": "BOM Removal Utility Script",
+      "file_type": "code",
+      "source_file": "remove-bom.js"
+    },
+    {
+      "id": "jsPDF",
+      "label": "jsPDF Library (external dependency)",
+      "file_type": "code",
+      "source_file": "frontend/src/utils/pdfFonts.js"
+    },
+    {
+      "id": "backend",
+      "label": "Express Backend Server (port 3000)",
+      "file_type": "code",
+      "source_file": "frontend/vite.config.ts"
+    },
+    {
+      "id": "AGENTS.md",
+      "label": "ZKTeco Biometric Sync System",
       "file_type": "document",
-      "source_file": "ztk نصي.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
+      "source_file": "AGENTS.md"
     },
     {
-      "id": "bridgeArchitecture",
-      "label": "Bridge Architecture (Local ↔ VPS)",
-      "file_type": "rationale",
-      "source_file": "ztk نصي.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
-    },
-    {
-      "id": "bridgeSecurityModel",
-      "label": "x-bridge-key Security Model",
-      "file_type": "rationale",
-      "source_file": "ztk نصي.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
-    },
-    {
-      "id": "zktecoDevice",
-      "label": "ZKTeco ETK-45A_ID",
-      "file_type": "rationale",
-      "source_file": "ztk نصي.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
-    },
-    {
-      "id": "attendanceSystemDoc",
-      "label": "Attendance System Overview",
+      "id": "PROJECT_STRUCTURE.txt",
+      "label": "Project Structure Overview",
       "file_type": "document",
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
+      "source_file": "PROJECT_STRUCTURE.txt"
     },
     {
-      "id": "attendanceFlow",
-      "label": "Check-in / Check-out Complete Flow",
-      "file_type": "rationale",
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
+      "id": "SCHEMA.md",
+      "label": "HRMS Database Schema",
+      "file_type": "document",
+      "source_file": "backend/docs/SCHEMA.md"
     },
     {
-      "id": "attendanceSystemRelations",
-      "label": "Attendance Cross-System Relationships",
-      "file_type": "rationale",
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "source_url": null,
-      "captured_at": null,
-      "author": null,
-      "contributor": null
-    },
-    {
-      "id": "zktecoController_verifyBridge",
-      "label": "verifyBridge middleware",
+      "id": "docker-compose.yml",
+      "label": "Docker Compose Configuration",
       "file_type": "code",
-      "source_file": "backend/controllers/zktecoController.js",
+      "source_file": "docker-compose.yml"
+    },
+    {
+      "id": "mogo.txt",
+      "label": "MongoDB Credentials (Exposed)",
+      "file_type": "document",
+      "source_file": "mogo.txt"
+    },
+    {
+      "id": "stderr.txt",
+      "label": "Standard Error Log (Empty)",
+      "file_type": "document",
+      "source_file": "stderr.txt"
+    },
+    {
+      "id": "stdout.txt",
+      "label": "Standard Output Log (Empty)",
+      "file_type": "document",
+      "source_file": "stdout.txt"
+    },
+    {
+      "id": "zkteco_setup_guide",
+      "label": "خطوات تشغيل نظام البصمة ZKTeco",
+      "file_type": "document",
+      "source_file": "خطوات_تشغيل_نظام_البصمة.txt"
+    },
+    {
+      "id": "security_audit",
+      "label": "تقرير المراجعة الأمنية الشامل",
+      "file_type": "document",
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "id": "zkteco_integration",
+      "label": "آلية ربط جهاز البصمة ZKTeco",
+      "file_type": "document",
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "id": "zkteco_bridge_guide",
+      "label": "ZKTeco Bridge Service دليل التكامل",
+      "file_type": "document",
+      "source_file": "ztk نصي.txt"
+    },
+    {
+      "id": "attendance_system",
+      "label": "نظام الحضور والانصراف",
+      "file_type": "document",
+      "source_file": "البصمة.txt"
+    },
+    {
+      "id": "multi_repo_strategy",
+      "label": "Multi-Repo Subtree Git Strategy",
+      "file_type": "document",
+      "source_file": "برومت المستودعين المنفصلين .txt"
+    },
+    {
+      "id": "backend_dockerfile",
+      "label": "Backend Dockerfile",
+      "file_type": "code",
+      "source_file": "backend/مستند نصي جديد.txt"
+    },
+    {
+      "id": "test_output.pdf",
+      "label": "Test PDF Output (Unreadable)",
+      "file_type": "paper",
+      "source_file": "backend/utils/test_output.pdf"
+    },
+    {
+      "id": "kilo_agent_manager",
+      "label": "Kilo Agent Manager Config",
+      "file_type": "code",
+      "source_file": ".kilo/agent-manager.json"
+    },
+    {
+      "id": "kilo_package",
+      "label": "Kilo Plugin Package",
+      "file_type": "code",
+      "source_file": ".kilo/package.json"
+    },
+    {
+      "id": "backend_package",
+      "label": "Backend Package.json",
+      "file_type": "code",
+      "source_file": "backend/package.json"
+    },
+    {
+      "id": "swagger_api",
+      "label": "HRMS Swagger API Documentation",
+      "file_type": "code",
+      "source_file": "backend/swagger.json"
+    },
+    {
+      "id": "bridge_package",
+      "label": "Bridge Package.json",
+      "file_type": "code",
+      "source_file": "bridge/package.json"
+    },
+    {
+      "id": "synced_ids",
+      "label": "Bridge Synced Attendance IDs",
+      "file_type": "code",
+      "source_file": "bridge/synced_ids.json"
+    },
+    {
+      "id": "frontend_package",
+      "label": "Frontend Package.json",
+      "file_type": "code",
+      "source_file": "frontend/package.json"
+    },
+    {
+      "id": "frontend_tsconfig",
+      "label": "Frontend TypeScript Config",
+      "file_type": "code",
+      "source_file": "frontend/tsconfig.json"
+    },
+    {
+      "id": "frontend_tsconfig_node",
+      "label": "Frontend TS Node Config",
+      "file_type": "code",
+      "source_file": "frontend/tsconfig.node.json"
+    },
+    {
+      "id": "root_package",
+      "label": "Root Package.json",
+      "file_type": "code",
+      "source_file": "package.json"
+    },
+    {
+      "id": "root_tsconfig",
+      "label": "Root TypeScript Config",
+      "file_type": "code",
+      "source_file": "tsconfig.json"
+    },
+    {
+      "id": "ZKTeco_Device",
+      "label": "ZKTeco ETK-45A-ID Biometric Reader",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "MongoDB_Atlas",
+      "label": "MongoDB Atlas Database",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "node-zklib",
+      "label": "node-zklib Library v1.3.0",
+      "file_type": "code",
+      "source_file": "backend/package.json"
+    },
+    {
+      "id": "Attendance_Model",
+      "label": "Attendance Database Model",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "User_Model",
+      "label": "User Database Model",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "LeaveRequest_Model",
+      "label": "LeaveRequest Database Model",
+      "file_type": "document",
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "id": "Payroll_Model",
+      "label": "Payroll Database Model",
+      "file_type": "document",
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "id": "PayrollItem_Model",
+      "label": "PayrollItem Database Model",
+      "file_type": "document",
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "id": "AuditLog_Model",
+      "label": "AuditLog Database Model",
+      "file_type": "document",
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "id": "Backend_Server",
+      "label": "Express.js Backend Server",
+      "file_type": "code",
+      "source_file": "backend/package.json"
+    },
+    {
+      "id": "Bridge_Service",
+      "label": "ZKTeco Bridge Service",
+      "file_type": "code",
+      "source_file": "bridge/package.json"
+    },
+    {
+      "id": "Frontend_App",
+      "label": "React/Vite Frontend Application",
+      "file_type": "code",
+      "source_file": "frontend/package.json"
+    },
+    {
+      "id": "JWT_Auth",
+      "label": "JWT Bearer Authentication",
+      "file_type": "code",
+      "source_file": "backend/swagger.json"
+    },
+    {
+      "id": "Critical_Vuln_MongoDB",
+      "label": "Critical: MongoDB Credential Leak",
+      "file_type": "document",
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "id": "Critical_Vuln_JWT",
+      "label": "Critical: Weak JWT Secret",
+      "file_type": "document",
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "id": "Critical_Vuln_AdminPW",
+      "label": "Critical: Admin Password Reset on Startup",
+      "file_type": "document",
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "id": "Security_Score_2_10",
+      "label": "Security Score 2/10 CRITICAL",
+      "file_type": "document",
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "id": "img_0عطµغ",
+      "label": "Image: 0عطµغ",
+      "file_type": "image",
+      "source_file": "C:/Users/pc/Desktop/1■■dd -copy with money & NEWS/0عطµغ.png",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -177,10 +2410,10 @@
       "contributor": null
     },
     {
-      "id": "zktecoController_receiveAttendance",
-      "label": "receiveAttendance",
-      "file_type": "code",
-      "source_file": "backend/controllers/zktecoController.js",
+      "id": "img_logo",
+      "label": "Image: logo",
+      "file_type": "image",
+      "source_file": "C:/Users/pc/Desktop/1■■dd -copy with money & NEWS/frontend/logo.png",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -188,10 +2421,10 @@
       "contributor": null
     },
     {
-      "id": "bridgeIndex_sendToApi",
-      "label": "sendToApi",
-      "file_type": "code",
-      "source_file": "bridge/index.js",
+      "id": "img_logo",
+      "label": "Image: logo",
+      "file_type": "image",
+      "source_file": "C:/Users/pc/Desktop/1■■dd -copy with money & NEWS/frontend/public/logo.png",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -199,10 +2432,10 @@
       "contributor": null
     },
     {
-      "id": "bridgeIndex_fetchAttendance",
-      "label": "fetchAttendance",
-      "file_type": "code",
-      "source_file": "bridge/index.js",
+      "id": "img_╚╧µغ ┌غµ╟غ",
+      "label": "Image: ╚╧µغ ┌غµ╟غ",
+      "file_type": "image",
+      "source_file": "C:/Users/pc/Desktop/1■■dd -copy with money & NEWS/╚╧µغ ┌غµ╟غ.png",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -210,10 +2443,10 @@
       "contributor": null
     },
     {
-      "id": "bridgeIndex_syncAttendance",
-      "label": "syncAttendance",
-      "file_type": "code",
-      "source_file": "bridge/index.js",
+      "id": "img_index",
+      "label": "Image: index",
+      "file_type": "image",
+      "source_file": "C:/Users/pc/Desktop/1■■dd -copy with money & NEWS/frontend/index.html",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -221,10 +2454,10 @@
       "contributor": null
     },
     {
-      "id": "server_initializeData",
-      "label": "initializeData",
-      "file_type": "code",
-      "source_file": "backend/server.js",
+      "id": "img_index",
+      "label": "Image: index",
+      "file_type": "image",
+      "source_file": "C:/Users/pc/Desktop/1■■dd -copy with money & NEWS/index.html",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -234,29 +2467,49 @@
   ],
   "edges": [
     {
-      "source": "server",
-      "target": "zktecoRoutes",
-      "relation": "references",
+      "source": "coupletPipelineController",
+      "target": "editorialPipelineController",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "coupletPipelineController",
+      "target": "textpipeline_6stage",
+      "relation": "implements",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "backend/server.js",
+      "source_file": "backend/controllers/coupletPipelineController.js",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoRoutes",
-      "target": "zktecoController",
-      "relation": "calls",
+      "source": "editorialPipelineController",
+      "target": "textpipeline_6stage",
+      "relation": "implements",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "backend/routes/zktecoRoutes.js",
+      "source_file": "backend/controllers/editorialPipelineController.js",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoController_receiveAttendance",
-      "target": "userModel",
-      "relation": "references",
+      "source": "attendanceController",
+      "target": "attendancetracking_system",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "zktecoController",
+      "target": "attendancetracking_system",
+      "relation": "implements",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/controllers/zktecoController.js",
@@ -264,8 +2517,1088 @@
       "weight": 1.0
     },
     {
-      "source": "server_initializeData",
-      "target": "userModel",
+      "source": "checkAttendanceTemp",
+      "target": "attendancetracking_system",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/check_attendance_temp.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "checkMongo",
+      "target": "attendancetracking_system",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/check_mongo.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "checkMongo2",
+      "target": "attendancetracking_system",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/check_mongo2.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "checkMongo3",
+      "target": "attendancetracking_system",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/check_mongo3.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "checkToday",
+      "target": "attendancetracking_system",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/check_today.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "authController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/authController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "bonusController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/bonusController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "leaveController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "taskController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/taskController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "payrollController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "recruitmentPerformanceController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/recruitmentPerformanceController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "userController",
+      "target": "notification_system",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "checkApi",
+      "target": "attendanceController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/check_api.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "checkApi",
+      "target": "zktecoController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/check_api.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "checkApi2",
+      "target": "zktecoController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/check_api2.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "checkAttendanceTemp",
+      "target": "configDb",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/check_attendance_temp.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "attendanceController",
+      "target": "leaveController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "leaveController",
+      "target": "attendanceController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "attendanceController",
+      "target": "payrollController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "weight": 0.6
+    },
+    {
+      "source": "leaveController",
+      "target": "payrollController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "departmentController",
+      "target": "payrollController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/departmentController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "userController",
+      "target": "payrollController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "payrollController",
+      "target": "AuditLog",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/payrollController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "attendanceController",
+      "target": "attendanceController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/attendanceController.js",
+      "source_location": null,
+      "weight": 0.5
+    },
+    {
+      "source": "zktecoController",
+      "target": "zktecoService",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/zktecoController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "coupletPipelineController",
+      "target": "aiService",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/coupletPipelineController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "editorialPipelineController",
+      "target": "aiService",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/editorialPipelineController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "leaveController",
+      "target": "compensationService",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/leaveController.js",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "userController",
+      "target": "taskController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/controllers/userController.js",
+      "source_location": null,
+      "weight": 0.7
+    },
+    {
+      "source": "coupletPromptController",
+      "target": "coupletPipelineController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "promptController",
+      "target": "editorialPipelineController",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "checkApi",
+      "target": "checkApi2",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "checkMongo",
+      "target": "checkMongo2",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "checkMongo",
+      "target": "checkMongo3",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "checkMongo",
+      "target": "checkAttendanceTemp",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "checkMongo",
+      "target": "checkToday",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": null,
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "employeeProfileController",
+      "target": "cvUploadMiddleware",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/controllers/employeeProfileController.js",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "authMiddleware",
+      "target": "jsonwebtoken",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/middleware/authMiddleware.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authMiddleware",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/middleware/authMiddleware.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "cvUploadMiddleware",
+      "target": "multer",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/middleware/cvUploadMiddleware.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "documentUploadMiddleware",
+      "target": "multer",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/middleware/documentUploadMiddleware.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "documentUploadMiddleware",
+      "target": "Document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/middleware/documentUploadMiddleware.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "uploadMiddleware",
+      "target": "multer",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/middleware/uploadMiddleware.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Attendance",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Attendance",
+      "target": "LeaveRequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Attendance",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "AuditLog",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/AuditLog.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "AuditLog",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/AuditLog.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "BiometricErrorLog",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/BiometricErrorLog.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "BiometricErrorLog",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/BiometricErrorLog.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Bonus",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Bonus.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Bonus",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Bonus.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "CoupletPrompt",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/CoupletPrompt.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Department",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Department.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "DeviceLog",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/DeviceLog.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "DeviceLog",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/DeviceLog.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Document",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Document.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Document",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Document.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "FinancialMisc",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/FinancialMisc.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "FinancialMisc",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/FinancialMisc.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "LeaveRequest",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/LeaveRequest.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "LeaveRequest",
+      "target": "PayrollItem",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/LeaveRequest.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "LeaveRequest",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/LeaveRequest.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ManagerEvaluation",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/ManagerEvaluation.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ManagerEvaluation",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/ManagerEvaluation.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Message",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Message.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Message",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Message.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Notification",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Notification.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Notification",
+      "target": "Task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Notification.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Notification",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Notification.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Payroll",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Payroll.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Payroll",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Payroll.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "PayrollItem",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/PayrollItem.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "PayrollItem",
+      "target": "Payroll",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/PayrollItem.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "PayrollItem",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/PayrollItem.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Prompt",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Prompt.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "JobPosting",
+      "target": "Department",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "JobPosting",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "JobPosting",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "CandidateApplication",
+      "target": "JobPosting",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "CandidateApplication",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "PerformanceReview",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "PerformanceReview",
+      "target": "KPI",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "KPI",
+      "target": "Department",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "KPI",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/RecruitmentPerformance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Settings",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Settings.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Task",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Task.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Task",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/Task.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "User",
+      "target": "bcryptjs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/User.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "User",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/User.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "WellBeingCheckIn",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/WellBeingCheckIn.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "WellBeingCheckIn",
+      "target": "mongoose",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/models/WellBeingCheckIn.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceRoutes",
+      "target": "authMiddleware",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/attendanceRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "attendanceRoutes",
+      "target": "attendanceController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/attendanceRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "auditLogRoutes",
+      "target": "authMiddleware",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/auditLogRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "auditLogRoutes",
+      "target": "auditLogController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/auditLogRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authRoutes",
+      "target": "authMiddleware",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/authRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authRoutes",
+      "target": "uploadMiddleware",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/authRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authRoutes",
+      "target": "authController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/authRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bonusRoutes",
+      "target": "authMiddleware",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bonusRoutes",
+      "target": "Bonus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bonusRoutes",
+      "target": "User",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bonusRoutes",
+      "target": "Notification",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bonusRoutes",
+      "target": "bonusController",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/bonusRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "CoupletPrompt",
+      "target": "Prompt",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/models/CoupletPrompt.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Attendance",
+      "target": "DeviceLog",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Attendance",
+      "target": "BiometricErrorLog",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "backend/models/Attendance.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "LeaveRequest",
+      "target": "Payroll",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/models/LeaveRequest.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/coupletPipelineRoutes.js",
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -274,8 +3607,218 @@
       "weight": 1.0
     },
     {
-      "source": "bridgeIndex",
-      "target": "bridgeConfig",
+      "source": "backend/server.js",
+      "target": "backend/routes/coupletPromptRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/departmentRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/documentRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/editorialPipelineRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/financialMiscRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/leaveRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/managerEvaluationRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/messageRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/notificationRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/payrollRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/pdfRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/promptRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/recruitmentPerformanceRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/settingsRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/taskRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/userRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/wellBeingRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/server.js",
+      "target": "backend/routes/zktecoRoutes.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/routes/pdfRoutes.js",
+      "target": "backend/services/pdfService.js",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/routes/pdfRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/routes/zktecoRoutes.js",
+      "target": "backend/services/zktecoService.js",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/routes/zktecoRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/services/pdfService.js",
+      "target": "backend/utils/pdfGenerator.js",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/services/pdfService.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "bridge/index.js",
+      "target": "bridge/config.js",
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -284,8 +3827,8 @@
       "weight": 1.0
     },
     {
-      "source": "bridgeIndex_syncAttendance",
-      "target": "bridgeIndex_fetchAttendance",
+      "source": "bridge/index.js",
+      "target": "backend/routes/zktecoRoutes.js",
       "relation": "calls",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -294,167 +3837,2499 @@
       "weight": 1.0
     },
     {
-      "source": "bridgeIndex_syncAttendance",
-      "target": "bridgeIndex_sendToApi",
+      "source": "backend/services/zktecoService.js",
+      "target": "bridge/index.js",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/services/zktecoService.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/services/compensationService.js",
+      "target": "backend/routes/payrollRoutes.js",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/services/compensationService.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/routes/payrollRoutes.js",
+      "target": "backend/services/compensationService.js",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/routes/payrollRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/routes/editorialPipelineRoutes.js",
+      "target": "backend/services/aiService.js",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/routes/editorialPipelineRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/routes/coupletPipelineRoutes.js",
+      "target": "backend/services/aiService.js",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "backend/routes/coupletPipelineRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "backend/routes/financialMiscRoutes.js",
+      "target": "backend/routes/pdfRoutes.js",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/routes/financialMiscRoutes.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend/postcss.config.js",
+      "target": "frontend/prepare-fonts.js",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "frontend/postcss.config.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "frontend/remove-bom.js",
+      "target": "frontend/prepare-fonts.js",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.55,
+      "source_file": "frontend/remove-bom.js",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "App.jsx",
+      "target": "TypographyContext.jsx",
       "relation": "calls",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "bridge/index.js",
+      "source_file": "frontend/src/App.jsx",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "bridgeIndex_sendToApi",
-      "target": "zktecoController_receiveAttendance",
+      "source": "BonusManagement.jsx",
+      "target": "BonusForm.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/BonusManagement.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "BonusManagement.jsx",
+      "target": "BonusList.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/BonusManagement.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "BonusList.jsx",
+      "target": "BonusManagement.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/BonusList.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Layout.jsx",
+      "target": "Sidebar.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Layout.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Layout.jsx",
+      "target": "Navbar.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Layout.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Navbar.jsx",
+      "target": "WellBeingBanner.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Navbar.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Navbar.jsx",
+      "target": "NotificationPanel.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Navbar.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "Navbar.jsx",
+      "target": "UserMenu.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Navbar.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "EditablePayrollTable.jsx",
+      "target": "DynamicNumber.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "EditablePayrollTable.jsx",
+      "target": "ColumnManagerModal.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "EditablePayrollTable.jsx",
+      "target": "DeleteColumnModal.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ChartsIndex.jsx",
+      "target": "BarChart.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/charts/index.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ChartsIndex.jsx",
+      "target": "LineChart.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/charts/index.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ChartsIndex.jsx",
+      "target": "PieChart.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/charts/index.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "WidgetsIndex.jsx",
+      "target": "StatCard.jsx",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/widgets/index.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "PayrollWrapper.tsx",
+      "target": "EditablePayrollTable.jsx",
       "relation": "calls",
       "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "bridge/index.js",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/context/PayrollWrapper.tsx",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoIntegrationDoc",
-      "target": "bridgeIndex",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "ztk نصي.txt",
+      "source": "Layout.jsx",
+      "target": "Sidebar.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Layout.jsx",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoIntegrationDoc",
-      "target": "zktecoController",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "ztk نصي.txt",
+      "source": "Layout.jsx",
+      "target": "Navbar.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/layout/Layout.jsx",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoIntegrationDoc",
-      "target": "bridgeConfig",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "ztk نصي.txt",
+      "source": "BonusManagement.jsx",
+      "target": "BonusForm.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/BonusManagement.jsx",
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoIntegrationDoc",
-      "target": "userModel",
-      "relation": "references",
+      "source": "BonusManagement.jsx",
+      "target": "BonusList.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/BonusManagement.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "EditablePayrollTable.jsx",
+      "target": "PayrollActions.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "ztk نصي.txt",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "bridgeArchitecture",
-      "target": "bridgeIndex",
-      "relation": "rationale_for",
+      "source": "EditablePayrollTable.jsx",
+      "target": "ColumnManagerModal.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "EditablePayrollTable.jsx",
+      "target": "DynamicNumber.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "App.jsx",
+      "target": "TypographyContext.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/App.jsx",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "RouteGuards.jsx",
+      "target": "Layout.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "ztk نصي.txt",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "bridgeSecurityModel",
-      "target": "zktecoController_verifyBridge",
-      "relation": "rationale_for",
+      "source": "SocketContext.jsx",
+      "target": "NotificationPanel.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "ztk نصي.txt",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "bridgeSecurityModel",
-      "target": "bridgeIndex_sendToApi",
-      "relation": "rationale_for",
+      "source": "AttendanceNavBar.jsx",
+      "target": "AttendanceTimeline.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "ztk نصي.txt",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "zktecoDevice",
-      "target": "bridgeIndex",
-      "relation": "references",
+      "source": "BarChart.jsx",
+      "target": "LineChart.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "ztk نصي.txt",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "attendanceSystemDoc",
-      "target": "userModel",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "weight": 1.0
-    },
-    {
-      "source": "attendanceSystemDoc",
-      "target": "attendanceFlow",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "weight": 1.0
-    },
-    {
-      "source": "attendanceSystemDoc",
-      "target": "attendanceSystemRelations",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "weight": 1.0
-    },
-    {
-      "source": "attendanceFlow",
-      "target": "zktecoController_receiveAttendance",
-      "relation": "references",
+      "source": "BarChart.jsx",
+      "target": "PieChart.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "البصمة.txt",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
     },
     {
-      "source": "attendanceSystemRelations",
-      "target": "userModel",
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "source_file": "البصمة.txt",
-      "source_location": null,
-      "weight": 1.0
-    },
-    {
-      "source": "auditLogController",
-      "target": "userModel",
-      "relation": "references",
+      "source": "Card.jsx",
+      "target": "StatCard.jsx",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.75,
-      "source_file": "backend/controllers/auditLogController.js",
+      "source_file": null,
       "source_location": null,
       "weight": 1.0
+    },
+    {
+      "source": "StatusBadge.jsx",
+      "target": "RecentPaymentsTable.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.25,
+      "source_file": null,
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ColumnManagerModal.jsx",
+      "target": "DeleteColumnModal.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": null,
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "AdminDashboard",
+      "target": "useDepartments",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": 13,
+      "weight": 1.0
+    },
+    {
+      "source": "AllEmployees",
+      "target": "useDepartments",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": 6,
+      "weight": 1.0
+    },
+    {
+      "source": "AllEmployees",
+      "target": "UserFormModal",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": 8,
+      "weight": 1.0
+    },
+    {
+      "source": "AllEmployees",
+      "target": "DeptFormModal",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": 9,
+      "weight": 1.0
+    },
+    {
+      "source": "AllReports",
+      "target": "useDepartments",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AllReports.jsx",
+      "source_location": 10,
+      "weight": 1.0
+    },
+    {
+      "source": "AuditLogs",
+      "target": "AuditFilterBar",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AuditLogs.jsx",
+      "source_location": 6,
+      "weight": 1.0
+    },
+    {
+      "source": "AuditLogs",
+      "target": "auditLogUtils",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/AuditLogs.jsx",
+      "source_location": 5,
+      "weight": 1.0
+    },
+    {
+      "source": "DesignTab",
+      "target": "DeveloperConfig",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Developer/DesignTab.jsx",
+      "source_location": 4,
+      "weight": 1.0
+    },
+    {
+      "source": "Rankings",
+      "target": "useDepartments",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Admin/Rankings.jsx",
+      "source_location": 9,
+      "weight": 1.0
+    },
+    {
+      "source": "GMApproveLeaves",
+      "target": "LeaveManagement",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Admin/GMApproveLeaves.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "AttendanceDashboard",
+      "target": "BiometricManagement",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Admin/AttendanceDashboard.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "Login",
+      "target": "Register",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Auth/Login.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "EmployeeAttendanceReport",
+      "target": "AttendanceDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Admin/EmployeeAttendanceReport.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "AdminDashboard",
+      "target": "AllReports",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/pages/Admin/AdminDashboard.jsx",
+      "source_location": null,
+      "weight": 0.8
+    },
+    {
+      "source": "AllEmployees",
+      "target": "EmployeeProfilePage",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Admin/AllEmployees.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "BrandingTab",
+      "target": "DeveloperConfig",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Developer/BrandingTab.jsx",
+      "source_location": null,
+      "weight": 0.9
+    },
+    {
+      "source": "DeveloperPanel",
+      "target": "TypographySettings",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Developer/DeveloperPanel.jsx"
+    },
+    {
+      "source": "AddTask",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Employee/AddTask.jsx"
+    },
+    {
+      "source": "MyTasks",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Employee/MyTasks.jsx"
+    },
+    {
+      "source": "TaskHistory",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Employee/TaskHistory.jsx"
+    },
+    {
+      "source": "Attendance",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Employee/Attendance.jsx"
+    },
+    {
+      "source": "LeaveRequest",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Employee/LeaveRequest.jsx"
+    },
+    {
+      "source": "EmployeeDashboard",
+      "target": "MyTasks",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "source": "EmployeeDashboard",
+      "target": "AddTask",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "source": "EmployeeDashboard",
+      "target": "Attendance",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "source": "EmployeeDashboard",
+      "target": "LeaveRequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "source": "EmployeeDashboard",
+      "target": "TaskHistory",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "source": "ManagerDashboard",
+      "target": "AssignTasks",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Manager/ManagerDashboard.jsx"
+    },
+    {
+      "source": "ManagerDashboard",
+      "target": "EvaluateTasks",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Manager/ManagerDashboard.jsx"
+    },
+    {
+      "source": "ManagerDashboard",
+      "target": "DepartmentReports",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Manager/ManagerDashboard.jsx"
+    },
+    {
+      "source": "ManagerDashboard",
+      "target": "ApproveLeaves",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Manager/ManagerDashboard.jsx"
+    },
+    {
+      "source": "AssignTasks",
+      "target": "EvaluateTasks",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Manager/AssignTasks.jsx"
+    },
+    {
+      "source": "DepartmentReports",
+      "target": "EvaluateTasks",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Manager/DepartmentReports.jsx"
+    },
+    {
+      "source": "ApproveLeaves",
+      "target": "LeaveRequest",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Manager/ApproveLeaves.jsx"
+    },
+    {
+      "source": "ManagerEvaluation",
+      "target": "ManagerEvaluationDashboard",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/ManagerEvaluation.jsx"
+    },
+    {
+      "source": "NewsDashboard",
+      "target": "EditorialPipeline",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/News/NewsDashboard.jsx"
+    },
+    {
+      "source": "NewsDashboard",
+      "target": "CoupletPipeline",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/News/NewsDashboard.jsx"
+    },
+    {
+      "source": "NewsDashboard",
+      "target": "PromptManagement",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/News/NewsDashboard.jsx"
+    },
+    {
+      "source": "NewsDashboard",
+      "target": "CoupletPromptManagement",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/News/NewsDashboard.jsx"
+    },
+    {
+      "source": "EditorialPipeline",
+      "target": "CoupletPipeline",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/News/EditorialPipeline.jsx"
+    },
+    {
+      "source": "PromptManagement",
+      "target": "CoupletPromptManagement",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/News/PromptManagement.jsx"
+    },
+    {
+      "source": "EditorialPipeline",
+      "target": "PromptManagement",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/News/EditorialPipeline.jsx"
+    },
+    {
+      "source": "CoupletPipeline",
+      "target": "CoupletPromptManagement",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/News/CoupletPipeline.jsx"
+    },
+    {
+      "source": "PayrollDashboard",
+      "target": "PayrollProcessing",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/PayrollDashboard.jsx"
+    },
+    {
+      "source": "PayrollDashboard",
+      "target": "PayrollAudit",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/PayrollDashboard.jsx"
+    },
+    {
+      "source": "PayrollDashboard",
+      "target": "PayrollIntegration",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/PayrollDashboard.jsx"
+    },
+    {
+      "source": "PayrollProcessing",
+      "target": "PayrollAudit",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/PayrollProcessing.jsx"
+    },
+    {
+      "source": "PayrollPendingAssignments",
+      "target": "PayrollProcessing",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/PayrollPendingAssignments.jsx"
+    },
+    {
+      "source": "PayrollIntegration",
+      "target": "PayrollAudit",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/PayrollIntegration.jsx"
+    },
+    {
+      "source": "FinancialMiscPage",
+      "target": "PayrollDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "frontend/src/pages/FinancialMisc/FinancialMiscPage.jsx"
+    },
+    {
+      "source": "DeveloperPanel",
+      "target": "ResourceMonitor",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Developer/DeveloperPanel.jsx"
+    },
+    {
+      "source": "DeveloperPanel",
+      "target": "VisitorMonitor",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Developer/DeveloperPanel.jsx"
+    },
+    {
+      "source": "ResourceMonitor",
+      "target": "VisitorMonitor",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Developer/ResourceMonitor.jsx"
+    },
+    {
+      "source": "Messages",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/pages/Messages.jsx"
+    },
+    {
+      "source": "ChangePassword",
+      "target": "EmployeeDashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/pages/Employee/ChangePassword.jsx"
+    },
+    {
+      "source": "AssignTasks",
+      "target": "EmployeeDashboard",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Manager/AssignTasks.jsx"
+    },
+    {
+      "source": "frontend/src/pages/PayrollManagement.jsx",
+      "target": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/PayrollManagement.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/config.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/utils.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/DeleteConfirm.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/config.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/utils.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/comprehensive/EditModal.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx",
+      "target": "frontend/src/pages/Payroll/comprehensive/config.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/comprehensive/utils.js",
+      "target": "frontend/src/pages/Payroll/comprehensive/config.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/comprehensive/utils.js"
+    },
+    {
+      "source": "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "target": "frontend/src/pages/recruitment/RecruitmentSection.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/RecruitmentPerformanceManagement.jsx"
+    },
+    {
+      "source": "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "target": "frontend/src/pages/recruitment/PerformanceSection.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/RecruitmentPerformanceManagement.jsx"
+    },
+    {
+      "source": "frontend/src/pages/recruitment/RecruitmentSection.jsx",
+      "target": "frontend/src/pages/recruitment/RecruitmentComponents.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/recruitment/RecruitmentSection.jsx"
+    },
+    {
+      "source": "frontend/src/pages/recruitment/PerformanceSection.jsx",
+      "target": "frontend/src/pages/recruitment/RecruitmentComponents.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/recruitment/PerformanceSection.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/reports/AttendanceReports.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/reports/LeaveReports.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/reports/DepartmentReports.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/reports/RecruitmentReports.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/WellBeingDashboard.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AppRoutes.jsx",
+      "target": "frontend/src/routes/AuthRoutes.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AppRoutes.jsx",
+      "target": "frontend/src/routes/DeveloperRoutes.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AppRoutes.jsx",
+      "target": "frontend/src/routes/DashboardRoutes.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AppRoutes.jsx",
+      "target": "frontend/src/routes/AdminRoutes.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AppRoutes.jsx",
+      "target": "frontend/src/routes/FinancialMiscRoutes.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AppRoutes.jsx",
+      "target": "frontend/src/routes/NewsRoutes.jsx",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/routes/AppRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/pages/PayrollWorkflow.jsx",
+      "target": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/PayrollWorkflow.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/MySalary.jsx",
+      "target": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Payroll/MySalary.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/PayslipDetail.jsx",
+      "target": "frontend/src/pages/Payroll/MySalary.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Payroll/PayslipDetail.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/PayslipView.tsx",
+      "target": "frontend/src/pages/Payroll/MySalary.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Payroll/PayslipView.tsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/PendingAssignmentModal.jsx",
+      "target": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/Payroll/PendingAssignmentModal.jsx"
+    },
+    {
+      "source": "frontend/src/pages/Payroll/comprehensive/config.js",
+      "target": "frontend/src/pages/Payroll/comprehensive/utils.js",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/comprehensive/utils.js"
+    },
+    {
+      "source": "frontend/src/pages/reports/AttendanceReports.jsx",
+      "target": "frontend/src/pages/reports/LeaveReports.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/reports/AttendanceReports.jsx"
+    },
+    {
+      "source": "frontend/src/pages/reports/DepartmentReports.jsx",
+      "target": "frontend/src/pages/reports/RecruitmentReports.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/reports/DepartmentReports.jsx"
+    },
+    {
+      "source": "frontend/src/pages/WellBeingCheckIn.jsx",
+      "target": "frontend/src/pages/WellBeingDashboard.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/pages/WellBeingCheckIn.jsx"
+    },
+    {
+      "source": "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "target": "frontend/src/pages/reports/RecruitmentReports.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "frontend/src/pages/RecruitmentPerformanceManagement.jsx"
+    },
+    {
+      "source": "frontend/src/pages/TaskDetail.jsx",
+      "target": "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.55,
+      "source_file": "frontend/src/pages/TaskDetail.jsx"
+    },
+    {
+      "source": "frontend/src/routes/AdminRoutes.jsx",
+      "target": "frontend/src/pages/WellBeingCheckIn.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.55,
+      "source_file": "frontend/src/routes/AdminRoutes.jsx"
+    },
+    {
+      "source": "frontend/src/pages/PayrollWorkflow.jsx",
+      "target": "frontend/src/pages/Payroll/PendingAssignmentModal.jsx",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/pages/PayrollWorkflow.jsx"
+    },
+    {
+      "source": "attendanceService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/attendanceService.js"
+    },
+    {
+      "source": "auditLogService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/auditLogService.js"
+    },
+    {
+      "source": "authService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/authService.js"
+    },
+    {
+      "source": "bonusService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/bonusService.js"
+    },
+    {
+      "source": "coupletPipelineService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/coupletPipelineService.js"
+    },
+    {
+      "source": "coupletPromptService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/coupletPromptService.js"
+    },
+    {
+      "source": "departmentService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/departmentService.js"
+    },
+    {
+      "source": "documentService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/documentService.js"
+    },
+    {
+      "source": "editorialPipelineService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/editorialPipelineService.js"
+    },
+    {
+      "source": "financialMiscService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/financialMiscService.js"
+    },
+    {
+      "source": "leaveService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/leaveService.js"
+    },
+    {
+      "source": "managerEvaluationService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/managerEvaluationService.js"
+    },
+    {
+      "source": "messageService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/messageService.js"
+    },
+    {
+      "source": "notificationService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/notificationService.js"
+    },
+    {
+      "source": "payrollService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/payrollService.js"
+    },
+    {
+      "source": "pdfDownloadService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/pdfDownloadService.js"
+    },
+    {
+      "source": "promptService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/promptService.js"
+    },
+    {
+      "source": "recruitmentPerformanceService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/recruitmentPerformanceService.js"
+    },
+    {
+      "source": "taskService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/taskService.js"
+    },
+    {
+      "source": "userService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/userService.js"
+    },
+    {
+      "source": "userServiceEnhanced.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/userServiceEnhanced.js"
+    },
+    {
+      "source": "wellBeingService.js",
+      "target": "api.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/wellBeingService.js"
+    },
+    {
+      "source": "authService.d.ts",
+      "target": "authService.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/authService.d.ts"
+    },
+    {
+      "source": "payrollService.d.ts",
+      "target": "payrollService.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/payrollService.d.ts"
+    },
+    {
+      "source": "leaveService.d.ts",
+      "target": "leaveService.js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/services/leaveService.d.ts"
+    },
+    {
+      "source": "userServiceEnhanced.js",
+      "target": "userService.js",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/services/userServiceEnhanced.js"
+    },
+    {
+      "source": "userServiceEnhanced.js",
+      "target": "taskService.js",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/services/userServiceEnhanced.js"
+    },
+    {
+      "source": "payrollService.js",
+      "target": "pdfDownloadService.js",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/services/payrollService.js"
+    },
+    {
+      "source": "coupletPromptService.js",
+      "target": "promptService.js",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/services/coupletPromptService.js"
+    },
+    {
+      "source": "editorialPipelineService.js",
+      "target": "coupletPipelineService.js",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/services/editorialPipelineService.js"
+    },
+    {
+      "source": "pdfFonts",
+      "target": "jsPDF",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/utils/pdfFonts.js"
+    },
+    {
+      "source": "frontendViteConfig",
+      "target": "backend",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/vite.config.ts"
+    },
+    {
+      "source": "removeBom",
+      "target": "backend",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "remove-bom.js"
+    },
+    {
+      "source": "analyticsUtils",
+      "target": "numberUtils",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/utils/analyticsUtils.js"
+    },
+    {
+      "source": "tailwindConfig",
+      "target": "frontendViteConfig",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/tailwind.config.js"
+    },
+    {
+      "source": "rootViteConfig",
+      "target": "frontendViteConfig",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "vite.config.ts"
+    },
+    {
+      "source": "dateUtils",
+      "target": "numberUtils",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/utils/dateUtils.js"
+    },
+    {
+      "source": "removeBom",
+      "target": "rootViteConfig",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "remove-bom.js"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "ZKTeco_Device",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "MongoDB_Atlas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "node-zklib",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "Attendance_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "User_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "Bridge_Service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "SCHEMA.md",
+      "target": "LeaveRequest_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "SCHEMA.md",
+      "target": "Payroll_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "SCHEMA.md",
+      "target": "PayrollItem_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "SCHEMA.md",
+      "target": "AuditLog_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "SCHEMA.md",
+      "target": "Attendance_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "zkteco_setup_guide",
+      "target": "ZKTeco_Device",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "خطوات_تشغيل_نظام_البصمة.txt"
+    },
+    {
+      "source": "zkteco_integration",
+      "target": "ZKTeco_Device",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "zkteco_integration",
+      "target": "Bridge_Service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "zkteco_integration",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "zkteco_integration",
+      "target": "MongoDB_Atlas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "zkteco_integration",
+      "target": "Attendance_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "zkteco_integration",
+      "target": "User_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "zkteco_bridge_guide",
+      "target": "Bridge_Service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ztk نصي.txt"
+    },
+    {
+      "source": "zkteco_bridge_guide",
+      "target": "ZKTeco_Device",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ztk نصي.txt"
+    },
+    {
+      "source": "attendance_system",
+      "target": "Attendance_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "البصمة.txt"
+    },
+    {
+      "source": "attendance_system",
+      "target": "User_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "البصمة.txt"
+    },
+    {
+      "source": "attendance_system",
+      "target": "LeaveRequest_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "البصمة.txt"
+    },
+    {
+      "source": "multi_repo_strategy",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "برومت المستودعين المنفصلين .txt"
+    },
+    {
+      "source": "multi_repo_strategy",
+      "target": "Frontend_App",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "برومت المستودعين المنفصلين .txt"
+    },
+    {
+      "source": "swagger_api",
+      "target": "LeaveRequest_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/swagger.json"
+    },
+    {
+      "source": "swagger_api",
+      "target": "PayrollItem_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/swagger.json"
+    },
+    {
+      "source": "swagger_api",
+      "target": "JWT_Auth",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/swagger.json"
+    },
+    {
+      "source": "swagger_api",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/swagger.json"
+    },
+    {
+      "source": "docker-compose.yml",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml"
+    },
+    {
+      "source": "docker-compose.yml",
+      "target": "Frontend_App",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml"
+    },
+    {
+      "source": "docker-compose.yml",
+      "target": "MongoDB_Atlas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml"
+    },
+    {
+      "source": "backend_package",
+      "target": "Backend_Server",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/package.json"
+    },
+    {
+      "source": "bridge_package",
+      "target": "Bridge_Service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/package.json"
+    },
+    {
+      "source": "frontend_package",
+      "target": "Frontend_App",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/package.json"
+    },
+    {
+      "source": "backend_package",
+      "target": "node-zklib",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/package.json"
+    },
+    {
+      "source": "bridge_package",
+      "target": "node-zklib",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/package.json"
+    },
+    {
+      "source": "security_audit",
+      "target": "Critical_Vuln_MongoDB",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "source": "security_audit",
+      "target": "Critical_Vuln_JWT",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "source": "security_audit",
+      "target": "Critical_Vuln_AdminPW",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "source": "security_audit",
+      "target": "Security_Score_2_10",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "source": "security_audit",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "source": "security_audit",
+      "target": "MongoDB_Atlas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    },
+    {
+      "source": "mogo.txt",
+      "target": "MongoDB_Atlas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "mogo.txt"
+    },
+    {
+      "source": "synced_ids",
+      "target": "ZKTeco_Device",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/synced_ids.json"
+    },
+    {
+      "source": "synced_ids",
+      "target": "Bridge_Service",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "bridge/synced_ids.json"
+    },
+    {
+      "source": "Bridge_Service",
+      "target": "Backend_Server",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "Backend_Server",
+      "target": "MongoDB_Atlas",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "Bridge_Service",
+      "target": "ZKTeco_Device",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "آلية_ربط_جهاز_ZKTeco.txt"
+    },
+    {
+      "source": "Attendance_Model",
+      "target": "User_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "source": "LeaveRequest_Model",
+      "target": "User_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "PayrollItem_Model",
+      "target": "LeaveRequest_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "PayrollItem_Model",
+      "target": "Payroll_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "PayrollItem_Model",
+      "target": "Attendance_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "Attendance_Model",
+      "target": "LeaveRequest_Model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "source": "PROJECT_STRUCTURE.txt",
+      "target": "Backend_Server",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "PROJECT_STRUCTURE.txt"
+    },
+    {
+      "source": "PROJECT_STRUCTURE.txt",
+      "target": "Frontend_App",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "PROJECT_STRUCTURE.txt"
+    },
+    {
+      "source": "PROJECT_STRUCTURE.txt",
+      "target": "Bridge_Service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "PROJECT_STRUCTURE.txt"
+    },
+    {
+      "source": "kilo_agent_manager",
+      "target": "kilo_package",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": ".kilo/agent-manager.json"
+    },
+    {
+      "source": "root_tsconfig",
+      "target": "frontend_tsconfig",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "tsconfig.json"
+    },
+    {
+      "source": "root_tsconfig",
+      "target": "Frontend_App",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tsconfig.json"
+    },
+    {
+      "source": "frontend_tsconfig",
+      "target": "frontend_tsconfig_node",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/tsconfig.json"
+    },
+    {
+      "source": "backend_dockerfile",
+      "target": "Backend_Server",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/مستند نصي جديد.txt"
     }
   ],
-  "hyperedges": [],
+  "hyperedges": [
+    {
+      "id": "attendance_payroll_leave_flow",
+      "label": "Attendance-Payroll-Leave Integration Flow",
+      "nodes": [
+        "attendanceController",
+        "leaveController",
+        "payrollController",
+        "attendancetracking_system"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": null
+    },
+    {
+      "id": "text_pipeline_pattern",
+      "label": "Arabic Text Processing Pipeline (regex+AI)",
+      "nodes": [
+        "coupletPipelineController",
+        "editorialPipelineController",
+        "coupletPromptController",
+        "promptController",
+        "textpipeline_6stage"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": null
+    },
+    {
+      "id": "notification_network",
+      "label": "Cross-Controller Notification Network",
+      "nodes": [
+        "authController",
+        "bonusController",
+        "leaveController",
+        "taskController",
+        "payrollController",
+        "recruitmentPerformanceController",
+        "userController",
+        "notification_system"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": null
+    },
+    {
+      "id": "employee-attendance-leave-flow",
+      "label": "Employee Attendance & Leave Management",
+      "nodes": [
+        "Attendance",
+        "LeaveRequest",
+        "User",
+        "DeviceLog",
+        "BiometricErrorLog",
+        "Settings"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/models/Attendance.js"
+    },
+    {
+      "id": "employee-compensation-pipeline",
+      "label": "Employee Compensation & Payroll Processing",
+      "nodes": [
+        "Payroll",
+        "PayrollItem",
+        "Bonus",
+        "LeaveRequest",
+        "User",
+        "Task"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/models/Payroll.js"
+    },
+    {
+      "id": "auth-authorization-infrastructure",
+      "label": "Authentication & Authorization Infrastructure",
+      "nodes": [
+        "authMiddleware",
+        "authRoutes",
+        "attendanceRoutes",
+        "auditLogRoutes",
+        "bonusRoutes",
+        "User",
+        "jsonwebtoken"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/middleware/authMiddleware.js"
+    },
+    {
+      "id": "hyperedge-express-api",
+      "label": "Express API Route Layer",
+      "nodes": [
+        "backend/server.js",
+        "backend/routes/coupletPipelineRoutes.js",
+        "backend/routes/coupletPromptRoutes.js",
+        "backend/routes/departmentRoutes.js",
+        "backend/routes/documentRoutes.js",
+        "backend/routes/editorialPipelineRoutes.js",
+        "backend/routes/financialMiscRoutes.js",
+        "backend/routes/leaveRoutes.js",
+        "backend/routes/managerEvaluationRoutes.js",
+        "backend/routes/messageRoutes.js",
+        "backend/routes/notificationRoutes.js",
+        "backend/routes/payrollRoutes.js",
+        "backend/routes/pdfRoutes.js",
+        "backend/routes/promptRoutes.js",
+        "backend/routes/recruitmentPerformanceRoutes.js",
+        "backend/routes/settingsRoutes.js",
+        "backend/routes/taskRoutes.js",
+        "backend/routes/userRoutes.js",
+        "backend/routes/wellBeingRoutes.js",
+        "backend/routes/zktecoRoutes.js"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/server.js"
+    },
+    {
+      "id": "hyperedge-biometric",
+      "label": "ZKTeco Biometric Sync System",
+      "nodes": [
+        "backend/routes/zktecoRoutes.js",
+        "backend/services/zktecoService.js",
+        "bridge/index.js",
+        "bridge/config.js"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "bridge/index.js"
+    },
+    {
+      "id": "hyperedge-financial-reporting",
+      "label": "Financial Reporting Pipeline",
+      "nodes": [
+        "backend/routes/financialMiscRoutes.js",
+        "backend/routes/payrollRoutes.js",
+        "backend/routes/pdfRoutes.js",
+        "backend/services/pdfService.js",
+        "backend/utils/pdfGenerator.js",
+        "backend/services/compensationService.js"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "backend/server.js"
+    },
+    {
+      "id": "he_layout_system",
+      "label": "Layout & Navigation System",
+      "nodes": [
+        "Layout.jsx",
+        "Sidebar.jsx",
+        "Navbar.jsx",
+        "UserMenu.jsx",
+        "NotificationPanel.jsx",
+        "WellBeingBanner.jsx"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/components/layout/Layout.jsx"
+    },
+    {
+      "id": "he_bonus_management",
+      "label": "Bonus Management Feature",
+      "nodes": [
+        "BonusManagement.jsx",
+        "BonusForm.jsx",
+        "BonusList.jsx"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/components/BonusManagement.jsx"
+    },
+    {
+      "id": "he_payroll_feature",
+      "label": "Payroll Feature",
+      "nodes": [
+        "EditablePayrollTable.jsx",
+        "ColumnManagerModal.jsx",
+        "DeleteColumnModal.jsx",
+        "PayrollActions.jsx",
+        "PayrollWrapper.tsx",
+        "DynamicNumber.jsx"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/features/payroll/components/EditablePayrollTable.jsx"
+    },
+    {
+      "id": "attendance_system",
+      "label": "Attendance System (نظام الحضور)",
+      "nodes": [
+        "AttendanceDashboard",
+        "AttendanceManagement",
+        "EmployeeAttendanceReport",
+        "BiometricManagement"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Admin/AttendanceDashboard.jsx"
+    },
+    {
+      "id": "leave_management",
+      "label": "Leave Management (نظام الإجازات)",
+      "nodes": [
+        "LeaveManagement",
+        "GMApproveLeaves"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Admin/LeaveManagement.jsx"
+    },
+    {
+      "id": "auth_flow",
+      "label": "Auth Flow (مصادقة)",
+      "nodes": [
+        "Login",
+        "Register",
+        "NotAuthorized"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Auth/Login.jsx"
+    },
+    {
+      "id": "he_employee_module",
+      "label": "Employee Self-Service Module",
+      "nodes": [
+        "AddTask",
+        "Attendance",
+        "ChangePassword",
+        "EmployeeDashboard",
+        "LeaveRequest",
+        "MyTasks",
+        "TaskHistory"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Employee/EmployeeDashboard.jsx"
+    },
+    {
+      "id": "he_manager_module",
+      "label": "Manager Operations Module",
+      "nodes": [
+        "ApproveLeaves",
+        "AssignTasks",
+        "DepartmentReports",
+        "EvaluateTasks",
+        "ManagerDashboard",
+        "ManagerEvaluation",
+        "ManagerEvaluationDashboard"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/Manager/ManagerDashboard.jsx"
+    },
+    {
+      "id": "he_payroll_module",
+      "label": "Payroll Management Module",
+      "nodes": [
+        "PayrollAudit",
+        "PayrollDashboard",
+        "PayrollIntegration",
+        "PayrollPendingAssignments",
+        "PayrollProcessing",
+        "FinancialMiscPage"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/PayrollDashboard.jsx"
+    },
+    {
+      "id": "he_payroll_module",
+      "label": "Payroll Management Module",
+      "nodes": [
+        "frontend/src/pages/PayrollWorkflow.jsx",
+        "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+        "frontend/src/pages/Payroll/MySalary.jsx",
+        "frontend/src/pages/Payroll/PayrollManagement.jsx",
+        "frontend/src/pages/Payroll/PayslipDetail.jsx",
+        "frontend/src/pages/Payroll/PayslipView.tsx",
+        "frontend/src/pages/Payroll/PendingAssignmentModal.jsx",
+        "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx",
+        "frontend/src/pages/Payroll/comprehensive/DeleteConfirm.jsx",
+        "frontend/src/pages/Payroll/comprehensive/EditModal.jsx",
+        "frontend/src/pages/Payroll/comprehensive/config.js",
+        "frontend/src/pages/Payroll/comprehensive/utils.js"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx"
+    },
+    {
+      "id": "he_reports_module",
+      "label": "Reports Module",
+      "nodes": [
+        "frontend/src/pages/reports/AttendanceReports.jsx",
+        "frontend/src/pages/reports/DepartmentReports.jsx",
+        "frontend/src/pages/reports/LeaveReports.jsx",
+        "frontend/src/pages/reports/RecruitmentReports.jsx"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "frontend/src/pages/reports/AttendanceReports.jsx"
+    },
+    {
+      "id": "he_recruitment_module",
+      "label": "Recruitment & Performance Module",
+      "nodes": [
+        "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+        "frontend/src/pages/recruitment/PerformanceSection.jsx",
+        "frontend/src/pages/recruitment/RecruitmentComponents.jsx",
+        "frontend/src/pages/recruitment/RecruitmentSection.jsx"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/RecruitmentPerformanceManagement.jsx"
+    },
+    {
+      "id": "hr_self_service_modules",
+      "label": "HR Self-Service Modules",
+      "nodes": [
+        "attendanceService.js",
+        "leaveService.js",
+        "wellBeingService.js",
+        "messageService.js",
+        "notificationService.js",
+        "managerEvaluationService.js"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/services"
+    },
+    {
+      "id": "payroll_financial_modules",
+      "label": "Payroll & Financial Modules",
+      "nodes": [
+        "payrollService.js",
+        "bonusService.js",
+        "financialMiscService.js",
+        "pdfDownloadService.js",
+        "departmentService.js"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/services"
+    },
+    {
+      "id": "ai_pipeline_modules",
+      "label": "AI Editorial Pipeline Modules",
+      "nodes": [
+        "editorialPipelineService.js",
+        "coupletPipelineService.js",
+        "promptService.js",
+        "coupletPromptService.js"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/services"
+    },
+    {
+      "id": "he_frontend_display_utils",
+      "label": "Frontend Display Utilities",
+      "nodes": [
+        "analyticsUtils",
+        "dateUtils",
+        "numberUtils"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/src/utils/"
+    },
+    {
+      "id": "he_frontend_browser_utils",
+      "label": "Browser API Utilities",
+      "nodes": [
+        "audioUtils",
+        "pdfFonts"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "frontend/src/utils/"
+    },
+    {
+      "id": "he_frontend_build_config",
+      "label": "Frontend Build Configuration",
+      "nodes": [
+        "frontendViteConfig",
+        "rootViteConfig",
+        "tailwindConfig"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "frontend/"
+    },
+    {
+      "id": "ZKTeco_Sync_System",
+      "label": "ZKTeco Biometric Attendance Sync Pipeline",
+      "nodes": [
+        "ZKTeco_Device",
+        "Bridge_Service",
+        "Backend_Server",
+        "MongoDB_Atlas",
+        "Attendance_Model",
+        "User_Model",
+        "node-zklib"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "HRMS_Payroll_System",
+      "label": "HRMS Payroll & Leave Management",
+      "nodes": [
+        "LeaveRequest_Model",
+        "Payroll_Model",
+        "PayrollItem_Model",
+        "Attendance_Model",
+        "User_Model",
+        "AuditLog_Model"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/docs/SCHEMA.md"
+    },
+    {
+      "id": "Security_Vulnerability_Cluster",
+      "label": "Critical Security Vulnerabilities Cluster",
+      "nodes": [
+        "security_audit",
+        "Critical_Vuln_MongoDB",
+        "Critical_Vuln_JWT",
+        "Critical_Vuln_AdminPW",
+        "Security_Score_2_10",
+        "mogo.txt",
+        "Backend_Server"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "مخاطر.txt"
+    }
+  ],
   "input_tokens": 0,
   "output_tokens": 0
 }

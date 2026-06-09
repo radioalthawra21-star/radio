@@ -1,0 +1,9 @@
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\src\utils\analyticsUtils.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\src\utils\audioUtils.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\src\utils\dateUtils.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\src\utils\numberUtils.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\src\utils\pdfFonts.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\tailwind.config.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\frontend\vite.config.ts
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\remove-bom.js
+C:\Users\pc\Desktop\1■■dd -copy with money & NEWS\vite.config.ts

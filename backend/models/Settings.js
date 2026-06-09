@@ -71,6 +71,14 @@ settingsSchema.statics.initializeDefaults = async function() {
     { key: 'leaveMinNoticeDays', value: 1, description: 'الحد الأدنى للإشعار المسبق (أيام)' },
     { key: 'leaveAllowHalfDay', value: true, description: 'السماح بنصف يوم إجازة' },
     { key: 'leaveWeekendCounting', value: false, description: 'احتساب عطلة نهاية الأسبوع ضمن الإجازة' },
+    { key: 'workStartHour', value: 9, description: 'ساعة بدء الدوام الرسمي' },
+    { key: 'workStartMinute', value: 0, description: 'دقيقة بدء الدوام الرسمي' },
+    { key: 'workEndHour', value: 17, description: 'ساعة نهاية الدوام الرسمي' },
+    { key: 'workEndMinute', value: 0, description: 'دقيقة نهاية الدوام الرسمي' },
+    { key: 'dailyWorkHours', value: 8, description: 'عدد ساعات العمل اليومية' },
+    { key: 'lateGracePeriodMinutes', value: 0, description: 'فترة سماح التأخير (دقائق)' },
+    { key: 'earlyLeaveGracePeriodMinutes', value: 0, description: 'فترة سماح الخروج المبكر (دقائق)' },
+    { key: 'veryLateThresholdMinutes', value: 120, description: 'حد التأخير الكبير (دقائق)' },
   ];
   
   for (const setting of defaults) {

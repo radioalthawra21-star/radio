@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  FaClock, FaCheckCircle, FaSignInAlt, FaSignOutAlt, FaCalendarAlt, FaHistory,
+  FaClock, FaCalendarAlt, FaHistory, FaSync,
   FaUserCheck, FaUserTimes, FaUserClock, FaHome, FaInfoCircle,
-  FaCheck, FaTimes, FaCircle
+  FaTimes, FaCircle
 } from 'react-icons/fa';
-import { getTodayAttendance, checkIn, checkOut, getAllAttendanceRecords } from '../../services/attendanceService';
+import { getTodayAttendance, getAllAttendanceRecords, syncZKTecoDevice } from '../../services/attendanceService';
 
 const STATUS_MAP = {
   present: { label: 'حاضر', color: 'text-green-600', bg: 'bg-green-50', icon: FaUserCheck, dot: 'bg-green-500' },
@@ -18,9 +18,9 @@ const Attendance = () => {
   const [todayRecord, setTodayRecord] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [checking, setChecking] = useState(false);
   const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState(null);
 
   const loadData = async () => {
     try {
@@ -40,41 +40,17 @@ const Attendance = () => {
 
   useEffect(() => { loadData(); }, []);
 
-  const handleCheckIn = async () => {
+  const handleSync = async () => {
     try {
-      setChecking(true);
-      setError('');
-      setMessage('');
-      const res = await checkIn({ location: null, notes: '' });
-      if (res.success) {
-        setMessage('تم تسجيل الحضور بنجاح');
-        loadData();
-      } else {
-        setError(res.message || 'فشل تسجيل الحضور');
-      }
+      setSyncing(true);
+      setSyncMsg(null);
+      const res = await syncZKTecoDevice();
+      setSyncMsg(res);
+      if (res.success) loadData();
     } catch (err) {
-      setError(err.userMessage || 'حدث خطأ في الاتصال');
+      setSyncMsg({ success: false, message: err.userMessage || 'فشلت المزامنة مع جهاز البصمة' });
     } finally {
-      setChecking(false);
-    }
-  };
-
-  const handleCheckOut = async () => {
-    try {
-      setChecking(true);
-      setError('');
-      setMessage('');
-      const res = await checkOut();
-      if (res.success) {
-        setMessage('تم تسجيل الانصراف بنجاح');
-        loadData();
-      } else {
-        setError(res.message || 'فشل تسجيل الانصراف');
-      }
-    } catch (err) {
-      setError(err.userMessage || 'حدث خطأ في الاتصال');
-    } finally {
-      setChecking(false);
+      setSyncing(false);
     }
   };
 
@@ -157,10 +133,12 @@ const Attendance = () => {
           <p className="text-sm">{error}</p>
         </div>
       )}
-      {message && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl mb-6">
-          <FaCheck className="w-4 h-4 shrink-0" />
-          <p className="text-sm">{message}</p>
+      {syncMsg && (
+        <div className={`flex items-center gap-3 p-4 rounded-xl mb-6 ${
+          syncMsg.success ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-yellow-50 border border-yellow-200 text-yellow-700'
+        }`}>
+          <FaSync className={`w-4 h-4 shrink-0 ${syncing ? 'animate-spin' : ''}`} />
+          <p className="text-sm">{syncMsg.message || `تمت المزامنة: ${syncMsg.data?.synced || 0} سجل`}</p>
         </div>
       )}
 
@@ -210,12 +188,19 @@ const Attendance = () => {
 
       {/* Today Card */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <h2 className="flex items-center gap-2 text-lg font-bold mb-6" style={{ color: '#182E4E' }}>
-          <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(28, 149, 164, 0.1)', color: '#1C95A4' }}>
-            <FaCalendarAlt className="w-4 h-4" />
-          </div>
-          سجل اليوم
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#182E4E' }}>
+            <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(28, 149, 164, 0.1)', color: '#1C95A4' }}>
+              <FaCalendarAlt className="w-4 h-4" />
+            </div>
+            سجل اليوم
+          </h2>
+          <button onClick={handleSync} disabled={syncing}
+            className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
+            <FaSync className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'جاري المزامنة...' : 'مزامنة مع جهاز البصمة'}
+          </button>
+        </div>
 
         <div className="flex flex-col items-center justify-center py-6">
           <div className={`p-5 rounded-full mb-4 ${checkedIn ? (checkedOut ? 'bg-green-100' : 'bg-yellow-100') : 'bg-gray-100'}`}>
@@ -258,33 +243,11 @@ const Attendance = () => {
             </div>
           )}
 
-          <div className="flex gap-4 mt-2">
-            {!checkedIn ? (
-              <button
-                onClick={handleCheckIn}
-                disabled={checking}
-                className="px-8 py-3.5 text-white rounded-xl font-bold text-lg shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center gap-2"
-                style={{ backgroundColor: '#16A34A' }}
-              >
-                <FaSignInAlt className="w-4 h-4" />
-                {checking ? 'جاري...' : 'تسجيل حضور'}
-              </button>
-            ) : !checkedOut ? (
-              <button
-                onClick={handleCheckOut}
-                disabled={checking}
-                className="px-8 py-3.5 text-white rounded-xl font-bold text-lg shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center gap-2"
-                style={{ backgroundColor: '#DC2626' }}
-              >
-                <FaSignOutAlt className="w-4 h-4" />
-                {checking ? 'جاري...' : 'تسجيل انصراف'}
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 text-green-600 bg-green-50 px-6 py-3 rounded-xl">
-                <FaCheckCircle className="w-5 h-5" />
-                <span className="font-semibold">اكتمل تسجيل اليوم</span>
-              </div>
-            )}
+          <div className="flex justify-center mt-4">
+            <div className="flex items-center gap-3 text-gray-500 bg-gray-50 px-6 py-3 rounded-xl">
+              <FaInfoCircle className="w-5 h-5" />
+              <span>تسجيل الحضور والانصراف يتم عبر جهاز البصمة</span>
+            </div>
           </div>
         </div>
       </div>

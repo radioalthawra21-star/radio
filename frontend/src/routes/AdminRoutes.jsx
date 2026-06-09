@@ -1,4 +1,4 @@
-import { Route } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
 import AllEmployees from '../pages/Admin/AllEmployees';
 import AllReports from '../pages/Admin/AllReports';
@@ -13,6 +13,7 @@ import GMApproveLeaves from '../pages/Admin/GMApproveLeaves';
 import AttendanceManagement from '../pages/Admin/AttendanceManagement';
 import AttendanceDashboard from '../pages/Admin/AttendanceDashboard';
 import EmployeeAttendanceReport from '../pages/Admin/EmployeeAttendanceReport';
+import BiometricManagement from '../pages/Admin/BiometricManagement';
 import AuditLogs from '../pages/Admin/AuditLogs';
 import BonusManagement from '../components/BonusManagement';
 import ManagerEvaluationDashboard from '../pages/ManagerEvaluationDashboard';
@@ -35,6 +36,8 @@ export const adminRoutes = (
     <Route path="/admin/gm-approve-leaves" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><GMApproveLeaves /></ProtectedRoute>} />
     <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceManagement /></ProtectedRoute>} />
     <Route path="/admin/attendance/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceDashboard /></ProtectedRoute>} />
+    <Route path="/admin/employee-attendance-report" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><Navigate to="/admin/attendance" replace /></ProtectedRoute>} />
+    <Route path="/biometric" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><BiometricManagement /></ProtectedRoute>} />
     <Route path="/admin/attendance/employee/:employeeId" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><EmployeeAttendanceReport /></ProtectedRoute>} />
     <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['admin']}><AuditLogs /></ProtectedRoute>} />
     <Route path="/admin/recruitment" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><RecruitmentPerformanceManagement /></ProtectedRoute>} />

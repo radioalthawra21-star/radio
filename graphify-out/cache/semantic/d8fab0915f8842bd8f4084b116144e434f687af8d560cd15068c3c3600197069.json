@@ -1,0 +1,1 @@
+{"nodes": [{"id": "attendanceService.js", "label": "Attendance Service", "file_type": "code", "source_file": "frontend/src/services/attendanceService.js"}], "edges": [{"source": "attendanceService.js", "target": "api.js", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0, "source_file": "frontend/src/services/attendanceService.js"}], "hyperedges": []}

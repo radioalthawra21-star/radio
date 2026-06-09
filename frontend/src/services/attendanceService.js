@@ -101,6 +101,85 @@ export const getZKTecoStatus = async () => {
   return response.data;
 };
 
+export const getDeviceUsersFromDevice = async () => {
+  const response = await api.get('/zkteco/device-users');
+  return response.data;
+};
+
+export const pullDeviceAttendance = async (startDate, endDate) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  const response = await api.get(`/zkteco/pull-attendance?${params.toString()}`);
+  return response.data;
+};
+
+export const getDeviceStatusMonitor = async () => {
+  const response = await api.get('/zkteco/status-monitor');
+  return response.data;
+};
+
+export const getRecentBiometricActivity = async () => {
+  const response = await api.get('/zkteco/recent-activity');
+  return response.data;
+};
+
+export const getErrorLogs = async (params = {}) => {
+  const { page = 1, limit = 20, resolved, errorType } = params;
+  const queryParams = new URLSearchParams();
+  queryParams.append('page', page.toString());
+  queryParams.append('limit', limit.toString());
+  if (resolved !== undefined) queryParams.append('resolved', resolved);
+  if (errorType) queryParams.append('errorType', errorType);
+  const response = await api.get(`/zkteco/error-logs?${queryParams.toString()}`);
+  return response.data;
+};
+
+export const createErrorLog = async (data) => {
+  const response = await api.post('/zkteco/error-logs', data);
+  return response.data;
+};
+
+export const resolveErrorLog = async (id, resolutionNote) => {
+  const response = await api.put(`/zkteco/error-logs/${id}/resolve`, { resolutionNote });
+  return response.data;
+};
+
+export const mapUserToDevice = async (userId, deviceUserId) => {
+  const response = await api.post('/zkteco/map-user', { userId, deviceUserId });
+  return response.data;
+};
+
+export const unmapUserFromDevice = async (userId) => {
+  const response = await api.post('/zkteco/unmap-user', { userId });
+  return response.data;
+};
+
+export const getUnmappedDeviceUsers = async (showAll = false) => {
+  const response = await api.get(`/zkteco/unmapped-device-users?showAll=${showAll}`);
+  return response.data;
+};
+
+export const getSystemUsersForMapping = async (search = '') => {
+  const response = await api.get(`/zkteco/system-users?search=${encodeURIComponent(search)}`);
+  return response.data;
+};
+
+export const getBiometricDashboardStats = async () => {
+  const response = await api.get('/zkteco/dashboard-stats');
+  return response.data;
+};
+
+export const getMappedUsersActivity = async (days = 7) => {
+  const response = await api.get(`/zkteco/mapped-activity?days=${days}`);
+  return response.data;
+};
+
+export const bulkMapUsers = async (mappings) => {
+  const response = await api.post('/zkteco/bulk-map-users', { mappings });
+  return response.data;
+};
+
 export default {
   getAllAttendanceRecords,
   getTodayAttendance,
@@ -115,5 +194,19 @@ export default {
   getAttendanceDashboard,
   syncZKTecoDevice,
   testZKTecoConnection,
-  getZKTecoStatus
+  getZKTecoStatus,
+  getDeviceUsersFromDevice,
+  pullDeviceAttendance,
+  getDeviceStatusMonitor,
+  getRecentBiometricActivity,
+  getErrorLogs,
+  createErrorLog,
+  resolveErrorLog,
+  mapUserToDevice,
+  unmapUserFromDevice,
+  getUnmappedDeviceUsers,
+  getSystemUsersForMapping,
+  getBiometricDashboardStats,
+  bulkMapUsers,
+  getMappedUsersActivity
 };

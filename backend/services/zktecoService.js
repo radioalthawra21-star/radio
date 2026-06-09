@@ -1,4 +1,5 @@
 const axios = require('axios');
+const BiometricErrorLog = require('../models/BiometricErrorLog');
 
 const LOG_PREFIX = {
   info: 'ℹ️',
@@ -28,6 +29,9 @@ class ZKTecoService {
     this.connected = false;
     this.lastSync = null;
     this.lastError = null;
+    this._connectionAttempts = 0;
+    this._maxRetries = 3;
+    this._statusHistory = [];
   }
 
   async loadConfig() {
@@ -62,6 +66,7 @@ class ZKTecoService {
         return true;
       }
 
+      this._connectionAttempts++;
       this.device = new this.ZKLib(
         this.config.ip,
         this.config.port,
@@ -72,12 +77,15 @@ class ZKTecoService {
       await this.device.createSocket();
       this.connected = true;
       this.lastError = null;
+      this._connectionAttempts = 0;
+      this._addStatusEvent('connected', `متصل بجهاز ZKTeco على ${this.config.ip}:${this.config.port}`);
       logger.ok(`متصل بجهاز ZKTeco على ${this.config.ip}:${this.config.port}`);
       return true;
     } catch (err) {
       this.connected = false;
       const msg = err?.err?.message || err?.message || 'تعذر الاتصال بجهاز البصمة - تحقق من عنوان IP';
       this.lastError = msg;
+      this._addStatusEvent('error', msg);
       logger.error(`فشل الاتصال بالجهاز: ${msg}`);
       return false;
     }
@@ -93,6 +101,18 @@ class ZKTecoService {
     }
     this.device = null;
     this.connected = false;
+    this._addStatusEvent('disconnected', 'تم فصل الاتصال بالجهاز');
+  }
+
+  _addStatusEvent(status, message) {
+    this._statusHistory.unshift({
+      status,
+      message,
+      timestamp: new Date().toISOString()
+    });
+    if (this._statusHistory.length > 100) {
+      this._statusHistory = this._statusHistory.slice(0, 100);
+    }
   }
 
   async getAttendanceRecords() {
@@ -190,6 +210,32 @@ class ZKTecoService {
     }
   }
 
+  async getDeviceStatus() {
+    const connected = await this.connect();
+    let info = null;
+    try {
+      if (connected) {
+        info = await this.getDeviceInfo();
+      }
+    } catch (e) {
+      // ignore
+    }
+    if (!connected) {
+      await this.disconnect();
+    }
+    return {
+      online: connected,
+      connected,
+      lastSync: this.lastSync,
+      lastError: this.lastError,
+      config: this.config ? { ...this.config } : null,
+      deviceInfo: info,
+      connectionAttempts: this._connectionAttempts,
+      timestamp: new Date().toISOString(),
+      statusHistory: this._statusHistory.slice(0, 10)
+    };
+  }
+
   mapRecord(record) {
     const statusMap = {
       0: 'present',
@@ -199,7 +245,8 @@ class ZKTecoService {
     };
     return {
       zkUserId: String(record.userId || record.user_id || record.uid || ''),
-      zkRecordId: record.id || record.recordId || null,
+      deviceUserId: String(record.deviceUserId || ''),
+      zkRecordId: record.userSn || record.id || record.recordId || null,
       timestamp: record.timestamp || record.recordTime || record.time || new Date().toISOString(),
       status: record.status !== undefined ? (statusMap[record.status] || 'present') : 'present',
       verifyMode: record.verifyMode || record.verify_mode || 0,
@@ -216,6 +263,24 @@ class ZKTecoService {
       config: this.config ? { ...this.config, timeout: undefined } : null,
       timestamp: new Date().toISOString()
     };
+  }
+
+  async logError(errorData) {
+    try {
+      const log = await BiometricErrorLog.create({
+        deviceUserId: errorData.deviceUserId || null,
+        employee: errorData.employee || null,
+        errorType: errorData.errorType || 'unknown',
+        errorMessage: errorData.errorMessage || 'خطأ غير معروف',
+        rawData: errorData.rawData || null,
+        deviceIp: this.config?.ip || null
+      });
+      logger.warn(`تم تسجيل خطأ بصمة: ${errorData.errorMessage}`);
+      return log;
+    } catch (err) {
+      logger.error(`فشل تسجيل خطأ البصمة: ${err.message}`);
+      return null;
+    }
   }
 }
 

@@ -1,1 +1,1 @@
-{"nodes": [{"id": "config_db", "label": "Database Configuration", "file_type": "code", "source_file": "backend/config/db.js", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}
+{"nodes": [{"id": "configDb", "label": "Database Config", "file_type": "code", "source_file": "backend/config/db.js", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

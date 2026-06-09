@@ -1,0 +1,1 @@
+{"nodes": [{"id": "kilo_agent_manager", "label": "Kilo Agent Manager Config", "file_type": "code", "source_file": ".kilo/agent-manager.json"}], "edges": [{"source": "kilo_agent_manager", "target": "kilo_package", "relation": "references", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": ".kilo/agent-manager.json"}], "hyperedges": []}

@@ -3,9 +3,10 @@
  * Handles employee attendance tracking
  */
 
-const { Attendance, AttendanceStatus, CheckInStatus } = require('../models/Attendance');
+const { Attendance, AttendanceStatus, CheckInStatus, CheckOutStatus } = require('../models/Attendance');
 const { User } = require('../models/User');
 const { LeaveRequest, LeaveStatus } = require('../models/LeaveRequest');
+const { Settings } = require('../models/Settings');
 
 /**
  * Check in employee
@@ -52,6 +53,15 @@ const checkIn = async (req, res) => {
       });
     }
     
+    // Fetch attendance settings
+    const [workStartHour, workStartMinute, dailyWorkHours, lateGracePeriod, veryLateThreshold] = await Promise.all([
+      Settings.getValue('workStartHour', 9),
+      Settings.getValue('workStartMinute', 0),
+      Settings.getValue('dailyWorkHours', 8),
+      Settings.getValue('lateGracePeriodMinutes', 0),
+      Settings.getValue('veryLateThresholdMinutes', 120),
+    ]);
+
     // Create or update attendance
     let attendance;
     if (existingAttendance) {
@@ -61,13 +71,18 @@ const checkIn = async (req, res) => {
         employee: employeeId,
         date: new Date(),
         department: employee.department,
-        expectedHours: 8,
+        expectedHours: dailyWorkHours,
         status: AttendanceStatus.PRESENT
       });
     }
     
-    // Perform check-in
-    attendance.checkInEmployee(new Date(), location, notes);
+    // Perform check-in with settings
+    attendance.checkInEmployee(new Date(), location, notes, {
+      workStartHour,
+      workStartMinute,
+      lateGracePeriodMinutes: lateGracePeriod,
+      veryLateThresholdMinutes: veryLateThreshold,
+    });
     
     await attendance.save();
     
@@ -143,8 +158,19 @@ const checkOut = async (req, res) => {
       });
     }
     
-    // Perform check-out
-    attendance.checkOutEmployee(new Date(), location, notes);
+    // Fetch attendance settings
+    const [workEndHour, workEndMinute, earlyLeaveGrace] = await Promise.all([
+      Settings.getValue('workEndHour', 17),
+      Settings.getValue('workEndMinute', 0),
+      Settings.getValue('earlyLeaveGracePeriodMinutes', 0),
+    ]);
+
+    // Perform check-out with settings
+    attendance.checkOutEmployee(new Date(), location, notes, {
+      workEndHour,
+      workEndMinute,
+      earlyLeaveGracePeriodMinutes: earlyLeaveGrace,
+    });
     
     await attendance.save();
     
@@ -721,6 +747,17 @@ const getDashboardStats = async (req, res) => {
       };
     };
 
+    const [workStartHour, workStartMinute, workEndHour, workEndMinute, dailyWorkHours, lateGracePeriod, earlyLeaveGrace, veryLateThreshold] = await Promise.all([
+      Settings.getValue('workStartHour', 9),
+      Settings.getValue('workStartMinute', 0),
+      Settings.getValue('workEndHour', 17),
+      Settings.getValue('workEndMinute', 0),
+      Settings.getValue('dailyWorkHours', 8),
+      Settings.getValue('lateGracePeriodMinutes', 0),
+      Settings.getValue('earlyLeaveGracePeriodMinutes', 0),
+      Settings.getValue('veryLateThresholdMinutes', 120),
+    ]);
+
     res.json({
       success: true,
       data: {
@@ -729,7 +766,17 @@ const getDashboardStats = async (req, res) => {
         monthly: computeStats(monthlyRecords),
         totalEmployees,
         todayRecords,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        settings: {
+          workStartHour,
+          workStartMinute,
+          workEndHour,
+          workEndMinute,
+          dailyWorkHours,
+          lateGracePeriodMinutes: lateGracePeriod,
+          earlyLeaveGracePeriodMinutes: earlyLeaveGrace,
+          veryLateThresholdMinutes: veryLateThreshold,
+        }
       }
     });
   } catch (error) {
