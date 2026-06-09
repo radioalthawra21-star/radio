@@ -88,150 +88,144 @@ async function receiveAttendance(req, res) {
       const key = e.employee
         ? `emp_${e.employee}_${eDateKey}`
         : `dev_${e.deviceUserId}_${eDateKey}`;
-      if (!existingMap.has(key)) existingMap.set(key, []);
-      existingMap.get(key).push(e);
+      existingMap.set(key, e);
+    }
+
+    const groups = new Map();
+    for (const record of records) {
+      const ts = new Date(record.timestamp);
+      if (isNaN(ts.getTime())) continue;
+
+      const { dayStart } = getDayRange(ts);
+      const rawZkId = String(record.zkUserId || record.deviceUserId || '');
+      const user = userCache.get(rawZkId) || null;
+      const dateStr = dayStart.toISOString().split('T')[0];
+      const groupKey = user
+        ? `emp_${user._id}_${dateStr}`
+        : `dev_${rawZkId}_${dateStr}`;
+
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, { user, zkId: rawZkId, dateStr, dayStart, timestamps: [], existing: existingMap.get(groupKey) || null });
+      }
+      const group = groups.get(groupKey);
+      group.timestamps.push(ts);
     }
 
     let saved = 0;
     let skipped = 0;
     const results = [];
-    const processedKeys = new Set();
     const bulkOps = [];
     const updateOps = [];
     const deviceLogBulk = [];
 
-    for (const record of records) {
-      try {
-        const ts = new Date(record.timestamp);
-        if (isNaN(ts.getTime())) {
-          results.push({ zkUserId: record.zkUserId, error: 'timestamp غير صالح' });
-          continue;
+    for (const [, group] of groups) {
+      const existing = group.existing;
+      if (existing) {
+        if (existing.checkIn && existing.checkIn.time) {
+          group.timestamps.push(new Date(existing.checkIn.time));
         }
-
-        const { dayStart, dayEnd } = getDayRange(ts);
-        const rawZkId = String(record.zkUserId || record.deviceUserId || '');
-        const user = userCache.get(rawZkId) || null;
-        const zkId = rawZkId;
-        const dateStr = dayStart.toISOString().split('T')[0];
-
-        const dedupKey = user
-          ? `emp_${user._id}_${dateStr}_${record.zkRecordId || ''}`
-          : `dev_${zkId}_${dateStr}_${record.zkRecordId || ''}`;
-        if (processedKeys.has(dedupKey)) {
-          results.push({ zkUserId: record.zkUserId, date: dateStr, action: 'duplicate_skipped' });
-          skipped++;
-          continue;
+        if (existing.checkOut && existing.checkOut.time) {
+          group.timestamps.push(new Date(existing.checkOut.time));
         }
-        processedKeys.add(dedupKey);
+      }
 
-        const lookupKey = user
-          ? `emp_${user._id}_${dateStr}`
-          : `dev_${zkId}_${dateStr}`;
-        const existingRecords = existingMap.get(lookupKey) || [];
+      group.timestamps.sort((a, b) => a - b);
+      const checkInTime = group.timestamps[0];
+      const checkOutTime = group.timestamps.length > 1 && (group.timestamps[group.timestamps.length - 1] - checkInTime > 60000)
+        ? group.timestamps[group.timestamps.length - 1]
+        : null;
 
-        const checkInStatus = determineCheckInStatus(ts);
-        const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME
-          ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
+      const checkInStatus = determineCheckInStatus(checkInTime);
+      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME
+        ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
 
-        if (existingRecords.length === 0) {
-          const doc = {
-            date: user ? dayStart : ts,
-            expectedHours: 8,
-            status: attendanceStatus,
-            checkIn: {
-              time: ts,
-              status: checkInStatus,
-              location: 'جهاز بصمة',
-              notes: 'تسجيل بصمة'
-            },
-            lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
-          };
-          if (user) {
-            doc.employee = user._id;
-            doc.department = user.department || null;
-          } else {
-            doc.deviceUserId = zkId;
-            doc.deviceUserName = `مستخدم جهاز #${zkId}`;
+      if (existing) {
+        const currentCheckIn = existing.checkIn && existing.checkIn.time ? new Date(existing.checkIn.time).getTime() : null;
+        const currentCheckOut = existing.checkOut && existing.checkOut.time ? new Date(existing.checkOut.time).getTime() : null;
+        const needsCheckInUpdate = !currentCheckIn || currentCheckIn !== checkInTime.getTime();
+        const needsCheckOutUpdate = checkOutTime && (!currentCheckOut || currentCheckOut !== checkOutTime.getTime());
+
+        if (needsCheckInUpdate || needsCheckOutUpdate) {
+          const updateData = {};
+          if (needsCheckInUpdate) {
+            updateData['checkIn.time'] = checkInTime;
+            updateData['checkIn.status'] = checkInStatus;
+            updateData['checkIn.location'] = 'جهاز بصمة';
+            updateData['checkIn.notes'] = 'تسجيل بصمة';
+            updateData.status = attendanceStatus;
+            updateData.lateReason = attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null;
+            deviceLogBulk.push({ insertOne: { document: {
+              deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+              timestamp: checkInTime, eventType: 'checkin',
+              deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+              deviceName: source || 'bridge'
+            }}});
           }
-          results.push({ zkUserId: record.zkUserId, date: dateStr, action: 'queued_create' });
-          bulkOps.push({ insertOne: { document: doc } });
+          if (needsCheckOutUpdate) {
+            const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+            const overtime = duration > (existing.expectedHours || 8) ? duration - (existing.expectedHours || 8) : 0;
+            updateData['checkOut.time'] = checkOutTime;
+            updateData['checkOut.location'] = 'جهاز بصمة';
+            updateData['checkOut.notes'] = 'تسجيل بصمة';
+            updateData.duration = duration;
+            updateData.overtime = overtime;
+            deviceLogBulk.push({ insertOne: { document: {
+              deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+              timestamp: checkOutTime, eventType: 'checkout',
+              deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+              deviceName: source || 'bridge'
+            }}});
+          }
+          updateOps.push({
+            updateOne: {
+              filter: { _id: existing._id },
+              update: { $set: updateData }
+            }
+          });
+          saved++;
+          results.push({ id: existing._id, action: 'queued_update', fields: Object.keys(updateData) });
+        } else {
+          skipped++;
+          results.push({ id: existing._id, action: 'no_change', skipped: true });
+        }
+      } else {
+        const doc = {
+          date: group.user ? group.dayStart : checkInTime,
+          expectedHours: 8,
+          status: attendanceStatus,
+          checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'تسجيل بصمة' },
+          lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
+        };
+        if (group.user) {
+          doc.employee = group.user._id;
+          doc.department = group.user.department || null;
+        } else {
+          doc.deviceUserId = group.zkId;
+          doc.deviceUserName = `مستخدم جهاز #${group.zkId}`;
+        }
+        if (checkOutTime) {
+          const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+          doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'تسجيل بصمة' };
+          doc.duration = duration;
+          doc.overtime = duration > 8 ? duration - 8 : 0;
+        }
+        bulkOps.push({ insertOne: { document: doc } });
+        deviceLogBulk.push({ insertOne: { document: {
+          deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+          timestamp: checkInTime, eventType: 'checkin',
+          deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+          deviceName: source || 'bridge'
+        }}});
+        if (checkOutTime) {
           deviceLogBulk.push({ insertOne: { document: {
-            deviceUserId: zkId,
-            employee: user ? user._id : null,
-            timestamp: ts,
-            eventType: 'checkin',
-            deviceUserName: user ? null : `مستخدم جهاز #${zkId}`,
+            deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+            timestamp: checkOutTime, eventType: 'checkout',
+            deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
             deviceName: source || 'bridge'
           }}});
-          saved++;
-        } else {
-          const primary = existingRecords[0];
-          if (!primary.checkIn || !primary.checkIn.time) {
-              deviceLogBulk.push({ insertOne: { document: {
-                deviceUserId: zkId,
-                employee: user ? user._id : null,
-                timestamp: ts,
-                eventType: 'checkin',
-                deviceUserName: user ? null : `مستخدم جهاز #${zkId}`,
-                deviceName: source || 'bridge'
-              }}});
-              results.push({ id: primary._id, action: 'queued_checkin_update' });
-              updateOps.push({
-              updateOne: {
-                filter: { _id: primary._id },
-                update: {
-                  $set: {
-                    'checkIn.time': ts,
-                    'checkIn.status': checkInStatus,
-                    'checkIn.location': 'جهاز بصمة',
-                    'checkIn.notes': 'تسجيل بصمة',
-                    status: attendanceStatus,
-                    lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
-                  }
-                }
-              }
-            });
-            saved++;
-          } else if (!primary.checkOut || !primary.checkOut.time) {
-            const checkInTime = new Date(primary.checkIn.time);
-            if (Math.abs(ts - checkInTime) > 60000) {
-              const duration = Math.round((ts - checkInTime) / (1000 * 60 * 60) * 100) / 100;
-              const overtime = duration > (primary.expectedHours || 8) ? duration - (primary.expectedHours || 8) : 0;
-              deviceLogBulk.push({ insertOne: { document: {
-                deviceUserId: zkId,
-                employee: user ? user._id : null,
-                timestamp: ts,
-                eventType: 'checkout',
-                deviceUserName: user ? null : `مستخدم جهاز #${zkId}`,
-                deviceName: source || 'bridge'
-              }}});
-              results.push({ id: primary._id, action: 'queued_checkout_update' });
-              updateOps.push({
-                updateOne: {
-                  filter: { _id: primary._id },
-                  update: {
-                    $set: {
-                      'checkOut.time': ts,
-                      'checkOut.location': 'جهاز بصمة',
-                      'checkOut.notes': 'تسجيل بصمة',
-                      duration,
-                      overtime
-                    }
-                  }
-                }
-              });
-              saved++;
-            } else {
-              results.push({ id: primary._id, action: 'too_close_to_checkin', skipped: true });
-              skipped++;
-            }
-          } else {
-            results.push({ id: primary._id, action: 'already_completed', skipped: true });
-            skipped++;
-          }
         }
-      } catch (err) {
-        results.push({ zkUserId: record.zkUserId, error: err.message });
+        saved++;
+        results.push({ zkUserId: group.zkId, date: group.dateStr, action: 'queued_create' });
       }
     }
 
@@ -285,9 +279,21 @@ async function syncDeviceAttendance(req, res) {
     }
 
     const mappedRecords = records.map(r => zktecoService.mapRecord(r));
-    let saved = 0;
-    let skipped = 0;
-    const details = [];
+
+    const allZkIds = [...new Set(mappedRecords.map(r => String(r.zkUserId || r.deviceUserId || '')))].filter(Boolean);
+    const userCache = new Map();
+    if (allZkIds.length > 0) {
+      const foundUsers = await User.find({
+        $or: [
+          { zkUserId: { $in: allZkIds } },
+          { employeeId: { $in: allZkIds } }
+        ]
+      }).lean();
+      for (const u of foundUsers) {
+        userCache.set(u.zkUserId, u);
+        if (u.employeeId) userCache.set(u.employeeId, u);
+      }
+    }
 
     const dateStrings = [...new Set(mappedRecords.map(r => {
       const ts = new Date(r.timestamp);
@@ -309,147 +315,145 @@ async function syncDeviceAttendance(req, res) {
       const key = e.employee
         ? `emp_${e.employee}_${eDateKey}`
         : `dev_${e.deviceUserId}_${eDateKey}`;
-      if (!existingMap.has(key)) existingMap.set(key, []);
-      existingMap.get(key).push(e);
+      existingMap.set(key, e);
     }
 
+    const groups = new Map();
+    for (const record of mappedRecords) {
+      const ts = new Date(record.timestamp);
+      if (isNaN(ts.getTime())) continue;
+
+      const { dayStart } = getDayRange(ts);
+      const rawZkId = String(record.zkUserId || record.deviceUserId || '');
+      const user = userCache.get(rawZkId) || null;
+      const dateStr = dayStart.toISOString().split('T')[0];
+      const groupKey = user
+        ? `emp_${user._id}_${dateStr}`
+        : `dev_${rawZkId}_${dateStr}`;
+
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, { user, zkId: rawZkId, dateStr, dayStart, timestamps: [], existing: existingMap.get(groupKey) || null });
+      }
+      groups.get(groupKey).timestamps.push(ts);
+    }
+
+    let saved = 0;
+    let skipped = 0;
+    const details = [];
     const bulkOps = [];
     const updateOps = [];
-    const processedKeys = new Set();
     const deviceLogBulk = [];
 
-    for (const record of mappedRecords) {
-      try {
-        const ts = new Date(record.timestamp);
-        if (isNaN(ts.getTime())) {
-          details.push({ zkUserId: record.zkUserId, error: 'timestamp غير صالح' });
-          continue;
+    for (const [, group] of groups) {
+      const existing = group.existing;
+      if (existing) {
+        if (existing.checkIn && existing.checkIn.time) {
+          group.timestamps.push(new Date(existing.checkIn.time));
         }
-
-        const { dayStart, dayEnd } = getDayRange(ts);
-        const rawZkId = String(record.zkUserId || record.deviceUserId || '');
-        const user = await findUserByZkId(rawZkId);
-        const zkId = rawZkId;
-        const dateStr = dayStart.toISOString().split('T')[0];
-
-        const dedupKey = user
-          ? `emp_${user._id}_${dateStr}_${record.zkRecordId || ''}`
-          : `dev_${zkId}_${dateStr}_${record.zkRecordId || ''}`;
-        if (processedKeys.has(dedupKey)) {
-          details.push({ zkUserId: record.zkUserId, date: dateStr, action: 'duplicate_skipped' });
-          skipped++;
-          continue;
+        if (existing.checkOut && existing.checkOut.time) {
+          group.timestamps.push(new Date(existing.checkOut.time));
         }
-        processedKeys.add(dedupKey);
+      }
 
-        const lookupKey = user
-          ? `emp_${user._id}_${dateStr}`
-          : `dev_${zkId}_${dateStr}`;
-        const existingRecords = existingMap.get(lookupKey) || [];
+      group.timestamps.sort((a, b) => a - b);
+      const checkInTime = group.timestamps[0];
+      const checkOutTime = group.timestamps.length > 1 && (group.timestamps[group.timestamps.length - 1] - checkInTime > 60000)
+        ? group.timestamps[group.timestamps.length - 1]
+        : null;
 
-        const checkInStatus = determineCheckInStatus(ts);
-        const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME
-          ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
+      const checkInStatus = determineCheckInStatus(checkInTime);
+      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME
+        ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
 
-        if (existingRecords.length === 0) {
-          const doc = {
-            date: user ? dayStart : ts,
-            expectedHours: 8,
-            status: attendanceStatus,
-            checkIn: {
-              time: ts,
-              status: checkInStatus,
-              location: 'جهاز بصمة',
-              notes: 'تزامن مباشر'
-            },
-            lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
-          };
-          if (user) {
-            doc.employee = user._id;
-            doc.department = user.department || null;
-          } else {
-            doc.deviceUserId = zkId;
-            doc.deviceUserName = `مستخدم جهاز #${zkId}`;
-          }
-          details.push({ zkUserId: record.zkUserId, date: dateStr, action: 'queued_create' });
-          bulkOps.push({ insertOne: { document: doc } });
-          deviceLogBulk.push({ insertOne: { document: {
-            deviceUserId: zkId,
-            employee: user ? user._id : null,
-            timestamp: ts,
-            eventType: 'checkin',
-            deviceUserName: user ? null : `مستخدم جهاز #${zkId}`,
-            deviceName: `ZKTeco_${process.env.ZK_IP || '192.168.15.50'}`
-          }}});
-          saved++;
-        } else {
-          const primary = existingRecords[0];
-          if (!primary.checkIn || !primary.checkIn.time) {
+      const deviceName = `ZKTeco_${process.env.ZK_IP || '192.168.15.50'}`;
+
+      if (existing) {
+        const currentCheckIn = existing.checkIn && existing.checkIn.time ? new Date(existing.checkIn.time).getTime() : null;
+        const currentCheckOut = existing.checkOut && existing.checkOut.time ? new Date(existing.checkOut.time).getTime() : null;
+        const needsCheckInUpdate = !currentCheckIn || currentCheckIn !== checkInTime.getTime();
+        const needsCheckOutUpdate = checkOutTime && (!currentCheckOut || currentCheckOut !== checkOutTime.getTime());
+
+        if (needsCheckInUpdate || needsCheckOutUpdate) {
+          const updateData = {};
+          if (needsCheckInUpdate) {
+            updateData['checkIn.time'] = checkInTime;
+            updateData['checkIn.status'] = checkInStatus;
+            updateData['checkIn.location'] = 'جهاز بصمة';
+            updateData['checkIn.notes'] = 'تزامن مباشر';
+            updateData.status = attendanceStatus;
+            updateData.lateReason = attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null;
             deviceLogBulk.push({ insertOne: { document: {
-              deviceUserId: zkId,
-              employee: user ? user._id : null,
-              timestamp: ts,
-              eventType: 'checkin',
-              deviceUserName: user ? null : `مستخدم جهاز #${zkId}`,
-              deviceName: `ZKTeco_${process.env.ZK_IP || '192.168.15.50'}`
+              deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+              timestamp: checkInTime, eventType: 'checkin',
+              deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+              deviceName
             }}});
-            details.push({ id: primary._id, action: 'queued_checkin_update' });
-            updateOps.push({
-              updateOne: {
-                filter: { _id: primary._id },
-                update: {
-                  $set: {
-                    'checkIn.time': ts,
-                    'checkIn.status': checkInStatus,
-                    'checkIn.location': 'جهاز بصمة',
-                    'checkIn.notes': 'تزامن مباشر',
-                    status: attendanceStatus,
-                    lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
-                  }
-                }
-              }
-            });
-            saved++;
-          } else if (!primary.checkOut || !primary.checkOut.time) {
-            const checkInTime = new Date(primary.checkIn.time);
-            if (Math.abs(ts - checkInTime) > 60000) {
-              const duration = Math.round((ts - checkInTime) / (1000 * 60 * 60) * 100) / 100;
-              const overtime = duration > (primary.expectedHours || 8) ? duration - (primary.expectedHours || 8) : 0;
-              deviceLogBulk.push({ insertOne: { document: {
-                deviceUserId: zkId,
-                employee: user ? user._id : null,
-                timestamp: ts,
-                eventType: 'checkout',
-                deviceUserName: user ? null : `مستخدم جهاز #${zkId}`,
-                deviceName: `ZKTeco_${process.env.ZK_IP || '192.168.15.50'}`
-              }}});
-              details.push({ id: primary._id, action: 'queued_checkout_update' });
-              updateOps.push({
-                updateOne: {
-                  filter: { _id: primary._id },
-                  update: {
-                    $set: {
-                      'checkOut.time': ts,
-                      'checkOut.location': 'جهاز بصمة',
-                      'checkOut.notes': 'تزامن مباشر',
-                      duration,
-                      overtime
-                    }
-                  }
-                }
-              });
-              saved++;
-            } else {
-              details.push({ id: primary._id, action: 'too_close_to_checkin', skipped: true });
-              skipped++;
-            }
-          } else {
-            details.push({ id: primary._id, action: 'already_complete', skipped: true });
-            skipped++;
           }
+          if (needsCheckOutUpdate) {
+            const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+            const overtime = duration > (existing.expectedHours || 8) ? duration - (existing.expectedHours || 8) : 0;
+            updateData['checkOut.time'] = checkOutTime;
+            updateData['checkOut.location'] = 'جهاز بصمة';
+            updateData['checkOut.notes'] = 'تزامن مباشر';
+            updateData.duration = duration;
+            updateData.overtime = overtime;
+            deviceLogBulk.push({ insertOne: { document: {
+              deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+              timestamp: checkOutTime, eventType: 'checkout',
+              deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+              deviceName
+            }}});
+          }
+          updateOps.push({
+            updateOne: {
+              filter: { _id: existing._id },
+              update: { $set: updateData }
+            }
+          });
+          saved++;
+          details.push({ id: existing._id, action: 'queued_update', fields: Object.keys(updateData) });
+        } else {
+          skipped++;
+          details.push({ id: existing._id, action: 'no_change', skipped: true });
         }
-      } catch (err) {
-        details.push({ zkUserId: record.zkUserId, error: err.message });
+      } else {
+        const doc = {
+          date: group.user ? group.dayStart : checkInTime,
+          expectedHours: 8,
+          status: attendanceStatus,
+          checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'تزامن مباشر' },
+          lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
+        };
+        if (group.user) {
+          doc.employee = group.user._id;
+          doc.department = group.user.department || null;
+        } else {
+          doc.deviceUserId = group.zkId;
+          doc.deviceUserName = `مستخدم جهاز #${group.zkId}`;
+        }
+        if (checkOutTime) {
+          const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+          doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'تزامن مباشر' };
+          doc.duration = duration;
+          doc.overtime = duration > 8 ? duration - 8 : 0;
+        }
+        bulkOps.push({ insertOne: { document: doc } });
+        deviceLogBulk.push({ insertOne: { document: {
+          deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+          timestamp: checkInTime, eventType: 'checkin',
+          deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+          deviceName
+        }}});
+        if (checkOutTime) {
+          deviceLogBulk.push({ insertOne: { document: {
+            deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+            timestamp: checkOutTime, eventType: 'checkout',
+            deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+            deviceName
+          }}});
+        }
+        saved++;
+        details.push({ zkUserId: group.zkId, date: group.dateStr, action: 'queued_create' });
       }
     }
 
@@ -609,6 +613,114 @@ async function getDeviceStatusMonitor(req, res) {
     const status = await zktecoService.getDeviceStatus();
     res.json({ success: true, data: status });
   } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+async function cleanSyncDeviceAttendance(req, res) {
+  try {
+    const records = await zktecoService.getAttendanceRecords();
+    if (!records || records.length === 0) {
+      return res.json({ success: true, message: 'لا توجد سجلات في الجهاز', data: { deleted: 0, created: 0 } });
+    }
+
+    const mappedRecords = records.map(r => zktecoService.mapRecord(r));
+
+    const allZkIds = [...new Set(mappedRecords.map(r => String(r.zkUserId || r.deviceUserId || '')))].filter(Boolean);
+    const userCache = new Map();
+    if (allZkIds.length > 0) {
+      const foundUsers = await User.find({
+        $or: [
+          { zkUserId: { $in: allZkIds } },
+          { employeeId: { $in: allZkIds } }
+        ]
+      }).lean();
+      for (const u of foundUsers) {
+        userCache.set(u.zkUserId, u);
+        if (u.employeeId) userCache.set(u.employeeId, u);
+      }
+    }
+
+    const groups = new Map();
+    for (const record of mappedRecords) {
+      const ts = new Date(record.timestamp);
+      if (isNaN(ts.getTime())) continue;
+
+      const rawZkId = String(record.zkUserId || record.deviceUserId || '');
+      const user = userCache.get(rawZkId);
+      if (!user) continue;
+
+      const dayStart = new Date(ts.getFullYear(), ts.getMonth(), ts.getDate());
+      const dateStr = dayStart.toISOString().split('T')[0];
+      const groupKey = `emp_${user._id}_${dateStr}`;
+
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, { user, zkId: rawZkId, dateStr, dayStart, timestamps: [] });
+      }
+      groups.get(groupKey).timestamps.push(ts);
+    }
+
+    for (const [, group] of groups) {
+      group.timestamps.sort((a, b) => a - b);
+      group.checkInTime = group.timestamps[0];
+      group.checkOutTime = group.timestamps.length > 1 && (group.timestamps[group.timestamps.length - 1] - group.checkInTime > 60000)
+        ? group.timestamps[group.timestamps.length - 1]
+        : null;
+    }
+
+    const mappedUserIds = [...new Set([...groups.values()].map(g => g.user._id))];
+    const dates = [...new Set([...groups.values()].map(g => g.dayStart))];
+    const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map(d => d.getTime())) + 24 * 60 * 60 * 1000);
+
+    const deleteResult = await Attendance.deleteMany({
+      employee: { $in: mappedUserIds },
+      date: { $gte: minDate, $lte: maxDate }
+    });
+
+    let created = 0;
+    const bulkOps = [];
+    for (const [, group] of groups) {
+      const checkInTime = group.checkInTime;
+      const checkOutTime = group.checkOutTime;
+      const checkInStatus = determineCheckInStatus(checkInTime);
+      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
+
+      const doc = {
+        employee: group.user._id,
+        department: group.user.department || null,
+        date: group.dayStart,
+        expectedHours: 8,
+        status: attendanceStatus,
+        checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'مزامنة وتنظيف' },
+        lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
+      };
+      if (checkOutTime) {
+        const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+        doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'مزامنة وتنظيف' };
+        doc.duration = duration;
+        doc.overtime = duration > 8 ? duration - 8 : 0;
+      }
+      bulkOps.push({ insertOne: { document: doc } });
+      created++;
+    }
+
+    if (bulkOps.length > 0) {
+      await Attendance.bulkWrite(bulkOps, { ordered: false });
+    }
+
+    res.json({
+      success: true,
+      message: `تم التنظيف: حذف ${deleteResult.deletedCount} سجل مكرر، إنشاء ${created} سجل نظيف`,
+      data: {
+        deleted: deleteResult.deletedCount,
+        created,
+        total: groups.size,
+        users: mappedUserIds.length
+      }
+    });
+  } catch (err) {
+    console.error('خطأ في المزامنة الكاملة:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 }
@@ -1041,6 +1153,7 @@ module.exports = {
   receiveAttendance,
   getBridgeStatus,
   syncDeviceAttendance,
+  cleanSyncDeviceAttendance,
   testDeviceConnection,
   getDeviceUsers,
   pullDeviceAttendance,

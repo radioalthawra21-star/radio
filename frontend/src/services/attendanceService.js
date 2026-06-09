@@ -180,6 +180,11 @@ export const bulkMapUsers = async (mappings) => {
   return response.data;
 };
 
+export const cleanSyncDevice = async () => {
+  const response = await api.post('/zkteco/clean-sync');
+  return response.data;
+};
+
 export const getMonthlyTimesheet = async (employeeId, month, year) => {
   const response = await api.get(`/attendance/timesheet/monthly/${employeeId}?month=${month}&year=${year}`);
   return response.data;
@@ -214,5 +219,6 @@ export default {
   getBiometricDashboardStats,
   bulkMapUsers,
   getMappedUsersActivity,
-  getMonthlyTimesheet
+  getMonthlyTimesheet,
+  cleanSyncDevice
 };

@@ -11,7 +11,7 @@ import {
   pullDeviceAttendance, syncZKTecoDevice, testZKTecoConnection,
   getUnmappedDeviceUsers, getSystemUsersForMapping, mapUserToDevice,
   unmapUserFromDevice, getErrorLogs, resolveErrorLog, bulkMapUsers,
-  getMappedUsersActivity
+  getMappedUsersActivity, cleanSyncDevice
 } from '../../services/attendanceService';
 import AttendanceNavBar from '../../components/attendance/AttendanceNavBar';
 import { getStoredUser } from '../../services/authService';
@@ -258,6 +258,28 @@ const BiometricManagement = () => {
       showError(err.userMessage || 'فشلت المزامنة');
     } finally {
       setSyncing(false);
+      setSyncProgress('');
+    }
+  };
+
+  const [cleanSyncing, setCleanSyncing] = useState(false);
+  const handleCleanSync = async () => {
+    if (!window.confirm('سيتم حذف جميع سجلات الحضور السابقة وإعادة مزامنتها من الجهاز. هل أنت متأكد؟')) return;
+    try {
+      setCleanSyncing(true);
+      setSyncProgress('جاري الحذف وإعادة المزامنة...');
+      const res = await cleanSyncDevice();
+      if (res.success) {
+        showSuccess(res.message || 'تمت المزامنة الكاملة بنجاح');
+        loadDashboardStats();
+        loadRecentActivity();
+      } else {
+        showError(res.message || 'فشلت المزامنة الكاملة');
+      }
+    } catch (err) {
+      showError(err.userMessage || 'فشلت المزامنة الكاملة');
+    } finally {
+      setCleanSyncing(false);
       setSyncProgress('');
     }
   };
@@ -581,8 +603,16 @@ const BiometricManagement = () => {
                 {syncing ? 'جاري السحب...' : 'سحب حركات الحضور'}
               </button>
               <button
+                onClick={handleCleanSync}
+                disabled={syncing || cleanSyncing}
+                className="px-5 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+              >
+                <FaSync className={`w-4 h-4 ${cleanSyncing ? 'animate-spin' : ''}`} />
+                {cleanSyncing ? 'جاري التنظيف...' : '🔄 مزامنة كاملة + حذف البيانات القديمة'}
+              </button>
+              <button
                 onClick={handleSyncToDB}
-                disabled={syncing}
+                disabled={syncing || cleanSyncing}
                 className="px-5 py-2.5 bg-secondary text-white rounded-lg text-sm font-medium hover:bg-secondary/90 disabled:opacity-50 transition-colors flex items-center gap-2"
               >
                 <FaSave className="w-4 h-4" />

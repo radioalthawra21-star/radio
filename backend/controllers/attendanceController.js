@@ -874,7 +874,8 @@ const getMonthlyTimesheet = async (req, res) => {
 
     const recordsByDate = {};
     for (const r of records) {
-      const d = new Date(r.date);
+      const groupTime = r.checkIn && r.checkIn.time ? r.checkIn.time : r.date;
+      const d = new Date(groupTime);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       if (!recordsByDate[key]) recordsByDate[key] = [];
       recordsByDate[key].push(r);
@@ -901,6 +902,12 @@ const getMonthlyTimesheet = async (req, res) => {
       };
 
       if (dayRecords.length > 0) {
+        dayRecords.sort((a, b) => {
+          const aTime = a.checkIn && a.checkIn.time ? new Date(a.checkIn.time).getTime() : Number.MAX_SAFE_INTEGER;
+          const bTime = b.checkIn && b.checkIn.time ? new Date(b.checkIn.time).getTime() : Number.MAX_SAFE_INTEGER;
+          return aTime - bTime;
+        });
+
         const firstRecord = dayRecords[0];
         const lastRecord = dayRecords[dayRecords.length - 1];
 

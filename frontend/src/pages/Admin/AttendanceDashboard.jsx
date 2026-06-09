@@ -6,7 +6,7 @@ import {
   FaHourglassHalf, FaSignInAlt, FaSignOutAlt, FaFingerprint,
   FaTimes, FaIdBadge, FaCheck, FaExclamationTriangle, FaCog, FaSave
 } from 'react-icons/fa';
-import { getAttendanceDashboard, syncZKTecoDevice, testZKTecoConnection, getZKTecoStatus, getDeviceUsersFromDevice, pullDeviceAttendance } from '../../services/attendanceService';
+import { getAttendanceDashboard, syncZKTecoDevice, testZKTecoConnection, getZKTecoStatus, getDeviceUsersFromDevice, pullDeviceAttendance, cleanSyncDevice } from '../../services/attendanceService';
 import { updateMultipleSettings } from '../../services/notificationService';
 import * as XLSX from 'xlsx';
 import { getStoredUser } from '../../services/authService';
@@ -40,6 +40,22 @@ const AttendanceDashboard = () => {
 
   const currentUser = getStoredUser();
   const userRole = currentUser?.role || 'employee';
+
+  const [cleanSyncing, setCleanSyncing] = useState(false);
+
+  const handleCleanSync = async () => {
+    if (!window.confirm('سيتم حذف جميع سجلات الحضور السابقة وإعادة مزامنتها من الجهاز. هل أنت متأكد؟')) return;
+    try {
+      setCleanSyncing(true);
+      const res = await cleanSyncDevice();
+      setSyncStatus(res);
+      if (res.success) await loadData();
+    } catch (err) {
+      setError(err.userMessage || err.message || 'فشلت المزامنة الكاملة');
+    } finally {
+      setCleanSyncing(false);
+    }
+  };
 
   const [pullingFingerprints, setPullingFingerprints] = useState(false);
   const [fingerprintResult, setFingerprintResult] = useState(null);
@@ -300,6 +316,14 @@ const AttendanceDashboard = () => {
           >
             <FaFingerprint className={`w-3.5 h-3.5 ${pullingFingerprints ? 'animate-pulse' : ''}`} />
             {pullingFingerprints ? 'جاري السحب...' : 'سحب بصمات المستخدمين'}
+          </button>
+          <button
+            onClick={handleCleanSync}
+            disabled={cleanSyncing}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+          >
+            <FaSync className={`w-3.5 h-3.5 ${cleanSyncing ? 'animate-spin' : ''}`} />
+            {cleanSyncing ? 'جاري التنظيف...' : '🔄 مزامنة كاملة + تنظيف'}
           </button>
         </div>
       </div>
