@@ -44,6 +44,7 @@ const financialMiscRoutes = require('./routes/financialMiscRoutes');
 const coupletPromptRoutes = require('./routes/coupletPromptRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
 const zktecoRoutes = require('./routes/zktecoRoutes');
+const holidayRoutes = require('./routes/holidayRoutes');
 
 // Initialize Express app
 const app = express();
@@ -216,6 +217,7 @@ app.use('/api/recruitment', recruitmentPerformanceRoutes);
 app.use('/api/financial-misc', financialMiscRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/zkteco', zktecoRoutes);
+app.use('/api/holidays', holidayRoutes);
 
 // Health check endpoint (مهم لـ Render)
 app.get('/api/health', (req, res) => {

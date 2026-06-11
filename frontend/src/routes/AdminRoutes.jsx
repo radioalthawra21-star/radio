@@ -17,6 +17,7 @@ import MonthlyTimesheet from '../pages/Employee/MonthlyTimesheet';
 import BiometricManagement from '../pages/Admin/BiometricManagement';
 import AuditLogs from '../pages/Admin/AuditLogs';
 import BonusManagement from '../components/BonusManagement';
+import HolidayManagement from '../pages/Admin/HolidayManagement';
 import ManagerEvaluationDashboard from '../pages/ManagerEvaluationDashboard';
 import WellBeingDashboard from '../pages/WellBeingDashboard';
 import DepartmentReports from '../pages/Manager/DepartmentReports';
@@ -50,5 +51,6 @@ export const adminRoutes = (
     <Route path="/manager/reports" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><DepartmentReports /></ProtectedRoute>} />
     <Route path="/manager/bonus" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><BonusManagement /></ProtectedRoute>} />
     <Route path="/admin/employee-profile/:id" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><EmployeeProfilePage /></ProtectedRoute>} />
+    <Route path="/admin/holidays" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><HolidayManagement /></ProtectedRoute>} />
   </>
 );

@@ -111,10 +111,11 @@ function mapAttendanceRecord(record) {
     1: 'late',
   };
   const rawUserId = record.deviceUserId || record.userId || record.user_id || record.uid || '';
+  const rawTimestamp = record.timestamp || record.recordTime || record.time || '';
   return {
     zkUserId: rawUserId,
     deviceUserId: rawUserId,
-    zkRecordId: record.userSn || record.id || record.recordId,
+    zkRecordId: `${rawUserId}_${rawTimestamp}`,
     timestamp: record.timestamp || record.recordTime || record.time,
     status: record.status !== undefined ? statusMap[record.status] || 'present' : 'present',
     verifyMode: record.verifyMode || record.verify_mode || 0,

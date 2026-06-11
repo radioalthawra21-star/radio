@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FaCalendarAlt, FaUser, FaBuilding, FaFilter, FaChevronLeft,
   FaChevronRight, FaEdit, FaUsers, FaClock,
-  FaSignInAlt, FaSignOutAlt, FaHourglassHalf, FaChartBar
+  FaSignInAlt, FaSignOutAlt, FaHourglassHalf, FaChartBar, FaSearch
 } from 'react-icons/fa';
 import { getAllAttendanceRecords, updateAttendanceRecord } from '../../services/attendanceService';
-import { getAllEmployees } from '../../services/userService';
+import { getAllUsers } from '../../services/userService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 import { formatDateArabic } from '../../utils/dateUtils';
@@ -48,12 +48,19 @@ const AttendanceManagement = () => {
   const [activeTab, setActiveTab] = useState('records');
   const [chartData, setChartData] = useState(null);
 
-  const [filters, setFilters] = useState({
+  const [appliedFilters, setAppliedFilters] = useState({
     start: '',
     end: '',
     employee: 'all',
-    status: 'all',
     department: 'all'
+  });
+
+  const [draftFilters, setDraftFilters] = useState({
+    start: '',
+    end: '',
+    employee: 'all',
+    department: 'all',
+    status: 'all'
   });
 
   const [page, setPage] = useState(1);
@@ -64,38 +71,9 @@ const AttendanceManagement = () => {
   const [editForm, setEditForm] = useState({ status: '', notes: '' });
   const [saving, setSaving] = useState(false);
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError('');
-
-      const [attendanceRes, employeesRes] = await Promise.all([
-        getAllAttendanceRecords({
-          startDate: filters.start,
-          endDate: filters.end,
-          employeeId: filters.employee !== 'all' ? filters.employee : undefined
-        }),
-        getAllEmployees()
-      ]);
-
-      if (attendanceRes.success) {
-        setAttendanceRecords(attendanceRes.data.records || []);
-      } else {
-        setError('فشل في تحميل بيانات الحضور');
-      }
-
-      if (employeesRes.success) {
-        setEmployees(employeesRes.data.employees || []);
-      }
-    } catch (err) {
-      console.error('Error loading attendance:', err);
-      setError('حدث خطأ في الاتصال بالخادم');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters.start, filters.end, filters.employee]);
-
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    fetchData(appliedFilters);
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'reports' && attendanceRecords.length) {
@@ -195,9 +173,48 @@ const AttendanceManagement = () => {
     doc.save('attendance-report.pdf');
   };
 
-  const updateFilter = (key, value) => {
+  const updateDraft = (key, value) => {
+    setDraftFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const confirmFilters = () => {
     setPage(1);
-    setFilters(prev => ({ ...prev, [key]: value }));
+    const next = {
+      start: draftFilters.start,
+      end: draftFilters.end,
+      employee: draftFilters.employee,
+      department: draftFilters.department
+    };
+    setAppliedFilters(next);
+    setLoading(true);
+    fetchData(next);
+  };
+
+  const fetchData = async (f) => {
+    try {
+      setError('');
+      const [attendanceRes, employeesRes] = await Promise.all([
+        getAllAttendanceRecords({
+          startDate: f.start,
+          endDate: f.end,
+          employeeId: f.employee !== 'all' ? f.employee : undefined
+        }),
+        getAllUsers()
+      ]);
+      if (attendanceRes.success) {
+        setAttendanceRecords(attendanceRes.data.records || []);
+      } else {
+        setError('فشل في تحميل بيانات الحضور');
+      }
+      if (employeesRes.success) {
+        setEmployees(employeesRes.data.users || []);
+      }
+    } catch (err) {
+      console.error('Error loading attendance:', err);
+      setError('حدث خطأ في الاتصال بالخادم');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const employeeMap = useMemo(() => {
@@ -219,16 +236,16 @@ const AttendanceManagement = () => {
       const emp = employeeMap.get(empId);
       if (!emp) return false;
 
-      if (filters.employee !== 'all' && empId !== filters.employee) return false;
-      if (filters.status !== 'all' && r.status !== filters.status) return false;
+      if (appliedFilters.employee !== 'all' && empId !== appliedFilters.employee) return false;
+      if (draftFilters.status !== 'all' && r.status !== draftFilters.status) return false;
 
-      if (filters.department !== 'all') {
-        if (emp.department !== filters.department) return false;
+      if (appliedFilters.department !== 'all') {
+        if (emp.department !== appliedFilters.department) return false;
       }
 
       return true;
     });
-  }, [attendanceRecords, filters, employeeMap]);
+  }, [attendanceRecords, appliedFilters, draftFilters.status, employeeMap]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRecords.length / itemsPerPage));
   const paginatedRecords = filteredRecords.slice(
@@ -290,8 +307,8 @@ const AttendanceManagement = () => {
         {label}
       </label>
       <select
-        value={filters[key]}
-        onChange={(e) => updateFilter(key, e.target.value)}
+        value={draftFilters[key]}
+        onChange={(e) => updateDraft(key, e.target.value)}
         className="input text-sm w-full"
       >
         {options}
@@ -359,8 +376,8 @@ const AttendanceManagement = () => {
                 </label>
                 <input
                   type="date"
-                  value={filters.start}
-                  onChange={(e) => updateFilter('start', e.target.value)}
+                  value={draftFilters.start}
+                  onChange={(e) => updateDraft('start', e.target.value)}
                   className="input text-sm w-full"
                 />
               </div>
@@ -372,15 +389,15 @@ const AttendanceManagement = () => {
                 </label>
                 <input
                   type="date"
-                  value={filters.end}
-                  onChange={(e) => updateFilter('end', e.target.value)}
+                  value={draftFilters.end}
+                  onChange={(e) => updateDraft('end', e.target.value)}
                   className="input text-sm w-full"
                 />
               </div>
 
               {renderSelect('employee', 'الموظف', FaUser,
                 <>
-                  <option value="all">جميع الموظفين</option>
+                  <option value="all">جميع المستخدمين</option>
                   {employees.map(e => (
                     <option key={e._id} value={e._id}>{e.name}</option>
                   ))}
@@ -404,30 +421,43 @@ const AttendanceManagement = () => {
                   ))}
                 </>
               )}
+
+              <div className="flex items-end">
+                <button
+                  onClick={confirmFilters}
+                  className="btn btn-primary w-full flex items-center justify-center gap-2 text-sm"
+                >
+                  <FaSearch />
+                  بحث
+                </button>
+              </div>
             </div>
 
-            {(filters.start || filters.end || filters.employee !== 'all' || filters.status !== 'all' || filters.department !== 'all') && (
+            {(appliedFilters.start || appliedFilters.end || appliedFilters.employee !== 'all' || draftFilters.status !== 'all' || appliedFilters.department !== 'all') && (
               <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
-                <span className="text-xs text-gray-400">فلاتر نشطة:</span>
-                {filters.start && <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{filters.start}</span>}
-                {filters.end && <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{filters.end}</span>}
-                {filters.employee !== 'all' && (
+                <span className="text-xs text-gray-400">الفلاتر المطبقة:</span>
+                {appliedFilters.start && <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{appliedFilters.start}</span>}
+                {appliedFilters.end && <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{appliedFilters.end}</span>}
+                {appliedFilters.employee !== 'all' && (
                   <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                    {employees.find(e => e._id === filters.employee)?.name || 'موظف'}
+                    {employees.find(e => e._id === appliedFilters.employee)?.name || 'موظف'}
                   </span>
                 )}
-                {filters.status !== 'all' && (
+                {draftFilters.status !== 'all' && (
                   <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                    {ATTENDANCE_STATUS_MAP[filters.status]?.label}
+                    {ATTENDANCE_STATUS_MAP[draftFilters.status]?.label}
                   </span>
                 )}
-                {filters.department !== 'all' && (
+                {appliedFilters.department !== 'all' && (
                   <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                    {filters.department}
+                    {appliedFilters.department}
                   </span>
                 )}
                 <button
-                  onClick={() => setFilters({ start: '', end: '', employee: 'all', status: 'all', department: 'all' })}
+                  onClick={() => {
+                    setDraftFilters({ start: '', end: '', employee: 'all', status: 'all', department: 'all' });
+                    setAppliedFilters({ start: '', end: '', employee: 'all', department: 'all' });
+                  }}
                   className="text-xs text-primary hover:underline mr-auto"
                 >
                   مسح الكل

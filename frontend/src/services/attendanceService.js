@@ -87,7 +87,9 @@ export const getAttendanceDashboard = async () => {
 };
 
 export const syncZKTecoDevice = async () => {
-  const response = await api.post('/zkteco/sync');
+  const response = await api.post('/zkteco/sync', null, {
+    timeout: 180000
+  });
   return response.data;
 };
 
@@ -181,7 +183,9 @@ export const bulkMapUsers = async (mappings) => {
 };
 
 export const cleanSyncDevice = async () => {
-  const response = await api.post('/zkteco/clean-sync');
+  const response = await api.post('/zkteco/clean-sync', {}, {
+    timeout: 300000
+  });
   return response.data;
 };
 

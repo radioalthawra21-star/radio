@@ -316,7 +316,7 @@ const BiometricManagement = () => {
         showSuccess(res.message);
         setSelectedSystemUser(null);
         setSelectedDeviceUser(null);
-        loadUnmappedUsers();
+        loadUnmappedUsers(showAllDeviceUsers);
         loadDashboardStats();
         loadSystemUsers(searchUser);
         loadRecentActivity();
@@ -337,6 +337,7 @@ const BiometricManagement = () => {
         showSuccess(res.message);
         loadDashboardStats();
         loadSystemUsers(searchUser);
+        loadUnmappedUsers(showAllDeviceUsers);
       } else {
         showError(res.message || 'فشل فك الربط');
       }
@@ -366,7 +367,7 @@ const BiometricManagement = () => {
         showSuccess(res.message);
         setBulkMapping([]);
         setShowBulkModal(false);
-        loadUnmappedUsers();
+        loadUnmappedUsers(showAllDeviceUsers);
         loadDashboardStats();
         loadSystemUsers(searchUser);
       } else {

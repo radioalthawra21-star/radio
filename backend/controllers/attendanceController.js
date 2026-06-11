@@ -7,6 +7,7 @@ const { Attendance, AttendanceStatus, CheckInStatus, CheckOutStatus } = require(
 const { User } = require('../models/User');
 const { LeaveRequest, LeaveStatus } = require('../models/LeaveRequest');
 const { Settings } = require('../models/Settings');
+const Holiday = require('../models/Holiday');
 
 /**
  * Check in employee
@@ -412,7 +413,7 @@ const getDepartmentAttendance = async (req, res) => {
 const updateAttendance = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, isApproved, notes } = req.body;
+    const { status, isApproved, notes, checkInTime, checkOutTime } = req.body;
     
     const attendance = await Attendance.findById(id);
     if (!attendance) {
@@ -424,7 +425,15 @@ const updateAttendance = async (req, res) => {
     
     if (status) attendance.status = status;
     if (isApproved !== undefined) attendance.isApproved = isApproved;
-    if (notes) attendance.notes = notes;
+    if (notes !== undefined) attendance.notes = notes;
+    if (checkInTime) {
+      attendance.checkIn = attendance.checkIn || {};
+      attendance.checkIn.time = new Date(checkInTime);
+    }
+    if (checkOutTime) {
+      attendance.checkOut = attendance.checkOut || {};
+      attendance.checkOut.time = new Date(checkOutTime);
+    }
     
     attendance.approvedBy = req.user._id;
     attendance.approvedAt = new Date();
@@ -867,6 +876,18 @@ const getMonthlyTimesheet = async (req, res) => {
     const monthEnd = new Date(year, month, 0, 23, 59, 59, 999);
     const daysInMonth = new Date(year, month, 0).getDate();
 
+    const holidays = await Holiday.find({
+      startDate: { $lte: monthEnd },
+      endDate: { $gte: monthStart }
+    }).lean();
+
+    const approvedLeaves = await LeaveRequest.find({
+      employee: employeeId,
+      status: { $in: ['approved', 'synced_to_payroll'] },
+      startDate: { $lte: monthEnd },
+      endDate: { $gte: monthStart }
+    }).lean();
+
     const records = await Attendance.find({
       employee: employeeId,
       date: { $gte: monthStart, $lte: monthEnd }
@@ -882,6 +903,8 @@ const getMonthlyTimesheet = async (req, res) => {
     }
 
     const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const daily = [];
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -890,16 +913,50 @@ const getMonthlyTimesheet = async (req, res) => {
       const dayRecords = recordsByDate[key] || [];
       const dayOfWeek = date.getDay();
 
+      const isFriday = dayOfWeek === 5;
+      const isNotYet = key >= todayKey;
+
+      const holidayMatch = holidays.find(h => {
+        const s = new Date(h.startDate);
+        const e = new Date(h.endDate);
+        s.setHours(0,0,0,0);
+        e.setHours(23,59,59,999);
+        return date >= s && date <= e;
+      });
+      const holidayName = holidayMatch ? holidayMatch.name : null;
+
+      const leaveMatch = approvedLeaves.find(l => {
+        const s = new Date(l.startDate);
+        const e = new Date(l.endDate);
+        s.setHours(0,0,0,0);
+        e.setHours(23,59,59,999);
+        return date >= s && date <= e;
+      });
+
       let entry = {
         date: key,
         dayName: dayNames[dayOfWeek],
         dayOfWeek,
+        isWeekend: isFriday,
+        isFuture: isNotYet,
+        isHoliday: !!holidayName,
+        holidayName,
+        isOnLeave: !!leaveMatch,
+        leaveType: leaveMatch ? leaveMatch.type : null,
         firstCheckIn: null,
         lastCheckOut: null,
         totalWorkedHours: 0,
         attendanceStatus: null,
         hasRecord: false
       };
+
+      if (holidayName) {
+        entry.attendanceStatus = 'holiday';
+      } else if (leaveMatch) {
+        entry.attendanceStatus = 'on_leave';
+      } else if (dayRecords.length === 0 && !isFriday && !isNotYet) {
+        entry.attendanceStatus = 'absent';
+      }
 
       if (dayRecords.length > 0) {
         dayRecords.sort((a, b) => {
@@ -912,6 +969,8 @@ const getMonthlyTimesheet = async (req, res) => {
         const lastRecord = dayRecords[dayRecords.length - 1];
 
         entry.hasRecord = true;
+        entry.recordId = lastRecord._id;
+        entry.firstRecordId = firstRecord._id;
         entry.firstCheckIn = firstRecord.checkIn && firstRecord.checkIn.time ? firstRecord.checkIn.time : null;
 
         if (lastRecord.checkOut && lastRecord.checkOut.time) {
@@ -931,37 +990,81 @@ const getMonthlyTimesheet = async (req, res) => {
         entry.checkOutStatus = lastRecord.checkOut ? lastRecord.checkOut.status : null;
         entry.overtime = lastRecord.overtime || 0;
         entry.expectedHours = lastRecord.expectedHours || 8;
-        entry.isLate = lastRecord.status === 'late';
-        entry.isEarlyDeparture = lastRecord.checkOut && lastRecord.checkOut.status === 'early';
+        entry.isLate = false;
+        entry.lateHours = 0;
+        entry.isEarlyDeparture = false;
+        entry.earlyDepartureMinutes = 0;
+
+        if (entry.firstCheckIn && (!leaveMatch || leaveMatch.type !== 'hourly')) {
+          const checkInDate = new Date(entry.firstCheckIn);
+          const checkInMin = checkInDate.getUTCHours() * 60 + checkInDate.getUTCMinutes();
+          const workStartMin = 6 * 60; // 06:00 UTC = 09:00 Saudi
+          const diffMin = checkInMin - workStartMin;
+          if (diffMin > 0) {
+            entry.lateHours = Math.round(diffMin / 60 * 100) / 100;
+            entry.isLate = true;
+            if (entry.attendanceStatus !== 'holiday' && entry.attendanceStatus !== 'on_leave') {
+              entry.attendanceStatus = 'late';
+            }
+          }
+        }
+
+        entry.overtimeMinutes = 0;
+
+        if (entry.lastCheckOut) {
+          const checkOutDate = new Date(entry.lastCheckOut);
+          const checkOutMin = checkOutDate.getUTCHours() * 60 + checkOutDate.getUTCMinutes();
+          const workEndMin = 13 * 60; // 13:00 UTC = 16:00 Saudi
+
+          const earlyMin = workEndMin - checkOutMin;
+          if (earlyMin > 0) {
+            entry.earlyDepartureMinutes = earlyMin;
+            entry.isEarlyDeparture = true;
+          }
+
+          const overtimeMin = checkOutMin - workEndMin;
+          if (overtimeMin > 0) {
+            entry.overtimeMinutes = overtimeMin;
+          }
+        }
       }
 
       daily.push(entry);
     }
 
-    const attendanceDays = daily.filter(d => d.hasRecord && d.attendanceStatus !== 'absent' && d.attendanceStatus !== 'on_leave');
     const presentDays = daily.filter(d => d.attendanceStatus === 'present');
-    const lateDays = daily.filter(d => d.attendanceStatus === 'late');
+    const lateByStatus = daily.filter(d => d.attendanceStatus === 'late');
+    const lateDays = daily.filter(d => d.isLate);
+    const lateHoursSum = Math.round(lateDays.reduce((sum, d) => sum + (d.lateHours || 0), 0) * 100) / 100;
+    const earlyDepartureDays = daily.filter(d => d.isEarlyDeparture);
+    const earlyDepartureMinutesSum = earlyDepartureDays.reduce((sum, d) => sum + (d.earlyDepartureMinutes || 0), 0);
+    const overtimeDays = daily.filter(d => d.overtimeMinutes > 0);
+    const overtimeMinutesSum = overtimeDays.reduce((sum, d) => sum + (d.overtimeMinutes || 0), 0);
     const halfDays = daily.filter(d => d.attendanceStatus === 'half_day');
     const absentDays = daily.filter(d => d.attendanceStatus === 'absent');
     const onLeaveDays = daily.filter(d => d.attendanceStatus === 'on_leave');
-    const earlyDepartureDays = daily.filter(d => d.isEarlyDeparture);
+    const holidayDays = daily.filter(d => d.attendanceStatus === 'holiday');
     const incompleteDays = daily.filter(d => d.hasRecord && (!d.firstCheckIn || !d.lastCheckOut));
+
+    const totalWorkingDays = daily.filter(d => !d.isWeekend && !d.isFuture && !d.isHoliday && !d.isOnLeave).length;
 
     const summary = {
       totalDaysInMonth: daysInMonth,
-      totalWorkingDays: attendanceDays.length,
-      totalAttendanceDays: presentDays.length + lateDays.length + halfDays.length,
+      totalWorkingDays,
+      totalAttendanceDays: presentDays.length + lateByStatus.length + halfDays.length,
       totalPresentDays: presentDays.length,
       totalLateDays: lateDays.length,
+      totalLateHours: lateHoursSum,
       totalHalfDays: halfDays.length,
       totalAbsenceDays: absentDays.length,
       totalOnLeaveDays: onLeaveDays.length,
-      totalLateArrivals: lateDays.length,
+      totalHolidays: holidayDays.length,
       totalEarlyDepartures: earlyDepartureDays.length,
+      totalEarlyDepartureMinutes: earlyDepartureMinutesSum,
       totalIncompleteDays: incompleteDays.length,
-      totalOvertimeHours: Math.round(daily.reduce((sum, d) => sum + (d.overtime || 0), 0) * 100) / 100,
+      totalOvertimeMinutes: overtimeMinutesSum,
       totalWorkedHours: Math.round(daily.reduce((sum, d) => sum + (d.totalWorkedHours || 0), 0) * 100) / 100,
-      noRecordDays: daily.filter(d => !d.hasRecord).length
+      noRecordDays: daily.filter(d => !d.hasRecord && !d.isWeekend && !d.isHoliday && !d.isOnLeave).length
     };
 
     res.json({

@@ -1,27 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaCalendarAlt, FaArrowRight, FaFileAlt, FaDownload, FaUser } from 'react-icons/fa';
-import { getMonthlyTimesheet } from '../../services/attendanceService';
+import { FaCalendarAlt, FaArrowRight, FaFileAlt, FaPen } from 'react-icons/fa';
+import { getMonthlyTimesheet, updateAttendanceRecord } from '../../services/attendanceService';
 import { getAllUsers } from '../../services/userService';
+
+const LEAVE_TYPE_LABELS = {
+  annual: 'سنوية', sick: 'مرضية', emergency: 'طارئة', exceptional: 'استثنائية',
+  death: 'وفاة', unpaid: 'بدون راتب', maternity: 'وضع', paternity: 'أبوة',
+  compensatory: 'تعويضية', hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
+  attendance_correction: 'تصحيح بصمة',
+};
 
 const STATUS_MAP = {
   present: { label: 'حاضر', color: 'text-green-700', bg: 'bg-green-50', dot: 'bg-green-500' },
   late: { label: 'متأخر', color: 'text-yellow-700', bg: 'bg-yellow-50', dot: 'bg-yellow-500' },
   absent: { label: 'غائب', color: 'text-red-700', bg: 'bg-red-50', dot: 'bg-red-500' },
   half_day: { label: 'نصف يوم', color: 'text-orange-700', bg: 'bg-orange-50', dot: 'bg-orange-500' },
-  on_leave: { label: 'في إجازة', color: 'text-blue-700', bg: 'bg-blue-50', dot: 'bg-blue-500' },
+  on_leave: { label: 'في إجازة', color: 'text-orange-700', bg: 'bg-orange-50', dot: 'bg-orange-500' },
   work_from_home: { label: 'عمل عن بعد', color: 'text-purple-700', bg: 'bg-purple-50', dot: 'bg-purple-500' },
+  holiday: { label: 'عطلة', color: 'text-white', bg: 'bg-red-600', dot: 'bg-white' },
 };
 
 const formatTime = (iso) =>
-  iso ? new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '-';
+  iso ? new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
 
 const formatHours = (hours) => {
   if (hours === null || hours === undefined) return '-';
-  const h = Math.floor(hours);
-  const m = Math.round((hours - h) * 60);
-  if (h === 0 && m === 0) return '0s';
-  return m > 0 ? `${h}s ${m}د` : `${h}s`;
+  return hours.toFixed(2);
 };
 
 const MonthlyTimesheet = () => {
@@ -39,6 +44,9 @@ const MonthlyTimesheet = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editDay, setEditDay] = useState(null);
+  const [editForm, setEditForm] = useState({ status: '', checkInTime: '', checkOutTime: '', notes: '' });
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     if (isAdminOrHr) {
@@ -72,6 +80,60 @@ const MonthlyTimesheet = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     loadTimesheet();
+  };
+
+  const toTimeInput = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  };
+
+  const toISOFromTime = (dateStr, timeStr) => {
+    if (!dateStr || !timeStr) return null;
+    const [h, m] = timeStr.split(':');
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setHours(parseInt(h), parseInt(m), 0, 0);
+    return d.toISOString();
+  };
+
+  const openEditModal = (day) => {
+    setEditDay(day);
+    setEditForm({
+      status: day.attendanceStatus || 'present',
+      checkInTime: toTimeInput(day.firstCheckIn),
+      checkOutTime: toTimeInput(day.lastCheckOut),
+      notes: '',
+    });
+  };
+
+  const closeEditModal = () => {
+    setEditDay(null);
+    setEditSaving(false);
+  };
+
+  const handleEditSave = async () => {
+    if (!editDay || !editDay.recordId) return;
+    setEditSaving(true);
+    try {
+      const body = { status: editForm.status, notes: editForm.notes || '' };
+      if (editForm.checkInTime) {
+        body.checkInTime = toISOFromTime(editDay.date, editForm.checkInTime);
+      }
+      if (editForm.checkOutTime) {
+        body.checkOutTime = toISOFromTime(editDay.date, editForm.checkOutTime);
+      }
+      const res = await updateAttendanceRecord(editDay.recordId, body);
+      if (res.success) {
+        closeEditModal();
+        loadTimesheet();
+      } else {
+        setError(res.message || 'فشل الحفظ');
+      }
+    } catch (err) {
+      setError(err.userMessage || 'حدث خطأ في الحفظ');
+    } finally {
+      setEditSaving(false);
+    }
   };
 
   const months = [
@@ -169,9 +231,11 @@ const MonthlyTimesheet = () => {
               <StatBox label="أيام الحضور" value={data.summary.totalAttendanceDays} color="text-green-700" bg="bg-green-50" />
               <StatBox label="أيام الغياب" value={data.summary.totalAbsenceDays} color="text-red-700" bg="bg-red-50" />
               <StatBox label="أيام التأخير" value={data.summary.totalLateDays} color="text-yellow-700" bg="bg-yellow-50" />
-              <StatBox label="خروج مبكر" value={data.summary.totalEarlyDepartures} color="text-orange-700" bg="bg-orange-50" />
+              <StatBox label="ساعات التأخير" value={formatHours(data.summary.totalLateHours || 0)} color="text-yellow-700" bg="bg-yellow-50" />
+              <StatBox label="خروج مبكر" value={(data.summary.totalEarlyDepartureMinutes || 0) + ' د'} color="text-orange-700" bg="bg-orange-50" />
+              <StatBox label="العطل" value={data.summary.totalHolidays} color="text-red-700" bg="bg-red-50" />
               <StatBox label="ساعات العمل" value={formatHours(data.summary.totalWorkedHours)} color="text-teal-700" bg="bg-teal-50" />
-              <StatBox label="ساعات إضافية" value={formatHours(data.summary.totalOvertimeHours)} color="text-purple-700" bg="bg-purple-50" />
+              <StatBox label="ساعات إضافية" value={(data.summary.totalOvertimeMinutes ? (data.summary.totalOvertimeMinutes / 60).toFixed(1) : '0') + ' ساعة'} color="text-purple-700" bg="bg-purple-50" />
             </div>
           </div>
 
@@ -189,6 +253,7 @@ const MonthlyTimesheet = () => {
                     <th className="px-3 py-3 text-white font-semibold text-xs text-center whitespace-nowrap">تسجيل الخروج</th>
                     <th className="px-3 py-3 text-white font-semibold text-xs text-center whitespace-nowrap">ساعات العمل</th>
                     <th className="px-3 py-3 text-white font-semibold text-xs text-center whitespace-nowrap">الحالة</th>
+                    {isAdminOrHr && <th className="px-3 py-3 text-white font-semibold text-xs text-center whitespace-nowrap"></th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -197,13 +262,22 @@ const MonthlyTimesheet = () => {
                       ? STATUS_MAP[day.attendanceStatus]
                       : null;
                     return (
-                      <tr key={day.date} className={`border-b border-gray-100 transition-colors hover:bg-gray-50 ${!day.hasRecord ? 'opacity-60' : ''}`}>
+                      <tr key={day.date} className={`border-b border-gray-100 transition-colors hover:bg-gray-50 ${!day.hasRecord && !day.attendanceStatus ? 'opacity-60' : ''}`}>
                         <td className="px-3 py-2.5 align-middle whitespace-nowrap">
-                          <span className="text-xs font-medium" style={{ color: '#6B7280' }}>{day.dayName}</span>
+                          <span className="text-xs font-medium" style={{
+                            color: day.dayOfWeek === 5 ? '#DC2626' : '#6B7280',
+                            fontWeight: day.dayOfWeek === 5 ? 700 : 500
+                          }}>
+                            {day.dayName} {day.dayOfWeek === 5 ? '‼' : ''}
+                          </span>
                         </td>
                         <td className="px-3 py-2.5 align-middle whitespace-nowrap">
-                          <span className="font-medium text-xs" style={{ color: '#182E4E' }}>
-                            {new Date(day.date + 'T00:00:00').toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' })}
+                          <span className="font-medium text-xs" style={{
+                            color: day.dayOfWeek === 5 ? '#DC2626' : '#182E4E',
+                            fontWeight: day.dayOfWeek === 5 ? 700 : 500
+                          }}>
+                            {new Date(day.date + 'T00:00:00').toLocaleDateString('en-SA', { day: 'numeric', month: 'short' })}
+                            {day.isHoliday && <span className="block text-[10px] text-red-600 font-semibold">{day.holidayName}</span>}
                           </span>
                         </td>
                         <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap">
@@ -223,14 +297,27 @@ const MonthlyTimesheet = () => {
                         </td>
                         <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap">
                           {statusInfo ? (
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${statusInfo.bg} ${statusInfo.color}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot}`} />
-                              {statusInfo.label}
+                            <span className={`inline-flex flex-col items-center gap-0.5 px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.bg} ${statusInfo.color}`}>
+                              <span className="flex items-center gap-1">
+                                <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot}`} />
+                                {statusInfo.label}
+                              </span>
+                              {day.isOnLeave && day.leaveType && (
+                                <span className="text-[9px] opacity-75">{LEAVE_TYPE_LABELS[day.leaveType] || day.leaveType}</span>
+                              )}
                             </span>
                           ) : (
                             <span className="text-xs" style={{ color: '#9CA3AF' }}>—</span>
                           )}
                         </td>
+                        {isAdminOrHr && day.hasRecord && (
+                          <td className="px-2 py-2.5 align-middle text-center whitespace-nowrap">
+                            <button onClick={() => openEditModal(day)}
+                              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-primary">
+                              <FaPen className="w-3 h-3" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}
@@ -239,6 +326,65 @@ const MonthlyTimesheet = () => {
             </div>
           </div>
         </>
+      )}
+
+      {editDay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={(e) => e.target === e.currentTarget && closeEditModal()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" dir="rtl">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h3 className="text-lg font-bold" style={{ color: '#182E4E' }}>تعديل سجل الحضور</h3>
+              <button onClick={closeEditModal} className="text-gray-400 hover:text-gray-600 transition-colors text-xl">✕</button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">الموظف</p>
+                <p className="font-medium" style={{ color: '#182E4E' }}>{data?.employee?.name || '-'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">التاريخ</p>
+                <p className="font-medium" style={{ color: '#182E4E' }}>
+                  {editDay.date ? new Date(editDay.date + 'T00:00:00').toLocaleDateString('en-SA', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">الحالة</label>
+                <select value={editForm.status} onChange={(e) => setEditForm(p => ({ ...p, status: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:ring-2 focus:ring-primary focus:border-transparent">
+                  {Object.entries(STATUS_MAP).map(([k, v]) => (
+                    <option key={k} value={k}>{v.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">وقت تسجيل الدخول</label>
+                <input type="time" value={editForm.checkInTime} onChange={(e) => setEditForm(p => ({ ...p, checkInTime: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:ring-2 focus:ring-primary focus:border-transparent" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">وقت تسجيل الخروج</label>
+                <input type="time" value={editForm.checkOutTime} onChange={(e) => setEditForm(p => ({ ...p, checkOutTime: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:ring-2 focus:ring-primary focus:border-transparent" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ملاحظات</label>
+                <textarea value={editForm.notes} onChange={(e) => setEditForm(p => ({ ...p, notes: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full min-h-[80px] resize-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="ملاحظات... (اختياري)" />
+              </div>
+            </div>
+            <div className="flex gap-3 p-5 border-t border-gray-100">
+              <button onClick={handleEditSave} disabled={editSaving}
+                className="flex-1 bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors">
+                {editSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+              </button>
+              <button onClick={closeEditModal}
+                className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

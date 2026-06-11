@@ -31,9 +31,11 @@ const menuItems = {
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
     { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
+    { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
   ],
   hr: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
+    { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
     { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
@@ -56,6 +58,7 @@ const menuItems = {
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
     { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
+    { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
     { path: '/financial-misc/report', label: 'تقرير متفرقات مالية', icon: '📊' }
   ]
