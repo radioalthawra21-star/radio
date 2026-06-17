@@ -133,6 +133,9 @@ export default function TempSupervisorPage() {
   const [allUsers, setAllUsers] = useState([]);
 
   const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const actStartDefault = new Date(now.getFullYear(), now.getMonth() - 1, 12).toISOString().split('T')[0];
+  const actEndDefault = new Date(now.getFullYear(), now.getMonth(), 12).toISOString().split('T')[0];
 
   const [todayStr] = useState(today);
 
@@ -170,8 +173,8 @@ export default function TempSupervisorPage() {
   const [mergeData, setMergeData] = useState([]);
 
   // activity
-  const [actStartDate, setActStartDate] = useState(today);
-  const [actEndDate, setActEndDate] = useState(today);
+  const [actStartDate, setActStartDate] = useState(actStartDefault);
+  const [actEndDate, setActEndDate] = useState(actEndDefault);
   const [actEmployee, setActEmployee] = useState('');
   const [actEmployeeId, setActEmployeeId] = useState('');
   const [activityData, setActivityData] = useState([]);
