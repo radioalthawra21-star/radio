@@ -4,7 +4,7 @@ import {
   getFinalAttendance, createManualOverride, deleteManualOverride,
   getDeviceUsersForSupervisor, getSupervisorStats,
   syncDeviceNow, downloadAttendanceExcel, downloadEmployeeActivityExcel,
-  relinkDeviceLogs
+  relinkDeviceLogs, getEmployeeActivity
 } from '../../services/supervisorService';
 
 const TABS = [
@@ -318,8 +318,26 @@ export default function TempSupervisorPage() {
       const user = allUsers.find(u => u.zkUserId === actEmployee);
       if (!user) { setActivityData([]); showToast('الموظف غير موجود', 'error'); return; }
       setActEmployeeId(user._id);
-      const res = await getFinalAttendance({ startDate: actStartDate, endDate: actEndDate, employeeId: user._id });
-      let data = res.success ? res.data : [];
+      const res = await getEmployeeActivity(user._id, actStartDate, actEndDate);
+      if (!res.success) { setActivityData([]); return; }
+      const { attendance, approvedLeaves } = res.data;
+
+      // Build leave date lookup: which dates are covered by an approved leave
+      const leaveDateMap = new Map();
+      approvedLeaves.forEach(lv => {
+        const lvStart = new Date(lv.startDate);
+        lvStart.setHours(0, 0, 0, 0);
+        const lvEnd = new Date(lv.endDate);
+        lvEnd.setHours(0, 0, 0, 0);
+        const cur = new Date(lvStart);
+        while (cur <= lvEnd) {
+          const key = cur.toISOString().split('T')[0];
+          if (!leaveDateMap.has(key)) {
+            leaveDateMap.set(key, lv);
+          }
+          cur.setDate(cur.getDate() + 1);
+        }
+      });
 
       // Fill missing dates
       const start = new Date(actStartDate);
@@ -327,7 +345,7 @@ export default function TempSupervisorPage() {
       start.setHours(0, 0, 0, 0);
       end.setHours(0, 0, 0, 0);
       const dateMap = new Map();
-      data.forEach(r => {
+      attendance.forEach(r => {
         const d = new Date(r.date);
         dateMap.set(d.toISOString().split('T')[0], r);
       });
@@ -336,9 +354,22 @@ export default function TempSupervisorPage() {
       while (cursor <= end) {
         const key = cursor.toISOString().split('T')[0];
         if (dateMap.has(key)) {
-          filled.push(dateMap.get(key));
+          const rec = dateMap.get(key);
+          // إذا كان السجل يشير إلى إجازة، أضف معلومات الإجازة
+          if (rec.leave || leaveDateMap.has(key)) {
+            const lv = rec.leave || leaveDateMap.get(key);
+            rec._compensatedByLeave = lv;
+          }
+          filled.push(rec);
         } else {
-          filled.push({ _id: null, date: new Date(cursor), isMissing: true, checkIn: null, checkOut: null, duration: null, status: null, overtime: null, employee: user });
+          const isLeaveDay = leaveDateMap.has(key);
+          const lv = leaveDateMap.get(key);
+          filled.push({
+            _id: null, date: new Date(cursor), checkIn: null, checkOut: null,
+            duration: null, status: null, overtime: null, employee: user,
+            isMissing: !isLeaveDay,
+            _compensatedByLeave: isLeaveDay ? lv : null
+          });
         }
         cursor.setDate(cursor.getDate() + 1);
       }
@@ -858,7 +889,20 @@ export default function TempSupervisorPage() {
                     const hasCheckOut = !!r.checkOut?.time;
                     let notes = '';
                     let statusDisplay = r.status;
-                    if (r.isMissing) {
+                    const compensated = r._compensatedByLeave;
+                    const leaveTypeLabel = compensated?.type ? {
+                      annual: 'سنوية', sick: 'مرضية', emergency: 'طارئة',
+                      exceptional: 'استثنائية', death: 'وفاة', unpaid: 'بدون راتب',
+                      maternity: 'وضع', paternity: 'أبوة', compensatory: 'تعويضية',
+                      hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
+                      attendance_correction: 'تصحيح بصمة', fingerprint_forgotten: 'نسيان بصمة'
+                    }[compensated.type] || compensated.type : null;
+                    if (compensated) {
+                      notes = `✅ تم تعويض النقص بإجازة ${leaveTypeLabel || ''}`;
+                      rowBg = 'bg-emerald-900/15';
+                      statusDisplay = statusDisplay || 'on_leave';
+                      if (!r.status) r.status = 'on_leave';
+                    } else if (r.isMissing) {
                       notes = 'لا توجد بصمة ولا سجل حضور';
                       rowBg = 'bg-purple-900/10';
                       statusDisplay = null;
@@ -880,10 +924,10 @@ export default function TempSupervisorPage() {
                         <td className="p-3">{getDayName(r.date)}</td>
                         <td className="p-3">{r.checkIn?.time ? safeTime(r.checkIn.time) : '---'}</td>
                         <td className="p-3">{r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
-                        <td className="p-3 font-medium text-blue-400">{r.duration ? `${r.duration.toFixed(1)} س` : '-'}</td>
+                        <td className="p-3 font-medium text-blue-400">{r.duration ? `${r.duration.toFixed(1)} س` : (compensated ? '-' : '-')}</td>
                         <td className="p-3">{statusDisplay ? <StatusBadge status={r.status} /> : <span className="text-gray-500">---</span>}</td>
                         <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                        <td className="p-3 text-xs max-w-[200px]" style={{ color: r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
+                        <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#34d399' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
                     );
                   })}

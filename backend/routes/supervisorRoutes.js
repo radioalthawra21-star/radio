@@ -12,7 +12,8 @@ const {
   getSupervisorStats,
   downloadAttendancePDF,
   downloadAttendanceExcel,
-  downloadEmployeeActivityExcel
+  downloadEmployeeActivityExcel,
+  getEmployeeActivity
 } = require('../controllers/supervisorController');
 
 router.get('/dashboard', protect, getSupervisorDashboard);
@@ -26,5 +27,6 @@ router.get('/stats', protect, getSupervisorStats);
 router.get('/attendance-pdf', protect, downloadAttendancePDF);
 router.get('/attendance-excel', protect, downloadAttendanceExcel);
 router.get('/employee-activity-excel', protect, downloadEmployeeActivityExcel);
+router.get('/employee-activity', protect, getEmployeeActivity);
 
 module.exports = router;

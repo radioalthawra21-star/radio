@@ -795,6 +795,48 @@ async function downloadEmployeeActivityExcel(req, res) {
   }
 }
 
+async function getEmployeeActivity(req, res) {
+  try {
+    const { employeeId, startDate, endDate } = req.query;
+    if (!employeeId || !startDate || !endDate) {
+      return res.status(400).json({ success: false, message: 'employeeId, startDate, endDate مطلوبة' });
+    }
+
+    const dayStart = new Date(startDate);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(endDate);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const [attendanceRecords, approvedLeaves] = await Promise.all([
+      Attendance.find({
+        employee: employeeId,
+        date: { $gte: dayStart, $lte: dayEnd }
+      }).populate('employee', 'name email department zkUserId')
+        .populate('leave', 'type status startDate endDate reason')
+        .sort({ date: -1 }).lean(),
+
+      require('../models/LeaveRequest').LeaveRequest.find({
+        employee: employeeId,
+        status: { $in: ['approved', 'synced_to_payroll'] },
+        startDate: { $lte: dayEnd },
+        endDate: { $gte: dayStart }
+      }).select('type status startDate endDate reason isHalfDay fingerprintDate fingerprintType')
+        .sort({ startDate: -1 }).lean()
+    ]);
+
+    return res.json({
+      success: true,
+      data: {
+        attendance: attendanceRecords,
+        approvedLeaves
+      }
+    });
+  } catch (err) {
+    console.error('Employee activity error:', err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
 module.exports = {
   getSupervisorDashboard,
   getRawLogs,
@@ -806,5 +848,6 @@ module.exports = {
   getSupervisorStats,
   downloadAttendancePDF,
   downloadAttendanceExcel,
-  downloadEmployeeActivityExcel
+  downloadEmployeeActivityExcel,
+  getEmployeeActivity
 };

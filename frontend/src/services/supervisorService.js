@@ -112,6 +112,15 @@ export const downloadEmployeeActivityExcel = async (employeeId, startDate, endDa
   window.URL.revokeObjectURL(url);
 };
 
+export const getEmployeeActivity = async (employeeId, startDate, endDate) => {
+  const params = new URLSearchParams();
+  if (employeeId) params.append('employeeId', employeeId);
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  const response = await api.get(`/supervisor/employee-activity?${params.toString()}`);
+  return response.data;
+};
+
 export const downloadAttendanceExcel = async (employeeId, startDate, endDate) => {
   const params = new URLSearchParams();
   if (employeeId) params.append('employeeId', employeeId);
