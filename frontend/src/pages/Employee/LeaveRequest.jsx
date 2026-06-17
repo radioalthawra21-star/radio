@@ -12,6 +12,7 @@ const LEAVE_TYPES = [
   { value: 'paternity', label: 'إجازة أبوة', icon: '👨‍👧', color: 'text-purple-600', bg: 'bg-purple-50' },
   { value: 'unpaid', label: 'إجازة بدون راتب', icon: '💼', color: 'text-gray-600', bg: 'bg-gray-50' },
   { value: 'compensatory', label: 'إجازة تعويضية', icon: '🔄', color: 'text-teal-600', bg: 'bg-teal-50' },
+  { value: 'fingerprint_forgotten', label: 'نسيان بصمة', icon: '🖐️', color: 'text-indigo-600', bg: 'bg-indigo-50' },
 ];
 
 const STATUS_MAP = {
@@ -38,6 +39,9 @@ const LeaveRequest = () => {
     isHalfDay: false,
     reason: '',
     coveragePlan: '',
+    fingerprintType: 'in',
+    fingerprintDate: '',
+    fingerprintTime: '',
   });
 
   useEffect(() => {
@@ -63,13 +67,24 @@ const LeaveRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.startDate || !form.endDate || !form.reason.trim()) {
-      setError('يرجى ملء جميع الحقول المطلوبة');
+    if (!form.reason.trim()) {
+      setError('يرجى كتابة السبب');
       return;
     }
-    if (new Date(form.endDate) < new Date(form.startDate)) {
-      setError('تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية');
-      return;
+    if (form.type === 'fingerprint_forgotten') {
+      if (!form.fingerprintDate) {
+        setError('يرجى تحديد تاريخ البصمة');
+        return;
+      }
+    } else {
+      if (!form.startDate || !form.endDate) {
+        setError('يرجى تحديد تاريخ البداية والنهاية');
+        return;
+      }
+      if (new Date(form.endDate) < new Date(form.startDate)) {
+        setError('تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية');
+        return;
+      }
     }
     setSubmitting(true);
     setError('');
@@ -79,7 +94,7 @@ const LeaveRequest = () => {
       if (res.success) {
         setSuccess(res.message || 'تم تقديم طلب الإجازة بنجاح');
         setShowForm(false);
-        setForm({ type: 'annual', startDate: '', endDate: '', isHalfDay: false, reason: '', coveragePlan: '' });
+        setForm({ type: 'annual', startDate: '', endDate: '', isHalfDay: false, reason: '', coveragePlan: '', fingerprintType: 'in', fingerprintDate: '', fingerprintTime: '' });
         loadData();
       } else {
         setError(res.message || 'حدث خطأ في تقديم الطلب');
@@ -113,7 +128,7 @@ const LeaveRequest = () => {
 
   const getLeaveTypeInfo = (type) => LEAVE_TYPES.find(t => t.value === type) || { label: type, icon: '📋', color: 'text-gray-600', bg: 'bg-gray-50' };
 
-  const mainBalanceTypes = LEAVE_TYPES.filter(t => !['compensatory'].includes(t.value));
+  const mainBalanceTypes = LEAVE_TYPES.filter(t => !['compensatory', 'fingerprint_forgotten'].includes(t.value));
 
   const handleDeletePermanent = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذه الإجازة نهائياً من السجل؟ لا يمكن التراجع عن هذا الإجراء.')) return;
@@ -166,7 +181,7 @@ const LeaveRequest = () => {
           <h2 className="text-lg font-bold text-gray-900 mb-4">طلب إجازة جديد</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">نوع الإجازة</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">نوع الطلب</label>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -177,55 +192,111 @@ const LeaveRequest = () => {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ البداية</label>
-              <input
-                type="date"
-                value={form.startDate}
-                onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ النهاية</label>
-              <input
-                type="date"
-                value={form.endDate}
-                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
-              />
-            </div>
-            <div className="flex items-end pb-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.isHalfDay}
-                  onChange={(e) => setForm({ ...form, isHalfDay: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <span className="text-sm text-gray-700">نصف يوم</span>
-              </label>
-            </div>
+
+            {form.type === 'fingerprint_forgotten' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ البصمة</label>
+                  <input
+                    type="date"
+                    value={form.fingerprintDate}
+                    onChange={(e) => setForm({ ...form, fingerprintDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">نوع البصمة</label>
+                  <div className="flex gap-4 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="fingerprintType"
+                        value="in"
+                        checked={form.fingerprintType === 'in'}
+                        onChange={(e) => setForm({ ...form, fingerprintType: e.target.value })}
+                        className="w-4 h-4 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-gray-700">دخول</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="fingerprintType"
+                        value="out"
+                        checked={form.fingerprintType === 'out'}
+                        onChange={(e) => setForm({ ...form, fingerprintType: e.target.value })}
+                        className="w-4 h-4 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-gray-700">خروج</span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوقت (اختياري)</label>
+                  <input
+                    type="time"
+                    value={form.fingerprintTime}
+                    onChange={(e) => setForm({ ...form, fingerprintTime: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ البداية</label>
+                  <input
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ النهاية</label>
+                  <input
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div className="flex items-end pb-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.isHalfDay}
+                      onChange={(e) => setForm({ ...form, isHalfDay: e.target.checked })}
+                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <span className="text-sm text-gray-700">نصف يوم</span>
+                  </label>
+                </div>
+              </>
+            )}
+
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">السبب</label>
               <textarea
                 value={form.reason}
                 onChange={(e) => setForm({ ...form, reason: e.target.value })}
                 rows={3}
-                placeholder="اذكر سبب طلب الإجازة..."
+                placeholder={form.type === 'fingerprint_forgotten' ? 'اذكر سبب نسيان البصمة...' : 'اذكر سبب طلب الإجازة...'}
                 className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm resize-none"
               />
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">خطة تغطية العمل (اختياري)</label>
-              <input
-                type="text"
-                value={form.coveragePlan}
-                onChange={(e) => setForm({ ...form, coveragePlan: e.target.value })}
-                placeholder="من سيتولى مهامك أثناء الإجازة؟"
-                className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
-              />
-            </div>
+            {form.type !== 'fingerprint_forgotten' && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">خطة تغطية العمل (اختياري)</label>
+                <input
+                  type="text"
+                  value={form.coveragePlan}
+                  onChange={(e) => setForm({ ...form, coveragePlan: e.target.value })}
+                  placeholder="من سيتولى مهامك أثناء الإجازة؟"
+                  className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                />
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -304,10 +375,21 @@ const LeaveRequest = () => {
                           <div>
                             <h4 className="font-semibold text-gray-900 text-sm">{typeInfo.label}</h4>
                             <p className="text-xs text-gray-500 mt-0.5">
-                              {formatDate(req.startDate)} → {formatDate(req.endDate)}
-                              {req.isHalfDay ? ' (نصف يوم)' : ''}
-                              <span className="mx-1">·</span>
-                              {req.days} يوم
+                              {req.type === 'fingerprint_forgotten' ? (
+                                <>
+                                  {formatDate(req.fingerprintDate)}
+                                  <span className="mx-1">·</span>
+                                  {req.fingerprintType === 'in' ? 'دخول' : 'خروج'}
+                                  {req.fingerprintTime && <><span className="mx-1">·</span>⏰ {req.fingerprintTime}</>}
+                                </>
+                              ) : (
+                                <>
+                                  {formatDate(req.startDate)} → {formatDate(req.endDate)}
+                                  {req.isHalfDay ? ' (نصف يوم)' : ''}
+                                  <span className="mx-1">·</span>
+                                  {req.days} يوم
+                                </>
+                              )}
                             </p>
                             <p className="text-xs text-gray-400 mt-0.5">{req.reason?.slice(0, 80)}{req.reason?.length > 80 ? '...' : ''}</p>
                           </div>

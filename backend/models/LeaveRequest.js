@@ -20,6 +20,7 @@ const LeaveType = {
   MISSION: 'mission',
   OVERTIME: 'overtime',
   ATTENDANCE_CORRECTION: 'attendance_correction',
+  FINGERPRINT_FORGOTTEN: 'fingerprint_forgotten',
 };
 
 const LeaveStatus = {
@@ -69,6 +70,11 @@ const leaveRequestSchema = new mongoose.Schema({
   overtimeHourlyRate: { type: Number, default: null },
   overtimeMultiplier: { type: Number, default: null },
   estimatedAmount: { type: Number, default: null },
+
+  // Fingerprint-forgotten specific fields
+  fingerprintType: { type: String, enum: ['in', 'out', null], default: null },
+  fingerprintDate: { type: Date, default: null },
+  fingerprintTime: { type: String, default: null },
 
   // Payroll sync
   payrollItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'PayrollItem', default: null },
@@ -125,7 +131,7 @@ leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leave
   const usedHours = approvedLeaves.reduce((sum, l) => sum + (l.hours || 0), 0);
   const defaultBalances = {
     annual: 30, sick: 15, emergency: 5, exceptional: 10, death: 7, maternity: 90, paternity: 15,
-    compensatory: 0, unpaid: Infinity, hourly: 30, mission: Infinity, overtime: Infinity, attendance_correction: Infinity,
+    compensatory: 0, unpaid: Infinity, hourly: 30, mission: Infinity, overtime: Infinity, attendance_correction: Infinity, fingerprint_forgotten: Infinity,
   };
   const totalBalance = defaultBalances[effectiveType] || 0;
   const remainingBalance = totalBalance - usedDays;

@@ -21,6 +21,7 @@ const leaveTypes = [
   { value: 'unpaid', label: 'إجازة بدون راتب' },
   { value: 'mission', label: 'مأمورية' },
   { value: 'overtime', label: 'أجر إضافي' },
+  { value: 'fingerprint_forgotten', label: 'نسيان بصمة' },
 ];
 
 const LEAVE_TYPE_LABELS = {
@@ -28,12 +29,13 @@ const LEAVE_TYPE_LABELS = {
   death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
   maternity: 'إجازة وضع', paternity: 'إجازة أبوة', unpaid: 'إجازة بدون راتب',
   compensatory: 'إجازة تعويضية', mission: 'مأمورية', overtime: 'أجر إضافي',
+  fingerprint_forgotten: 'نسيان بصمة',
 };
 
 const LEAVE_TYPE_ICONS = {
   annual: '🏖️', sick: '🩺', exceptional: '⭐', death: '🕊️', hourly: '⏰',
   emergency: '🚨', maternity: '👶', paternity: '👨‍👧', unpaid: '💼', compensatory: '🔄',
-  mission: '📋', overtime: '💰',
+  mission: '📋', overtime: '💰', fingerprint_forgotten: '🖐️',
 };
 
 const STATUS_LABELS = {
@@ -84,7 +86,7 @@ const LeaveManagement = () => {
   }, []);
 
   const prepareChartData = (records) => {
-    const leaveTypeCounts = { annual: 0, sick: 0, emergency: 0, exceptional: 0, death: 0, hourly: 0, unpaid: 0, mission: 0, overtime: 0, other: 0 };
+    const leaveTypeCounts = { annual: 0, sick: 0, emergency: 0, exceptional: 0, death: 0, hourly: 0, unpaid: 0, mission: 0, overtime: 0, fingerprint_forgotten: 0, other: 0 };
     records.forEach(record => {
       const type = record.type || 'other';
       if (leaveTypeCounts[type] !== undefined) {
@@ -156,9 +158,9 @@ const LeaveManagement = () => {
     const tableData = leaveRequests.map(record => [
       getEmployeeNameFromRecord(record) || '-',
       LEAVE_TYPE_LABELS[record.type] || record.type || '-',
-      record.startDate ? formatDateArabic(record.startDate) : '-',
-      record.endDate ? formatDateArabic(record.endDate) : '-',
-      record.days || '0',
+      record.type === 'fingerprint_forgotten' ? (record.fingerprintDate ? formatDateArabic(record.fingerprintDate) : '-') : (record.startDate ? formatDateArabic(record.startDate) : '-'),
+      record.type === 'fingerprint_forgotten' ? (record.fingerprintType === 'in' ? 'دخول' : 'خروج') : (record.endDate ? formatDateArabic(record.endDate) : '-'),
+      record.type === 'fingerprint_forgotten' ? (record.fingerprintTime || '-') : (record.days || '0'),
       STATUS_LABELS[record.status]?.label || record.status || '-',
     ]);
 
@@ -354,9 +356,9 @@ const LeaveManagement = () => {
                 <tr key={r._id || r.id} className="border-b hover:bg-gray-50">
                   <td className="p-3">{getEmployeeNameFromRecord(r)}</td>
                   <td className="p-3">{getLeaveTypeLabelFn(r.type)}</td>
-                  <td className="p-3">{r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-'}</td>
-                  <td className="p-3">{r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-'}</td>
-                  <td className="p-3">{r.days || 0}</td>
+                  <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintDate ? new Date(r.fingerprintDate).toLocaleDateString('ar-SA') : '-') : (r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-')}</td>
+                  <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintType === 'in' ? 'دخول' : 'خروج') : (r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-')}</td>
+                  <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintTime || '-') : (r.days || 0)}</td>
                   <td className="p-3">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                       {statusInfo.label}
@@ -530,19 +532,30 @@ const LeaveManagement = () => {
                             </span>
                           </div>
                           <p className="text-sm font-medium">{getLeaveTypeLabelFn(req.type)}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {formatDate(req.startDate)} → {formatDate(req.endDate)}
-                            <span className="mx-1">·</span>
-                            {req.days} يوم
-                          </p>
+                          {req.type === 'fingerprint_forgotten' ? (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatDate(req.fingerprintDate)}
+                              <span className="mx-1">·</span>
+                              {req.fingerprintType === 'in' ? 'دخول' : 'خروج'}
+                              {req.fingerprintTime && <><span className="mx-1">·</span>⏰ {req.fingerprintTime}</>}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatDate(req.startDate)} → {formatDate(req.endDate)}
+                              <span className="mx-1">·</span>
+                              {req.days} يوم
+                            </p>
+                          )}
                           {req.managerSuggestedDays ? (
                             <p className="text-xs text-blue-600 mt-1">
                               المدير المباشر وافق على <strong>{req.managerSuggestedDays} يوم</strong> من أصل {req.days}
                             </p>
                           ) : (
-                            <p className="text-xs text-green-600 mt-1">
-                              المدير المباشر: موافقة كاملة ({req.days} يوم)
-                            </p>
+                            req.type !== 'fingerprint_forgotten' && (
+                              <p className="text-xs text-green-600 mt-1">
+                                المدير المباشر: موافقة كاملة ({req.days} يوم)
+                              </p>
+                            )
                           )}
                           <p className="text-sm text-gray-600 mt-2 bg-white p-2 rounded-lg">
                             {req.reason}
@@ -598,7 +611,7 @@ const LeaveManagement = () => {
                   <h3 className="text-lg font-bold mb-4">توزيع أنواع الإجازات</h3>
                   <PieChart
                     data={{
-                      labels: ['سنوية', 'مرضية', 'طارئة', 'استثنائية', 'وفاة', 'ساعية', 'بدون راتب', 'مأمورية', 'أخرى'],
+                      labels: ['سنوية', 'مرضية', 'طارئة', 'استثنائية', 'وفاة', 'ساعية', 'بدون راتب', 'مأمورية', 'نسيان بصمة', 'أخرى'],
                       data: [
                         chartData.leaveTypeCounts.annual,
                         chartData.leaveTypeCounts.sick,
@@ -608,6 +621,7 @@ const LeaveManagement = () => {
                         chartData.leaveTypeCounts.hourly,
                         chartData.leaveTypeCounts.unpaid,
                         chartData.leaveTypeCounts.mission,
+                        chartData.leaveTypeCounts.fingerprint_forgotten,
                         chartData.leaveTypeCounts.other,
                       ]
                     }}
@@ -655,9 +669,9 @@ const LeaveManagement = () => {
                           <tr key={r._id || r.id} className="border-b hover:bg-gray-50">
                             <td className="p-3">{getEmployeeNameFromRecord(r)}</td>
                             <td className="p-3">{getLeaveTypeLabelFn(r.type)}</td>
-                            <td className="p-3">{r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-'}</td>
-                            <td className="p-3">{r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-'}</td>
-                            <td className="p-3">{r.days || 0}</td>
+                            <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintDate ? new Date(r.fingerprintDate).toLocaleDateString('ar-SA') : '-') : (r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-')}</td>
+                            <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintType === 'in' ? 'دخول' : 'خروج') : (r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-')}</td>
+                            <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintTime || '-') : (r.days || 0)}</td>
                             <td className="p-3">
                               <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                                 {statusInfo.label}

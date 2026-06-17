@@ -44,6 +44,8 @@ const financialMiscRoutes = require('./routes/financialMiscRoutes');
 const coupletPromptRoutes = require('./routes/coupletPromptRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
 const zktecoRoutes = require('./routes/zktecoRoutes');
+const supervisorRoutes = require('./routes/supervisorRoutes');
+
 const holidayRoutes = require('./routes/holidayRoutes');
 
 // Initialize Express app
@@ -122,8 +124,8 @@ global.io = io;
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Connect to database
-connectDB();
+// Connect to database (must complete before server starts accepting requests)
+const dbReady = connectDB();
 
 // Serve static fonts from frontend/dist/fonts with correct MIME types and CORS headers
 app.use('/fonts', (req, res, next) => {
@@ -217,7 +219,12 @@ app.use('/api/recruitment', recruitmentPerformanceRoutes);
 app.use('/api/financial-misc', financialMiscRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/zkteco', zktecoRoutes);
+app.use('/api/supervisor', supervisorRoutes);
+
 app.use('/api/holidays', holidayRoutes);
+
+// Serve the Temp-Supervisor page
+app.use('/supervisor', express.static(path.join(__dirname, 'public')));
 
 // Health check endpoint (مهم لـ Render)
 app.get('/api/health', (req, res) => {
@@ -289,8 +296,8 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// بدء السيرفر
-startServer();
+// بدء السيرفر (بعد التأكد من اتصال قاعدة البيانات)
+dbReady.then(() => startServer()).catch(err => { console.error('❌ فشل بدء الخادم:', err.message); process.exit(1); });
 
 // تصدير التطبيق للاستخدام في الاختبارات أو الـ serverless
 module.exports = app;

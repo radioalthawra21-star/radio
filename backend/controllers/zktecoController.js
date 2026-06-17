@@ -417,20 +417,26 @@ async function syncDeviceAttendance(req, res) {
           details.push({ id: existing._id, action: 'no_change', skipped: true });
         }
       } else {
+        if (!group.user) {
+          skipped++;
+          deviceLogBulk.push({ insertOne: { document: {
+            deviceUserId: group.zkId, employee: null,
+            timestamp: checkInTime, eventType: 'checkin',
+            deviceUserName: `مستخدم جهاز #${group.zkId}`,
+            deviceName
+          }}});
+          details.push({ zkUserId: group.zkId, date: group.dateStr, action: 'skipped_no_mapping' });
+          continue;
+        }
         const doc = {
-          date: group.user ? group.dayStart : checkInTime,
+          date: group.dayStart,
           expectedHours: 8,
           status: attendanceStatus,
           checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'تزامن مباشر' },
-          lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
+          lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null,
+          employee: group.user._id,
+          department: group.user.department || null
         };
-        if (group.user) {
-          doc.employee = group.user._id;
-          doc.department = group.user.department || null;
-        } else {
-          doc.deviceUserId = group.zkId;
-          doc.deviceUserName = `مستخدم جهاز #${group.zkId}`;
-        }
         if (checkOutTime) {
           const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
           doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'تزامن مباشر' };
@@ -439,16 +445,16 @@ async function syncDeviceAttendance(req, res) {
         }
         bulkOps.push({ insertOne: { document: doc } });
         deviceLogBulk.push({ insertOne: { document: {
-          deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+          deviceUserId: group.zkId, employee: group.user._id,
           timestamp: checkInTime, eventType: 'checkin',
-          deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+          deviceUserName: null,
           deviceName
         }}});
         if (checkOutTime) {
           deviceLogBulk.push({ insertOne: { document: {
-            deviceUserId: group.zkId, employee: group.user ? group.user._id : null,
+            deviceUserId: group.zkId, employee: group.user._id,
             timestamp: checkOutTime, eventType: 'checkout',
-            deviceUserName: group.user ? null : `مستخدم جهاز #${group.zkId}`,
+            deviceUserName: null,
             deviceName
           }}});
         }
@@ -1148,6 +1154,31 @@ async function bulkMapUsers(req, res) {
   }
 }
 
+async function relinkDeviceLogs(req, res) {
+  try {
+    const users = await User.find({ zkUserId: { $ne: null, $exists: true } })
+      .select('_id zkUserId name')
+      .lean();
+
+    let updated = 0;
+    for (const user of users) {
+      const result = await DeviceLog.updateMany(
+        { deviceUserId: user.zkUserId, employee: null },
+        { $set: { employee: user._id, deviceUserName: user.name } }
+      );
+      updated += result.modifiedCount;
+    }
+
+    res.json({
+      success: true,
+      message: `تم ربط ${updated} سجل بصمة بالمستخدمين`,
+      data: { updated, totalUsers: users.length }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
 module.exports = {
   verifyBridge,
   receiveAttendance,
@@ -1168,5 +1199,6 @@ module.exports = {
   getSystemUsersForMapping,
   getBiometricDashboardStats,
   bulkMapUsers,
-  getMappedUsersActivity
+  getMappedUsersActivity,
+  relinkDeviceLogs
 };

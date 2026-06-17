@@ -5,12 +5,13 @@ const LEAVE_TYPE_LABELS = {
   annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
   death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
   maternity: 'إجازة وضع', paternity: 'إجازة أبوة', unpaid: 'إجازة بدون راتب',
-  compensatory: 'إجازة تعويضية',
+  compensatory: 'إجازة تعويضية', fingerprint_forgotten: 'نسيان بصمة',
 };
 
 const LEAVE_TYPE_ICONS = {
   annual: '🏖️', sick: '🩺', exceptional: '⭐', death: '🕊️', hourly: '⏰',
   emergency: '🚨', maternity: '👶', paternity: '👨‍👧', unpaid: '💼', compensatory: '🔄',
+  fingerprint_forgotten: '🖐️',
 };
 
 const ApproveLeaves = () => {
@@ -139,16 +140,25 @@ const ApproveLeaves = () => {
                     <p className="text-sm font-medium text-gray-700">
                       {LEAVE_TYPE_LABELS[req.type] || req.type}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatDate(req.startDate)} → {formatDate(req.endDate)}
-                      <span className="mx-1">·</span>
-                      {req.days} يوم
-                      {req.days > 3 && (
-                        <span className="mr-2 text-orange-600 font-medium">
-                          (أكثر من 3 أيام - ستحتاج موافقة المدير العام بعدك)
-                        </span>
-                      )}
-                    </p>
+                    {req.type === 'fingerprint_forgotten' ? (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(req.fingerprintDate)}
+                        <span className="mx-1">·</span>
+                        {req.fingerprintType === 'in' ? 'دخول' : 'خروج'}
+                        {req.fingerprintTime && <><span className="mx-1">·</span>⏰ {req.fingerprintTime}</>}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(req.startDate)} → {formatDate(req.endDate)}
+                        <span className="mx-1">·</span>
+                        {req.days} يوم
+                        {req.days > 3 && (
+                          <span className="mr-2 text-orange-600 font-medium">
+                            (أكثر من 3 أيام - ستحتاج موافقة المدير العام بعدك)
+                          </span>
+                        )}
+                      </p>
+                    )}
                     <p className="text-sm text-gray-600 mt-2 bg-gray-50 p-2 rounded-lg">
                       {req.reason}
                     </p>

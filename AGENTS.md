@@ -2,10 +2,11 @@
 
 ### Architecture
 - **Backend**: Express.js server (PID 8564, `backend/server.js`)
-- **Bridge**: ZKTeco bridge service (PID not running/6792, `bridge/index.js`)
+- **Bridge**: ZKTeco bridge service (`bridge/index.js`)
+- **SDK Bridge**: 32-bit PowerShell COM wrapper (`SDK/SDKBridge/SDKBridge.ps1`) using official `zkemkeeper.dll`
 - **Database**: MongoDB Atlas `mongodb+srv://radios:radios123@radio.j0lovmb.mongodb.net/test`
 - **Device**: ZKTeco biometric reader at 192.168.15.50:4370
-- **Library**: node-zklib@1.3.0 (in both `backend/` and `bridge/`)
+- **Libraries**: node-zklib@1.3.0 (TCP protocol), zkemkeeper.dll (official COM SDK in `SDK/`)
 
 ### Device Connection
 - ZK_IP=192.168.15.50, ZK_PORT=4370
@@ -13,6 +14,26 @@
 - Device stores time as packed 32-bit integer (seconds since ~2000)
 - `parseTimeToDate()` in `node-zklib/utils.js` decodes to JS Date (local timezone = Saudi UTC+3)
 - Device user names may appear garbled (Arabic encoding issue)
+
+### Dual Connection Architecture
+The bridge uses **two methods** in parallel:
+1. **node-zklib** (primary reader): For `getAttendances()` — fast, supports cursor-based reading, avoids re-reading all 44K records
+2. **SDK Bridge (zkemkeeper.dll)** (supplementary): For device info/status, batch full-read, real-time events (future), and writing operations
+
+#### SDK Bridge details
+- Runs as 32-bit PowerShell process (COM requires 32-bit for zkemkeeper.dll)
+- Communication via TCP on `127.0.0.1:3457`
+- JSON command protocol: `connect`, `disconnect`, `ping`, `status`, `info`, `get-all-attendance`, `inject-attendance`
+- Auto-started by bridge on boot, auto-restarts on crash
+- Fallback: If SDK bridge unavailable, bridge uses only node-zklib
+
+#### Key Ops
+| Operation | Primary | Secondary |
+|---|---|---|
+| Read attendance | node-zklib (`getAttendances()`) | SDK Bridge (`get-all-attendance`) |
+| Device info | SDK Bridge (`info`) | node-zklib (`getInfo()`) |
+| Write attendance | node-zklib (`executeCmd` CMD_DATA_WRRQ) | SDK Bridge (`inject-attendance`, experimental) |
+| Real-time events | SDK Bridge (`RegEvent` + TCP push, future) | — |
 
 ### Database Models
 
@@ -71,6 +92,12 @@
 - **`employee` required**: Cannot create Attendance without valid User reference. All device users must first be mapped via `zkUserId`.
 - **Arabic names garbled**: Device uses encoding that doesn't display Arabic correctly in node-zklib output.
 - **Full sync slow**: 44,862 records — use targeted sync (`sync-targeted-today.js` or `smart-sync-today.js`) instead of `force-sync-all.js`.
+
+### Fingerprint Forgotten Flow
+When a `fingerprint_forgotten` leave request is approved in `leaveController.js`:
+1. Creates/updates Attendance record with `date = dayStart` (local midnight, same as zktecoController)
+2. `checkIn.time` or `checkOut.time` set to the user-supplied fingerprint time
+3. Non-blocking device injection attempt via `node-zklib` `executeCmd(CMD_DATA_WRRQ, 40-byte buffer)`
 
 ### Scripts in `backend/scripts/`
 - `sync-targeted-today.js` — sync today's records for specific target IDs

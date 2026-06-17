@@ -1,4 +1,5 @@
 const axios = require('axios');
+const net = require('net');
 const BiometricErrorLog = require('../models/BiometricErrorLog');
 
 const LOG_PREFIX = {
@@ -253,6 +254,79 @@ class ZKTecoService {
       deviceName: `ZKTeco_${this.config ? this.config.ip : 'unknown'}`,
       raw: record
     };
+  }
+
+  async getDeviceFirmware() {
+    try {
+      const result = {
+        firmware: null,
+        platform: null,
+        serialNumber: null,
+        productCode: null,
+        deviceName: null,
+        macAddress: null
+      };
+
+      // 1. Try SDK bridge first (most reliable, via zkemkeeper.dll COM)
+      try {
+        const sdkData = await this._getFirmwareFromSDKBridge();
+        if (sdkData) {
+          Object.assign(result, sdkData);
+          if (result.firmware || result.serialNumber) return result;
+        }
+      } catch (e) {
+        logger.warn(`SDK Bridge غير متاح لجلب الـ firmware: ${e.message}`);
+      }
+
+      // 2. Fallback: node-zklib via executeCmd(CMD_GET_VERSION)
+      if (!(await this.connect())) return result;
+      try {
+        if (this.device && typeof this.device.executeCmd === 'function') {
+          const buf = await this.device.executeCmd(1100, '');
+          if (buf && buf.length > 0) {
+            const str = buf.toString('utf8').replace(/\0+$/, '').trim();
+            if (str) {
+              result.firmware = str;
+              const platformMatch = str.match(/^([A-Za-z0-9_-]+)/);
+              if (platformMatch) result.platform = platformMatch[1];
+            }
+          }
+        }
+      } catch (e) {
+        logger.warn(`CMD_GET_VERSION فشل: ${e.message}`);
+      }
+
+      return result;
+    } catch (err) {
+      logger.warn(`فشل قراءة معلومات الـ Firmware: ${err.message}`);
+      return null;
+    }
+  }
+
+  _getFirmwareFromSDKBridge() {
+    return new Promise((resolve) => {
+      const client = new net.Socket();
+      const timeout = setTimeout(() => {
+        client.destroy();
+        resolve(null);
+      }, 5000);
+      client.connect(3457, '127.0.0.1', () => {
+        client.write(JSON.stringify({ cmd: 'get-firmware' }));
+      });
+      let data = '';
+      client.on('data', (chunk) => { data += chunk.toString(); });
+      client.on('close', () => {
+        clearTimeout(timeout);
+        try {
+          const parsed = JSON.parse(data);
+          resolve(parsed.status === 'ok' ? parsed.data : null);
+        } catch { resolve(null); }
+      });
+      client.on('error', () => {
+        clearTimeout(timeout);
+        resolve(null);
+      });
+    });
   }
 
   getStatus() {

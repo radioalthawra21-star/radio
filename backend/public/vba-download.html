@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحميل أداة Excel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    .container { max-width: 800px; width: 90%; padding: 2rem; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #60a5fa; }
+    .subtitle { color: #9ca3af; margin-bottom: 2rem; font-size: 0.95rem; }
+    .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h2 { font-size: 1.2rem; color: #f0f0f0; margin-bottom: 1rem; }
+    .card p { color: #b0b0b0; font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; }
+    .btn { display: inline-block; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; margin: 0.25rem; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #2a2d3a; color: #e0e0e0; }
+    .btn-secondary:hover { background: #3a3d4a; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-success:hover { background: #15803d; }
+    .steps { padding-right: 1.5rem; }
+    .steps li { margin-bottom: 0.75rem; color: #b0b0b0; line-height: 1.6; }
+    .steps li strong { color: #f0f0f0; }
+    code { background: #0f1117; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85rem; color: #60a5fa; direction: ltr; display: inline-block; }
+    .note { background: #1e293b; border-right: 3px solid #facc15; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    .note p { color: #facc15; font-size: 0.85rem; margin: 0; }
+    .btn-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    @media (min-width: 640px) { .btn-group { flex-direction: row; flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 نظام فلترة الحضور - Excel VBA</h1>
+    <p class="subtitle">ملف Excel تفاعلي مع ماكرو VBA للاتصال المباشر بنظام الحضور</p>
+
+    <div class="card">
+      <h2>📥 تحميل ملفات الإعداد</h2>
+      <div class="btn-group">
+        <a href="vba/Module1.bas" class="btn btn-primary" download>تحميل Module1.bas</a>
+        <a href="vba/Module2.bas" class="btn btn-primary" download>تحميل Module2.bas</a>
+        <a href="vba/Create-ExcelTool.ps1" class="btn btn-success" download>📜 تحميل سكريبت PowerShell (تلقائي)</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔧 طريقة الإعداد (يدوي)</h2>
+      <ol class="steps">
+        <li><strong>فتح Excel</strong> ← ملف جديد ← حفظ كـ <code>ملف_ماكرو.xlsm</code></li>
+        <li><strong>فتح محرر VBA</strong>: <code>Alt + F11</code></li>
+        <li><strong>استيراد الوحدات</strong>: قائمة File → Import File → اختر <code>Module1.bas</code> و <code>Module2.bas</code></li>
+        <li><strong>تفعيل المراجع</strong>: Tools → References ← فعّل <code>Microsoft XML, v6.0</code></li>
+        <li><strong>إنشاء الأوراق</strong>: في Immediate Window (<code>Ctrl+G</code>) اكتب <code>SetupWorksheets</code> واضغط Enter</li>
+        <li><strong>ضبط الإعدادات</strong>: اذهب لورقة "إعدادات" وأدخل رابط الخادم و Token المصادقة</li>
+        <li><strong>تشغيل الماكرو</strong>: ارجع لورقة "واجهة البحث" ← أدخل اسم موظف ← اضغط زر "بحث"</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>⚡ طريقة الإعداد (تلقائي عبر PowerShell)</h2>
+      <ol class="steps">
+        <li>حمّل سكريبت <code>Create-ExcelTool.ps1</code> من الزر أعلاه</li>
+        <li>شغّله كمسؤول (Run as Administrator)</li>
+        <li>سينشئ السكريبت ملف <code>نظام_فلترة_الحضور.xlsm</code> على سطح المكتب</li>
+        <li>افتح الملف في Excel وفعّل المحتوى (Enable Content)</li>
+        <li>اضبط رابط الخادم و Token في شيت "إعدادات"</li>
+        <li>استخدم شيت "واجهة البحث" للبحث</li>
+      </ol>
+      <div class="note">
+        <p>⚠️ يتطلب PowerShell سكريبت تشغيل Excel مثبتاً على الجهاز. في حال وجود أخطاء، استخدم الطريقة اليدوية.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔗 معلومات الاتصال بالخادم</h2>
+      <p>الماكرو يتصل بنفس خادم النظام عبر HTTP. تأكد من أن:<br>
+      - الخادم شغال (<code>npm start</code> في مجلد backend)<br>
+      - رابط الخادم في شيت "إعدادات" صحيح (افتراضي: <code>http://127.0.0.1:3000</code>)<br>
+      - أدخلت رمز JWT Token صحيح في حقل المصادقة</p>
+      <p style="margin-top: 0.5rem;">
+        <a href="/" class="btn btn-secondary">🏠 الرجوع للصفحة الرئيسية</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -20,8 +20,9 @@ const {
   getSystemUsersForMapping,
   getBiometricDashboardStats,
   bulkMapUsers,
+  cleanSyncDeviceAttendance,
   getMappedUsersActivity,
-  cleanSyncDeviceAttendance
+  relinkDeviceLogs
 } = require('../controllers/zktecoController');
 
 router.post('/attendance', verifyBridge, receiveAttendance);
@@ -44,5 +45,6 @@ router.get('/dashboard-stats', protect, adminOnly, getBiometricDashboardStats);
 router.post('/bulk-map-users', protect, adminOnly, bulkMapUsers);
 router.post('/clean-sync', protect, adminOnly, cleanSyncDeviceAttendance);
 router.get('/mapped-activity', protect, adminOnly, getMappedUsersActivity);
+router.post('/relink-device-logs', protect, adminOnly, relinkDeviceLogs);
 
 module.exports = router;

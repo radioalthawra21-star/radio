@@ -15,6 +15,7 @@ import AttendanceDashboard from '../pages/Admin/AttendanceDashboard';
 import EmployeeAttendanceReport from '../pages/Admin/EmployeeAttendanceReport';
 import MonthlyTimesheet from '../pages/Employee/MonthlyTimesheet';
 import BiometricManagement from '../pages/Admin/BiometricManagement';
+
 import AuditLogs from '../pages/Admin/AuditLogs';
 import BonusManagement from '../components/BonusManagement';
 import HolidayManagement from '../pages/Admin/HolidayManagement';
@@ -23,6 +24,7 @@ import WellBeingDashboard from '../pages/WellBeingDashboard';
 import DepartmentReports from '../pages/Manager/DepartmentReports';
 import RecruitmentPerformanceManagement from '../pages/RecruitmentPerformanceManagement';
 import EmployeeProfilePage from '../pages/Admin/EmployeeProfilePage';
+import TempSupervisorPage from '../pages/Admin/TempSupervisorPage';
 
 export const adminRoutes = (
   <>
@@ -52,5 +54,7 @@ export const adminRoutes = (
     <Route path="/manager/bonus" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><BonusManagement /></ProtectedRoute>} />
     <Route path="/admin/employee-profile/:id" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><EmployeeProfilePage /></ProtectedRoute>} />
     <Route path="/admin/holidays" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><HolidayManagement /></ProtectedRoute>} />
+    <Route path="/admin/supervisor" element={<ProtectedRoute allowedRoles={['admin', 'hr', 'manager']}><TempSupervisorPage /></ProtectedRoute>} />
+
   </>
 );

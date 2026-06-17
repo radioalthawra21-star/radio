@@ -15,6 +15,7 @@ const LEAVE_LABELS = {
   unpaid: 'إجازة بدون راتب', maternity: 'إجازة وضع', paternity: 'إجازة أبوة',
   compensatory: 'إجازة تعويضية', mission: 'مأمورية', overtime: 'أجر إضافي',
   attendance_correction: 'تصحيح بصمة',
+  fingerprint_forgotten: 'نسيان بصمة',
 };
 const leaveLabel = (type) => LEAVE_LABELS[type] || type;
 
@@ -27,7 +28,7 @@ const notifyManager = async (employeeId, leaveRequest) => {
     const employee = await User.findById(employeeId);
     if (!employee || !employee.department) return false;
     const manager = await User.findOne({ role: 'manager', department: employee.department, isActive: true });
-    if (manager) {
+    if (manager && manager._id.toString() !== employeeId.toString()) {
       const notif = await Notification.createNotification(
         manager._id, NotificationType.LEAVE_REQUESTED,
         'طلب إجازة جديد',
@@ -78,6 +79,46 @@ const notifyHR = async (leaveRequest) => {
   } catch (e) { console.error('notifyHR error:', e.message); }
 };
 
+const injectFingerprintToDevice = async (leaveRequest, timeDate) => {
+  let device = null;
+  try {
+    const ZKLib = require('node-zklib');
+    const { COMMANDS } = require('node-zklib/constants');
+    const ip = process.env.ZK_IP || '192.168.15.50';
+    const port = parseInt(process.env.ZK_PORT || '4370');
+    device = new ZKLib(ip, port, 5000, 5000);
+    await device.createSocket();
+
+    const employee = await User.findById(leaveRequest.employee._id).select('zkUserId');
+    if (!employee || !employee.zkUserId) {
+      console.log('[injectFingerprintToDevice] No zkUserId for employee, skipping device injection');
+      return;
+    }
+
+    const date = new Date(timeDate);
+    const year = date.getFullYear() - 2000;
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const second = date.getSeconds();
+    const packedTime = ((((year * 12 + month) * 31 + (day - 1)) * 24 + hour) * 60 + minute) * 60 + second;
+
+    const recordBuf = Buffer.alloc(40);
+    recordBuf.writeUInt16LE(0, 0);
+    const userIdStr = String(employee.zkUserId).padEnd(9, '\0');
+    recordBuf.write(userIdStr, 2, 9, 'ascii');
+    recordBuf.writeUInt32LE(packedTime, 27);
+
+    await device.executeCmd(COMMANDS.CMD_DATA_WRRQ, recordBuf);
+    console.log(`[injectFingerprintToDevice] Successfully injected attendance for user ${employee.zkUserId}`);
+  } catch (err) {
+    console.error('[injectFingerprintToDevice] Error:', err.message);
+  } finally {
+    if (device) { try { await device.disconnect(); } catch (e) {} }
+  }
+};
+
 const approveWithPayrollSync = async (leaveRequest, req) => {
   const session = await mongoose.startSession();
   try {
@@ -118,7 +159,55 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
 
     await leaveRequest.save({ session });
 
-    if (leaveRequest.startDate && leaveRequest.endDate && ['annual', 'sick', 'emergency', 'exceptional', 'death', 'maternity', 'paternity', 'unpaid'].includes(leaveRequest.type)) {
+    if (leaveRequest.type === 'fingerprint_forgotten' && leaveRequest.fingerprintDate) {
+      const rawDate = new Date(leaveRequest.fingerprintDate);
+      const dayStart = new Date(rawDate); dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate() + 1);
+
+      let attendance = await Attendance.findOne({
+        employee: leaveRequest.employee._id,
+        date: { $gte: dayStart, $lt: dayEnd }
+      }).session(session);
+
+      const fpTime = leaveRequest.fingerprintTime || (leaveRequest.fingerprintType === 'in' ? '08:00' : '16:00');
+      const [fh, fm] = fpTime.split(':').map(Number);
+      const timeDate = new Date(dayStart);
+      timeDate.setHours(fh || 8, fm || 0, 0, 0);
+
+      if (attendance) {
+        if (leaveRequest.fingerprintType === 'in') {
+          attendance.checkIn = { ...(attendance.checkIn || {}), time: timeDate, status: 'on_time', notes: 'تعويض نسيان بصمة دخول' };
+        } else {
+          attendance.checkOut = { ...(attendance.checkOut || {}), time: timeDate, status: 'on_time', notes: 'تعويض نسيان بصمة خروج' };
+        }
+        attendance.leave = leaveRequest._id;
+        if (['absent', undefined, null].includes(attendance.status)) attendance.status = 'present';
+        if (!attendance.department && leaveRequest.employee.department) attendance.department = leaveRequest.employee.department;
+        await attendance.save({ session });
+        console.log(`[fingerprint_forgotten] Updated existing attendance ${attendance._id} for employee ${leaveRequest.employee._id} on ${dayStart}`);
+      } else {
+        const attData = {
+          employee: leaveRequest.employee._id,
+          date: new Date(dayStart),
+          department: leaveRequest.employee.department,
+          status: 'present',
+          expectedHours: 8, duration: 0,
+          leave: leaveRequest._id,
+        };
+        if (leaveRequest.fingerprintType === 'in') {
+          attData.checkIn = { time: timeDate, status: 'on_time', notes: 'تعويض نسيان بصمة دخول' };
+        } else {
+          attData.checkOut = { time: timeDate, status: 'on_time', notes: 'تعويض نسيان بصمة خروج' };
+        }
+        const created = await Attendance.create([attData], { session });
+        console.log(`[fingerprint_forgotten] Created attendance ${created[0]._id} for employee ${leaveRequest.employee._id} on ${dayStart}`);
+      }
+      leaveRequest.days = 1;
+      await leaveRequest.save({ session });
+
+      try { await injectFingerprintToDevice(leaveRequest, timeDate); } catch (zkErr) { console.error('[fingerprint_forgotten] Device injection failed:', zkErr.message); }
+
+    } else if (leaveRequest.startDate && leaveRequest.endDate && ['annual', 'sick', 'emergency', 'exceptional', 'death', 'maternity', 'paternity', 'unpaid'].includes(leaveRequest.type)) {
       const current = new Date(leaveRequest.startDate);
       const end = new Date(leaveRequest.endDate);
       while (current <= end) {
@@ -154,7 +243,7 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
 
 const createLeaveRequest = async (req, res) => {
   try {
-    const { type, startDate, endDate, startTime, endTime, isHalfDay, reason, documents, coveragePlan } = req.body;
+    const { type, startDate, endDate, startTime, endTime, isHalfDay, reason, documents, coveragePlan, fingerprintType, fingerprintDate, fingerprintTime } = req.body;
     const employeeId = req.user._id;
 
     if (!type || !reason) return res.status(400).json({ success: false, message: 'يرجى ملء جميع الحقول المطلوبة' });
@@ -162,12 +251,20 @@ const createLeaveRequest = async (req, res) => {
     if (!employee) return res.status(404).json({ success: false, message: 'الموظف غير موجود' });
     if (!employee.isActive) return res.status(403).json({ success: false, message: 'لا يمكن تقديم طلب لحساب غير نشط' });
 
+    if (type === 'fingerprint_forgotten') {
+      if (!fingerprintType || !fingerprintDate)
+        return res.status(400).json({ success: false, message: 'يرجى تحديد نوع البصمة والتاريخ' });
+    }
+
     const leaveRequest = new LeaveRequest({
       employee: employeeId, type, reason, documents: documents || [], department: employee.department,
       coveragePlan,
       startDate: startDate ? new Date(startDate) : null,
       endDate: endDate ? new Date(endDate) : null,
       startTime, endTime, isHalfDay: isHalfDay || false,
+      fingerprintType: type === 'fingerprint_forgotten' ? fingerprintType : null,
+      fingerprintDate: type === 'fingerprint_forgotten' ? new Date(fingerprintDate) : null,
+      fingerprintTime: type === 'fingerprint_forgotten' ? (fingerprintTime || null) : null,
       idempotencyKey: crypto.randomUUID(),
     });
 
@@ -180,7 +277,7 @@ const createLeaveRequest = async (req, res) => {
         return res.status(400).json({ success: false, message: 'رصيد الإجازات غير كافٍ. المتاح: ' + bal.remainingBalance + ' أيام' });
     }
 
-    if (startDate) {
+    if (startDate && type !== 'fingerprint_forgotten') {
       const end = endDate || startDate;
       const overlap = await checkFinancialOverlap(employeeId, startDate, end, null, { requestType: type });
       if (overlap.hasOverlap)
@@ -220,6 +317,8 @@ const updateLeaveRequestStatus = async (req, res) => {
       if (isManager || isAdmin) {
         if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER && leaveRequest.department !== req.user.department)
           return res.status(403).json({ success: false, message: 'غير مصرح لك' });
+        if (isManager && leaveRequest.employee._id.toString() === req.user._id.toString())
+          return res.status(403).json({ success: false, message: 'لا يمكنك الموافقة أو الرفض على طلبك الخاص - سيتم تحويله للمدير العام' });
         leaveRequest.status = LeaveStatus.REJECTED;
         leaveRequest.rejectionReason = rejectionReason || '';
         leaveRequest.approvedBy = req.user._id;
@@ -243,12 +342,16 @@ const updateLeaveRequestStatus = async (req, res) => {
       if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER) {
         if (leaveRequest.department !== req.user.department)
           return res.status(403).json({ success: false, message: 'غير مصرح لك - هذا الموظف ليس في قسمك' });
+        if (leaveRequest.employee._id.toString() === req.user._id.toString())
+          return res.status(403).json({ success: false, message: 'لا يمكنك الموافقة على طلبك الخاص - سيتم تحويله للمدير العام' });
 
         const { approvedDays } = req.body;
         leaveRequest.approvedBy = req.user._id;
         leaveRequest.approvedAt = new Date();
 
-        const calendarDays = Math.ceil((new Date(leaveRequest.endDate) - new Date(leaveRequest.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+        const calendarDays = leaveRequest.startDate && leaveRequest.endDate
+          ? Math.ceil((new Date(leaveRequest.endDate) - new Date(leaveRequest.startDate)) / (1000 * 60 * 60 * 24)) + 1
+          : 1;
         if (calendarDays > 3) {
           if (approvedDays && approvedDays < leaveRequest.days) {
             leaveRequest.managerSuggestedDays = approvedDays;
@@ -371,10 +474,10 @@ const cancelLeaveRequest = async (req, res) => {
       } catch (e) { console.error('Error cancelling payroll items:', e.message); }
     }
 
-    if (isOwner && leaveRequest.department) {
+    if (isOwner && leaveRequest.department && leaveRequest.employee?._id?.toString() !== req.user._id?.toString()) {
       try {
         const manager = await User.findOne({ role: 'manager', department: leaveRequest.department, isActive: true });
-        if (manager) {
+        if (manager && manager._id.toString() !== leaveRequest.employee._id.toString()) {
           const cancelNotif = await Notification.createNotification(
             manager._id, NotificationType.LEAVE_CANCELLED,
             'تم إلغاء إجازة من قبل الموظف',
@@ -414,6 +517,7 @@ const getPendingLeaveRequests = async (req, res) => {
       leaveRequests = await LeaveRequest.find({
         status: LeaveStatus.PENDING_MANAGER,
         department: req.user.department,
+        employee: { $ne: req.user._id },
       }).populate('employee', 'name email department').sort({ createdAt: -1 });
     } else if (req.user.role === 'admin' || req.user.role === 'hr') {
       leaveRequests = await LeaveRequest.find({

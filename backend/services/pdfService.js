@@ -27,6 +27,10 @@ async function generatePayslipPDF(payslipData) {
   return pdfGenerator.generatePayslipPDF(payslipData, { fmtDate });
 }
 
+async function generateAttendancePDF(data) {
+  return pdfGenerator.generateAttendancePDF(data, { fmtDate });
+}
+
 async function generatePDFBuffer(generatorFn, data) {
   return generatorFn(data);
 }
@@ -34,6 +38,7 @@ async function generatePDFBuffer(generatorFn, data) {
 module.exports = {
   generateFinancialMiscPDF,
   generatePayslipPDF,
+  generateAttendancePDF,
   generatePDFBuffer,
   ARABIC_FONT_NAME,
 };

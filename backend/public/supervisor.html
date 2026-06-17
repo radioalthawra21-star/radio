@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temp-Supervisor | لوحة التحكم المتقدمة</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #232738;
+    --border: #2a2e3e;
+    --text: #e4e6f0;
+    --text2: #8b8fa3;
+    --primary: #4f8cff;
+    --primary-dim: #2a4f8a;
+    --success: #22c55e;
+    --success-bg: #152e1e;
+    --danger: #ef4444;
+    --danger-bg: #2e1515;
+    --warning: #f59e0b;
+    --warning-bg: #2e2615;
+    --info: #3b82f6;
+    --info-bg: #15203e;
+    --add: #22c55e;
+    --delete: #ef4444;
+    --radius: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    line-height: 1.5;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .topbar-title h1 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .topbar-title .badge {
+    font-size: 10px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 10px;
+    -webkit-text-fill-color: var(--primary);
+  }
+  .topbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .topbar-controls .user-info {
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .topbar-controls .logout-btn {
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .topbar-controls .logout-btn:hover {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+  .stat-card.raw .stat-value { color: var(--info); }
+  .stat-card.override .stat-value { color: var(--warning); }
+  .stat-card.final .stat-value { color: var(--success); }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 24px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab-btn {
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  .main-content { padding: 20px 24px; }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .filters label { font-size: 12px; color: var(--text2); }
+  .filters input, .filters select {
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filters input:focus, .filters select:focus {
+    border-color: var(--primary);
+  }
+  .filters input[type="date"] { color-scheme: dark; }
+  .filters button {
+    padding: 7px 16px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border) !important;
+    color: var(--text);
+  }
+  .btn-outline:hover { background: var(--bg3); }
+  .btn-danger {
+    background: var(--danger);
+    color: #fff;
+  }
+  .btn-danger:hover { opacity: 0.9; }
+  .btn-success {
+    background: var(--success);
+    color: #fff;
+  }
+  .btn-success:hover { opacity: 0.9; }
+
+  .table-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .table-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+  .table-header h3 { font-size: 14px; font-weight: 600; }
+  .table-header .count {
+    font-size: 12px;
+    color: var(--text2);
+    padding: 2px 10px;
+    background: var(--bg);
+    border-radius: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    padding: 10px 12px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr:hover { background: var(--bg3); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.isadd { border-right: 3px solid var(--add); }
+  tbody tr.isdelete { border-right: 3px solid var(--delete); text-decoration: line-through; opacity: 0.6; }
+
+  .badge-status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-present { background: var(--success-bg); color: var(--success); }
+  .badge-absent { background: var(--danger-bg); color: var(--danger); }
+  .badge-late { background: var(--warning-bg); color: var(--warning); }
+  .badge-half { background: var(--info-bg); color: var(--info); }
+  .badge-on_leave { background: #1e1b2e; color: #a78bfa; }
+  .badge-work_from_home { background: #1e2e1b; color: #7cfa7c; }
+  .badge-add { background: var(--success-bg); color: var(--success); }
+  .badge-delete { background: var(--danger-bg); color: var(--danger); }
+  .badge-checkin { background: var(--success-bg); color: var(--success); }
+  .badge-checkout { background: var(--warning-bg); color: var(--warning); }
+  .badge-unknown { background: var(--bg3); color: var(--text2); }
+
+  .btn-icon {
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg3);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .panel h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    align-items: end;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .form-group label {
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary);
+  }
+  .form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  .form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text2);
+  }
+  .loading::after {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text2);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+  .empty-state p { font-size: 14px; }
+
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 1000;
+    animation: slideDown 0.3s ease;
+    max-width: 90vw;
+  }
+  .toast-success { background: var(--success-bg); border: 1px solid var(--success); color: var(--success); }
+  .toast-error { background: var(--danger-bg); border: 1px solid var(--danger); color: var(--danger); }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .merged-info {
+    display: flex;
+    gap: 12px;
+    padding: 8px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .merged-info .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 4px;
+  }
+  .merged-info .dot.green { background: var(--success); }
+  .merged-info .dot.red { background: var(--delete); }
+  .merged-info .dot.yellow { background: var(--warning); }
+
+  @media (max-width: 768px) {
+    .topbar { flex-wrap: wrap; padding: 10px 16px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 12px 16px; }
+    .tabs { padding: 0 16px; }
+    .tab-btn { padding: 10px 14px; font-size: 12px; }
+    .main-content { padding: 12px 16px; }
+    .filters { flex-direction: column; }
+    .filters input, .filters select { width: 100%; }
+    .form-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <h1>Temp-Supervisor</h1>
+    <span class="badge">v2.0</span>
+  </div>
+  <div class="topbar-controls">
+    <span class="user-info" id="userInfo">جاري التحميل...</span>
+    <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+  </div>
+</div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat-card raw">
+    <div class="stat-value" id="statRaw">-</div>
+    <div class="stat-label">بصمات خام (اليوم)</div>
+  </div>
+  <div class="stat-card override">
+    <div class="stat-value" id="statOverride">-</div>
+    <div class="stat-label">تعديلات يدوية (اليوم)</div>
+  </div>
+  <div class="stat-card final">
+    <div class="stat-value" id="statFinal">-</div>
+    <div class="stat-label">سجلات حضور نهائية (اليوم)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statISADD">-</div>
+    <div class="stat-label">إضافات (ISADD)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statISDELETE">-</div>
+    <div class="stat-label">إخفاءات (ISDELETE)</div>
+  </div>
+</div>
+
+<div class="tabs" id="tabsContainer">
+  <button class="tab-btn active" data-tab="raw">📋 البصمات الخام</button>
+  <button class="tab-btn" data-tab="overrides">✏️ التعديلات اليدوية</button>
+  <button class="tab-btn" data-tab="final">✅ النتيجة النهائية</button>
+  <button class="tab-btn" data-tab="admin">⚡ إدارة التعديلات</button>
+  <button class="tab-btn" data-tab="merge">🔄 عرض الدمج المتكامل</button>
+</div>
+
+<div class="main-content">
+
+  <!-- TAB 1: RAW LOGS -->
+  <div class="tab-content active" id="tab-raw">
+    <div class="filters">
+      <label>التاريخ</label>
+      <input type="date" id="rawDate" onchange="loadRawLogs()">
+      <label>الموظف</label>
+      <select id="rawEmployee" onchange="loadRawLogs()">
+        <option value="">الكل</option>
+      </select>
+      <button class="btn-primary" onclick="loadRawLogs()">🔄 تحديث</button>
+      <button class="btn-outline" onclick="autoRefresh()">⏱ تلقائي</button>
+    </div>
+    <div class="table-container">
+      <div class="table-header">
+        <h3>📋 سجلات البصمة الخام (CHECKINOUT)</h3>
+        <span class="count" id="rawCount">0</span>
+      </div>
+      <div class="merged-info">
+        <span><span class="dot green"></span>دخول</span>
+        <span><span class="dot yellow"></span>خروج</span>
+        <span><span class="dot red"></span>غير معروف</span>
+        <span style="color:var(--text2);font-size:11px;">— هذه البيانات قادمة مباشرة من جهاز ZKTeco. للعرض فقط.</span>
+      </div>
+      <div id="rawTableBody"><div class="loading">جاري تحميل البيانات...</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: MANUAL OVERRIDES -->
+  <div class="tab-content" id="tab-overrides">
+    <div class="filters">
+      <label>التاريخ</label>
+      <input type="date" id="overrideDate" onchange="loadOverrides()">
+      <label>الموظف</label>
+      <select id="overrideEmployee" onchange="loadOverrides()">
+        <option value="">الكل</option>
+      </select>
+      <label>نوع</label>
+      <select id="overrideAction" onchange="loadOverrides()">
+        <option value="">الكل</option>
+        <option value="ISADD">إضافة (ISADD)</option>
+        <option value="ISDELETE">إخفاء (ISDELETE)</option>
+      </select>
+      <button class="btn-primary" onclick="loadOverrides()">🔄 تحديث</button>
+    </div>
+    <div class="table-container">
+      <div class="table-header">
+        <h3>✏️ التعديلات اليدوية (CHECKEXACT)</h3>
+        <span class="count" id="overrideCount">0</span>
+      </div>
+      <div class="merged-info">
+        <span><span class="dot green"></span>ISADD — إضافة سجل بصمة وهمي</span>
+        <span><span class="dot red"></span>ISDELETE — إخفاء سجل بصمة</span>
+      </div>
+      <div id="overrideTableBody"><div class="loading">جاري تحميل البيانات...</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: FINAL ATTENDANCE -->
+  <div class="tab-content" id="tab-final">
+    <div class="filters">
+      <label>التاريخ</label>
+      <input type="date" id="finalDate" onchange="loadFinalAttendance()">
+      <label>الموظف</label>
+      <select id="finalEmployee" onchange="loadFinalAttendance()">
+        <option value="">الكل</option>
+      </select>
+      <label>الحالة</label>
+      <select id="finalStatus" onchange="loadFinalAttendance()">
+        <option value="">الكل</option>
+        <option value="present">حاضر</option>
+        <option value="absent">غائب</option>
+        <option value="late">متأخر</option>
+        <option value="half_day">نصف يوم</option>
+        <option value="on_leave">في إجازة</option>
+        <option value="work_from_home">عمل عن بعد</option>
+      </select>
+      <button class="btn-primary" onclick="loadFinalAttendance()">🔄 تحديث</button>
+    </div>
+    <div class="table-container">
+      <div class="table-header">
+        <h3>✅ النتيجة النهائية للحضور (MongoDB Attendance)</h3>
+        <span class="count" id="finalCount">0</span>
+      </div>
+      <div class="merged-info">
+        <span><span class="dot green"></span>نتائج مدمجة من البصمات الخام + التعديلات اليدوية</span>
+      </div>
+      <div id="finalTableBody"><div class="loading">جاري تحميل البيانات...</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: ADMIN PANEL -->
+  <div class="tab-content" id="tab-admin">
+    <div class="panel" style="margin-bottom:16px;">
+      <h3>➕ إضافة تعليمة يدوية جديدة</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">
+        ⚠️ هذه العملية لا تعدل أي سجل موجود. تقوم فقط بإنشاء تعليمة (ISADD / ISDELETE) في CHECKEXACT.
+        محرك الدمج سيطبق هذه التعليمات لاحقاً.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>الموظف (رقم الجهاز)</label>
+          <select id="adminDeviceUser">
+            <option value="">اختر موظفاً...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>التاريخ والوقت</label>
+          <input type="datetime-local" id="adminTimestamp">
+        </div>
+        <div class="form-group">
+          <label>نوع التعليمة</label>
+          <select id="adminAction">
+            <option value="ISADD">✅ إضافة بصمة (ISADD)</option>
+            <option value="ISDELETE">❌ إخفاء بصمة (ISDELETE)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>سبب التعديل</label>
+          <input type="text" id="adminReason" placeholder="مثال: نسي الموظف تسجيل البصمة">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-success" onclick="createOverride()">💾 حفظ التعليمة</button>
+        <button class="btn-outline" onclick="document.getElementById('adminReason').value='';document.getElementById('adminTimestamp').value='';">🧹 تفريغ</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-header">
+        <h3>📋 آخر التعديلات اليدوية</h3>
+        <span class="count" id="adminOverridesCount">0</span>
+      </div>
+      <div id="adminOverridesBody"><div class="loading">جاري تحميل البيانات...</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: MERGED VIEW -->
+  <div class="tab-content" id="tab-merge">
+    <div class="filters">
+      <label>التاريخ</label>
+      <input type="date" id="mergeDate" onchange="loadMergeView()">
+      <label>الموظف</label>
+      <select id="mergeEmployee" onchange="loadMergeView()">
+        <option value="">الكل</option>
+      </select>
+      <button class="btn-primary" onclick="loadMergeView()">🔄 تحديث</button>
+    </div>
+    <div class="table-container">
+      <div class="table-header">
+        <h3>🔄 عرض الدمج المتكامل — بصمة خام ← تعديل ← نتيجة</h3>
+        <span class="count" id="mergeCount">0</span>
+      </div>
+      <div class="merged-info">
+        <span><span class="dot green"></span>بصمة خام</span>
+        <span><span class="dot yellow"></span>تعديل يدوي (إضافة)</span>
+        <span><span class="dot red"></span>تعديل يدوي (إخفاء)</span>
+        <span><span class="dot" style="background:var(--info)"></span>النتيجة النهائية</span>
+      </div>
+      <div id="mergeTableBody"><div class="loading">جاري تحميل البيانات...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = '/api/supervisor';
+let allUsers = [];
+let allRawLogs = [];
+let allOverrides = [];
+let allFinal = [];
+let refreshInterval = null;
+
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+function getAuthHeaders() {
+  const token = getToken();
+  return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+}
+
+async function apiGet(url) {
+  const res = await fetch(url, { headers: getAuthHeaders() });
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+    throw new Error('غير مصرح');
+  }
+  return res.json();
+}
+
+async function apiPost(url, body) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(body)
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+    throw new Error('غير مصرح');
+  }
+  return res.json();
+}
+
+async function apiDelete(url) {
+  const res = await fetch(url, { method: 'DELETE', headers: getAuthHeaders() });
+  return res.json();
+}
+
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 3000);
+}
+
+function safeTime(iso) {
+  if (!iso) return '--:--';
+  try { return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }); }
+  catch { return '--:--'; }
+}
+
+function safeDate(iso) {
+  if (!iso) return '-';
+  try { return new Date(iso).toLocaleDateString('ar-SA'); }
+  catch { return '-'; }
+}
+
+function safeDateTime(iso) {
+  if (!iso) return '-';
+  try { return `${safeDate(iso)} ${safeTime(iso)}`; }
+  catch { return '-'; }
+}
+
+function getStatusBadge(status) {
+  const map = {
+    'present': '<span class="badge-status badge-present">✅ حاضر</span>',
+    'absent': '<span class="badge-status badge-absent">❌ غائب</span>',
+    'late': '<span class="badge-status badge-late">⚠️ متأخر</span>',
+    'half_day': '<span class="badge-status badge-half">🌗 نصف يوم</span>',
+    'on_leave': '<span class="badge-status badge-on_leave">🏖 إجازة</span>',
+    'work_from_home': '<span class="badge-status badge-work_from_home">🏠 عمل عن بعد</span>'
+  };
+  return map[status] || `<span class="badge-status badge-unknown">${status}</span>`;
+}
+
+function getActionBadge(action) {
+  if (action === 'ISADD') return '<span class="badge-status badge-add">➕ إضافة (ISADD)</span>';
+  if (action === 'ISDELETE') return '<span class="badge-status badge-delete">➖ إخفاء (ISDELETE)</span>';
+  return `<span class="badge-status badge-unknown">${action}</span>`;
+}
+
+function getEventBadge(type) {
+  if (type === 'checkin') return '<span class="badge-status badge-checkin">⬅ دخول</span>';
+  if (type === 'checkout') return '<span class="badge-status badge-checkout">➡ خروج</span>';
+  return '<span class="badge-status badge-unknown">❓ غير معروف</span>';
+}
+
+// ---------- TABS ----------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    const tab = btn.dataset.tab;
+    if (tab === 'raw') loadRawLogs();
+    else if (tab === 'overrides') loadOverrides();
+    else if (tab === 'final') loadFinalAttendance();
+    else if (tab === 'admin') loadAdminOverrides();
+    else if (tab === 'merge') loadMergeView();
+  });
+});
+
+// ---------- INIT ----------
+async function init() {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!user.name) {
+    window.location.href = '/login';
+    return;
+  }
+  document.getElementById('userInfo').textContent = `👤 ${user.name} (${user.role || 'موظف'})`;
+
+  document.getElementById('rawDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('overrideDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('finalDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('mergeDate').value = new Date().toISOString().split('T')[0];
+
+  try {
+    const res = await apiGet(`${API}/device-users`);
+    if (res.success) {
+      allUsers = res.data;
+      populateEmployeeSelects();
+    }
+  } catch (e) { console.error(e); }
+
+  await Promise.all([
+    loadStats(),
+    loadRawLogs(),
+    loadOverrides(),
+    loadFinalAttendance(),
+    loadAdminOverrides()
+  ]);
+}
+
+function populateEmployeeSelects() {
+  const selects = ['rawEmployee', 'overrideEmployee', 'finalEmployee', 'adminDeviceUser', 'mergeEmployee'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = id === 'adminDeviceUser'
+      ? '<option value="">اختر موظفاً...</option>'
+      : '<option value="">الكل</option>';
+    allUsers.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.zkUserId;
+      opt.textContent = `${u.name} (ID: ${u.zkUserId})`;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// ---------- STATS ----------
+async function loadStats() {
+  try {
+    const res = await apiGet(`${API}/stats`);
+    if (res.success) {
+      document.getElementById('statRaw').textContent = res.data.todayRawCount;
+      document.getElementById('statOverride').textContent = res.data.todayOverrideCount;
+      document.getElementById('statFinal').textContent = res.data.todayAttendanceCount;
+      document.getElementById('statISADD').textContent = res.data.totalISADD;
+      document.getElementById('statISDELETE').textContent = res.data.totalISDELETE;
+    }
+  } catch (e) { console.error(e); }
+}
+
+// ---------- RAW LOGS ----------
+async function loadRawLogs() {
+  const container = document.getElementById('rawTableBody');
+  container.innerHTML = '<div class="loading">جاري تحميل البيانات...</div>';
+  try {
+    const date = document.getElementById('rawDate').value;
+    const employeeId = document.getElementById('rawEmployee').value;
+    let url = `${API}/raw-logs?limit=500`;
+    if (date) url += `&startDate=${date}`;
+    if (employeeId) url += `&deviceUserId=${employeeId}`;
+    const res = await apiGet(url);
+    if (res.success) {
+      allRawLogs = res.data;
+      renderRawLogs(allRawLogs);
+    }
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><p>⚠️ خطأ في تحميل البيانات</p></div>`;
+  }
+}
+
+function renderRawLogs(logs) {
+  const container = document.getElementById('rawTableBody');
+  document.getElementById('rawCount').textContent = logs.length;
+  if (!logs.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>لا توجد بصمات خام في هذا التاريخ</p></div>';
+    return;
+  }
+  let html = `<table><thead><tr>
+    <th>#</th><th>الموظف</th><th>الوقت</th><th>نوع الحركة</th><th>رقم الجهاز</th><th>حالة الربط</th>
+  </tr></thead><tbody>`;
+  logs.forEach((log, i) => {
+    const empName = log.employee?.name || log.deviceUserName || 'غير معروف';
+    const empDept = log.employee?.department || '-';
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td><strong>${empName}</strong><br><span style="font-size:11px;color:var(--text2)">${empDept}</span></td>
+      <td>${safeDateTime(log.timestamp)}</td>
+      <td>${getEventBadge(log.eventType)}</td>
+      <td>${log.deviceUserId || '-'}</td>
+      <td>${log.employee ? '<span style="color:var(--success)">✔ مربوط</span>' : '<span style="color:var(--text2)">⛔ غير مربوط</span>'}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ---------- OVERRIDES ----------
+async function loadOverrides() {
+  const container = document.getElementById('overrideTableBody');
+  container.innerHTML = '<div class="loading">جاري تحميل البيانات...</div>';
+  try {
+    const date = document.getElementById('overrideDate').value;
+    const employeeId = document.getElementById('overrideEmployee').value;
+    const action = document.getElementById('overrideAction').value;
+    let url = `${API}/manual-overrides?limit=500`;
+    if (date) url += `&startDate=${date}`;
+    if (employeeId) url += `&deviceUserId=${employeeId}`;
+    if (action) url += `&action=${action}`;
+    const res = await apiGet(url);
+    if (res.success) {
+      allOverrides = res.data;
+      renderOverrides(allOverrides);
+    }
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><p>⚠️ خطأ في تحميل البيانات</p></div>`;
+  }
+}
+
+function renderOverrides(overrides) {
+  const container = document.getElementById('overrideTableBody');
+  document.getElementById('overrideCount').textContent = overrides.length;
+  if (!overrides.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">✏️</div><p>لا توجد تعديلات يدوية في هذا التاريخ</p></div>';
+    return;
+  }
+  let html = `<table><thead><tr>
+    <th>#</th><th>الموظف</th><th>الوقت</th><th>التاريخ</th><th>نوع</th><th>السبب</th><th>أضيف بواسطة</th><th>تم التطبيق</th>
+  </tr></thead><tbody>`;
+  overrides.forEach((o, i) => {
+    const empName = o.employee?.name || `مستخدم #${o.deviceUserId}`;
+    const isAdd = o.action === 'ISADD';
+    html += `<tr class="${isAdd ? 'isadd' : 'isdelete'}">
+      <td>${i + 1}</td>
+      <td><strong>${empName}</strong><br><span style="font-size:11px;color:var(--text2)">ID: ${o.deviceUserId}</span></td>
+      <td>${safeDateTime(o.timestamp)}</td>
+      <td>${safeDate(o.date)}</td>
+      <td>${getActionBadge(o.action)}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;">${o.reason || '-'}</td>
+      <td>${o.createdBy?.name || 'النظام'}</td>
+      <td>${o.isApplied ? `<span style="color:var(--success)">✔ نعم (${safeDateTime(o.appliedAt)})</span>` : '<span style="color:var(--text2)">⌛ لا</span>'}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ---------- FINAL ATTENDANCE ----------
+async function loadFinalAttendance() {
+  const container = document.getElementById('finalTableBody');
+  container.innerHTML = '<div class="loading">جاري تحميل البيانات...</div>';
+  try {
+    const date = document.getElementById('finalDate').value;
+    const employeeId = document.getElementById('finalEmployee').value;
+    const status = document.getElementById('finalStatus').value;
+    let url = `${API}/final-attendance?limit=500`;
+    if (date) url += `&startDate=${date}`;
+    if (employeeId) {
+      const user = allUsers.find(u => u.zkUserId === employeeId);
+      if (user) url += `&employeeId=${user._id}`;
+    }
+    if (status) url += `&status=${status}`;
+    const res = await apiGet(url);
+    if (res.success) {
+      allFinal = res.data;
+      renderFinal(allFinal);
+    }
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><p>⚠️ خطأ في تحميل البيانات</p></div>`;
+  }
+}
+
+function renderFinal(records) {
+  const container = document.getElementById('finalTableBody');
+  document.getElementById('finalCount').textContent = records.length;
+  if (!records.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>لا توجد سجلات حضور نهائية في هذا التاريخ</p></div>';
+    return;
+  }
+  let html = `<table><thead><tr>
+    <th>#</th><th>الموظف</th><th>التاريخ</th><th>أول دخول</th><th>آخر خروج</th><th>المدة</th><th>الحالة</th><th>إضافي</th>
+  </tr></thead><tbody>`;
+  records.forEach((r, i) => {
+    const empName = r.employee?.name || r.deviceUserName || 'غير معروف';
+    const empDept = r.employee?.department || r.department || '-';
+    const duration = r.duration ? `${r.duration.toFixed(1)} س` : '-';
+    const overtime = r.overtime ? `${r.overtime.toFixed(1)} س` : '-';
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td><strong>${empName}</strong><br><span style="font-size:11px;color:var(--text2)">${empDept}</span></td>
+      <td>${safeDate(r.date)}</td>
+      <td>${r.checkIn?.time ? safeTime(r.checkIn.time) : '---'}</td>
+      <td>${r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
+      <td>${duration}</td>
+      <td>${getStatusBadge(r.status)}</td>
+      <td>${overtime}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ---------- ADMIN OVERRIDES ----------
+async function loadAdminOverrides() {
+  const container = document.getElementById('adminOverridesBody');
+  try {
+    const res = await apiGet(`${API}/manual-overrides?limit=100`);
+    if (res.success) {
+      document.getElementById('adminOverridesCount').textContent = res.count;
+      if (!res.data.length) {
+        container.innerHTML = '<div class="empty-state"><p>لا توجد تعديلات بعد</p></div>';
+        return;
+      }
+      let html = `<table><thead><tr>
+        <th>#</th><th>الموظف</th><th>الوقت</th><th>نوع</th><th>السبب</th><th>بواسطة</th><th>حذف</th>
+      </tr></thead><tbody>`;
+      res.data.forEach((o, i) => {
+        const empName = o.employee?.name || `مستخدم #${o.deviceUserId}`;
+        html += `<tr class="${o.action === 'ISADD' ? 'isadd' : 'isdelete'}">
+          <td>${i + 1}</td>
+          <td>${empName} <span style="font-size:11px;color:var(--text2)">(ID: ${o.deviceUserId})</span></td>
+          <td>${safeDateTime(o.timestamp)}</td>
+          <td>${getActionBadge(o.action)}</td>
+          <td>${o.reason || '-'}</td>
+          <td>${o.createdBy?.name || 'النظام'}</td>
+          <td><button class="btn-icon" onclick="deleteOverride('${o._id}')">🗑</button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+  } catch (e) { console.error(e); }
+}
+
+async function createOverride() {
+  const deviceUserId = document.getElementById('adminDeviceUser').value;
+  const timestamp = document.getElementById('adminTimestamp').value;
+  const action = document.getElementById('adminAction').value;
+  const reason = document.getElementById('adminReason').value;
+
+  if (!deviceUserId) { showToast('الرجاء اختيار الموظف', 'error'); return; }
+  if (!timestamp) { showToast('الرجاء إدخال التاريخ والوقت', 'error'); return; }
+
+  try {
+    const res = await apiPost(`${API}/manual-overrides`, {
+      deviceUserId,
+      timestamp: new Date(timestamp).toISOString(),
+      action,
+      reason
+    });
+    if (res.success) {
+      showToast(res.message, 'success');
+      document.getElementById('adminReason').value = '';
+      loadAdminOverrides();
+      loadOverrides();
+      loadStats();
+    } else {
+      showToast(res.message || 'حدث خطأ', 'error');
+    }
+  } catch (e) {
+    showToast('فشل في حفظ التعليمة', 'error');
+  }
+}
+
+async function deleteOverride(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه التعليمة؟')) return;
+  try {
+    const res = await apiDelete(`${API}/manual-overrides/${id}`);
+    if (res.success) {
+      showToast('تم حذف التعليمة', 'success');
+      loadAdminOverrides();
+      loadOverrides();
+      loadStats();
+    }
+  } catch (e) {
+    showToast('فشل في حذف التعليمة', 'error');
+  }
+}
+
+// ---------- MERGE VIEW ----------
+async function loadMergeView() {
+  const container = document.getElementById('mergeTableBody');
+  container.innerHTML = '<div class="loading">جاري تحميل البيانات...</div>';
+  try {
+    const date = document.getElementById('mergeDate').value;
+    const employeeId = document.getElementById('mergeEmployee').value;
+    const dateParam = date || new Date().toISOString().split('T')[0];
+
+    let url = `${API}/dashboard?date=${dateParam}`;
+    const res = await apiGet(url);
+    if (!res.success) { container.innerHTML = '<div class="empty-state"><p>⚠️ خطأ في تحميل البيانات</p></div>'; return; }
+
+    const { rawLogs, manualOverrides, finalAttendance } = res.data;
+    const filteredRaw = employeeId ? rawLogs.filter(l => l.deviceUserId === employeeId) : rawLogs;
+    const filteredOverrides = employeeId ? manualOverrides.filter(o => o.deviceUserId === employeeId) : manualOverrides;
+    const filteredFinal = employeeId ? finalAttendance.filter(f => {
+      const user = allUsers.find(u => u.zkUserId === employeeId);
+      return user && f.employee?._id === user._id;
+    }) : finalAttendance;
+
+    const merged = [];
+    const seenTimestamps = new Set();
+
+    filteredRaw.forEach(log => {
+      const key = `${log.deviceUserId || '?'}_${new Date(log.timestamp).getTime()}`;
+      merged.push({
+        type: 'raw',
+        deviceUserId: log.deviceUserId,
+        employeeName: log.employee?.name || log.deviceUserName || `مستخدم #${log.deviceUserId}`,
+        timestamp: log.timestamp,
+        eventLabel: log.eventType === 'checkin' ? 'دخول (خام)' : log.eventType === 'checkout' ? 'خروج (خام)' : 'بصمة (خام)',
+        eventBadge: log.eventType === 'checkin' ? '<span style="color:var(--success)">⬅ دخول</span>' : log.eventType === 'checkout' ? '<span style="color:var(--warning)">➡ خروج</span>' : '❓'
+      });
+      if (log.deviceUserId) seenTimestamps.add(key);
+    });
+
+    filteredOverrides.forEach(o => {
+      merged.push({
+        type: o.action === 'ISADD' ? 'add' : 'delete',
+        deviceUserId: o.deviceUserId,
+        employeeName: o.employee?.name || `مستخدم #${o.deviceUserId}`,
+        timestamp: o.timestamp,
+        eventLabel: o.action === 'ISADD' ? '➕ بصمة مضافة (يدوي)' : '➖ بصمة ملغاة (يدوي)',
+        eventBadge: o.action === 'ISADD' ? '<span style="color:var(--success)">➕ إضافة يدوية</span>' : '<span style="color:var(--danger)">➖ إخفاء يدوي</span>',
+        reason: o.reason
+      });
+    });
+
+    filteredFinal.forEach(f => {
+      if (f.checkIn?.time) {
+        merged.push({
+          type: 'final',
+          deviceUserId: f.employee?.zkUserId || '',
+          employeeName: f.employee?.name || 'غير معروف',
+          timestamp: f.checkIn.time,
+          eventLabel: `✅ نتيجة نهائية — ${f.status === 'present' ? 'حاضر' : f.status === 'late' ? 'متأخر' : f.status}`,
+          eventBadge: `<span style="color:var(--info)">🏁 ${f.status === 'present' ? 'حاضر' : f.status === 'late' ? 'متأخر' : f.status}</span>`,
+          duration: f.duration
+        });
+      }
+    });
+
+    merged.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    document.getElementById('mergeCount').textContent = merged.length;
+
+    if (!merged.length) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">🔄</div><p>لا توجد بيانات للدمج في هذا التاريخ</p></div>';
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>#</th><th>الموظف</th><th>الوقت</th><th>المصدر</th><th>التفاصيل</th>
+    </tr></thead><tbody>`;
+    merged.forEach((m, i) => {
+      const rowStyle = m.type === 'raw' ? '' : m.type === 'add' ? ' style="background:var(--success-bg)"' : m.type === 'delete' ? ' style="background:var(--danger-bg);opacity:0.7;"' : ' style="background:var(--info-bg)"';
+      html += `<tr${rowStyle}>
+        <td>${i + 1}</td>
+        <td>${m.employeeName}</td>
+        <td>${safeDateTime(m.timestamp)}</td>
+        <td>${m.eventBadge}</td>
+        <td>${m.eventLabel}${m.duration ? ` (${m.duration.toFixed(1)} س)` : ''}${m.reason ? `<br><span style="font-size:11px;color:var(--text2)">سبب: ${m.reason}</span>` : ''}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><p>⚠️ خطأ في تحميل البيانات</p></div>`;
+  }
+}
+
+// ---------- AUTO REFRESH ----------
+function autoRefresh() {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+    showToast('تم إيقاف التحديث التلقائي', 'success');
+    return;
+  }
+  refreshInterval = setInterval(() => {
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) {
+      const tab = activeTab.dataset.tab;
+      if (tab === 'raw') loadRawLogs();
+      else if (tab === 'overrides') loadOverrides();
+      else if (tab === 'final') loadFinalAttendance();
+      else if (tab === 'merge') loadMergeView();
+    }
+    loadStats();
+  }, 15000);
+  showToast('تم تفعيل التحديث التلقائي كل 15 ثانية', 'success');
+}
+
+// ---------- LOGOUT ----------
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  const apiBase = window.location.origin;
+  window.location.href = apiBase.includes('render') || apiBase.includes('localhost') || apiBase.includes('127.0.0.1')
+    ? '/'
+    : apiBase.replace('/api', '') + '/login';
+}
+
+// ---------- TOKEN FROM URL ----------
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (token) {
+    localStorage.setItem('token', token);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
+
+// ---------- START ----------
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -87,7 +87,7 @@ export const getAttendanceDashboard = async () => {
 };
 
 export const syncZKTecoDevice = async () => {
-  const response = await api.post('/zkteco/sync', null, {
+  const response = await api.post('/zkteco/sync', {}, {
     timeout: 180000
   });
   return response.data;

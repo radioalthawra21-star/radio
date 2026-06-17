@@ -2,6 +2,8 @@ const ZKLib = require('node-zklib');
 const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
+const { spawn } = require('child_process');
 const config = require('./config');
 
 let device = null;
@@ -9,13 +11,118 @@ let lastSyncTime = null;
 let knownUsers = [];
 let syncInterval = null;
 let syncedRecordIds = new Set();
+let sdkProcess = null;
+let sdkAvailable = false;
 const SYNCED_IDS_FILE = path.join(__dirname, 'synced_ids.json');
+const SDK_PORT = 3457;
+const SDK_SCRIPT = path.join(__dirname, '..', 'SDK', 'SDKBridge', 'SDKBridge.ps1');
+const PS_32 = `${process.env.SystemRoot || 'C:\\Windows'}\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe`;
 
 function log(level, msg, data) {
   const ts = new Date().toLocaleString('ar-SA');
   const prefix = { info: 'ℹ️', ok: '✅', warn: '⚠️', error: '❌', data: '📊' }[level] || '•';
   console.log(`${prefix} [${ts}] ${msg}${data ? ' ' + JSON.stringify(data) : ''}`);
 }
+
+// ---- SDK Bridge communication (32-bit PowerShell COM wrapper) ----
+
+async function sdkSend(cmd) {
+  return new Promise((resolve) => {
+    const client = new net.Socket();
+    let timeout = setTimeout(() => {
+      client.destroy();
+      resolve(null);
+    }, 15000);
+    client.connect(SDK_PORT, '127.0.0.1', () => {
+      client.write(JSON.stringify(cmd));
+    });
+    let data = '';
+    client.on('data', (chunk) => {
+      data += chunk.toString();
+    });
+    client.on('close', () => {
+      clearTimeout(timeout);
+      try { resolve(JSON.parse(data)); } catch { resolve(null); }
+    });
+    client.on('error', () => {
+      clearTimeout(timeout);
+      resolve(null);
+    });
+  });
+}
+
+async function sdkConnect() {
+  const res = await sdkSend({ cmd: 'ping' });
+  if (res && res.status === 'ok') {
+    sdkAvailable = true;
+    return true;
+  }
+  sdkAvailable = false;
+  return false;
+}
+
+async function startSdkBridge() {
+  if (sdkAvailable) return true;
+  if (!fs.existsSync(PS_32)) {
+    log('warn', '❌ 32-bit PowerShell غير موجود. سيتم استخدام node-zklib فقط.');
+    return false;
+  }
+  if (!fs.existsSync(SDK_SCRIPT)) {
+    log('warn', `❌ ملف SDKBridge غير موجود: ${SDK_SCRIPT}`);
+    return false;
+  }
+  try {
+    sdkProcess = spawn(PS_32, [
+      '-NoProfile', '-ExecutionPolicy', 'Bypass',
+      '-File', SDK_SCRIPT, String(SDK_PORT)
+    ], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true
+    });
+    sdkProcess.stdout.on('data', (d) => {
+      const lines = d.toString().trim().split('\n').filter(Boolean);
+      for (const l of lines) log('info', `[SDK] ${l}`);
+    });
+    sdkProcess.stderr.on('data', (d) => {
+      const lines = d.toString().trim().split('\n').filter(Boolean);
+      for (const l of lines) log('error', `[SDK] ${l}`);
+    });
+    sdkProcess.on('exit', (code) => {
+      log('warn', `⚠️  SDK Bridge توقف (رمز: ${code}). سيتم إعادة التشغيل تلقائياً.`);
+      sdkAvailable = false;
+      sdkProcess = null;
+      setTimeout(startSdkBridge, 5000);
+    });
+    log('info', '🚀 جاري تشغيل SDK Bridge (32-bit PowerShell COM)...');
+    await new Promise(r => setTimeout(r, 3000));
+    const ok = await sdkConnect();
+    if (ok) {
+      log('ok', '✅ SDK Bridge جاهز (COM: zkemkeeper.ZKEM)');
+      const conn = await sdkSend({ cmd: 'connect', params: { ip: config.zk.ip, port: config.zk.port } });
+      if (conn && conn.status === 'ok') {
+        log('ok', `✅ متصل بالجهاز عبر SDK: ${config.zk.ip}:${config.zk.port}`);
+        return true;
+      }
+      log('warn', `⚠️  SDK Bridge متصل لكن فشل الاتصال بالجهاز.`);
+      return false;
+    }
+    log('warn', '⚠️  SDK Bridge لم يستجب. سيتم استخدام node-zklib.');
+    return false;
+  } catch (err) {
+    log('error', `❌ فشل تشغيل SDK Bridge: ${err.message}`);
+    return false;
+  }
+}
+
+function stopSdkBridge() {
+  if (sdkProcess) {
+    try { sdkProcess.kill(); } catch {}
+    sdkProcess = null;
+  }
+  sdkAvailable = false;
+}
+
+// ---- Standard ZKLib device communication (fallback) ----
 
 function cleanupSocket() {
   if (device && device.socket) {
@@ -24,32 +131,26 @@ function cleanupSocket() {
       device.socket.removeAllListeners('data');
       device.socket.removeAllListeners('error');
       device.socket.removeAllListeners('connect');
-    } catch (e) {
-      // ignore cleanup errors
-    }
+    } catch (e) { }
   }
 }
 
 async function connectDevice() {
   if (device) {
     cleanupSocket();
-    try { await device.disconnect(); } catch (e) { /* ignore */ }
+    try { await device.disconnect(); } catch (e) { }
     device = null;
   }
   device = new ZKLib(config.zk.ip, config.zk.port, config.zk.timeout, 5000);
-  if (device.socket) {
-    device.socket.setMaxListeners(20);
-  }
+  if (device.socket) device.socket.setMaxListeners(20);
   try {
     await device.createSocket();
-    if (device.socket) {
-      device.socket.setMaxListeners(20);
-    }
-    log('ok', `متصل بجهاز ZKTeco على ${config.zk.ip}:${config.zk.port}`);
+    if (device.socket) device.socket.setMaxListeners(20);
+    log('ok', `🔄 متصل بجهاز ZKTeco عبر node-zklib على ${config.zk.ip}:${config.zk.port}`);
     return true;
   } catch (err) {
     const errMsg = err.err?.message || err.message || err;
-    log('error', `فشل الاتصال بالجهاز: ${errMsg}`);
+    log('error', `فشل الاتصال بالجهاز عبر node-zklib: ${errMsg}`);
     cleanupSocket();
     device = null;
     return false;
@@ -88,7 +189,26 @@ async function fetchAttendance() {
   }
 }
 
+async function sdkFetchAllAttendance() {
+  if (!sdkAvailable) return [];
+  const res = await sdkSend({ cmd: 'get-all-attendance' });
+  if (res && res.status === 'ok' && res.records) {
+    log('ok', `📊 SDK: ${res.count} سجل (جميع السجلات من الجهاز)`);
+    return res.records;
+  }
+  log('warn', '⚠️ SDK فشل في جلب جميع السجلات');
+  return [];
+}
+
 async function fetchUsers() {
+  if (sdkAvailable) {
+    const res = await sdkSend({ cmd: 'get-users' });
+    if (res && res.status === 'ok' && res.users) {
+      knownUsers = res.users;
+      log('ok', `📊 SDK: ${res.count} مستخدم من الجهاز`);
+      return knownUsers;
+    }
+  }
   if (!device) {
     if (!(await connectDevice())) return [];
   }
@@ -106,10 +226,7 @@ async function fetchUsers() {
 }
 
 function mapAttendanceRecord(record) {
-  const statusMap = {
-    0: 'present',
-    1: 'late',
-  };
+  const statusMap = { 0: 'present', 1: 'late' };
   const rawUserId = record.deviceUserId || record.userId || record.user_id || record.uid || '';
   const rawTimestamp = record.timestamp || record.recordTime || record.time || '';
   return {
@@ -132,7 +249,6 @@ async function sendToApi(records) {
   const chunkSize = 500;
   let saved = 0;
   let failed = 0;
-
   for (let i = 0; i < records.length; i += chunkSize) {
     const chunk = records.slice(i, i + chunkSize);
     try {
@@ -141,10 +257,7 @@ async function sendToApi(records) {
         source: `bridge_${config.zk.ip}`,
         syncedAt: new Date().toISOString(),
       }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-bridge-key': config.api.key,
-        },
+        headers: { 'Content-Type': 'application/json', 'x-bridge-key': config.api.key },
         timeout: 30000,
       });
       if (res.data && res.data.success) {
@@ -157,7 +270,6 @@ async function sendToApi(records) {
       failed += chunk.length;
     }
   }
-
   if (saved > 0) {
     log('ok', `✅ اكتمل الإرسال: ${saved} محفوظ, ${failed} فاشل من أصل ${records.length}`);
   }
@@ -167,10 +279,8 @@ function loadSyncedIds() {
   try {
     if (fs.existsSync(SYNCED_IDS_FILE)) {
       const data = JSON.parse(fs.readFileSync(SYNCED_IDS_FILE, 'utf8'));
-      if (Array.isArray(data)) {
-        syncedRecordIds = new Set(data);
-        log('info', `تم تحميل ${syncedRecordIds.size} معرف مزامن من الملف`);
-      }
+      if (Array.isArray(data)) syncedRecordIds = new Set(data);
+      log('info', `تم تحميل ${syncedRecordIds.size} معرف مزامن من الملف`);
     }
   } catch (err) {
     log('warn', `لم نتمكن من تحميل المعرفات المزامنة: ${err.message}`);
@@ -180,18 +290,20 @@ function loadSyncedIds() {
 function saveSyncedIds() {
   try {
     const arr = Array.from(syncedRecordIds);
-    if (arr.length > 100000) {
-      // Keep only last 50000 to avoid huge files
-      fs.writeFileSync(SYNCED_IDS_FILE, JSON.stringify(arr.slice(-50000)));
-    } else {
-      fs.writeFileSync(SYNCED_IDS_FILE, JSON.stringify(arr));
-    }
+    fs.writeFileSync(SYNCED_IDS_FILE, JSON.stringify(arr.length > 100000 ? arr.slice(-50000) : arr));
   } catch (err) {
     log('warn', `لم نتمكن من حفظ المعرفات المزامنة: ${err.message}`);
   }
 }
 
 async function syncDeviceInfo() {
+  if (sdkAvailable) {
+    const res = await sdkSend({ cmd: 'info' });
+    if (res && res.status === 'ok' && res.data) {
+      log('data', `📊 SDK: ${JSON.stringify(res.data)}`);
+      return;
+    }
+  }
   if (!device && !(await connectDevice())) return;
   try {
     const info = await device.getInfo();
@@ -240,15 +352,22 @@ async function start() {
   log('info', `دورة المزامنة: كل ${config.pollIntervalMs / 1000} ثانية`);
 
   loadSyncedIds();
-  const connected = await connectDevice();
-  if (!connected) {
-    log('warn', 'لم يتم الاتصال بالجهاز، سأحاول مرة أخرى في الدورة القادمة');
+
+  // Start SDK Bridge (32-bit PowerShell COM wrapper) if available
+  const sdkOk = await startSdkBridge();
+  if (sdkOk) {
+    log('ok', '✅ SDK Bridge يعمل - سيتم استخدام zkemkeeper.dll الرسمي');
+    await syncAttendance();
   } else {
-    await syncDeviceInfo();
-    await fetchUsers();
-    if (config.syncOnStart) {
-      log('info', 'مزامنة أولية...');
-      await syncAttendance();
+    log('warn', '⚠️ SDK Bridge غير متاح - التبديل إلى node-zklib');
+    const connected = await connectDevice();
+    if (connected) {
+      await syncDeviceInfo();
+      await fetchUsers();
+      if (config.syncOnStart) {
+        log('info', 'مزامنة أولية...');
+        await syncAttendance();
+      }
     }
   }
 
@@ -261,6 +380,7 @@ async function shutdown() {
   if (syncInterval) clearInterval(syncInterval);
   saveSyncedIds();
   await disconnectDevice();
+  stopSdkBridge();
   process.exit(0);
 }
 

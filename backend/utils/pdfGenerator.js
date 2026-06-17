@@ -188,4 +188,49 @@ async function generatePDF(html) {
   }
 }
 
-module.exports = { generateFinancialMiscPDF, generatePayslipPDF };
+async function generateAttendancePDF(data, helpers) {
+  const { fmtDate } = helpers;
+  const employeeName = data.employeeName || 'غير معروف';
+  const department = data.department || '-';
+  const period = data.period || '';
+  const records = data.records || [];
+
+  const tableRows = records.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${fmtDate(r.date)}</td>
+      <td>${r.checkIn || '---'}</td>
+      <td>${r.checkOut || '---'}</td>
+      <td>${r.duration || '-'}</td>
+      <td>${r.status || '-'}</td>
+    </tr>
+  `).join('\n');
+
+  const presentCount = records.filter(r => r.status === 'حاضر' || r.status === 'present').length;
+  const lateCount = records.filter(r => r.status === 'متأخر' || r.status === 'late').length;
+  const absentCount = records.filter(r => r.status === 'غائب' || r.status === 'absent').length;
+
+  const body = `
+    <div class="header">
+      <div class="title">تقرير الحضور والانصراف</div>
+      <div class="subtitle">الموظف: ${employeeName}</div>
+      <div class="subtitle">القسم: ${department}</div>
+      <div class="subtitle">الفترة: ${period}</div>
+    </div>
+    <div class="summary">
+      <div class="summary-row"><span class="summary-label">إجمالي أيام الحضور:</span><span>${records.length}</span></div>
+      <div class="summary-row"><span class="summary-label">حاضر:</span><span>${presentCount}</span></div>
+      <div class="summary-row"><span class="summary-label">متأخر:</span><span>${lateCount}</span></div>
+      <div class="summary-row"><span class="summary-label">غائب:</span><span>${absentCount}</span></div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>التاريخ</th><th>دخول</th><th>خروج</th><th>المدة</th><th>الحالة</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <div class="footer">تم إنشاء التقرير بواسطة النظام</div>
+  `;
+
+  return generatePDF(wrapHTML(PAGE_CSS, body));
+}
+
+module.exports = { generateFinancialMiscPDF, generatePayslipPDF, generateAttendancePDF };

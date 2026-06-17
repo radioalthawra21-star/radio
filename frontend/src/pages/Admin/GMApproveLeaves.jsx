@@ -5,12 +5,13 @@ const LEAVE_TYPE_LABELS = {
   annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
   death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
   maternity: 'إجازة وضع', paternity: 'إجازة أبوة', unpaid: 'إجازة بدون راتب',
-  compensatory: 'إجازة تعويضية',
+  compensatory: 'إجازة تعويضية', fingerprint_forgotten: 'نسيان بصمة',
 };
 
 const LEAVE_TYPE_ICONS = {
   annual: '🏖️', sick: '🩺', exceptional: '⭐', death: '🕊️', hourly: '⏰',
   emergency: '🚨', maternity: '👶', paternity: '👨‍👧', unpaid: '💼', compensatory: '🔄',
+  fingerprint_forgotten: '🖐️',
 };
 
 const GMApproveLeaves = () => {
@@ -132,12 +133,21 @@ const GMApproveLeaves = () => {
                     <p className="text-sm font-medium text-gray-700">
                       {LEAVE_TYPE_LABELS[req.type] || req.type}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatDate(req.startDate)} → {formatDate(req.endDate)}
-                      <span className="mx-1">·</span>
-                      {req.days} يوم
-                      <span className="mr-2 text-red-600 font-medium">(أكثر من 3 أيام)</span>
-                    </p>
+                    {req.type === 'fingerprint_forgotten' ? (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(req.fingerprintDate)}
+                        <span className="mx-1">·</span>
+                        {req.fingerprintType === 'in' ? 'دخول' : 'خروج'}
+                        {req.fingerprintTime && <><span className="mx-1">·</span>⏰ {req.fingerprintTime}</>}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(req.startDate)} → {formatDate(req.endDate)}
+                        <span className="mx-1">·</span>
+                        {req.days} يوم
+                        <span className="mr-2 text-red-600 font-medium">(أكثر من 3 أيام)</span>
+                      </p>
+                    )}
                     {req.managerSuggestedDays ? (
                       <p className="text-xs text-blue-600 mt-1">
                         ⭐ المدير المباشر وافق على <strong>{req.managerSuggestedDays} يوم</strong> من أصل {req.days}
