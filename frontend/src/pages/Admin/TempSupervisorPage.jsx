@@ -176,6 +176,7 @@ export default function TempSupervisorPage() {
   const [actEmployeeId, setActEmployeeId] = useState('');
   const [activityData, setActivityData] = useState([]);
   const [activityLoading, setActivityLoading] = useState(false);
+  const [actFilter, setActFilter] = useState('all');
 
   // stats
   const [stats, setStats] = useState(null);
@@ -880,21 +881,41 @@ export default function TempSupervisorPage() {
               </FilterSelect>
               <button onClick={loadActivity} className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors">🔍 بحث</button>
               {activityData.length > 0 && (
-                <button
-                  onClick={() => downloadEmployeeActivityExcel(actEmployeeId, actStartDate, actEndDate)}
-                  className="px-4 py-1.5 rounded-md bg-green-700 hover:bg-green-600 text-white text-sm font-medium transition-colors"
-                >
-                  📥 تحميل Excel ملون
-                </button>
+                <>
+                  <FilterLabel>فلتر</FilterLabel>
+                  <FilterSelect value={actFilter} onChange={e => setActFilter(e.target.value)}>
+                    <option value="all">الكل</option>
+                    <option value="absent">أيام الغياب</option>
+                    <option value="missing">ساعات ناقصة</option>
+                    <option value="compensated">إجازات مبررة</option>
+                    <option value="unexcused">إجازات غير مبررة</option>
+                  </FilterSelect>
+                  <button
+                    onClick={() => downloadEmployeeActivityExcel(actEmployeeId, actStartDate, actEndDate)}
+                    className="px-4 py-1.5 rounded-md bg-green-700 hover:bg-green-600 text-white text-sm font-medium transition-colors"
+                  >
+                    📥 تحميل Excel ملون
+                  </button>
+                </>
               )}
             </Filters>
-            <Table title={`📊 تقرير نشاط الموظف`} count={activityData.length} legend={[
+            {(() => {
+              const filteredData = activityData.filter(r => {
+                if (actFilter === 'all') return true;
+                if (actFilter === 'absent') return !r._compensatedByLeave && (r.status === 'absent' || r.isMissing);
+                if (actFilter === 'missing') return !r._compensatedByLeave && !r.isMissing && (!r.checkIn?.time || !r.checkOut?.time);
+                if (actFilter === 'compensated') return !!r._compensatedByLeave;
+                if (actFilter === 'unexcused') return r.isMissing && !r._compensatedByLeave;
+                return true;
+              });
+              return (
+            <Table title={`📊 تقرير نشاط الموظف`} count={filteredData.length} legend={[
               { color: 'bg-green-500', label: 'حاضر' },
               { color: 'bg-red-500', label: 'غائب' },
               { color: 'bg-yellow-500', label: 'متأخر' },
               { color: 'bg-blue-500', label: 'نصف يوم' }
             ]}>
-              {activityLoading ? <Loading /> : !activityData.length
+              {activityLoading ? <Loading /> : !filteredData.length
                 ? <EmptyState icon="📊" text="اختر موظفاً واضغط بحث لعرض نشاطه" />
                 : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
@@ -907,7 +928,7 @@ export default function TempSupervisorPage() {
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">إضافي</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">ملاحظات</th>
                 </tr></thead><tbody>
-                  {activityData.map((r, i) => {
+                  {filteredData.map((r, i) => {
                     let rowBg = '';
                     const hasCheckIn = !!r.checkIn?.time;
                     const hasCheckOut = !!r.checkOut?.time;
@@ -923,7 +944,7 @@ export default function TempSupervisorPage() {
                     }[compensated.type] || compensated.type : null;
                     if (compensated) {
                       notes = `✅ تم تعويض النقص بإجازة ${leaveTypeLabel || ''}`;
-                      rowBg = 'bg-emerald-900/15';
+                      rowBg = 'bg-green-400/10 border-r-4 border-r-green-400';
                       statusDisplay = statusDisplay || 'on_leave';
                       if (!r.status) r.status = 'on_leave';
                     } else if (r.isMissing) {
@@ -951,22 +972,25 @@ export default function TempSupervisorPage() {
                         <td className="p-3 font-medium text-blue-400">{r.duration ? `${r.duration.toFixed(1)} س` : (compensated ? '-' : '-')}</td>
                         <td className="p-3">{statusDisplay ? <StatusBadge status={r.status} /> : <span className="text-gray-500">---</span>}</td>
                         <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                        <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#34d399' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
+                        <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#4ade80' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
                     );
                   })}
                 </tbody></table></div>
               }
             </Table>
+              );
+            })()}
 
             {activityData.length > 0 && (
               <div className="mt-4 bg-gray-800/40 border border-gray-700 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-blue-400 mb-3">📊 ملخص النشاط</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
                   <StatCard label="إجمالي الأيام" value={activityData.length} color="text-blue-400" />
                   <StatCard label="أيام الحضور" value={activityData.filter(r => !r.isMissing && r.status !== 'absent').length} color="text-green-400" />
                   <StatCard label="أيام الغياب" value={activityData.filter(r => !r.isMissing && r.status === 'absent').length} color="text-red-400" />
                   <StatCard label="أيام التأخير" value={activityData.filter(r => !r.isMissing && r.status === 'late').length} color="text-yellow-400" />
+                  <StatCard label="أيام معوضة بإجازة" value={activityData.filter(r => r._compensatedByLeave).length} color="text-green-400" />
                   <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing ? 0 : (r.duration || 0)), 0).toFixed(1)} color="text-blue-400" />
                   <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
                 </div>
