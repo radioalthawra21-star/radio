@@ -373,17 +373,25 @@ export default function TempSupervisorPage() {
             rec.duration = rec.duration || 7;
             if (!rec.status) rec.status = 'present';
           }
+          // الجمعة عطلة أسبوعية - لا تجمع مع النقص أو الإجازات
+          if (isFriday(rec.date)) {
+            rec._isWeeklyHoliday = true;
+            rec.isMissing = false;
+            rec._compensatedByLeave = null;
+          }
           filled.push(rec);
         } else {
           const isLeaveDay = leaveDateMap.has(key);
           const lv = leaveDateMap.get(key);
+          const isFri = isFriday(cursor);
           const rec = {
             _id: null, date: new Date(cursor), checkIn: null, checkOut: null,
             duration: null, status: null, overtime: null, employee: user,
-            isMissing: !isLeaveDay,
-            _compensatedByLeave: isLeaveDay ? lv : null
+            isMissing: !isLeaveDay && !isFri,
+            _compensatedByLeave: isLeaveDay && !isFri ? lv : null,
+            _isWeeklyHoliday: isFri || undefined
           };
-          if (isLeaveDay && lv) {
+          if (isLeaveDay && lv && !isFri) {
             const ci = new Date(cursor);
             ci.setHours(9, 0, 0, 0);
             rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
@@ -902,6 +910,7 @@ export default function TempSupervisorPage() {
             {(() => {
               const filteredData = activityData.filter(r => {
                 if (actFilter === 'all') return true;
+                if (r._isWeeklyHoliday) return false;
                 if (actFilter === 'absent') return !r._compensatedByLeave && (r.status === 'absent' || r.isMissing);
                 if (actFilter === 'missing') return !r._compensatedByLeave && !r.isMissing && (!r.checkIn?.time || !r.checkOut?.time);
                 if (actFilter === 'compensated') return !!r._compensatedByLeave;
@@ -942,7 +951,11 @@ export default function TempSupervisorPage() {
                       hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
                       attendance_correction: 'تصحيح بصمة', fingerprint_forgotten: 'نسيان بصمة'
                     }[compensated.type] || compensated.type : null;
-                    if (compensated) {
+                    if (r._isWeeklyHoliday) {
+                      notes = '📅 عطلة أسبوعية - الجمعة';
+                      rowBg = 'bg-gray-700/30';
+                      statusDisplay = null;
+                    } else if (compensated) {
                       notes = `✅ تم تعويض النقص بإجازة ${leaveTypeLabel || ''}`;
                       rowBg = 'bg-green-400/10 border-r-4 border-r-green-400';
                       statusDisplay = statusDisplay || 'on_leave';
@@ -961,7 +974,7 @@ export default function TempSupervisorPage() {
                       else if (r.status === 'present') rowBg = 'bg-green-900/10';
                       else if (r.status === 'half_day') rowBg = 'bg-yellow-900/10';
                     }
-                    const isFri = isFriday(r.date);
+                    const isFri = isFriday(r.date) && !r._isWeeklyHoliday;
                     return (
                       <tr key={r._id || i} className={`border-t border-gray-800 hover:bg-gray-800/40 ${rowBg}`} style={isFri ? { backgroundColor: 'rgba(236, 72, 153, 0.2)' } : {}}>
                         <td className="p-3">{i + 1}</td>
@@ -972,7 +985,7 @@ export default function TempSupervisorPage() {
                         <td className="p-3 font-medium text-blue-400">{r.duration ? `${r.duration.toFixed(1)} س` : (compensated ? '-' : '-')}</td>
                         <td className="p-3">{statusDisplay ? <StatusBadge status={r.status} /> : <span className="text-gray-500">---</span>}</td>
                         <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                        <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#4ade80' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
+                        <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#4ade80' : r._isWeeklyHoliday ? '#9ca3af' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
                     );
                   })}
@@ -985,21 +998,22 @@ export default function TempSupervisorPage() {
             {activityData.length > 0 && (
               <div className="mt-4 bg-gray-800/40 border border-gray-700 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-blue-400 mb-3">📊 ملخص النشاط</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 gap-3">
                   <StatCard label="إجمالي الأيام" value={activityData.length} color="text-blue-400" />
-                  <StatCard label="أيام الحضور" value={activityData.filter(r => !r.isMissing && r.status !== 'absent').length} color="text-green-400" />
-                  <StatCard label="أيام الغياب" value={activityData.filter(r => !r.isMissing && r.status === 'absent').length} color="text-red-400" />
-                  <StatCard label="أيام التأخير" value={activityData.filter(r => !r.isMissing && r.status === 'late').length} color="text-yellow-400" />
-                  <StatCard label="أيام معوضة بإجازة" value={activityData.filter(r => r._compensatedByLeave).length} color="text-green-400" />
-                  <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing ? 0 : (r.duration || 0)), 0).toFixed(1)} color="text-blue-400" />
-                  <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
+                  <StatCard label="أيام الحضور" value={activityData.filter(r => !r.isMissing && r.status !== 'absent' && !r._isWeeklyHoliday).length} color="text-green-400" />
+                  <StatCard label="أيام الغياب" value={activityData.filter(r => !r.isMissing && r.status === 'absent' && !r._isWeeklyHoliday).length} color="text-red-400" />
+                  <StatCard label="أيام التأخير" value={activityData.filter(r => !r.isMissing && r.status === 'late' && !r._isWeeklyHoliday).length} color="text-yellow-400" />
+                  <StatCard label="أيام معوضة بإجازة" value={activityData.filter(r => r._compensatedByLeave && !r._isWeeklyHoliday).length} color="text-green-400" />
+                  <StatCard label="عطل أسبوعية" value={activityData.filter(r => r._isWeeklyHoliday).length} color="text-gray-400" />
+                  <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday ? 0 : (r.duration || 0)), 0).toFixed(1)} color="text-blue-400" />
+                  <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
                 </div>
                 <h4 className="text-sm font-semibold text-orange-400 mb-3 mt-4">⚠️ حالات البصمات الناقصة</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <StatCard label="نقص بصمة دخول" value={activityData.filter(r => !r.isMissing && !r.checkIn?.time).length} color="text-orange-400" />
-                  <StatCard label="نقص بصمة خروج" value={activityData.filter(r => !r.isMissing && !r.checkOut?.time).length} color="text-orange-400" />
-                  <StatCard label="نقص البصمتين معاً" value={activityData.filter(r => !r.isMissing && !r.checkIn?.time && !r.checkOut?.time).length} color="text-red-400" />
-                  <StatCard label="أيام بدون أي سجل" value={activityData.filter(r => r.isMissing).length} color="text-purple-400" />
+                  <StatCard label="نقص بصمة دخول" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkIn?.time).length} color="text-orange-400" />
+                  <StatCard label="نقص بصمة خروج" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkOut?.time).length} color="text-orange-400" />
+                  <StatCard label="نقص البصمتين معاً" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkIn?.time && !r.checkOut?.time).length} color="text-red-400" />
+                  <StatCard label="أيام بدون أي سجل" value={activityData.filter(r => r.isMissing && !r._isWeeklyHoliday).length} color="text-purple-400" />
                 </div>
               </div>
             )}
