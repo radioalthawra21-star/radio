@@ -355,21 +355,45 @@ export default function TempSupervisorPage() {
         const key = cursor.toISOString().split('T')[0];
         if (dateMap.has(key)) {
           const rec = dateMap.get(key);
-          // إذا كان السجل يشير إلى إجازة، أضف معلومات الإجازة
+          // إذا كان السجل يشير إلى إجازة، أضف معلومات الإجازة واملأ الأوقات
           if (rec.leave || leaveDateMap.has(key)) {
             const lv = rec.leave || leaveDateMap.get(key);
             rec._compensatedByLeave = lv;
+            if (!rec.checkIn?.time) {
+              const ci = new Date(rec.date);
+              ci.setHours(9, 0, 0, 0);
+              rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
+            }
+            if (!rec.checkOut?.time) {
+              const co = new Date(rec.date);
+              co.setHours(16, 0, 0, 0);
+              rec.checkOut = { time: co.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
+            }
+            rec.duration = rec.duration || 7;
+            if (!rec.status) rec.status = 'present';
           }
           filled.push(rec);
         } else {
           const isLeaveDay = leaveDateMap.has(key);
           const lv = leaveDateMap.get(key);
-          filled.push({
+          const rec = {
             _id: null, date: new Date(cursor), checkIn: null, checkOut: null,
             duration: null, status: null, overtime: null, employee: user,
             isMissing: !isLeaveDay,
             _compensatedByLeave: isLeaveDay ? lv : null
-          });
+          };
+          if (isLeaveDay && lv) {
+            const ci = new Date(cursor);
+            ci.setHours(9, 0, 0, 0);
+            rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
+            const co = new Date(cursor);
+            co.setHours(16, 0, 0, 0);
+            rec.checkOut = { time: co.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
+            rec.duration = 7;
+            rec.status = 'present';
+            rec.isMissing = false;
+          }
+          filled.push(rec);
         }
         cursor.setDate(cursor.getDate() + 1);
       }
