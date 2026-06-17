@@ -134,8 +134,13 @@ export default function TempSupervisorPage() {
 
   const today = new Date().toISOString().split('T')[0];
   const now = new Date();
-  const actStartDefault = new Date(now.getFullYear(), now.getMonth() - 1, 12).toISOString().split('T')[0];
-  const actEndDefault = new Date(now.getFullYear(), now.getMonth(), 12).toISOString().split('T')[0];
+  const currentDay = now.getDate();
+  const actStartDefault = currentDay >= 12
+    ? new Date(now.getFullYear(), now.getMonth(), 12).toISOString().split('T')[0]
+    : new Date(now.getFullYear(), now.getMonth() - 1, 12).toISOString().split('T')[0];
+  const actEndDefault = currentDay >= 12
+    ? new Date(now.getFullYear(), now.getMonth() + 1, 12).toISOString().split('T')[0]
+    : new Date(now.getFullYear(), now.getMonth(), 12).toISOString().split('T')[0];
 
   const [todayStr] = useState(today);
 
