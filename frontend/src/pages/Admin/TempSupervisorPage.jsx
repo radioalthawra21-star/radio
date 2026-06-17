@@ -118,8 +118,8 @@ function FilterSelect(props) {
 
 function Table({ title, count, legend, children }) {
   return (
-    <div className="bg-gray-800/40 border border-gray-700 rounded-lg overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-800/60">
+    <div className="bg-gray-800/40 border border-gray-700 rounded-lg">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-800/60 rounded-t-lg">
         <h3 className="text-sm font-semibold">{title}</h3>
         <span className="text-xs text-gray-400 bg-gray-800 px-2.5 py-1 rounded-full">{count}</span>
       </div>
@@ -346,9 +346,9 @@ export default function TempSupervisorPage() {
       setActEmployeeId(user._id);
       const res = await getEmployeeActivity(user._id, actStartDate, actEndDate);
       if (!res.success) { setActivityData([]); return; }
-      const { attendance, approvedLeaves } = res.data;
+      const { attendance, approvedLeaves, holidays } = res.data;
 
-      // Build leave date lookup: which dates are covered by an approved leave
+      // Build leave date lookup
       const leaveDateMap = new Map();
       approvedLeaves.forEach(lv => {
         const lvStart = new Date(lv.startDate);
@@ -360,6 +360,23 @@ export default function TempSupervisorPage() {
           const key = cur.toISOString().split('T')[0];
           if (!leaveDateMap.has(key)) {
             leaveDateMap.set(key, lv);
+          }
+          cur.setDate(cur.getDate() + 1);
+        }
+      });
+
+      // Build holiday date lookup
+      const holidayDateMap = new Map();
+      (holidays || []).forEach(h => {
+        const hStart = new Date(h.startDate);
+        hStart.setHours(0, 0, 0, 0);
+        const hEnd = new Date(h.endDate);
+        hEnd.setHours(0, 0, 0, 0);
+        const cur = new Date(hStart);
+        while (cur <= hEnd) {
+          const key = cur.toISOString().split('T')[0];
+          if (!holidayDateMap.has(key)) {
+            holidayDateMap.set(key, h);
           }
           cur.setDate(cur.getDate() + 1);
         }
@@ -379,12 +396,35 @@ export default function TempSupervisorPage() {
       const cursor = new Date(start);
       while (cursor <= end) {
         const key = cursor.toISOString().split('T')[0];
+        const isFri = isFriday(cursor);
+        const isHol = holidayDateMap.has(key);
+        const hol = holidayDateMap.get(key);
+        const isLeaveDay = leaveDateMap.has(key);
+        const lv = leaveDateMap.get(key);
+
         if (dateMap.has(key)) {
           const rec = dateMap.get(key);
-          // إذا كان السجل يشير إلى إجازة، أضف معلومات الإجازة واملأ الأوقات
-          if (rec.leave || leaveDateMap.has(key)) {
-            const lv = rec.leave || leaveDateMap.get(key);
-            rec._compensatedByLeave = lv;
+          // الأولوية: عطلة رسمية > تعويض بإجازة > عطلة أسبوعية
+          if (isHol && !isFri) {
+            rec._isHoliday = hol;
+            rec.isMissing = false;
+            rec._compensatedByLeave = null;
+            rec._isWeeklyHoliday = undefined;
+            if (!rec.checkIn?.time) {
+              const ci = new Date(rec.date);
+              ci.setHours(9, 0, 0, 0);
+              rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'عطلة رسمية' };
+            }
+            if (!rec.checkOut?.time) {
+              const co = new Date(rec.date);
+              co.setHours(16, 0, 0, 0);
+              rec.checkOut = { time: co.toISOString(), status: 'on_time', notes: 'عطلة رسمية' };
+            }
+            rec.duration = rec.duration || 7;
+            if (!rec.status) rec.status = 'present';
+          } else if (rec.leave || isLeaveDay) {
+            const lvRef = rec.leave || lv;
+            rec._compensatedByLeave = lvRef;
             if (!rec.checkIn?.time) {
               const ci = new Date(rec.date);
               ci.setHours(9, 0, 0, 0);
@@ -398,25 +438,34 @@ export default function TempSupervisorPage() {
             rec.duration = rec.duration || 7;
             if (!rec.status) rec.status = 'present';
           }
-          // الجمعة عطلة أسبوعية - لا تجمع مع النقص أو الإجازات
-          if (isFriday(rec.date)) {
+          // الجمعة عطلة أسبوعية
+          if (isFri) {
             rec._isWeeklyHoliday = true;
             rec.isMissing = false;
             rec._compensatedByLeave = null;
+            rec._isHoliday = null;
           }
           filled.push(rec);
         } else {
-          const isLeaveDay = leaveDateMap.has(key);
-          const lv = leaveDateMap.get(key);
-          const isFri = isFriday(cursor);
           const rec = {
             _id: null, date: new Date(cursor), checkIn: null, checkOut: null,
             duration: null, status: null, overtime: null, employee: user,
-            isMissing: !isLeaveDay && !isFri,
-            _compensatedByLeave: isLeaveDay && !isFri ? lv : null,
-            _isWeeklyHoliday: isFri || undefined
+            isMissing: !isHol && !isLeaveDay && !isFri,
+            _compensatedByLeave: isLeaveDay && !isHol && !isFri ? lv : null,
+            _isWeeklyHoliday: isFri || undefined,
+            _isHoliday: isHol && !isFri ? hol : null
           };
-          if (isLeaveDay && lv && !isFri) {
+          if (isHol && !isFri) {
+            const ci = new Date(cursor);
+            ci.setHours(9, 0, 0, 0);
+            rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'عطلة رسمية' };
+            const co = new Date(cursor);
+            co.setHours(16, 0, 0, 0);
+            rec.checkOut = { time: co.toISOString(), status: 'on_time', notes: 'عطلة رسمية' };
+            rec.duration = 7;
+            rec.status = 'present';
+            rec.isMissing = false;
+          } else if (isLeaveDay && lv && !isFri) {
             const ci = new Date(cursor);
             ci.setHours(9, 0, 0, 0);
             rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
@@ -922,6 +971,7 @@ export default function TempSupervisorPage() {
                     <option value="missing">ساعات ناقصة</option>
                     <option value="compensated">إجازات مبررة</option>
                     <option value="unexcused">إجازات غير مبررة</option>
+                    <option value="holidays">أيام العطل</option>
                   </FilterSelect>
                   <button
                     onClick={() => downloadEmployeeActivityExcel(actEmployeeId, actStartDate, actEndDate)}
@@ -935,7 +985,8 @@ export default function TempSupervisorPage() {
             {(() => {
               const filteredData = activityData.filter(r => {
                 if (actFilter === 'all') return true;
-                if (r._isWeeklyHoliday) return false;
+                if (actFilter === 'holidays') return !!(r._isHoliday || r._isWeeklyHoliday);
+                if (r._isWeeklyHoliday || r._isHoliday) return false;
                 if (actFilter === 'absent') return !r._compensatedByLeave && (r.status === 'absent' || r.isMissing);
                 if (actFilter === 'missing') return !r._compensatedByLeave && !r.isMissing && (!r.checkIn?.time || !r.checkOut?.time);
                 if (actFilter === 'compensated') return !!r._compensatedByLeave;
@@ -951,7 +1002,7 @@ export default function TempSupervisorPage() {
             ]}>
               {activityLoading ? <Loading /> : !filteredData.length
                 ? <EmptyState icon="📊" text="اختر موظفاً واضغط بحث لعرض نشاطه" />
-                : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
+                : <div className="max-h-[70vh] overflow-y-auto overflow-x-auto rounded-b-lg"><table className="w-full text-sm"><thead className="sticky top-0 z-10 bg-gray-800"><tr className="bg-gray-800">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">التاريخ</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">اليوم</th>
@@ -971,6 +1022,7 @@ export default function TempSupervisorPage() {
                     let notes = '';
                     let statusDisplay = r.status;
                     const compensated = r._compensatedByLeave;
+                    const holiday = r._isHoliday;
                     const leaveTypeLabel = compensated?.type ? {
                       annual: 'سنوية', sick: 'مرضية', emergency: 'طارئة',
                       exceptional: 'استثنائية', death: 'وفاة', unpaid: 'بدون راتب',
@@ -980,7 +1032,11 @@ export default function TempSupervisorPage() {
                     }[compensated.type] || compensated.type : null;
                     if (r._isWeeklyHoliday) {
                       notes = '📅 عطلة أسبوعية - الجمعة';
-                      rowBg = 'bg-gray-700/30';
+                      rowBg = 'bg-blue-400/15';
+                      statusDisplay = null;
+                    } else if (holiday) {
+                      notes = `🏖️ عطلة رسمية - ${holiday.name || ''}`;
+                      rowBg = 'bg-red-600/20 border-r-4 border-r-red-500';
                       statusDisplay = null;
                     } else if (compensated) {
                       notes = `✅ تم تعويض النقص بإجازة ${leaveTypeLabel || ''}`;
@@ -1019,7 +1075,7 @@ export default function TempSupervisorPage() {
                         <td className={`p-3 ${diffClasses} ${lateArrival > 0 ? 'text-red-400' : 'text-gray-500'}`}>{lateArrival > 0 ? fmtMin(lateArrival) : '---'}</td>
                         <td className={`p-3 ${diffClasses} ${earlyDeparture > 0 ? 'text-yellow-400' : 'text-gray-500'}`}>{earlyDeparture > 0 ? fmtMin(earlyDeparture) : '---'}</td>
                         <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                        <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#4ade80' : r._isWeeklyHoliday ? '#9ca3af' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
+                        <td className="p-3 text-xs max-w-[200px]" style={{ color: holiday ? '#ef4444' : compensated ? '#4ade80' : r._isWeeklyHoliday ? '#60a5fa' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
                     );
                   })}
@@ -1034,25 +1090,26 @@ export default function TempSupervisorPage() {
                 <h4 className="text-sm font-semibold text-blue-400 mb-3">📊 ملخص النشاط</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 gap-3">
                   <StatCard label="إجمالي الأيام" value={activityData.length} color="text-blue-400" />
-                  <StatCard label="أيام الحضور" value={activityData.filter(r => !r.isMissing && r.status !== 'absent' && !r._isWeeklyHoliday).length} color="text-green-400" />
-                  <StatCard label="أيام الغياب" value={activityData.filter(r => !r.isMissing && r.status === 'absent' && !r._isWeeklyHoliday).length} color="text-red-400" />
-                  <StatCard label="أيام التأخير" value={activityData.filter(r => !r.isMissing && r.status === 'late' && !r._isWeeklyHoliday).length} color="text-yellow-400" />
-                  <StatCard label="أيام معوضة بإجازة" value={activityData.filter(r => r._compensatedByLeave && !r._isWeeklyHoliday).length} color="text-green-400" />
-                  <StatCard label="عطل أسبوعية" value={activityData.filter(r => r._isWeeklyHoliday).length} color="text-gray-400" />
-                  <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday ? 0 : (r.duration || 0)), 0).toFixed(1)} color="text-blue-400" />
-                  <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
+                  <StatCard label="أيام الحضور" value={activityData.filter(r => !r.isMissing && r.status !== 'absent' && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-green-400" />
+                  <StatCard label="أيام الغياب" value={activityData.filter(r => !r.isMissing && r.status === 'absent' && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-red-400" />
+                  <StatCard label="أيام التأخير" value={activityData.filter(r => !r.isMissing && r.status === 'late' && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-yellow-400" />
+                  <StatCard label="أيام معوضة بإجازة" value={activityData.filter(r => r._compensatedByLeave && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-green-400" />
+                  <StatCard label="عطل رسمية" value={activityData.filter(r => r._isHoliday).length} color="text-red-400" />
+                  <StatCard label="عطل أسبوعية" value={activityData.filter(r => r._isWeeklyHoliday).length} color="text-blue-400" />
+                  <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday || r._isHoliday ? 0 : (r.duration || 0)), 0).toFixed(1)} color="text-blue-400" />
+                  <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday || r._isHoliday ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
                 </div>
                 <h4 className="text-sm font-semibold text-orange-400 mb-3 mt-4">⚠️ حالات البصمات الناقصة</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <StatCard label="نقص بصمة دخول" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkIn?.time).length} color="text-orange-400" />
-                  <StatCard label="نقص بصمة خروج" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkOut?.time).length} color="text-orange-400" />
-                  <StatCard label="نقص البصمتين معاً" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkIn?.time && !r.checkOut?.time).length} color="text-red-400" />
-                  <StatCard label="أيام بدون أي سجل" value={activityData.filter(r => r.isMissing && !r._isWeeklyHoliday).length} color="text-purple-400" />
+                  <StatCard label="نقص بصمة دخول" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday && !r.checkIn?.time).length} color="text-orange-400" />
+                  <StatCard label="نقص بصمة خروج" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday && !r.checkOut?.time).length} color="text-orange-400" />
+                  <StatCard label="نقص البصمتين معاً" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday && !r.checkIn?.time && !r.checkOut?.time).length} color="text-red-400" />
+                  <StatCard label="أيام بدون أي سجل" value={activityData.filter(r => r.isMissing && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-purple-400" />
                 </div>
                 <h4 className="text-sm font-semibold text-blue-400 mb-3 mt-4">⏱ فروقات وقت الدوام</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {(() => {
-                    const valid = activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday);
+                    const valid = activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday);
                     const totalLate = valid.reduce((s, r) => {
                       if (!r.checkIn?.time) return s;
                       const m = Math.max(0, calcMinutesDiff(r.checkIn.time, 9, 0));

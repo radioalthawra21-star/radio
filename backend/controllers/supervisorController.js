@@ -481,17 +481,67 @@ async function downloadEmployeeActivityExcel(req, res) {
     startDt.setHours(0, 0, 0, 0);
     endDt.setHours(0, 0, 0, 0);
 
+    const holidays = await require('../models/Holiday').find({
+      startDate: { $lte: endDt },
+      endDate: { $gte: startDt }
+    }).select('name startDate endDate').lean();
+
+    // Build holiday date map
+    const holidayDateMap = new Map();
+    (holidays || []).forEach(h => {
+      const hStart = new Date(h.startDate);
+      hStart.setHours(0, 0, 0, 0);
+      const hEnd = new Date(h.endDate);
+      hEnd.setHours(0, 0, 0, 0);
+      const cur = new Date(hStart);
+      while (cur <= hEnd) {
+        const key = cur.toISOString().split('T')[0];
+        if (!holidayDateMap.has(key)) holidayDateMap.set(key, h);
+        cur.setDate(cur.getDate() + 1);
+      }
+    });
+
     const recordDateSet = new Set(records.map(r => {
       const d = new Date(r.date);
       return d.toISOString().split('T')[0];
     }));
+
+    // Mark existing records that fall on holidays
+    records.forEach(r => {
+      const d = new Date(r.date);
+      const key = d.toISOString().split('T')[0];
+      const hol = holidayDateMap.get(key);
+      if (hol) {
+        r.isHoliday = true;
+        r.holidayName = hol.name;
+      }
+    });
 
     const missingDates = [];
     const cursor = new Date(startDt);
     while (cursor <= endDt) {
       const key = cursor.toISOString().split('T')[0];
       if (!recordDateSet.has(key)) {
-        missingDates.push({ date: new Date(cursor), isMissing: true });
+        const hol = holidayDateMap.get(key);
+        if (hol) {
+          const ci = new Date(cursor);
+          ci.setHours(9, 0, 0, 0);
+          const co = new Date(cursor);
+          co.setHours(16, 0, 0, 0);
+          missingDates.push({
+            date: new Date(cursor),
+            isMissing: false,
+            isHoliday: true,
+            holidayName: hol.name,
+            checkIn: { time: ci.toISOString(), status: 'on_time' },
+            checkOut: { time: co.toISOString(), status: 'on_time' },
+            duration: 7,
+            status: 'present',
+            overtime: 0
+          });
+        } else {
+          missingDates.push({ date: new Date(cursor), isMissing: true });
+        }
       }
       cursor.setDate(cursor.getDate() + 1);
     }
@@ -542,8 +592,7 @@ async function downloadEmployeeActivityExcel(req, res) {
       alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }
     };
 
-    const DATA_START_ROW = 4; // data starts at row 4
-    const HEADER_ROW = 4;
+    const DATA_START_ROW = 4; // data starts at row 5 (after title, info, period, header)
 
     // Row 1: Title
     const titleRow = ws.addRow(['تقرير نشاط الموظف']);
@@ -560,9 +609,11 @@ async function downloadEmployeeActivityExcel(req, res) {
     infoRow.getCell(1).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
     infoRow.getCell(5).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
     infoRow.getCell(8).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-    infoRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-    infoRow.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
-    infoRow.getCell(8).alignment = { horizontal: 'left', vertical: 'middle' };
+    infoRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    infoRow.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
+    infoRow.getCell(8).alignment = { horizontal: 'center', vertical: 'middle' };
+    // Auto-fit column A width based on employee name length
+    ws.getColumn(1).width = Math.max(8, (`الموظف: ${user?.name || 'غير معروف'}`.length * 1.2) + 4);
 
     // Row 3: Date range
     const periodRow = ws.addRow([`الفترة: ${startDate || '---'} → ${endDate || '---'}`, null, null, null, null, null, null, null]);
@@ -572,16 +623,16 @@ async function downloadEmployeeActivityExcel(req, res) {
 
     // Header row (row 4)
     const headerRow = ws.addRow(['#', 'التاريخ', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'إضافي (س)', 'ملاحظات']);
-    headerRow.height = 30;
+    headerRow.height = 32;
     headerRow.eachCell((cell) => {
-      cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: WHITE } };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: MEDIUM_BLUE } };
+      cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1B7F3D' } };
       cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
       cell.border = {
-        top: { style: 'thin', color: { argb: '1E3C6E' } },
-        left: { style: 'thin', color: { argb: '1E3C6E' } },
-        bottom: { style: 'medium', color: { argb: '1E3C6E' } },
-        right: { style: 'thin', color: { argb: '1E3C6E' } }
+        top: { style: 'thin', color: { argb: '145C2B' } },
+        left: { style: 'thin', color: { argb: '145C2B' } },
+        bottom: { style: 'medium', color: { argb: '145C2B' } },
+        right: { style: 'thin', color: { argb: '145C2B' } }
       };
     });
 
@@ -617,7 +668,17 @@ async function downloadEmployeeActivityExcel(req, res) {
       let durStr = '-';
       let overtimeStr = '-';
 
-      if (r.isMissing) {
+      if (r.isHoliday) {
+        notes = `🏖️ عطلة رسمية - ${r.holidayName || ''}`;
+        rowBg = 'FFCCCC';
+        statusLabel = 'عطلة رسمية';
+        checkInStr = fmtTime(r.checkIn?.time);
+        checkOutStr = fmtTime(r.checkOut?.time);
+        durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
+        overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
+        hasDuration = !!r.duration;
+        hasOvertime = !!r.overtime;
+      } else if (r.isMissing) {
         notes = 'لا توجد بصمة ولا سجل حضور';
         rowBg = 'E8E0F0';
         noRecordAtAllCount++;
@@ -662,8 +723,8 @@ async function downloadEmployeeActivityExcel(req, res) {
         }
       }
 
-      // Highlight Friday
-      if (isFriday(r.date)) {
+      // Highlight Friday (but don't override holidays)
+      if (isFriday(r.date) && !r.isHoliday) {
         rowBg = FRIDAY_BG;
       }
 
@@ -690,7 +751,7 @@ async function downloadEmployeeActivityExcel(req, res) {
         row.getCell(5).font = { bold: true, color: { argb: DARK_BLUE }, size: 11 };
       }
       if (notes) {
-        row.getCell(8).font = { italic: true, color: { argb: r.isMissing ? '6633AA' : 'CC6600' }, size: 11 };
+        row.getCell(8).font = { italic: true, color: { argb: r.isHoliday ? 'CC0000' : r.isMissing ? '6633AA' : 'CC6600' }, size: 11 };
       }
     });
 
@@ -717,6 +778,7 @@ async function downloadEmployeeActivityExcel(req, res) {
         ['أيام الحضور', `=COUNTIF(${stR},"حاضر")`],
         ['أيام الغياب', `=COUNTIF(${stR},"غائب")`],
         ['أيام التأخير', `=COUNTIF(${stR},"متأخر")`],
+        ['أيام العطل الرسمية', `=COUNTIF(${stR},"عطلة رسمية")`],
         ['إجمالي ساعات العمل', `=IFERROR(SUM(${durR}),0)`],
         ['إجمالي ساعات الإضافي', `=IFERROR(SUM(${ovtR}),0)`]
       ];
@@ -807,7 +869,7 @@ async function getEmployeeActivity(req, res) {
     const dayEnd = new Date(endDate);
     dayEnd.setHours(23, 59, 59, 999);
 
-    const [attendanceRecords, approvedLeaves] = await Promise.all([
+    const [attendanceRecords, approvedLeaves, holidays] = await Promise.all([
       Attendance.find({
         employee: employeeId,
         date: { $gte: dayStart, $lte: dayEnd }
@@ -821,14 +883,20 @@ async function getEmployeeActivity(req, res) {
         startDate: { $lte: dayEnd },
         endDate: { $gte: dayStart }
       }).select('type status startDate endDate reason isHalfDay fingerprintDate fingerprintType')
-        .sort({ startDate: -1 }).lean()
+        .sort({ startDate: -1 }).lean(),
+
+      require('../models/Holiday').find({
+        startDate: { $lte: dayEnd },
+        endDate: { $gte: dayStart }
+      }).select('name startDate endDate type').lean()
     ]);
 
     return res.json({
       success: true,
       data: {
         attendance: attendanceRecords,
-        approvedLeaves
+        approvedLeaves,
+        holidays
       }
     });
   } catch (err) {

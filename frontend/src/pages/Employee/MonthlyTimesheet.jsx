@@ -37,8 +37,20 @@ const MonthlyTimesheet = () => {
   const employeeIdForQuery = employeeId || user.id;
 
   const now = new Date();
+  const toLocalDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const currentDay = now.getDate();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
+  const [startDate, setStartDate] = useState(
+    currentDay >= 12
+      ? toLocalDateStr(new Date(now.getFullYear(), now.getMonth(), 12))
+      : toLocalDateStr(new Date(now.getFullYear(), now.getMonth() - 1, 12))
+  );
+  const [endDate, setEndDate] = useState(
+    currentDay >= 12
+      ? toLocalDateStr(new Date(now.getFullYear(), now.getMonth() + 1, 12))
+      : toLocalDateStr(new Date(now.getFullYear(), now.getMonth(), 12))
+  );
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(employeeIdForQuery);
   const [employees, setEmployees] = useState([]);
   const [data, setData] = useState(null);
@@ -196,6 +208,18 @@ const MonthlyTimesheet = () => {
             {years.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>من تاريخ</label>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            style={{ color: '#182E4E' }} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>إلى تاريخ</label>
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            style={{ color: '#182E4E' }} />
+        </div>
         <button type="submit" disabled={loading}
           className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
           <FaFileAlt className="w-4 h-4" />
@@ -209,8 +233,34 @@ const MonthlyTimesheet = () => {
         </div>
       )}
 
-      {data && (
-        <>
+      {data && (() => {
+        const filteredDays = startDate && endDate
+          ? data.daily.filter(day => day.date >= startDate && day.date <= endDate)
+          : data.daily;
+
+        const summary = (() => {
+          const s = {
+            totalWorkingDays: 0, totalAttendanceDays: 0, totalAbsenceDays: 0,
+            totalLateDays: 0, totalLateHours: 0, totalEarlyDepartureMinutes: 0,
+            totalHolidays: 0, totalWorkedHours: 0, totalOvertimeMinutes: 0
+          };
+          filteredDays.forEach(day => {
+            if (day.isHoliday) s.totalHolidays++;
+            else s.totalWorkingDays++;
+            if (day.hasRecord) {
+              s.totalAttendanceDays++;
+              if (day.attendanceStatus === 'late') s.totalLateDays++;
+              if (day.lateHours) s.totalLateHours += day.lateHours;
+              if (day.earlyDepartureMinutes) s.totalEarlyDepartureMinutes += day.earlyDepartureMinutes;
+              if (day.totalWorkedHours) s.totalWorkedHours += day.totalWorkedHours;
+              if (day.overtimeMinutes) s.totalOvertimeMinutes += day.overtimeMinutes;
+            }
+            if (day.attendanceStatus === 'absent') s.totalAbsenceDays++;
+          });
+          return s;
+        })();
+
+        return (<>
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -222,20 +272,20 @@ const MonthlyTimesheet = () => {
                 </p>
               </div>
               <span className="text-sm" style={{ color: '#6B7280' }}>
-                {months[month - 1].label} {year}
+                {startDate} ← {endDate}
               </span>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-              <StatBox label="أيام العمل" value={data.summary.totalWorkingDays} color="text-blue-700" bg="bg-blue-50" />
-              <StatBox label="أيام الحضور" value={data.summary.totalAttendanceDays} color="text-green-700" bg="bg-green-50" />
-              <StatBox label="أيام الغياب" value={data.summary.totalAbsenceDays} color="text-red-700" bg="bg-red-50" />
-              <StatBox label="أيام التأخير" value={data.summary.totalLateDays} color="text-yellow-700" bg="bg-yellow-50" />
-              <StatBox label="ساعات التأخير" value={formatHours(data.summary.totalLateHours || 0)} color="text-yellow-700" bg="bg-yellow-50" />
-              <StatBox label="خروج مبكر" value={(data.summary.totalEarlyDepartureMinutes || 0) + ' د'} color="text-orange-700" bg="bg-orange-50" />
-              <StatBox label="العطل" value={data.summary.totalHolidays} color="text-red-700" bg="bg-red-50" />
-              <StatBox label="ساعات العمل" value={formatHours(data.summary.totalWorkedHours)} color="text-teal-700" bg="bg-teal-50" />
-              <StatBox label="ساعات إضافية" value={(data.summary.totalOvertimeMinutes ? (data.summary.totalOvertimeMinutes / 60).toFixed(1) : '0') + ' ساعة'} color="text-purple-700" bg="bg-purple-50" />
+              <StatBox label="أيام العمل" value={summary.totalWorkingDays} color="text-blue-700" bg="bg-blue-50" />
+              <StatBox label="أيام الحضور" value={summary.totalAttendanceDays} color="text-green-700" bg="bg-green-50" />
+              <StatBox label="أيام الغياب" value={summary.totalAbsenceDays} color="text-red-700" bg="bg-red-50" />
+              <StatBox label="أيام التأخير" value={summary.totalLateDays} color="text-yellow-700" bg="bg-yellow-50" />
+              <StatBox label="ساعات التأخير" value={formatHours(summary.totalLateHours || 0)} color="text-yellow-700" bg="bg-yellow-50" />
+              <StatBox label="خروج مبكر" value={summary.totalEarlyDepartureMinutes + ' د'} color="text-orange-700" bg="bg-orange-50" />
+              <StatBox label="العطل" value={summary.totalHolidays} color="text-red-700" bg="bg-red-50" />
+              <StatBox label="ساعات العمل" value={formatHours(summary.totalWorkedHours)} color="text-teal-700" bg="bg-teal-50" />
+              <StatBox label="ساعات إضافية" value={(summary.totalOvertimeMinutes / 60).toFixed(1) + ' ساعة'} color="text-purple-700" bg="bg-purple-50" />
             </div>
           </div>
 
@@ -257,7 +307,7 @@ const MonthlyTimesheet = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.daily.map((day) => {
+                  {filteredDays.map((day) => {
                     const statusInfo = day.attendanceStatus && STATUS_MAP[day.attendanceStatus]
                       ? STATUS_MAP[day.attendanceStatus]
                       : null;
@@ -326,7 +376,7 @@ const MonthlyTimesheet = () => {
             </div>
           </div>
         </>
-      )}
+      )})()}
 
       {editDay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
