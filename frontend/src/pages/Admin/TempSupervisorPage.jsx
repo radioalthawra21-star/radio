@@ -46,6 +46,22 @@ function getDayName(d) {
   const names = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   try { return names[new Date(d).getDay()]; } catch { return ''; }
 }
+function calcMinutesDiff(time, baseHour, baseMin) {
+  if (!time) return null;
+  try {
+    const t = new Date(time);
+    return (t.getHours() * 60 + t.getMinutes()) - (baseHour * 60 + baseMin);
+  } catch { return null; }
+}
+function fmtMin(min) {
+  if (min == null) return '-';
+  const abs = Math.abs(min);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  const sign = min < 0 ? '-' : '';
+  if (h > 0) return `${sign}${h}:${String(m).padStart(2, '0')}`;
+  return `${sign}${m} د`;
+}
 
 function StatusBadge({ status }) {
   const map = {
@@ -134,13 +150,14 @@ export default function TempSupervisorPage() {
 
   const today = new Date().toISOString().split('T')[0];
   const now = new Date();
+  const toLocalDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const currentDay = now.getDate();
   const actStartDefault = currentDay >= 12
-    ? new Date(now.getFullYear(), now.getMonth(), 12).toISOString().split('T')[0]
-    : new Date(now.getFullYear(), now.getMonth() - 1, 12).toISOString().split('T')[0];
+    ? toLocalDateStr(new Date(now.getFullYear(), now.getMonth(), 12))
+    : toLocalDateStr(new Date(now.getFullYear(), now.getMonth() - 1, 12));
   const actEndDefault = currentDay >= 12
-    ? new Date(now.getFullYear(), now.getMonth() + 1, 12).toISOString().split('T')[0]
-    : new Date(now.getFullYear(), now.getMonth(), 12).toISOString().split('T')[0];
+    ? toLocalDateStr(new Date(now.getFullYear(), now.getMonth() + 1, 12))
+    : toLocalDateStr(new Date(now.getFullYear(), now.getMonth(), 12));
 
   const [todayStr] = useState(today);
 
@@ -942,6 +959,8 @@ export default function TempSupervisorPage() {
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">آخر خروج</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">المدة</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الحالة</th>
+                  <th className="text-right p-3 text-xs text-gray-400 font-medium">تأخر الدخول</th>
+                  <th className="text-right p-3 text-xs text-gray-400 font-medium">خروج مبكر</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">إضافي</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">ملاحظات</th>
                 </tr></thead><tbody>
@@ -983,6 +1002,11 @@ export default function TempSupervisorPage() {
                       else if (r.status === 'half_day') rowBg = 'bg-yellow-900/10';
                     }
                     const isFri = isFriday(r.date) && !r._isWeeklyHoliday;
+                    const rawLate = hasCheckIn ? calcMinutesDiff(r.checkIn.time, 9, 0) : null;
+                    const lateArrival = rawLate != null ? Math.max(0, rawLate) : null;
+                    const rawEarly = hasCheckOut ? calcMinutesDiff(r.checkOut.time, 16, 0) : null;
+                    const earlyDeparture = rawEarly != null ? Math.max(0, -rawEarly) : null;
+                    const diffClasses = 'text-xs font-medium';
                     return (
                       <tr key={r._id || i} className={`border-t border-gray-800 hover:bg-gray-800/40 ${rowBg}`} style={isFri ? { backgroundColor: 'rgba(236, 72, 153, 0.2)' } : {}}>
                         <td className="p-3">{i + 1}</td>
@@ -992,6 +1016,8 @@ export default function TempSupervisorPage() {
                         <td className="p-3">{r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
                         <td className="p-3 font-medium text-blue-400">{r.duration ? `${r.duration.toFixed(1)} س` : (compensated ? '-' : '-')}</td>
                         <td className="p-3">{statusDisplay ? <StatusBadge status={r.status} /> : <span className="text-gray-500">---</span>}</td>
+                        <td className={`p-3 ${diffClasses} ${lateArrival > 0 ? 'text-red-400' : 'text-gray-500'}`}>{lateArrival > 0 ? fmtMin(lateArrival) : '---'}</td>
+                        <td className={`p-3 ${diffClasses} ${earlyDeparture > 0 ? 'text-yellow-400' : 'text-gray-500'}`}>{earlyDeparture > 0 ? fmtMin(earlyDeparture) : '---'}</td>
                         <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
                         <td className="p-3 text-xs max-w-[200px]" style={{ color: compensated ? '#4ade80' : r._isWeeklyHoliday ? '#9ca3af' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
@@ -1022,6 +1048,35 @@ export default function TempSupervisorPage() {
                   <StatCard label="نقص بصمة خروج" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkOut?.time).length} color="text-orange-400" />
                   <StatCard label="نقص البصمتين معاً" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r.checkIn?.time && !r.checkOut?.time).length} color="text-red-400" />
                   <StatCard label="أيام بدون أي سجل" value={activityData.filter(r => r.isMissing && !r._isWeeklyHoliday).length} color="text-purple-400" />
+                </div>
+                <h4 className="text-sm font-semibold text-blue-400 mb-3 mt-4">⏱ فروقات وقت الدوام</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {(() => {
+                    const valid = activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday);
+                    const totalLate = valid.reduce((s, r) => {
+                      if (!r.checkIn?.time) return s;
+                      const m = Math.max(0, calcMinutesDiff(r.checkIn.time, 9, 0));
+                      return s + (isNaN(m) ? 0 : m);
+                    }, 0);
+                    const totalEarly = valid.reduce((s, r) => {
+                      if (!r.checkOut?.time) return s;
+                      const raw = calcMinutesDiff(r.checkOut.time, 16, 0);
+                      const m = Math.max(0, -raw);
+                      return s + (isNaN(m) ? 0 : m);
+                    }, 0);
+                    const totalOvertime = valid.reduce((s, r) => {
+                      if (!r.checkOut?.time) return s;
+                      const raw = calcMinutesDiff(r.checkOut.time, 16, 0);
+                      const m = Math.max(0, raw);
+                      return s + (isNaN(m) ? 0 : m);
+                    }, 0);
+                    return <>
+                      <StatCard label="إجمالي تأخر الدخول" value={fmtMin(totalLate)} color="text-red-400" />
+                      <StatCard label="إجمالي خروج مبكر" value={fmtMin(totalEarly)} color="text-yellow-400" />
+                      <StatCard label="إجمالي إضافي (بعد 4م)" value={fmtMin(totalOvertime)} color="text-green-400" />
+                      <StatCard label="صافي الفرق" value={fmtMin(totalOvertime - totalLate - totalEarly)} color="text-blue-400" />
+                    </>;
+                  })()}
                 </div>
               </div>
             )}
