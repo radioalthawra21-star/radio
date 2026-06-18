@@ -857,6 +857,409 @@ async function downloadEmployeeActivityExcel(req, res) {
   }
 }
 
+async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt) {
+  const Holiday = require('../models/Holiday');
+  const holidays = await Holiday.find({
+    startDate: { $lte: endDt },
+    endDate: { $gte: startDt }
+  }).select('name startDate endDate').lean();
+
+  const holidayDateMap = new Map();
+  (holidays || []).forEach(h => {
+    const hStart = new Date(h.startDate);
+    hStart.setHours(0, 0, 0, 0);
+    const hEnd = new Date(h.endDate);
+    hEnd.setHours(0, 0, 0, 0);
+    const cur = new Date(hStart);
+    while (cur <= hEnd) {
+      const key = cur.toISOString().split('T')[0];
+      if (!holidayDateMap.has(key)) holidayDateMap.set(key, h);
+      cur.setDate(cur.getDate() + 1);
+    }
+  });
+
+  const recordDateSet = new Set(records.map(r => {
+    const d = new Date(r.date);
+    return d.toISOString().split('T')[0];
+  }));
+
+  records.forEach(r => {
+    const d = new Date(r.date);
+    const key = d.toISOString().split('T')[0];
+    const hol = holidayDateMap.get(key);
+    if (hol) {
+      r.isHoliday = true;
+      r.holidayName = hol.name;
+    }
+  });
+
+  const missingDates = [];
+  const cursor = new Date(startDt);
+  while (cursor <= endDt) {
+    const key = cursor.toISOString().split('T')[0];
+    if (!recordDateSet.has(key)) {
+      const hol = holidayDateMap.get(key);
+      if (hol) {
+        const ci = new Date(cursor);
+        ci.setHours(9, 0, 0, 0);
+        const co = new Date(cursor);
+        co.setHours(16, 0, 0, 0);
+        missingDates.push({
+          date: new Date(cursor),
+          isMissing: false,
+          isHoliday: true,
+          holidayName: hol.name,
+          checkIn: { time: ci.toISOString(), status: 'on_time' },
+          checkOut: { time: co.toISOString(), status: 'on_time' },
+          duration: 7,
+          status: 'present',
+          overtime: 0
+        });
+      } else {
+        missingDates.push({ date: new Date(cursor), isMissing: true });
+      }
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  const allRows = [
+    ...records.map(r => ({ ...r, isMissing: false })),
+    ...missingDates
+  ];
+  allRows.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const COL_COUNT = 8;
+  const lastCol = String.fromCharCode(64 + COL_COUNT);
+
+  const ws = wb.addWorksheet((user?.name || 'موظف').substring(0, 31), { views: [{ rtl: true }] });
+
+  ws.columns = [
+    { header: '#', key: 'num', width: 5 },
+    { header: 'التاريخ', key: 'date', width: 14 },
+    { header: 'أول دخول', key: 'checkIn', width: 14 },
+    { header: 'آخر خروج', key: 'checkOut', width: 14 },
+    { header: 'المدة (س)', key: 'duration', width: 10 },
+    { header: 'الحالة', key: 'status', width: 14 },
+    { header: 'إضافي (س)', key: 'overtime', width: 10 },
+    { header: 'ملاحظات', key: 'notes', width: 35 }
+  ];
+
+  const DARK_BLUE = '1E3C6E';
+  const MEDIUM_BLUE = '2B5797';
+  const LIGHT_BLUE = 'D6E4F0';
+  const WHITE = 'FFFFFF';
+  const LIGHT_GRAY = 'F5F5F5';
+  const DARK_GRAY = '333333';
+  const GREEN_BG = 'E6FFE6';
+  const RED_BG = 'FFE6E6';
+  const YELLOW_BG = 'FFF8E1';
+  const ORANGE_BG = 'FFF3E0';
+  const FRIDAY_BG = 'F0E6FF';
+
+  const statusLabels = {
+    present: 'حاضر', absent: 'غائب', late: 'متأخر',
+    half_day: 'نصف يوم', on_leave: 'إجازة', work_from_home: 'عمل عن بعد'
+  };
+
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-CA') : '-';
+  const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
+  const isFriday = d => { const day = new Date(d).getDay(); return day === 5; };
+
+  const titleRow = ws.addRow([`تقرير نشاط ${user?.name || 'موظف'}`]);
+  ws.mergeCells(`A${titleRow.number}:${lastCol}${titleRow.number}`);
+  titleRow.height = 40;
+  const titleCell = titleRow.getCell(1);
+  titleCell.font = { name: 'Calibri', size: 20, bold: true, color: { argb: WHITE } };
+  titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_BLUE } };
+  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+  const infoRow = ws.addRow([`الموظف: ${user?.name || 'غير معروف'}`, null, null, null, `القسم: ${user?.department || '-'}`, null, null, `معرف البصمة: ${user?.zkUserId || '-'}`]);
+  infoRow.height = 24;
+  infoRow.getCell(1).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
+  infoRow.getCell(5).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
+  infoRow.getCell(8).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
+  infoRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+  infoRow.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
+  infoRow.getCell(8).alignment = { horizontal: 'center', vertical: 'middle' };
+  ws.getColumn(1).width = Math.max(8, (`الموظف: ${user?.name || 'غير معروف'}`.length * 1.2) + 4);
+
+  const sD = startDt ? startDt.toISOString().split('T')[0] : '---';
+  const eD = endDt ? endDt.toISOString().split('T')[0] : '---';
+  const periodRow = ws.addRow([`الفترة: ${sD} → ${eD}`, null, null, null, null, null, null, null]);
+  periodRow.height = 22;
+  periodRow.getCell(1).font = { italic: true, size: 11, color: { argb: '666666' } };
+  periodRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+
+  const headerRow = ws.addRow(['#', 'التاريخ', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'إضافي (س)', 'ملاحظات']);
+  headerRow.height = 32;
+  headerRow.eachCell((cell) => {
+    cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1B7F3D' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    cell.border = {
+      top: { style: 'thin', color: { argb: '145C2B' } },
+      left: { style: 'thin', color: { argb: '145C2B' } },
+      bottom: { style: 'medium', color: { argb: '145C2B' } },
+      right: { style: 'thin', color: { argb: '145C2B' } }
+    };
+  });
+
+  const DATA_START_ROW = 4;
+
+  let missingCheckInCount = 0;
+  let missingCheckOutCount = 0;
+  let missingBothCount = 0;
+  let noRecordAtAllCount = 0;
+
+  allRows.forEach((r, i) => {
+    const isEven = i % 2 === 0;
+    let notes = '';
+    let rowBg = isEven ? LIGHT_GRAY : WHITE;
+    let statusLabel = '-';
+    let statusColor = null;
+    let hasDuration = false;
+    let hasOvertime = false;
+    let checkInStr = '---';
+    let checkOutStr = '---';
+    let durStr = '-';
+    let overtimeStr = '-';
+
+    if (r.isHoliday) {
+      notes = `🏖️ عطلة رسمية - ${r.holidayName || ''}`;
+      rowBg = 'FFCCCC';
+      statusLabel = 'عطلة رسمية';
+      checkInStr = fmtTime(r.checkIn?.time);
+      checkOutStr = fmtTime(r.checkOut?.time);
+      durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
+      overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
+      hasDuration = !!r.duration;
+      hasOvertime = !!r.overtime;
+    } else if (r.isMissing) {
+      notes = 'لا توجد بصمة ولا سجل حضور';
+      rowBg = 'E8E0F0';
+      noRecordAtAllCount++;
+    } else {
+      const status = r.status || '';
+      statusLabel = statusLabels[status] || status || '-';
+      const hasCheckIn = r.checkIn?.time ? true : false;
+      const hasCheckOut = r.checkOut?.time ? true : false;
+      if (!hasCheckIn && !hasCheckOut) {
+        notes = 'لا توجد بصمة دخول ولا خروج';
+        missingBothCount++;
+      } else if (!hasCheckIn) {
+        notes = 'لا توجد بصمة دخول';
+        missingCheckInCount++;
+      } else if (!hasCheckOut) {
+        notes = 'لا توجد بصمة خروج';
+        missingCheckOutCount++;
+      }
+      checkInStr = fmtTime(r.checkIn?.time);
+      checkOutStr = fmtTime(r.checkOut?.time);
+      durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
+      overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
+      hasDuration = !!r.duration;
+      hasOvertime = !!r.overtime;
+      if (status === 'absent' || status === 'late') {
+        rowBg = RED_BG;
+        statusColor = 'CC0000';
+      } else if (status === 'present') {
+        rowBg = GREEN_BG;
+        statusColor = '006600';
+      } else if (status === 'half_day') {
+        rowBg = YELLOW_BG;
+        statusColor = '996600';
+      }
+      if (notes && !r.isMissing) {
+        rowBg = ORANGE_BG;
+      }
+    }
+
+    if (isFriday(r.date) && !r.isHoliday) {
+      rowBg = FRIDAY_BG;
+    }
+
+    const rowData = [i + 1, fmtDate(r.date), checkInStr, checkOutStr, durStr, statusLabel, overtimeStr, notes];
+    const row = ws.addRow(rowData);
+    row.height = 24;
+
+    row.eachCell((cell, colNum) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
+      cell.alignment = { horizontal: colNum === 8 ? 'right' : 'center', vertical: 'middle', wrapText: true };
+      cell.font = { name: 'Calibri', size: 11, color: { argb: DARK_GRAY } };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'CCCCCC' } },
+        left: { style: 'thin', color: { argb: 'CCCCCC' } },
+        bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+        right: { style: 'thin', color: { argb: 'CCCCCC' } }
+      };
+    });
+
+    if (statusColor) {
+      row.getCell(6).font = { bold: true, color: { argb: statusColor }, size: 11 };
+    }
+    if (hasDuration) {
+      row.getCell(5).font = { bold: true, color: { argb: DARK_BLUE }, size: 11 };
+    }
+    if (notes) {
+      row.getCell(8).font = { italic: true, color: { argb: r.isHoliday ? 'CC0000' : r.isMissing ? '6633AA' : 'CC6600' }, size: 11 };
+    }
+  });
+
+  const lastDataRow = DATA_START_ROW + allRows.length;
+
+  if (records.length > 0) {
+    ws.addRow([]);
+    const summaryLabelRow = ws.addRow(['الملخص']);
+    ws.mergeCells(`A${summaryLabelRow.number}:${lastCol}${summaryLabelRow.number}`);
+    summaryLabelRow.height = 28;
+    const slCell = summaryLabelRow.getCell(1);
+    slCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: WHITE } };
+    slCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_BLUE } };
+    slCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    const dr = `B${DATA_START_ROW + 1}:B${lastDataRow}`;
+    const durR = `E${DATA_START_ROW + 1}:E${lastDataRow}`;
+    const ovtR = `G${DATA_START_ROW + 1}:G${lastDataRow}`;
+    const stR = `F${DATA_START_ROW + 1}:F${lastDataRow}`;
+
+    const summaryMain = [
+      ['إجمالي الأيام', `=ROWS(${durR})`],
+      ['أيام الحضور', `=COUNTIF(${stR},"حاضر")`],
+      ['أيام الغياب', `=COUNTIF(${stR},"غائب")`],
+      ['أيام التأخير', `=COUNTIF(${stR},"متأخر")`],
+      ['أيام العطل الرسمية', `=COUNTIF(${stR},"عطلة رسمية")`],
+      ['إجمالي ساعات العمل', `=IFERROR(SUM(${durR}),0)`],
+      ['إجمالي ساعات الإضافي', `=IFERROR(SUM(${ovtR}),0)`]
+    ];
+
+    summaryMain.forEach(([label, formula], i) => {
+      const row = ws.addRow([label, null, null, null, null, null, null, null]);
+      row.height = 24;
+      const isEven = i % 2 === 0;
+      const bg = isEven ? LIGHT_BLUE : WHITE;
+      row.getCell(1).value = label;
+      row.getCell(1).font = { bold: true, size: 11, color: { argb: DARK_BLUE } };
+      row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+      row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
+      row.getCell(2).value = { formula: formula.startsWith('=') ? formula.substring(1) : formula };
+      row.getCell(2).font = { bold: true, size: 11, color: { argb: DARK_GRAY } };
+      row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
+    });
+
+    ws.addRow([]);
+    const missingLabelRow = ws.addRow(['حالات البصمات الناقصة']);
+    ws.mergeCells(`A${missingLabelRow.number}:${lastCol}${missingLabelRow.number}`);
+    missingLabelRow.height = 28;
+    const mlCell = missingLabelRow.getCell(1);
+    mlCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: WHITE } };
+    mlCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'B74530' } };
+    mlCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    const missingData = [
+      ['عدد حالات نقص بصمة الدخول', missingCheckInCount],
+      ['عدد حالات نقص بصمة الخروج', missingCheckOutCount],
+      ['عدد حالات نقص البصمتين معاً', missingBothCount],
+      ['أيام بدون أي سجل حضور', noRecordAtAllCount]
+    ];
+
+    missingData.forEach(([label, value], i) => {
+      const row = ws.addRow([label, value, null, null, null, null, null, null]);
+      row.height = 24;
+      const isEven = i % 2 === 0;
+      const bg = isEven ? 'FFF3E0' : WHITE;
+      const valColor = value > 0 ? 'B74530' : '006600';
+      row.getCell(1).font = { bold: true, size: 11, color: { argb: 'B74530' } };
+      row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+      row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
+      row.getCell(2).font = { bold: true, size: 12, color: { argb: valColor } };
+      row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
+    });
+  }
+
+  if (records.length === 0) {
+    const emptyRow = ws.addRow(['لا توجد سجلات للفترة المحددة']);
+    ws.mergeCells(`A${emptyRow.number}:${lastCol}${emptyRow.number}`);
+    emptyRow.height = 30;
+    emptyRow.getCell(1).font = { italic: true, size: 12, color: { argb: '999999' } };
+    emptyRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+  }
+}
+
+async function downloadAllEmployeesActivityExcel(req, res) {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const users = await User.find({
+      isActive: true,
+      zkUserId: { $exists: true, $ne: null, $ne: '' }
+    }).select('name email department zkUserId').lean();
+
+    if (!users.length) {
+      return res.status(400).json({ success: false, message: 'لا يوجد موظفون مرتبطون بأجهزة البصمة' });
+    }
+
+    const userIds = users.map(u => u._id);
+
+    const query = { employee: { $in: userIds } };
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.date.$lte = end;
+      }
+    }
+
+    const allRecords = await Attendance.find(query).sort({ date: -1 }).lean();
+
+    const recordsByUser = new Map();
+    for (const r of allRecords) {
+      const uid = r.employee?.toString();
+      if (!uid) continue;
+      if (!recordsByUser.has(uid)) recordsByUser.set(uid, []);
+      recordsByUser.get(uid).push(r);
+    }
+
+    let startDt, endDt;
+    if (startDate) startDt = new Date(startDate);
+    else if (allRecords.length > 0) startDt = new Date(allRecords[allRecords.length - 1].date);
+    else startDt = new Date();
+    if (endDate) endDt = new Date(endDate);
+    else if (allRecords.length > 0) endDt = new Date(allRecords[0].date);
+    else endDt = new Date();
+    startDt.setHours(0, 0, 0, 0);
+    endDt.setHours(0, 0, 0, 0);
+
+    const ExcelJS = require('exceljs');
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'نظام الحضور';
+    wb.created = new Date();
+
+    for (const user of users) {
+      const uid = user._id.toString();
+      const records = recordsByUser.get(uid) || [];
+      await _createEmployeeActivitySheet(wb, user, records, startDt, endDt);
+    }
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const filename = `نشاط_جميع_الموظفين_${startDate || ''}_${endDate || ''}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error('All employees activity Excel error:', err);
+    res.status(500).json({ success: false, message: 'خطأ في إنشاء Excel', error: err.message });
+  }
+}
+
 async function getEmployeeActivity(req, res) {
   try {
     const { employeeId, startDate, endDate } = req.query;
@@ -917,5 +1320,6 @@ module.exports = {
   downloadAttendancePDF,
   downloadAttendanceExcel,
   downloadEmployeeActivityExcel,
+  downloadAllEmployeesActivityExcel,
   getEmployeeActivity
 };

@@ -4,6 +4,7 @@ import {
   getFinalAttendance, createManualOverride, deleteManualOverride,
   getDeviceUsersForSupervisor, getSupervisorStats,
   syncDeviceNow, downloadAttendanceExcel, downloadEmployeeActivityExcel,
+  downloadAllEmployeesActivityExcel,
   relinkDeviceLogs, getEmployeeActivity
 } from '../../services/supervisorService';
 
@@ -962,6 +963,12 @@ export default function TempSupervisorPage() {
                 {allUsers.map(u => <option key={u.zkUserId} value={u.zkUserId}>{u.name} (ID: {u.zkUserId})</option>)}
               </FilterSelect>
               <button onClick={loadActivity} className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors">🔍 بحث</button>
+              <button
+                onClick={() => downloadAllEmployeesActivityExcel(actStartDate, actEndDate)}
+                className="px-4 py-1.5 rounded-md bg-purple-700 hover:bg-purple-600 text-white text-sm font-medium transition-colors"
+              >
+                📥 Excel كل الموظفين
+              </button>
               {activityData.length > 0 && (
                 <>
                   <FilterLabel>فلتر</FilterLabel>

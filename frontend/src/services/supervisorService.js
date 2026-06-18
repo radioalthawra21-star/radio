@@ -112,6 +112,24 @@ export const downloadEmployeeActivityExcel = async (employeeId, startDate, endDa
   window.URL.revokeObjectURL(url);
 };
 
+export const downloadAllEmployeesActivityExcel = async (startDate, endDate) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  const response = await api.get(`/supervisor/all-employees-activity-excel?${params.toString()}`, {
+    responseType: 'blob',
+    timeout: 120000
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `نشاط_جميع_الموظفين_${startDate || ''}_${endDate || ''}.xlsx`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
 export const getEmployeeActivity = async (employeeId, startDate, endDate) => {
   const params = new URLSearchParams();
   if (employeeId) params.append('employeeId', employeeId);
