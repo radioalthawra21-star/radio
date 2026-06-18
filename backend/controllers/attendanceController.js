@@ -315,14 +315,30 @@ const getAttendanceStats = async (req, res) => {
     const { startDate, endDate } = req.query;
     
     const query = { employee: employeeId };
+    const sDate = startDate ? new Date(startDate) : null;
+    const eDate = endDate ? new Date(endDate) : null;
     
-    if (startDate || endDate) {
+    if (sDate || eDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (sDate) query.date.$gte = sDate;
+      if (eDate) query.date.$lte = eDate;
     }
     
     const attendances = await Attendance.find(query);
+    
+    const Holiday = require('../models/Holiday');
+    const holidays = await Holiday.find({
+      startDate: { $lte: eDate || new Date(Date.now()) },
+      endDate: { $gte: sDate || new Date(0) }
+    }).select('startDate endDate').lean();
+    let holidayCount = 0;
+    const hStart = sDate || new Date(0);
+    const hEnd = eDate || new Date(Date.now());
+    for (const h of holidays) {
+      const s = hStart > h.startDate ? hStart : h.startDate;
+      const e = hEnd < h.endDate ? hEnd : h.endDate;
+      if (s <= e) holidayCount += Math.floor((e - s) / 86400000) + 1;
+    }
     
     const stats = {
       totalDays: attendances.length,
@@ -332,7 +348,7 @@ const getAttendanceStats = async (req, res) => {
       halfDay: attendances.filter(a => a.status === AttendanceStatus.HALF_DAY).length,
       onLeave: attendances.filter(a => a.status === AttendanceStatus.ON_LEAVE).length,
       workFromHome: attendances.filter(a => a.workFromHome).length,
-      totalHours: attendances.reduce((sum, a) => sum + a.duration, 0),
+      totalHours: attendances.reduce((sum, a) => sum + a.duration, 0) + holidayCount * 7,
       totalOvertime: attendances.reduce((sum, a) => sum + a.overtime, 0),
       averageHours: attendances.length > 0 
         ? attendances.reduce((sum, a) => sum + a.duration, 0) / attendances.length 
@@ -639,7 +655,22 @@ const getEmployeeAttendanceReport = async (req, res) => {
     const late = records.filter(r => r.status === AttendanceStatus.LATE).length;
     const halfDay = records.filter(r => r.status === AttendanceStatus.HALF_DAY).length;
     const onLeave = records.filter(r => r.status === AttendanceStatus.ON_LEAVE).length;
-    const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
+
+    const Holiday = require('../models/Holiday');
+    const holidays = await Holiday.find({
+      startDate: { $lte: new Date(endDate || Date.now()) },
+      endDate: { $gte: new Date(startDate || 0) }
+    }).select('startDate endDate').lean();
+    let holidayCount = 0;
+    const hStart = new Date(startDate || 0);
+    const hEnd = new Date(endDate || Date.now());
+    for (const h of holidays) {
+      const s = Math.max(hStart, h.startDate);
+      const e = Math.min(hEnd, h.endDate);
+      if (s <= e) holidayCount += Math.floor((e - s) / 86400000) + 1;
+    }
+
+    const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0) + holidayCount * 7;
     const totalOvertime = records.reduce((sum, r) => sum + (r.overtime || 0), 0);
     const lateMinutes = records.reduce((sum, r) => {
       if (r.checkIn && r.checkIn.time && r.status === AttendanceStatus.LATE) {

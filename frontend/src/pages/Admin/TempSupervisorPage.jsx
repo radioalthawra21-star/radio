@@ -984,7 +984,7 @@ export default function TempSupervisorPage() {
                     onClick={() => downloadEmployeeActivityExcel(actEmployeeId, actStartDate, actEndDate)}
                     className="px-4 py-1.5 rounded-md bg-green-700 hover:bg-green-600 text-white text-sm font-medium transition-colors"
                   >
-                    📥 تحميل Excel ملون
+                    📥 موظف واحد
                   </button>
                 </>
               )}
@@ -1103,7 +1103,7 @@ export default function TempSupervisorPage() {
                   <StatCard label="أيام معوضة بإجازة" value={activityData.filter(r => r._compensatedByLeave && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-green-400" />
                   <StatCard label="عطل رسمية" value={activityData.filter(r => r._isHoliday).length} color="text-red-400" />
                   <StatCard label="عطل أسبوعية" value={activityData.filter(r => r._isWeeklyHoliday).length} color="text-blue-400" />
-                  <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday || r._isHoliday ? 0 : (r.duration || 0)), 0).toFixed(1)} color="text-blue-400" />
+                  <StatCard label="إجمالي ساعات العمل" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday ? 0 : (r.duration || (r._isHoliday ? 7 : 0))), 0).toFixed(1)} color="text-blue-400" />
                   <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday || r._isHoliday ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
                 </div>
                 <h4 className="text-sm font-semibold text-orange-400 mb-3 mt-4">⚠️ حالات البصمات الناقصة</h4>

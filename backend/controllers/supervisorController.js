@@ -365,7 +365,7 @@ async function downloadAttendanceExcel(req, res) {
     // Sheet 1: قاعدة البيانات
     // ============================================================
     const dbRows = records.map((r, i) => ({
-      '#': i + 1,
+      'م': i + 1,
       'الموظف': r.employee?.name || r.deviceUserName || 'غير معروف',
       'القسم': r.employee?.department || r.department || '-',
       'معرف البصمة': r.employee?.zkUserId || r.deviceUserId || '-',
@@ -391,7 +391,7 @@ async function downloadAttendanceExcel(req, res) {
     // Sheet 2: النتيجة (فلترة ديناميكية)
     // ============================================================
     const lastDataRow = dbRows.length + 1;
-    const headers = ['#', 'الموظف', 'القسم', 'معرف البصمة', 'التاريخ', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'إضافي (س)'];
+    const headers = ['م', 'الموظف', 'القسم', 'معرف البصمة', 'التاريخ', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'إضافي (س)'];
 
     // استخراج أسماء الموظفين الفريدة من قاعدة البيانات
     const uniqueNames = [...new Set(dbRows.map(r => r['الموظف']))].sort();
@@ -470,7 +470,6 @@ async function downloadEmployeeActivityExcel(req, res) {
       User.findById(employeeId).select('name email department zkUserId').lean()
     ]);
 
-    // Fill missing dates within range
     let startDt, endDt;
     if (startDate) startDt = new Date(startDate);
     else if (records.length > 0) startDt = new Date(records[records.length - 1].date);
@@ -486,364 +485,12 @@ async function downloadEmployeeActivityExcel(req, res) {
       endDate: { $gte: startDt }
     }).select('name startDate endDate').lean();
 
-    // Build holiday date map
-    const holidayDateMap = new Map();
-    (holidays || []).forEach(h => {
-      const hStart = new Date(h.startDate);
-      hStart.setHours(0, 0, 0, 0);
-      const hEnd = new Date(h.endDate);
-      hEnd.setHours(0, 0, 0, 0);
-      const cur = new Date(hStart);
-      while (cur <= hEnd) {
-        const key = cur.toISOString().split('T')[0];
-        if (!holidayDateMap.has(key)) holidayDateMap.set(key, h);
-        cur.setDate(cur.getDate() + 1);
-      }
-    });
-
-    const recordDateSet = new Set(records.map(r => {
-      const d = new Date(r.date);
-      return d.toISOString().split('T')[0];
-    }));
-
-    // Mark existing records that fall on holidays
-    records.forEach(r => {
-      const d = new Date(r.date);
-      const key = d.toISOString().split('T')[0];
-      const hol = holidayDateMap.get(key);
-      if (hol) {
-        r.isHoliday = true;
-        r.holidayName = hol.name;
-      }
-    });
-
-    const missingDates = [];
-    const cursor = new Date(startDt);
-    while (cursor <= endDt) {
-      const key = cursor.toISOString().split('T')[0];
-      if (!recordDateSet.has(key)) {
-        const hol = holidayDateMap.get(key);
-        if (hol) {
-          const ci = new Date(cursor);
-          ci.setHours(9, 0, 0, 0);
-          const co = new Date(cursor);
-          co.setHours(16, 0, 0, 0);
-          missingDates.push({
-            date: new Date(cursor),
-            isMissing: false,
-            isHoliday: true,
-            holidayName: hol.name,
-            checkIn: { time: ci.toISOString(), status: 'on_time' },
-            checkOut: { time: co.toISOString(), status: 'on_time' },
-            duration: 7,
-            status: 'present',
-            overtime: 0
-          });
-        } else {
-          missingDates.push({ date: new Date(cursor), isMissing: true });
-        }
-      }
-      cursor.setDate(cursor.getDate() + 1);
-    }
-
-    // Merge records + missing dates, sorted desc
-    const allRows = [
-      ...records.map(r => ({ ...r, isMissing: false })),
-      ...missingDates
-    ];
-    allRows.sort((a, b) => new Date(b.date) - new Date(a.date));
-
     const ExcelJS = require('exceljs');
     const wb = new ExcelJS.Workbook();
     wb.creator = 'نظام الحضور';
     wb.created = new Date();
 
-    const ws = wb.addWorksheet('نشاط الموظف', { views: [{ rtl: true }] });
-
-    const COL_COUNT = 8; // A-H
-
-    // Column widths
-    ws.columns = [
-      { header: '#', key: 'num', width: 5 },
-      { header: 'التاريخ', key: 'date', width: 14 },
-      { header: 'أول دخول', key: 'checkIn', width: 14 },
-      { header: 'آخر خروج', key: 'checkOut', width: 14 },
-      { header: 'المدة (س)', key: 'duration', width: 10 },
-      { header: 'الحالة', key: 'status', width: 14 },
-      { header: 'إضافي (س)', key: 'overtime', width: 10 },
-      { header: 'ملاحظات', key: 'notes', width: 35 }
-    ];
-
-    // Colors
-    const DARK_BLUE = '1E3C6E';
-    const MEDIUM_BLUE = '2B5797';
-    const LIGHT_BLUE = 'D6E4F0';
-    const WHITE = 'FFFFFF';
-    const LIGHT_GRAY = 'F5F5F5';
-    const DARK_GRAY = '333333';
-    const GREEN_BG = 'E6FFE6';
-    const RED_BG = 'FFE6E6';
-    const YELLOW_BG = 'FFF8E1';
-    const ORANGE_BG = 'FFF3E0';
-
-    const lastCol = String.fromCharCode(64 + COL_COUNT); // H
-
-    const cellStyle = {
-      alignment: { horizontal: 'center', vertical: 'middle', wrapText: true }
-    };
-
-    const DATA_START_ROW = 4; // data starts at row 5 (after title, info, period, header)
-
-    // Row 1: Title
-    const titleRow = ws.addRow(['تقرير نشاط الموظف']);
-    ws.mergeCells(`A${titleRow.number}:${lastCol}${titleRow.number}`);
-    titleRow.height = 40;
-    const titleCell = titleRow.getCell(1);
-    titleCell.font = { name: 'Calibri', size: 20, bold: true, color: { argb: WHITE } };
-    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_BLUE } };
-    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
-
-    // Row 2: Employee info
-    const infoRow = ws.addRow([`الموظف: ${user?.name || 'غير معروف'}`, null, null, null, `القسم: ${user?.department || '-'}`, null, null, `معرف البصمة: ${user?.zkUserId || '-'}`]);
-    infoRow.height = 24;
-    infoRow.getCell(1).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-    infoRow.getCell(5).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-    infoRow.getCell(8).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-    infoRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-    infoRow.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
-    infoRow.getCell(8).alignment = { horizontal: 'center', vertical: 'middle' };
-    // Auto-fit column A width based on employee name length
-    ws.getColumn(1).width = Math.max(8, (`الموظف: ${user?.name || 'غير معروف'}`.length * 1.2) + 4);
-
-    // Row 3: Date range
-    const periodRow = ws.addRow([`الفترة: ${startDate || '---'} → ${endDate || '---'}`, null, null, null, null, null, null, null]);
-    periodRow.height = 22;
-    periodRow.getCell(1).font = { italic: true, size: 11, color: { argb: '666666' } };
-    periodRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-
-    // Header row (row 4)
-    const headerRow = ws.addRow(['#', 'التاريخ', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'إضافي (س)', 'ملاحظات']);
-    headerRow.height = 32;
-    headerRow.eachCell((cell) => {
-      cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFF' } };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1B7F3D' } };
-      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-      cell.border = {
-        top: { style: 'thin', color: { argb: '145C2B' } },
-        left: { style: 'thin', color: { argb: '145C2B' } },
-        bottom: { style: 'medium', color: { argb: '145C2B' } },
-        right: { style: 'thin', color: { argb: '145C2B' } }
-      };
-    });
-
-    // Status map
-    const statusLabels = {
-      present: 'حاضر', absent: 'غائب', late: 'متأخر',
-      half_day: 'نصف يوم', on_leave: 'إجازة', work_from_home: 'عمل عن بعد'
-    };
-
-    const fmtDate = d => d ? new Date(d).toLocaleDateString('en-CA') : '-';
-    const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
-    const isFriday = d => { const day = new Date(d).getDay(); return day === 5; };
-    const FRIDAY_BG = 'F0E6FF';
-
-    // Track missing stats
-    let missingCheckInCount = 0;
-    let missingCheckOutCount = 0;
-    let missingBothCount = 0;
-    let noRecordAtAllCount = 0;
-
-    // Data rows
-    allRows.forEach((r, i) => {
-      const isEven = i % 2 === 0;
-
-      let notes = '';
-      let rowBg = isEven ? LIGHT_GRAY : WHITE;
-      let statusLabel = '-';
-      let statusColor = null;
-      let hasDuration = false;
-      let hasOvertime = false;
-      let checkInStr = '---';
-      let checkOutStr = '---';
-      let durStr = '-';
-      let overtimeStr = '-';
-
-      if (r.isHoliday) {
-        notes = `🏖️ عطلة رسمية - ${r.holidayName || ''}`;
-        rowBg = 'FFCCCC';
-        statusLabel = 'عطلة رسمية';
-        checkInStr = fmtTime(r.checkIn?.time);
-        checkOutStr = fmtTime(r.checkOut?.time);
-        durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
-        overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
-        hasDuration = !!r.duration;
-        hasOvertime = !!r.overtime;
-      } else if (r.isMissing) {
-        notes = 'لا توجد بصمة ولا سجل حضور';
-        rowBg = 'E8E0F0';
-        noRecordAtAllCount++;
-      } else {
-        const status = r.status || '';
-        statusLabel = statusLabels[status] || status || '-';
-
-        const hasCheckIn = r.checkIn?.time ? true : false;
-        const hasCheckOut = r.checkOut?.time ? true : false;
-
-        if (!hasCheckIn && !hasCheckOut) {
-          notes = 'لا توجد بصمة دخول ولا خروج';
-          missingBothCount++;
-        } else if (!hasCheckIn) {
-          notes = 'لا توجد بصمة دخول';
-          missingCheckInCount++;
-        } else if (!hasCheckOut) {
-          notes = 'لا توجد بصمة خروج';
-          missingCheckOutCount++;
-        }
-
-        checkInStr = fmtTime(r.checkIn?.time);
-        checkOutStr = fmtTime(r.checkOut?.time);
-        durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
-        overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
-        hasDuration = !!r.duration;
-        hasOvertime = !!r.overtime;
-
-        if (status === 'absent' || status === 'late') {
-          rowBg = RED_BG;
-          statusColor = 'CC0000';
-        } else if (status === 'present') {
-          rowBg = GREEN_BG;
-          statusColor = '006600';
-        } else if (status === 'half_day') {
-          rowBg = YELLOW_BG;
-          statusColor = '996600';
-        }
-
-        if (notes && !r.isMissing) {
-          rowBg = ORANGE_BG;
-        }
-      }
-
-      // Highlight Friday (but don't override holidays)
-      if (isFriday(r.date) && !r.isHoliday) {
-        rowBg = FRIDAY_BG;
-      }
-
-      const rowData = [i + 1, fmtDate(r.date), checkInStr, checkOutStr, durStr, statusLabel, overtimeStr, notes];
-      const row = ws.addRow(rowData);
-      row.height = 24;
-
-      row.eachCell((cell, colNum) => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
-        cell.alignment = { horizontal: colNum === 8 ? 'right' : 'center', vertical: 'middle', wrapText: true };
-        cell.font = { name: 'Calibri', size: 11, color: { argb: DARK_GRAY } };
-        cell.border = {
-          top: { style: 'thin', color: { argb: 'CCCCCC' } },
-          left: { style: 'thin', color: { argb: 'CCCCCC' } },
-          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
-          right: { style: 'thin', color: { argb: 'CCCCCC' } }
-        };
-      });
-
-      if (statusColor) {
-        row.getCell(6).font = { bold: true, color: { argb: statusColor }, size: 11 };
-      }
-      if (hasDuration) {
-        row.getCell(5).font = { bold: true, color: { argb: DARK_BLUE }, size: 11 };
-      }
-      if (notes) {
-        row.getCell(8).font = { italic: true, color: { argb: r.isHoliday ? 'CC0000' : r.isMissing ? '6633AA' : 'CC6600' }, size: 11 };
-      }
-    });
-
-    // Summary section
-    const lastDataRow = DATA_START_ROW + allRows.length; // last data row number
-
-    if (records.length > 0) {
-      ws.addRow([]);
-      const summaryLabelRow = ws.addRow(['الملخص']);
-      ws.mergeCells(`A${summaryLabelRow.number}:${lastCol}${summaryLabelRow.number}`);
-      summaryLabelRow.height = 28;
-      const slCell = summaryLabelRow.getCell(1);
-      slCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: WHITE } };
-      slCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_BLUE } };
-      slCell.alignment = { horizontal: 'center', vertical: 'middle' };
-
-      const dr = `B${DATA_START_ROW + 1}:B${lastDataRow}`; // date range
-      const durR = `E${DATA_START_ROW + 1}:E${lastDataRow}`; // duration range
-      const ovtR = `G${DATA_START_ROW + 1}:G${lastDataRow}`; // overtime range
-      const stR = `F${DATA_START_ROW + 1}:F${lastDataRow}`; // status range
-
-      const summaryMain = [
-        ['إجمالي الأيام', `=ROWS(${durR})`],
-        ['أيام الحضور', `=COUNTIF(${stR},"حاضر")`],
-        ['أيام الغياب', `=COUNTIF(${stR},"غائب")`],
-        ['أيام التأخير', `=COUNTIF(${stR},"متأخر")`],
-        ['أيام العطل الرسمية', `=COUNTIF(${stR},"عطلة رسمية")`],
-        ['إجمالي ساعات العمل', `=IFERROR(SUM(${durR}),0)`],
-        ['إجمالي ساعات الإضافي', `=IFERROR(SUM(${ovtR}),0)`]
-      ];
-
-      summaryMain.forEach(([label, formula], i) => {
-        const row = ws.addRow([label, null, null, null, null, null, null, null]);
-        row.height = 24;
-        const isEven = i % 2 === 0;
-        const bg = isEven ? LIGHT_BLUE : WHITE;
-
-        row.getCell(1).value = label;
-        row.getCell(1).font = { bold: true, size: 11, color: { argb: DARK_BLUE } };
-        row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-        row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-        row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-
-        row.getCell(2).value = { formula: formula.startsWith('=') ? formula.substring(1) : formula };
-        row.getCell(2).font = { bold: true, size: 11, color: { argb: DARK_GRAY } };
-        row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-        row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-        row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-      });
-
-      // Missing punch summary
-      ws.addRow([]);
-      const missingLabelRow = ws.addRow(['حالات البصمات الناقصة']);
-      ws.mergeCells(`A${missingLabelRow.number}:${lastCol}${missingLabelRow.number}`);
-      missingLabelRow.height = 28;
-      const mlCell = missingLabelRow.getCell(1);
-      mlCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: WHITE } };
-      mlCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'B74530' } };
-      mlCell.alignment = { horizontal: 'center', vertical: 'middle' };
-
-      const missingData = [
-        ['عدد حالات نقص بصمة الدخول', missingCheckInCount],
-        ['عدد حالات نقص بصمة الخروج', missingCheckOutCount],
-        ['عدد حالات نقص البصمتين معاً', missingBothCount],
-        ['أيام بدون أي سجل حضور', noRecordAtAllCount]
-      ];
-
-      missingData.forEach(([label, value], i) => {
-        const row = ws.addRow([label, value, null, null, null, null, null, null]);
-        row.height = 24;
-        const isEven = i % 2 === 0;
-        const bg = isEven ? 'FFF3E0' : WHITE;
-        const valColor = value > 0 ? 'B74530' : '006600';
-        row.getCell(1).font = { bold: true, size: 11, color: { argb: 'B74530' } };
-        row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-        row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-        row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-        row.getCell(2).font = { bold: true, size: 12, color: { argb: valColor } };
-        row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-        row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-        row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-      });
-    }
-
-    // No records row
-    if (records.length === 0) {
-      const emptyRow = ws.addRow(['لا توجد سجلات للفترة المحددة']);
-      ws.mergeCells(`A${emptyRow.number}:${lastCol}${emptyRow.number}`);
-      emptyRow.height = 30;
-      emptyRow.getCell(1).font = { italic: true, size: 12, color: { argb: '999999' } };
-      emptyRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
-    }
+    _createEmployeeActivitySheet(wb, user, records, startDt, endDt, holidays);
 
     const buffer = await wb.xlsx.writeBuffer();
     const filename = `نشاط_${user?.name || employeeId}_${startDate || ''}_${endDate || ''}.xlsx`;
@@ -857,13 +504,7 @@ async function downloadEmployeeActivityExcel(req, res) {
   }
 }
 
-async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt) {
-  const Holiday = require('../models/Holiday');
-  const holidays = await Holiday.find({
-    startDate: { $lte: endDt },
-    endDate: { $gte: startDt }
-  }).select('name startDate endDate').lean();
-
+async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt, holidays) {
   const holidayDateMap = new Map();
   (holidays || []).forEach(h => {
     const hStart = new Date(h.startDate);
@@ -878,11 +519,6 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt) {
     }
   });
 
-  const recordDateSet = new Set(records.map(r => {
-    const d = new Date(r.date);
-    return d.toISOString().split('T')[0];
-  }));
-
   records.forEach(r => {
     const d = new Date(r.date);
     const key = d.toISOString().split('T')[0];
@@ -893,302 +529,252 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt) {
     }
   });
 
-  const missingDates = [];
-  const cursor = new Date(startDt);
-  while (cursor <= endDt) {
-    const key = cursor.toISOString().split('T')[0];
-    if (!recordDateSet.has(key)) {
-      const hol = holidayDateMap.get(key);
-      if (hol) {
-        const ci = new Date(cursor);
-        ci.setHours(9, 0, 0, 0);
-        const co = new Date(cursor);
-        co.setHours(16, 0, 0, 0);
-        missingDates.push({
-          date: new Date(cursor),
-          isMissing: false,
-          isHoliday: true,
-          holidayName: hol.name,
-          checkIn: { time: ci.toISOString(), status: 'on_time' },
-          checkOut: { time: co.toISOString(), status: 'on_time' },
-          duration: 7,
-          status: 'present',
-          overtime: 0
-        });
-      } else {
-        missingDates.push({ date: new Date(cursor), isMissing: true });
-      }
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
+  const recordMap = new Map();
+  records.forEach(r => {
+    const key = new Date(r.date).toISOString().split('T')[0];
+    recordMap.set(key, r);
+  });
 
-  const allRows = [
-    ...records.map(r => ({ ...r, isMissing: false })),
-    ...missingDates
-  ];
-  allRows.sort((a, b) => new Date(b.date) - new Date(a.date));
+  let presentCount = 0, absentCount = 0, lateCount = 0, holidayCount = 0, halfDayCount = 0, leaveCount = 0, wfhCount = 0;
+  let totalDuration = 0, totalOvertime = 0;
+  let missingCheckInCount = 0, missingCheckOutCount = 0, missingBothCount = 0;
+
+  records.forEach(r => {
+    if (r.isHoliday) return;
+    const status = r.status || '';
+    if (status === 'present') presentCount++;
+    else if (status === 'absent') absentCount++;
+    else if (status === 'late') lateCount++;
+    else if (status === 'half_day') halfDayCount++;
+    else if (status === 'on_leave') leaveCount++;
+    else if (status === 'work_from_home') wfhCount++;
+    totalDuration += r.duration || 0;
+    totalOvertime += r.overtime || 0;
+    const hasCI = !!r.checkIn?.time;
+    const hasCO = !!r.checkOut?.time;
+    if (!hasCI && !hasCO) missingBothCount++;
+    else if (!hasCI) missingCheckInCount++;
+    else if (!hasCO) missingCheckOutCount++;
+  });
+
+  const holIter = new Date(startDt);
+  while (holIter <= endDt) {
+    if (holidayDateMap.has(holIter.toISOString().split('T')[0])) holidayCount++;
+    holIter.setDate(holIter.getDate() + 1);
+  }
+  totalDuration += holidayCount * 7;
+
+  const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  const statusLabels = { present: 'حاضر', absent: 'غائب', late: 'متأخر', half_day: 'نصف يوم', on_leave: 'إجازة', work_from_home: 'عمل عن بعد' };
+  const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
+
+  const tableRows = [];
+  const iter = new Date(startDt);
+  let rowIdx = 0;
+  while (iter <= endDt) {
+    const key = iter.toISOString().split('T')[0];
+    const record = recordMap.get(key);
+    const dayOfWeek = iter.getDay();
+    const isFriday = dayOfWeek === 5;
+    const isHoliday = holidayDateMap.has(key);
+    const hol = holidayDateMap.get(key);
+
+    let cells, bg, statusColor = null, notes = '', textColor;
+
+    if (record) {
+      const status = record.status || '';
+      const isRecHoliday = !!record.isHoliday;
+      const statusLabel = isRecHoliday ? 'عطلة' : statusLabels[status] || status || '-';
+
+      if (isRecHoliday) {
+        notes = record.holidayName ? `عطلة - ${record.holidayName}` : 'عطلة رسمية';
+        bg = 'FFF0F0';
+      } else {
+        if (status === 'absent') { bg = 'FFEBEE'; statusColor = 'D32F2F'; }
+        else if (status === 'late') { bg = 'FFF8E1'; statusColor = 'F57C00'; }
+        else if (status === 'half_day') { bg = 'E8F5E9'; }
+        else if (isFriday) { bg = '5A5A5A'; textColor = 'FFFFFF'; }
+        else { bg = rowIdx % 2 === 0 ? 'F7FAFC' : 'FFFFFF'; }
+
+        const hasCI = !!record.checkIn?.time;
+        const hasCO = !!record.checkOut?.time;
+        if (!hasCI && !hasCO) notes = 'نقص البصمتين';
+        else if (!hasCI) notes = 'نقص بصمة دخول';
+        else if (!hasCO) notes = 'نقص بصمة خروج';
+      }
+
+      cells = [
+        rowIdx + 1,
+        iter.toLocaleDateString('en-CA'),
+        dayNames[dayOfWeek],
+        fmtTime(record.checkIn?.time),
+        fmtTime(record.checkOut?.time),
+        record.duration ? parseFloat(record.duration.toFixed(1)) : '-',
+        statusLabel,
+        notes
+      ];
+    } else if (isHoliday) {
+      cells = [
+        rowIdx + 1,
+        iter.toLocaleDateString('en-CA'),
+        dayNames[dayOfWeek],
+        '09:00',
+        '16:00',
+        7,
+        'عطلة',
+        hol ? `عطلة رسمية - ${hol.name}` : 'عطلة رسمية'
+      ];
+      bg = 'FFF0F0';
+    } else if (isFriday) {
+      cells = [
+        rowIdx + 1,
+        iter.toLocaleDateString('en-CA'),
+        dayNames[dayOfWeek],
+        '---', '---', '-', '-', 'جمعة'
+      ];
+      bg = '5A5A5A'; textColor = 'FFFFFF';
+    } else {
+      cells = [
+        rowIdx + 1,
+        iter.toLocaleDateString('en-CA'),
+        dayNames[dayOfWeek],
+        '---', '---', '-', '-', ''
+      ];
+      bg = rowIdx % 2 === 0 ? 'F7FAFC' : 'FFFFFF';
+    }
+
+    tableRows.push({ cells, bg, statusColor, notes, textColor });
+    iter.setDate(iter.getDate() + 1);
+    rowIdx++;
+  }
 
   const COL_COUNT = 8;
   const lastCol = String.fromCharCode(64 + COL_COUNT);
 
   const ws = wb.addWorksheet((user?.name || 'موظف').substring(0, 31), { views: [{ rtl: true }] });
-
   ws.columns = [
-    { header: '#', key: 'num', width: 5 },
-    { header: 'التاريخ', key: 'date', width: 14 },
-    { header: 'أول دخول', key: 'checkIn', width: 14 },
-    { header: 'آخر خروج', key: 'checkOut', width: 14 },
-    { header: 'المدة (س)', key: 'duration', width: 10 },
-    { header: 'الحالة', key: 'status', width: 14 },
-    { header: 'إضافي (س)', key: 'overtime', width: 10 },
-    { header: 'ملاحظات', key: 'notes', width: 35 }
+    { width: 5 }, { width: 13 }, { width: 10 },
+    { width: 12 }, { width: 12 }, { width: 10 },
+    { width: 12 }, { width: 28 }
   ];
 
-  const DARK_BLUE = '1E3C6E';
-  const MEDIUM_BLUE = '2B5797';
-  const LIGHT_BLUE = 'D6E4F0';
-  const WHITE = 'FFFFFF';
-  const LIGHT_GRAY = 'F5F5F5';
-  const DARK_GRAY = '333333';
-  const GREEN_BG = 'E6FFE6';
-  const RED_BG = 'FFE6E6';
-  const YELLOW_BG = 'FFF8E1';
-  const ORANGE_BG = 'FFF3E0';
-  const FRIDAY_BG = 'F0E6FF';
-
-  const statusLabels = {
-    present: 'حاضر', absent: 'غائب', late: 'متأخر',
-    half_day: 'نصف يوم', on_leave: 'إجازة', work_from_home: 'عمل عن بعد'
+  const C = {
+    navy: '1A365D', white: 'FFFFFF', gray: '718096',
+    lightGray: 'F7FAFC', border: 'E2E8F0', dark: '2D3748',
+    green: '38A169', red: 'E53E3E', orange: 'DD6B20',
+    purple: '6B46C1'
   };
 
-  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-CA') : '-';
-  const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
-  const isFriday = d => { const day = new Date(d).getDay(); return day === 5; };
+  const tRow = ws.addRow([`${user?.name || 'موظف'} | ${user?.department || '-'} | معرف: ${user?.zkUserId || '-'}`]);
+  ws.mergeCells(`A${tRow.number}:${lastCol}${tRow.number}`);
+  tRow.height = 38;
+  tRow.getCell(1).font = { name: 'Calibri', size: 16, bold: true, color: { argb: C.white } };
+  tRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.navy } };
+  tRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-  const titleRow = ws.addRow([`تقرير نشاط ${user?.name || 'موظف'}`]);
-  ws.mergeCells(`A${titleRow.number}:${lastCol}${titleRow.number}`);
-  titleRow.height = 40;
-  const titleCell = titleRow.getCell(1);
-  titleCell.font = { name: 'Calibri', size: 20, bold: true, color: { argb: WHITE } };
-  titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_BLUE } };
-  titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  const fmtD = (d) => `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
+  const pRow = ws.addRow([`\u202Aمن ${fmtD(startDt)} الى ${fmtD(endDt)}\u202C`]);
+  ws.mergeCells(`A${pRow.number}:${lastCol}${pRow.number}`);
+  pRow.height = 20;
+  pRow.getCell(1).font = { italic: true, size: 10, color: { argb: C.gray } };
+  pRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-  const infoRow = ws.addRow([`الموظف: ${user?.name || 'غير معروف'}`, null, null, null, `القسم: ${user?.department || '-'}`, null, null, `معرف البصمة: ${user?.zkUserId || '-'}`]);
-  infoRow.height = 24;
-  infoRow.getCell(1).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-  infoRow.getCell(5).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-  infoRow.getCell(8).font = { bold: true, size: 12, color: { argb: DARK_BLUE } };
-  infoRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-  infoRow.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
-  infoRow.getCell(8).alignment = { horizontal: 'center', vertical: 'middle' };
-  ws.getColumn(1).width = Math.max(8, (`الموظف: ${user?.name || 'غير معروف'}`.length * 1.2) + 4);
+  if (tableRows.length === 0) {
+    const er = ws.addRow(['لا توجد سجلات للفترة المحددة']);
+    ws.mergeCells(`A${er.number}:${lastCol}${er.number}`);
+    er.getCell(1).font = { italic: true, size: 11, color: { argb: 'A0AEC0' } };
+    er.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+    return;
+  }
 
-  const sD = startDt ? startDt.toISOString().split('T')[0] : '---';
-  const eD = endDt ? endDt.toISOString().split('T')[0] : '---';
-  const periodRow = ws.addRow([`الفترة: ${sD} → ${eD}`, null, null, null, null, null, null, null]);
-  periodRow.height = 22;
-  periodRow.getCell(1).font = { italic: true, size: 11, color: { argb: '666666' } };
-  periodRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-
-  const headerRow = ws.addRow(['#', 'التاريخ', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'إضافي (س)', 'ملاحظات']);
-  headerRow.height = 32;
+  const headerRow = ws.addRow(['م', 'التاريخ', 'اليوم', 'أول دخول', 'آخر خروج', 'المدة (س)', 'الحالة', 'ملاحظات']);
+  headerRow.height = 30;
   headerRow.eachCell((cell) => {
-    cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFF' } };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1B7F3D' } };
-    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: C.white } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.navy } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
     cell.border = {
-      top: { style: 'thin', color: { argb: '145C2B' } },
-      left: { style: 'thin', color: { argb: '145C2B' } },
-      bottom: { style: 'medium', color: { argb: '145C2B' } },
-      right: { style: 'thin', color: { argb: '145C2B' } }
+      top: { style: 'thin', color: { argb: C.navy } },
+      bottom: { style: 'medium', color: { argb: C.navy } },
+      left: { style: 'thin', color: { argb: C.navy } },
+      right: { style: 'thin', color: { argb: C.navy } }
     };
   });
 
-  const DATA_START_ROW = 4;
-
-  let missingCheckInCount = 0;
-  let missingCheckOutCount = 0;
-  let missingBothCount = 0;
-  let noRecordAtAllCount = 0;
-
-  allRows.forEach((r, i) => {
-    const isEven = i % 2 === 0;
-    let notes = '';
-    let rowBg = isEven ? LIGHT_GRAY : WHITE;
-    let statusLabel = '-';
-    let statusColor = null;
-    let hasDuration = false;
-    let hasOvertime = false;
-    let checkInStr = '---';
-    let checkOutStr = '---';
-    let durStr = '-';
-    let overtimeStr = '-';
-
-    if (r.isHoliday) {
-      notes = `🏖️ عطلة رسمية - ${r.holidayName || ''}`;
-      rowBg = 'FFCCCC';
-      statusLabel = 'عطلة رسمية';
-      checkInStr = fmtTime(r.checkIn?.time);
-      checkOutStr = fmtTime(r.checkOut?.time);
-      durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
-      overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
-      hasDuration = !!r.duration;
-      hasOvertime = !!r.overtime;
-    } else if (r.isMissing) {
-      notes = 'لا توجد بصمة ولا سجل حضور';
-      rowBg = 'E8E0F0';
-      noRecordAtAllCount++;
-    } else {
-      const status = r.status || '';
-      statusLabel = statusLabels[status] || status || '-';
-      const hasCheckIn = r.checkIn?.time ? true : false;
-      const hasCheckOut = r.checkOut?.time ? true : false;
-      if (!hasCheckIn && !hasCheckOut) {
-        notes = 'لا توجد بصمة دخول ولا خروج';
-        missingBothCount++;
-      } else if (!hasCheckIn) {
-        notes = 'لا توجد بصمة دخول';
-        missingCheckInCount++;
-      } else if (!hasCheckOut) {
-        notes = 'لا توجد بصمة خروج';
-        missingCheckOutCount++;
-      }
-      checkInStr = fmtTime(r.checkIn?.time);
-      checkOutStr = fmtTime(r.checkOut?.time);
-      durStr = r.duration ? parseFloat(r.duration.toFixed(1)) : '-';
-      overtimeStr = r.overtime ? parseFloat(r.overtime.toFixed(1)) : '-';
-      hasDuration = !!r.duration;
-      hasOvertime = !!r.overtime;
-      if (status === 'absent' || status === 'late') {
-        rowBg = RED_BG;
-        statusColor = 'CC0000';
-      } else if (status === 'present') {
-        rowBg = GREEN_BG;
-        statusColor = '006600';
-      } else if (status === 'half_day') {
-        rowBg = YELLOW_BG;
-        statusColor = '996600';
-      }
-      if (notes && !r.isMissing) {
-        rowBg = ORANGE_BG;
-      }
-    }
-
-    if (isFriday(r.date) && !r.isHoliday) {
-      rowBg = FRIDAY_BG;
-    }
-
-    const rowData = [i + 1, fmtDate(r.date), checkInStr, checkOutStr, durStr, statusLabel, overtimeStr, notes];
-    const row = ws.addRow(rowData);
-    row.height = 24;
-
-    row.eachCell((cell, colNum) => {
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
-      cell.alignment = { horizontal: colNum === 8 ? 'right' : 'center', vertical: 'middle', wrapText: true };
-      cell.font = { name: 'Calibri', size: 11, color: { argb: DARK_GRAY } };
+  const eng = (v) => v == null || v === '' ? '' : '\u200E' + v;
+  tableRows.forEach((tr, i) => {
+    const r = ws.addRow(tr.cells.map(c => typeof c === 'number' ? eng(c) : (typeof c === 'string' && c ? eng(c) : c)));
+    r.height = 22;
+    const fgColor = tr.textColor || C.dark;
+    r.eachCell((cell, col) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: tr.bg || (i % 2 === 0 ? C.lightGray : C.white) } };
+      cell.alignment = { horizontal: col === 8 ? 'right' : 'center', vertical: 'middle', wrapText: true };
+      cell.font = { name: 'Calibri', size: 10, color: { argb: fgColor } };
       cell.border = {
-        top: { style: 'thin', color: { argb: 'CCCCCC' } },
-        left: { style: 'thin', color: { argb: 'CCCCCC' } },
-        bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
-        right: { style: 'thin', color: { argb: 'CCCCCC' } }
+        top: { style: 'thin', color: { argb: C.border } },
+        bottom: { style: 'thin', color: { argb: C.border } },
+        left: { style: 'thin', color: { argb: C.border } },
+        right: { style: 'thin', color: { argb: C.border } }
       };
     });
-
-    if (statusColor) {
-      row.getCell(6).font = { bold: true, color: { argb: statusColor }, size: 11 };
-    }
-    if (hasDuration) {
-      row.getCell(5).font = { bold: true, color: { argb: DARK_BLUE }, size: 11 };
-    }
-    if (notes) {
-      row.getCell(8).font = { italic: true, color: { argb: r.isHoliday ? 'CC0000' : r.isMissing ? '6633AA' : 'CC6600' }, size: 11 };
-    }
+    if (tr.statusColor) r.getCell(7).font = { bold: true, color: { argb: tr.statusColor }, size: 10 };
+    if (tr.notes && !tr.textColor) r.getCell(8).font = { italic: true, color: { argb: C.gray }, size: 10 };
   });
 
-  const lastDataRow = DATA_START_ROW + allRows.length;
+  const lastDataRow = ws.rowCount;
+  ws.autoFilter = `A3:${lastCol}${lastDataRow}`;
 
-  if (records.length > 0) {
-    ws.addRow([]);
-    const summaryLabelRow = ws.addRow(['الملخص']);
-    ws.mergeCells(`A${summaryLabelRow.number}:${lastCol}${summaryLabelRow.number}`);
-    summaryLabelRow.height = 28;
-    const slCell = summaryLabelRow.getCell(1);
-    slCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: WHITE } };
-    slCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_BLUE } };
-    slCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  ws.addRow([]);
+  const sumR = ws.addRow(['مؤشرات الأداء']);
+  ws.mergeCells(`A${sumR.number}:${lastCol}${sumR.number}`);
+  sumR.height = 28;
+  sumR.getCell(1).font = { name: 'Calibri', size: 14, bold: true, color: { argb: C.white } };
+  sumR.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.navy } };
+  sumR.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-    const dr = `B${DATA_START_ROW + 1}:B${lastDataRow}`;
-    const durR = `E${DATA_START_ROW + 1}:E${lastDataRow}`;
-    const ovtR = `G${DATA_START_ROW + 1}:G${lastDataRow}`;
-    const stR = `F${DATA_START_ROW + 1}:F${lastDataRow}`;
+  const totalDays = tableRows.length;
 
-    const summaryMain = [
-      ['إجمالي الأيام', `=ROWS(${durR})`],
-      ['أيام الحضور', `=COUNTIF(${stR},"حاضر")`],
-      ['أيام الغياب', `=COUNTIF(${stR},"غائب")`],
-      ['أيام التأخير', `=COUNTIF(${stR},"متأخر")`],
-      ['أيام العطل الرسمية', `=COUNTIF(${stR},"عطلة رسمية")`],
-      ['إجمالي ساعات العمل', `=IFERROR(SUM(${durR}),0)`],
-      ['إجمالي ساعات الإضافي', `=IFERROR(SUM(${ovtR}),0)`]
-    ];
-
-    summaryMain.forEach(([label, formula], i) => {
-      const row = ws.addRow([label, null, null, null, null, null, null, null]);
-      row.height = 24;
-      const isEven = i % 2 === 0;
-      const bg = isEven ? LIGHT_BLUE : WHITE;
-      row.getCell(1).value = label;
-      row.getCell(1).font = { bold: true, size: 11, color: { argb: DARK_BLUE } };
-      row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-      row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-      row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-      row.getCell(2).value = { formula: formula.startsWith('=') ? formula.substring(1) : formula };
-      row.getCell(2).font = { bold: true, size: 11, color: { argb: DARK_GRAY } };
-      row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-      row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-      row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-    });
-
-    ws.addRow([]);
-    const missingLabelRow = ws.addRow(['حالات البصمات الناقصة']);
-    ws.mergeCells(`A${missingLabelRow.number}:${lastCol}${missingLabelRow.number}`);
-    missingLabelRow.height = 28;
-    const mlCell = missingLabelRow.getCell(1);
-    mlCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: WHITE } };
-    mlCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'B74530' } };
-    mlCell.alignment = { horizontal: 'center', vertical: 'middle' };
-
-    const missingData = [
-      ['عدد حالات نقص بصمة الدخول', missingCheckInCount],
-      ['عدد حالات نقص بصمة الخروج', missingCheckOutCount],
-      ['عدد حالات نقص البصمتين معاً', missingBothCount],
-      ['أيام بدون أي سجل حضور', noRecordAtAllCount]
-    ];
-
-    missingData.forEach(([label, value], i) => {
-      const row = ws.addRow([label, value, null, null, null, null, null, null]);
-      row.height = 24;
-      const isEven = i % 2 === 0;
-      const bg = isEven ? 'FFF3E0' : WHITE;
-      const valColor = value > 0 ? 'B74530' : '006600';
-      row.getCell(1).font = { bold: true, size: 11, color: { argb: 'B74530' } };
-      row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-      row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-      row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
-      row.getCell(2).font = { bold: true, size: 12, color: { argb: valColor } };
-      row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-      row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-      row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'CCCCCC' } } };
+  function kpiRow(items, colors) {
+    const r = ws.addRow([]);
+    r.height = 40;
+    [0,1,2,3].forEach(i => {
+      if (!items[i]) return;
+      const c1 = i*2+1, c2 = i*2+2;
+      const l1 = String.fromCharCode(64+c1), l2 = String.fromCharCode(64+c2);
+      ws.mergeCells(`${l1}${r.number}:${l2}${r.number}`);
+      const cell = r.getCell(c1);
+      cell.value = {
+        richText: [
+          { text: items[i].label + '\n', font: { name: 'Calibri', size: 9, italic: true, color: { argb: '718096' } } },
+          { text: '\u200E' + String(items[i].value), font: { name: 'Calibri', size: 14, bold: true, color: { argb: colors[i] || C.dark } } }
+        ]
+      };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'E2E8F0' } },
+        bottom: { style: 'thin', color: { argb: 'E2E8F0' } },
+        left: { style: 'thin', color: { argb: 'E2E8F0' } },
+        right: { style: 'thin', color: { argb: 'E2E8F0' } },
+      };
     });
   }
 
-  if (records.length === 0) {
-    const emptyRow = ws.addRow(['لا توجد سجلات للفترة المحددة']);
-    ws.mergeCells(`A${emptyRow.number}:${lastCol}${emptyRow.number}`);
-    emptyRow.height = 30;
-    emptyRow.getCell(1).font = { italic: true, size: 12, color: { argb: '999999' } };
-    emptyRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
-  }
+  kpiRow(
+    [{label:'إجمالي الأيام',value:totalDays},{label:'حاضر',value:presentCount},{label:'غائب',value:absentCount},{label:'متأخر',value:lateCount}],
+    [C.dark, '38A169', 'E53E3E', 'DD6B20']
+  );
+  kpiRow(
+    [{label:'عطلة',value:holidayCount},{label:'ساعات العمل',value:totalDuration.toFixed(1)},{label:'إضافي',value:totalOvertime.toFixed(1)},{label:'نقص دخول',value:missingCheckInCount}],
+    ['8B5CF6', C.dark, C.dark, 'E53E3E']
+  );
+  kpiRow(
+    [{label:'نقص خروج',value:missingCheckOutCount},{label:'بدون بصمة',value:missingBothCount},{label:'نصف يوم',value:halfDayCount},{label:'إجازة',value:leaveCount}],
+    ['E53E3E', 'E53E3E', C.dark, C.dark]
+  );
+  kpiRow(
+    [{label:'عمل عن بعد',value:wfhCount}],
+    ['6B46C1']
+  );
 }
 
 async function downloadAllEmployeesActivityExcel(req, res) {
@@ -1237,15 +823,79 @@ async function downloadAllEmployeesActivityExcel(req, res) {
     startDt.setHours(0, 0, 0, 0);
     endDt.setHours(0, 0, 0, 0);
 
+    const Holiday = require('../models/Holiday');
+    const holidays = await Holiday.find({
+      startDate: { $lte: endDt },
+      endDate: { $gte: startDt }
+    }).select('name startDate endDate').lean();
+
+    const fmtD = (d) => `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
+    const eng = (v) => v == null || v === '' ? '' : '\u200E' + v;
     const ExcelJS = require('exceljs');
     const wb = new ExcelJS.Workbook();
     wb.creator = 'نظام الحضور';
     wb.created = new Date();
 
+    // Dashboard sheet
+    const dashWs = wb.addWorksheet('الكل', { views: [{ rtl: true }] });
+    dashWs.columns = [
+      { width: 5 }, { width: 22 }, { width: 16 }, { width: 14 },
+      { width: 12 }, { width: 10 }, { width: 10 }, { width: 10 },
+      { width: 12 }, { width: 12 }
+    ];
+
+    const dC = { navy: '1A365D', white: 'FFFFFF', border: 'E2E8F0', gray: '718096', lightGray: 'F7FAFC' };
+
+    const dTitle = dashWs.addRow(['تقرير نشاط جميع الموظفين']);
+    dashWs.mergeCells('A1:J1');
+    dTitle.height = 40;
+    dTitle.getCell(1).font = { name: 'Calibri', size: 20, bold: true, color: { argb: dC.white } };
+    dTitle.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: dC.navy } };
+    dTitle.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+    const dPeriod = dashWs.addRow([`\u202Aمن ${fmtD(startDt)} الى ${fmtD(endDt)}\u202C`]);
+    dashWs.mergeCells('A2:J2');
+    dPeriod.height = 22;
+    dPeriod.getCell(1).font = { italic: true, size: 11, color: { argb: dC.gray } };
+    dPeriod.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+    const dHeader = dashWs.addRow(['م', 'الموظف', 'القسم', 'معرف البصمة', 'إجمالي الأيام', 'حاضر', 'غائب', 'متأخر', 'ساعات العمل', 'ساعات الإضافي']);
+    dHeader.height = 28;
+    dHeader.eachCell(cell => {
+      cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: dC.white } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: dC.navy } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.border = {
+        top: { style: 'thin', color: { argb: dC.navy } },
+        bottom: { style: 'medium', color: { argb: dC.navy } }
+      };
+    });
+
+    users.forEach((u, i) => {
+      const uid = u._id.toString();
+      const recs = recordsByUser.get(uid) || [];
+      const present = recs.filter(r => r.status === 'present').length;
+      const absent = recs.filter(r => r.status === 'absent').length;
+      const late = recs.filter(r => r.status === 'late').length;
+      const totalDur = recs.reduce((s, r) => s + (r.duration || 0), 0);
+      const totalOvt = recs.reduce((s, r) => s + (r.overtime || 0), 0);
+      const r = dashWs.addRow([eng(i + 1), u.name, u.department || '-', u.zkUserId || '-', eng(recs.length), eng(present), eng(absent), eng(late), eng(parseFloat(totalDur.toFixed(1))), eng(parseFloat(totalOvt.toFixed(1)))]);
+      r.height = 22;
+      r.eachCell((cell, col) => {
+        cell.font = { name: 'Calibri', size: 10, color: { argb: '2D3748' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: i % 2 === 0 ? dC.lightGray : dC.white } };
+        cell.border = { bottom: { style: 'thin', color: { argb: dC.border } } };
+      });
+    });
+
+    dashWs.autoFilter = `A3:J${dashWs.rowCount}`;
+
+    // Employee sheets
     for (const user of users) {
       const uid = user._id.toString();
       const records = recordsByUser.get(uid) || [];
-      await _createEmployeeActivitySheet(wb, user, records, startDt, endDt);
+      _createEmployeeActivitySheet(wb, user, records, startDt, endDt, holidays);
     }
 
     const buffer = await wb.xlsx.writeBuffer();
