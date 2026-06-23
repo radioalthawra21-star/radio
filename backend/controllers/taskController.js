@@ -34,21 +34,23 @@ const createTask = async (req, res) => {
       });
     }
 
-    // Create task
-    const task = await Task.create({
+    // Build task data — only include optional fields that have values
+    const taskData = {
       title,
       description,
       createdBy: req.user._id,
-      assignedTo: assignedTo || [req.user._id], // Default to self if no one assigned
+      assignedTo: assignedTo || [req.user._id],
       difficulty: difficulty || TaskDifficulty.MEDIUM,
       duration,
-      startTime,
-      endTime,
       isUnusual: isUnusual || false,
       taskDate: taskDate || new Date(),
-      dueDate,
       status: TaskStatus.PENDING
-    });
+    };
+    if (startTime) taskData.startTime = startTime;
+    if (endTime) taskData.endTime = endTime;
+    if (dueDate) taskData.dueDate = dueDate;
+
+    const task = await Task.create(taskData);
 
     // Populate assigned users
     await task.populate('assignedTo', 'name email department');
@@ -57,7 +59,8 @@ const createTask = async (req, res) => {
     // Create notifications for assigned employees and track if any were created
     let notificationCreated = false;
     for (const userId of task.assignedTo) {
-      if (userId.toString() !== req.user._id.toString()) {
+      const uid = userId._id ? userId._id.toString() : userId.toString();
+      if (uid !== req.user._id.toString()) {
         await Notification.createNotification(
           userId,
           NotificationType.TASK_ASSIGNED,

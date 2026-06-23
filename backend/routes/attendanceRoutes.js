@@ -15,7 +15,7 @@ const {
   getWeeklyHours,
   getMonthlyTimesheet,
 } = require('../controllers/attendanceController');
-const { protect, managerOrAdmin, adminOnly } = require('../middleware/authMiddleware');
+const { protect, managerOrAdmin, adminOnly, adminOrHR } = require('../middleware/authMiddleware');
 
 router.post('/check-in', protect, checkIn);
 router.post('/check-out', protect, checkOut);
@@ -24,12 +24,12 @@ router.get('/history', protect, getAttendanceHistory);
 router.get('/stats', protect, getAttendanceStats);
 router.get('/weekly-hours', protect, getWeeklyHours);
 
-router.get('/dashboard', protect, getDashboardStats);
+router.get('/dashboard', protect, adminOrHR, getDashboardStats);
 
 router.get('/reports/late', protect, getLateReport);
 router.get('/reports/work-hours', protect, getWorkHoursReport);
 router.get('/reports/employee/:employeeId', protect, getEmployeeAttendanceReport);
-router.get('/timesheet/monthly/:employeeId', protect, getMonthlyTimesheet);
+router.get('/timesheet/monthly/:employeeId', protect, adminOrHR, getMonthlyTimesheet);
 
 router.get('/department/:department', protect, managerOrAdmin, getDepartmentAttendance);
 

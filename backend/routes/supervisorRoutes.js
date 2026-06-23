@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+const { protect, adminOrHR, adminOrHRorHrEmployee } = require('../middleware/authMiddleware');
 const {
   getSupervisorDashboard,
   getRawLogs,
@@ -17,18 +17,18 @@ const {
   getEmployeeActivity
 } = require('../controllers/supervisorController');
 
-router.get('/dashboard', protect, getSupervisorDashboard);
-router.get('/raw-logs', protect, getRawLogs);
-router.get('/manual-overrides', protect, getManualOverrides);
-router.get('/final-attendance', protect, getFinalAttendance);
-router.post('/manual-overrides', protect, createManualOverride);
-router.delete('/manual-overrides/:id', protect, deleteManualOverride);
-router.get('/device-users', protect, getDeviceUsersForSupervisor);
-router.get('/stats', protect, getSupervisorStats);
-router.get('/attendance-pdf', protect, downloadAttendancePDF);
-router.get('/attendance-excel', protect, downloadAttendanceExcel);
-router.get('/employee-activity-excel', protect, downloadEmployeeActivityExcel);
-router.get('/all-employees-activity-excel', protect, downloadAllEmployeesActivityExcel);
-router.get('/employee-activity', protect, getEmployeeActivity);
+router.get('/dashboard', protect, adminOrHR, getSupervisorDashboard);
+router.get('/raw-logs', protect, adminOrHR, getRawLogs);
+router.get('/manual-overrides', protect, adminOrHR, getManualOverrides);
+router.get('/final-attendance', protect, adminOrHR, getFinalAttendance);
+router.post('/manual-overrides', protect, adminOrHR, createManualOverride);
+router.delete('/manual-overrides/:id', protect, adminOrHR, deleteManualOverride);
+router.get('/device-users', protect, adminOrHRorHrEmployee, getDeviceUsersForSupervisor);
+router.get('/stats', protect, adminOrHR, getSupervisorStats);
+router.get('/attendance-pdf', protect, adminOrHR, downloadAttendancePDF);
+router.get('/attendance-excel', protect, adminOrHR, downloadAttendanceExcel);
+router.get('/employee-activity-excel', protect, adminOrHRorHrEmployee, downloadEmployeeActivityExcel);
+router.get('/all-employees-activity-excel', protect, adminOrHRorHrEmployee, downloadAllEmployeesActivityExcel);
+router.get('/employee-activity', protect, adminOrHRorHrEmployee, getEmployeeActivity);
 
 module.exports = router;

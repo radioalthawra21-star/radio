@@ -3,6 +3,7 @@ const { LeaveRequest, LeaveType, LeaveStatus } = require('../models/LeaveRequest
 
 const { User } = require('../models/User');
 const { Attendance } = require('../models/Attendance');
+const Department = require('../models/Department');
 
 const { Notification } = require('../models/Notification');
 const { NotificationType } = require('../models/Notification');
@@ -27,7 +28,16 @@ const notifyManager = async (employeeId, leaveRequest) => {
   try {
     const employee = await User.findById(employeeId);
     if (!employee || !employee.department) return false;
-    const manager = await User.findOne({ role: 'manager', department: employee.department, isActive: true });
+
+    const deptDoc = await Department.findById(employee.department).catch(() => null)
+      || await Department.findOne({ name: employee.department }).catch(() => null);
+    const deptValues = [employee.department];
+    if (deptDoc) {
+      deptValues.push(deptDoc._id.toString());
+      deptValues.push(deptDoc.name);
+    }
+
+    const manager = await User.findOne({ role: 'manager', department: { $in: deptValues }, isActive: true });
     if (manager && manager._id.toString() !== employeeId.toString()) {
       const notif = await Notification.createNotification(
         manager._id, NotificationType.LEAVE_REQUESTED,
@@ -315,8 +325,17 @@ const updateLeaveRequestStatus = async (req, res) => {
 
     if (status === LeaveStatus.REJECTED) {
       if (isManager || isAdmin) {
-        if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER && leaveRequest.department !== req.user.department)
-          return res.status(403).json({ success: false, message: 'غير مصرح لك' });
+        if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER) {
+          const deptDoc = await Department.findById(req.user.department).catch(() => null)
+            || await Department.findOne({ name: req.user.department }).catch(() => null);
+          const deptValues = [req.user.department];
+          if (deptDoc) {
+            deptValues.push(deptDoc._id.toString());
+            deptValues.push(deptDoc.name);
+          }
+          if (!deptValues.includes(leaveRequest.department))
+            return res.status(403).json({ success: false, message: 'غير مصرح لك' });
+        }
         if (isManager && leaveRequest.employee._id.toString() === req.user._id.toString())
           return res.status(403).json({ success: false, message: 'لا يمكنك الموافقة أو الرفض على طلبك الخاص - سيتم تحويله للمدير العام' });
         leaveRequest.status = LeaveStatus.REJECTED;
@@ -340,7 +359,14 @@ const updateLeaveRequestStatus = async (req, res) => {
 
     if (status === LeaveStatus.APPROVED) {
       if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER) {
-        if (leaveRequest.department !== req.user.department)
+        const deptDoc = await Department.findById(req.user.department).catch(() => null)
+          || await Department.findOne({ name: req.user.department }).catch(() => null);
+        const deptValues = [req.user.department];
+        if (deptDoc) {
+          deptValues.push(deptDoc._id.toString());
+          deptValues.push(deptDoc.name);
+        }
+        if (!deptValues.includes(leaveRequest.department))
           return res.status(403).json({ success: false, message: 'غير مصرح لك - هذا الموظف ليس في قسمك' });
         if (leaveRequest.employee._id.toString() === req.user._id.toString())
           return res.status(403).json({ success: false, message: 'لا يمكنك الموافقة على طلبك الخاص - سيتم تحويله للمدير العام' });
@@ -476,7 +502,14 @@ const cancelLeaveRequest = async (req, res) => {
 
     if (isOwner && leaveRequest.department && leaveRequest.employee?._id?.toString() !== req.user._id?.toString()) {
       try {
-        const manager = await User.findOne({ role: 'manager', department: leaveRequest.department, isActive: true });
+        const deptDoc = await Department.findById(leaveRequest.department).catch(() => null)
+          || await Department.findOne({ name: leaveRequest.department }).catch(() => null);
+        const deptValues = [leaveRequest.department];
+        if (deptDoc) {
+          deptValues.push(deptDoc._id.toString());
+          deptValues.push(deptDoc.name);
+        }
+        const manager = await User.findOne({ role: 'manager', department: { $in: deptValues }, isActive: true });
         if (manager && manager._id.toString() !== leaveRequest.employee._id.toString()) {
           const cancelNotif = await Notification.createNotification(
             manager._id, NotificationType.LEAVE_CANCELLED,
@@ -514,9 +547,16 @@ const getPendingLeaveRequests = async (req, res) => {
   try {
     let leaveRequests;
     if (req.user.role === 'manager') {
+      const deptDoc = await Department.findById(req.user.department).catch(() => null)
+        || await Department.findOne({ name: req.user.department }).catch(() => null);
+      const deptValues = [req.user.department];
+      if (deptDoc) {
+        deptValues.push(deptDoc._id.toString());
+        deptValues.push(deptDoc.name);
+      }
       leaveRequests = await LeaveRequest.find({
         status: LeaveStatus.PENDING_MANAGER,
-        department: req.user.department,
+        department: { $in: deptValues },
         employee: { $ne: req.user._id },
       }).populate('employee', 'name email department').sort({ createdAt: -1 });
     } else if (req.user.role === 'admin' || req.user.role === 'hr') {
@@ -560,7 +600,14 @@ const getLeaveRequests = async (req, res) => {
     } else if (req.user.role === 'manager') {
       const hrDepts = ['hr', 'الموارد البشرية', 'موارد بشرية'];
       if (!hrDepts.includes((req.user.department || '').toLowerCase().trim())) {
-        query.department = req.user.department;
+        const deptDoc = await Department.findById(req.user.department).catch(() => null)
+          || await Department.findOne({ name: req.user.department }).catch(() => null);
+        const deptValues = [req.user.department];
+        if (deptDoc) {
+          deptValues.push(deptDoc._id.toString());
+          deptValues.push(deptDoc.name);
+        }
+        query.department = { $in: deptValues };
       }
     }
     if (status) {

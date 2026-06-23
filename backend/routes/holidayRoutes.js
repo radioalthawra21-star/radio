@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Holiday = require('../models/Holiday');
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, adminOrHR, adminOrHRorHrEmployee } = require('../middleware/authMiddleware');
 
 router.get('/', protect, async (req, res) => {
   try {
@@ -15,7 +15,7 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, adminOrHRorHrEmployee, async (req, res) => {
   try {
     const { startDate, endDate, name, type } = req.body;
     if (!startDate || !name) {
@@ -33,7 +33,7 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, adminOrHR, async (req, res) => {
   try {
     const holiday = await Holiday.findByIdAndDelete(req.params.id);
     if (!holiday) {

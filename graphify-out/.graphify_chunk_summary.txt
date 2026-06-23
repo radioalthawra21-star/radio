@@ -1,0 +1,50 @@
+=== Chunk 1/8 (25 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\00-╟ط╧╙╩µ╤.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\00-╬ط╟╒╔.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\01-merge-spec.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\02-arch-design.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\03-arch-analysis.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\04-analysis-report.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\AGENTS.md
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\PROJECT_STRUCTURE.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\docker-compose.yml
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\index.html
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\mogo.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\stderr.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\stdout.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ztk غ╒و.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\┬طو╔_╤╚╪_╠ف╟╥_ZKTeco.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\╟ط╚╒ع╔.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\╚╤µع╩ ╟طع╙╩µ╧┌وغ ╟طعغ▌╒طوغ .txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\╬╪µ╟╩_╩╘█وط_غ┘╟ع_╟ط╚╒ع╔.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ع╟╨╟ ▌┌ط╩.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ع╬╟╪╤.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ZKTeco\Att.log.TXT
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ZKTeco\USBDriver\Usbser_X64\Readme.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ZKTeco\USBDriver\Usbser_X86\Readme.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\backend\ع╙╩غ╧ غ╒و ╠╧و╧.txt
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\backend\docs\SCHEMA.md
+
+=== Chunk 2/8 (4 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\backend\public\supervisor.html
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\backend\public\vba-download.html
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\backend\utils\test_output.pdf
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\frontend\index.html
+
+=== Chunk 3/8 (1 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\0عطµغ.png
+
+=== Chunk 4/8 (1 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ZKTeco\_logo.jpg
+
+=== Chunk 5/8 (1 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\ZKTeco\splash.jpg
+
+=== Chunk 6/8 (1 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\frontend\logo.png
+
+=== Chunk 7/8 (1 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\frontend\public\logo.png
+
+=== Chunk 8/8 (1 files) ===
+E:\عµ▐┌ ╤╟╧وµ ╟ط╦µ╤╔\1■■dd -copy with money & NEWS\╚╧µغ ┌غµ╟غ.png

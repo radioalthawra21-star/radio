@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { processCoupletPipeline, checkAIConfig } from '../../services/coupletPipelineService';
+import { getAIModels } from '../../services/editorialPipelineService';
 
 const STAGES = [
   { id: 1, name: 'تحسين البداية', desc: 'Lead Optimization - إعادة صياغة الفقرة الأولى' },
@@ -20,12 +21,29 @@ const CoupletPipeline = () => {
   const [showPrompt, setShowPrompt] = useState({});
   const [mode, setMode] = useState('regex');
   const [aiConfigured, setAiConfigured] = useState(false);
+  const [availableModels, setAvailableModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState('');
+  const [loadingModels, setLoadingModels] = useState(false);
 
   useEffect(() => {
     checkAIConfig().then(res => {
       if (res.success) setAiConfigured(res.data.configured);
     }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (mode === 'ai' && availableModels.length === 0 && !loadingModels) {
+      setLoadingModels(true);
+      getAIModels().then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          setAvailableModels(res.data);
+          if (res.data.length > 0 && !selectedModel) {
+            setSelectedModel(res.data[0].name);
+          }
+        }
+      }).catch(() => {}).finally(() => setLoadingModels(false));
+    }
+  }, [mode]);
 
   const handleProcess = async () => {
     if (!inputText.trim()) {
@@ -39,7 +57,7 @@ const CoupletPipeline = () => {
     setActiveTab(null);
 
     try {
-      const response = await processCoupletPipeline(inputText, mode);
+      const response = await processCoupletPipeline(inputText, mode, mode === 'ai' ? selectedModel : null);
       if (response.success) {
         setStages(response.data.stages);
         setFinalText(response.data.finalText);
@@ -94,6 +112,30 @@ const CoupletPipeline = () => {
           <span className="text-xs text-orange-500">(ضبط مفتاح API في .env)</span>
         )}
       </div>
+
+      {mode === 'ai' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            نموذج الذكاء الاصطناعي
+          </label>
+          <select
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="w-full p-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-700 bg-white"
+            dir="ltr"
+          >
+            {loadingModels ? (
+              <option>جاري تحميل النماذج...</option>
+            ) : availableModels.length === 0 ? (
+              <option value="">لا توجد نماذج متوفرة</option>
+            ) : (
+              availableModels.map(m => (
+                <option key={m.name} value={m.name}>{m.name}</option>
+              ))
+            )}
+          </select>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
         <label className="block text-sm font-semibold text-gray-700 mb-2">

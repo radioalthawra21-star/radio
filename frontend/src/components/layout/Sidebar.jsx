@@ -13,9 +13,11 @@ const menuItems = {
     { path: '/messages', label: 'الرسائل', icon: '✉️' },
     { path: '/evaluate-manager', label: 'تقييم المدير', icon: '⭐' },
     { path: '/well-being', label: 'الحالة اليومية', icon: '😊' },
-    { path: '/payroll/my-salary', label: 'راتبي', icon: '💰' },
+
     { path: '/attendance', label: 'الحضور', icon: '🕐' },
     { path: '/leave-request', label: 'طلب إجازة', icon: '📅' },
+    { path: '/admin/supervisor', label: 'تقرير الموظفين', icon: '📊' },
+    { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -30,10 +32,6 @@ const menuItems = {
     { path: '/leave-request', label: 'طلب إجازة', icon: '📅' },
     { path: '/manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
-    { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
-    { path: '/admin/timesheet', label: 'كشف الحضور الشهري', icon: '📊' },
-    { path: '/admin/supervisor', label: 'Temp-Supervisor', icon: '🔬' },
-    { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
   ],
   hr: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
@@ -91,17 +89,24 @@ const departmentNames = {
 const isNewsAuthorized = (user) => {
   if (!user) return false;
   const dept = (user.department || '').trim().toLowerCase();
-  return dept === 'news' || dept.includes('news') || dept.includes('إعلام');
+  return dept === 'news' || dept === 'الأخبار' || dept === 'تحرير' || dept.includes('news') || dept.includes('إعلام') || dept.includes('تحرير');
 };
 
 const Sidebar = ({ isOpen, setIsOpen, user }) => {
   const role = user?.role || 'employee';
   const username = user?.username || '';
+  const userDept = (user?.department || '').toString().toLowerCase().trim();
+  const isHrEmployee = role === 'employee' && (userDept === 'hr' || userDept === 'الموارد البشرية' || userDept.includes('موارد بشرية'));
   let items = menuItems[role] || menuItems.employee;
 
   // Hide payroll from managers except Mostafa (HR manager)
   if (role === 'manager' && username !== 'mostafa') {
     items = items.filter(item => !item.path.startsWith('/payroll'));
+  }
+
+  // Show HR-related pages only for HR department employees
+  if (role === 'employee' && !isHrEmployee) {
+    items = items.filter(item => !['/admin/supervisor', '/admin/holidays'].includes(item.path));
   }
 
   const newsAuthorized = isNewsAuthorized(user);
@@ -199,6 +204,54 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
                 <span className="text-xl">📰</span>
                 <span>لوحة الأخبار</span>
               </NavLink>
+
+              <div className="pr-2 mr-2 border-r border-gray-600">
+                <p className="text-xs text-gray-400 px-3 mt-2 mb-1">🤖 الذكاء الاصطناعي</p>
+                <NavLink
+                  key="/news/editorial-pipeline"
+                  to="/news/editorial-pipeline"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors ${
+                      isActive 
+                        ? 'bg-interactive text-white' 
+                        : 'hover:bg-gray-700 text-gray-300'
+                    }`
+                  }
+                >
+                  <span className="text-xl">🧠</span>
+                  <span>تحرير النصوص</span>
+                </NavLink>
+                <NavLink
+                  key="/news/couplet-pipeline"
+                  to="/news/couplet-pipeline"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors ${
+                      isActive 
+                        ? 'bg-interactive text-white' 
+                        : 'hover:bg-gray-700 text-gray-300'
+                    }`
+                  }
+                >
+                  <span className="text-xl">🔤</span>
+                  <span>تحرير الفيديو جراف</span>
+                </NavLink>
+                {(role === 'admin' || role === 'manager') && (
+                  <NavLink
+                    key="/news/prompts"
+                    to="/news/prompts"
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors ${
+                        isActive 
+                          ? 'bg-interactive text-white' 
+                          : 'hover:bg-gray-700 text-gray-300'
+                      }`
+                    }
+                  >
+                    <span className="text-xl">⚙️</span>
+                    <span>البرومتات</span>
+                  </NavLink>
+                )}
+              </div>
             </>
           )}
 

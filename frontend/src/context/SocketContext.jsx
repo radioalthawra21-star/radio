@@ -8,7 +8,7 @@ import {
 
 const SocketContext = createContext(null);
 
-const SOCKET_URL = API_BASE_URL || 'http://127.0.0.1:3000';
+const SOCKET_URL = API_BASE_URL || '';
 
 const showToast = (title, message) => {
   const existing = document.getElementById('nt-toast');

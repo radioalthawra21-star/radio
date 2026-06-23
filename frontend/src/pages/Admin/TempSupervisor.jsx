@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 function getBackendUrl() {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
   if (envUrl) return envUrl;
-  if (import.meta.env.PROD) return 'https://cc-backend-2ogh.onrender.com';
-  return 'http://127.0.0.1:3000';
+  return '';
 }
 
 const TempSupervisor = () => {

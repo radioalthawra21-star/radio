@@ -239,7 +239,7 @@ const runPipeline = (text, originalText) => {
   return { stages, finalText: currentText };
 };
 
-const runAIPipeline = async (text, prompts) => {
+const runAIPipeline = async (text, prompts, model) => {
   const stages = [];
   let currentText = text;
   const promptMap = Object.fromEntries(prompts.map(p => [p.stage, p]));
@@ -254,7 +254,8 @@ const runAIPipeline = async (text, prompts) => {
     try {
       const result = await aiService.processWithPrompt(
         `أنت محرر نصوص محترف. ${systemPrompt}\n\nيجب أن تحافظ على جميع المعلومات والحقائق الواردة في النص الأصلي دون إضافة أو حذف أي معلومات جوهرية. النص الأصلي:\n\n${text}`,
-        currentText
+        currentText,
+        model
       );
 
       if (stage === 6) {
@@ -276,7 +277,7 @@ const runAIPipeline = async (text, prompts) => {
 
 exports.processPipeline = async (req, res) => {
   try {
-    const { text, mode } = req.body;
+    const { text, mode, model } = req.body;
     if (!text || !text.trim()) {
       return res.status(400).json({
         success: false,
@@ -292,7 +293,7 @@ exports.processPipeline = async (req, res) => {
           message: 'الذكاء الاصطناعي غير مهيأ. يرجى ضبط مفتاح API في ملف .env'
         });
       }
-      const result = await runAIPipeline(text, prompts || []);
+      const result = await runAIPipeline(text, prompts || [], model);
       return res.json({
         success: true,
         data: {
@@ -323,7 +324,7 @@ exports.processPipeline = async (req, res) => {
 
 exports.runSingleStage = async (req, res) => {
   try {
-    const { text, stage, mode } = req.body;
+    const { text, stage, mode, model } = req.body;
     if (!text || !text.trim()) {
       return res.status(400).json({
         success: false,
@@ -344,7 +345,8 @@ exports.runSingleStage = async (req, res) => {
       const systemPrompt = prompt?.prompt || stageInfo.name || '';
       const result = await aiService.processWithPrompt(
         `أنت محرر نصوص محترف. ${systemPrompt}\n\nيجب أن تحافظ على جميع المعلومات والحقائق الواردة في النص الأصلي دون إضافة أو حذف أي معلومات جوهرية. النص الأصلي:\n\n${text}`,
-        text
+        text,
+        model
       );
       const finalText = parseInt(stage) === 6 ? stage6_formatCouplets(result) : result;
       return res.json({

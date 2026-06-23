@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getStoredUser } from '../../services/authService';
 import {
   getSupervisorDashboard, getRawLogs, getManualOverrides,
   getFinalAttendance, createManualOverride, deleteManualOverride,
@@ -7,6 +8,10 @@ import {
   downloadAllEmployeesActivityExcel,
   relinkDeviceLogs, getEmployeeActivity
 } from '../../services/supervisorService';
+import {
+  getUnmappedDeviceUsers, getSystemUsersForMapping, mapUserToDevice,
+  unmapUserFromDevice, bulkMapUsers
+} from '../../services/attendanceService';
 
 const TABS = [
   { id: 'raw', label: '📋 البصمات الخام' },
@@ -14,7 +19,8 @@ const TABS = [
   { id: 'final', label: '✅ النتيجة النهائية' },
   { id: 'admin', label: '⚡ إدارة التعديلات' },
   { id: 'merge', label: '🔄 عرض الدمج المتكامل' },
-  { id: 'activity', label: '📊 تقرير موظف' }
+  { id: 'activity', label: '📊 تقرير موظف' },
+  { id: 'mapping', label: '🔗 ربط المستخدمين' }
 ];
 
 function safeTime(iso) {
@@ -145,7 +151,12 @@ function Loading() {
 }
 
 export default function TempSupervisorPage() {
-  const [activeTab, setActiveTab] = useState('raw');
+  const currentUser = getStoredUser();
+  const userRole = (currentUser?.role || '').toLowerCase();
+  const userDept = (currentUser?.department || '').toString().toLowerCase().trim();
+  const isHrEmployee = userRole === 'employee' && (userDept === 'hr' || userDept === 'الموارد البشرية' || userDept.includes('موارد بشرية'));
+  const visibleTabs = isHrEmployee ? TABS.filter(t => t.id === 'activity') : TABS;
+  const [activeTab, setActiveTab] = useState(isHrEmployee ? 'activity' : 'raw');
   const [loading, setLoading] = useState({});
   const [allUsers, setAllUsers] = useState([]);
 
@@ -203,6 +214,17 @@ export default function TempSupervisorPage() {
   const [activityData, setActivityData] = useState([]);
   const [activityLoading, setActivityLoading] = useState(false);
   const [actFilter, setActFilter] = useState('all');
+
+  // mapping
+  const [unmappedDeviceUsers, setUnmappedDeviceUsers] = useState([]);
+  const [showAllDeviceUsers, setShowAllDeviceUsers] = useState(false);
+  const [systemUsers, setSystemUsers] = useState([]);
+  const [searchUser, setSearchUser] = useState('');
+  const [selectedSystemUser, setSelectedSystemUser] = useState(null);
+  const [selectedDeviceUser, setSelectedDeviceUser] = useState(null);
+  const [mappingLoading, setMappingLoading] = useState(false);
+  const [bulkMapping, setBulkMapping] = useState([]);
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
   // stats
   const [stats, setStats] = useState(null);
@@ -489,12 +511,12 @@ export default function TempSupervisorPage() {
 
   // INIT
   useEffect(() => { loadUsers(); }, [loadUsers]);
-  useEffect(() => { loadStats(); }, [loadStats]);
-  useEffect(() => { loadRawLogs(); }, [loadRawLogs]);
-  useEffect(() => { loadOverrides(); }, [loadOverrides]);
-  useEffect(() => { loadFinalAttendance(); }, [loadFinalAttendance]);
-  useEffect(() => { loadAdminOverrides(); }, [loadAdminOverrides]);
-  useEffect(() => { loadMergeView(); }, [loadMergeView]);
+  useEffect(() => { if (!isHrEmployee) { loadStats(); } }, [loadStats, isHrEmployee]);
+  useEffect(() => { if (!isHrEmployee) { loadRawLogs(); } }, [loadRawLogs, isHrEmployee]);
+  useEffect(() => { if (!isHrEmployee) { loadOverrides(); } }, [loadOverrides, isHrEmployee]);
+  useEffect(() => { if (!isHrEmployee) { loadFinalAttendance(); } }, [loadFinalAttendance, isHrEmployee]);
+  useEffect(() => { if (!isHrEmployee) { loadAdminOverrides(); } }, [loadAdminOverrides, isHrEmployee]);
+  useEffect(() => { if (!isHrEmployee) { loadMergeView(); } }, [loadMergeView, isHrEmployee]);
 
   // auto refresh
   const [autoRefresh, setAutoRefresh] = useState(null);
@@ -512,7 +534,7 @@ export default function TempSupervisorPage() {
       else if (tab === 'final') loadFinalAttendance();
       else if (tab === 'merge') loadMergeView();
       else if (tab === 'activity') loadActivity();
-      loadStats();
+      if (!isHrEmployee) loadStats();
     }, 15000);
     setAutoRefresh(interval);
     showToast('تم تفعيل التحديث التلقائي كل 15 ثانية');
@@ -550,6 +572,85 @@ export default function TempSupervisorPage() {
         loadStats();
       }
     } catch (e) { showToast('فشل في حذف التعليمة', 'error'); }
+  };
+
+  // --- MAPPING FUNCTIONS ---
+  const loadUnmappedUsers = useCallback(async (showAll) => {
+    try {
+      const res = await getUnmappedDeviceUsers(showAll);
+      if (res.success) setUnmappedDeviceUsers(res.data?.deviceUsers || []);
+    } catch { }
+  }, []);
+
+  const loadSystemUsers = useCallback(async (search = '') => {
+    try {
+      const res = await getSystemUsersForMapping(search);
+      if (res.success) setSystemUsers(res.data || []);
+    } catch { }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'mapping') {
+      loadUnmappedUsers(showAllDeviceUsers);
+      loadSystemUsers();
+    }
+  }, [activeTab, showAllDeviceUsers, loadUnmappedUsers, loadSystemUsers]);
+
+  const handleMapUser = async () => {
+    if (!selectedSystemUser || !selectedDeviceUser) { showToast('اختر مستخدم النظام ومعرف الجهاز', 'error'); return; }
+    try {
+      setMappingLoading(true);
+      const res = await mapUserToDevice(selectedSystemUser._id, selectedDeviceUser);
+      if (res.success) {
+        showToast(res.message);
+        setSelectedSystemUser(null);
+        setSelectedDeviceUser(null);
+        loadUnmappedUsers(showAllDeviceUsers);
+        loadSystemUsers(searchUser);
+      } else {
+        showToast(res.message || 'فشل ربط المستخدم', 'error');
+      }
+    } catch (err) {
+      showToast(err?.userMessage || 'فشل ربط المستخدم', 'error');
+    } finally {
+      setMappingLoading(false);
+    }
+  };
+
+  const handleUnmapUser = async (userId) => {
+    try {
+      const res = await unmapUserFromDevice(userId);
+      if (res.success) {
+        showToast(res.message);
+        loadSystemUsers(searchUser);
+        loadUnmappedUsers(showAllDeviceUsers);
+      } else {
+        showToast(res.message || 'فشل فك الربط', 'error');
+      }
+    } catch (err) {
+      showToast(err?.userMessage || 'فشل فك الربط', 'error');
+    }
+  };
+
+  const handleBulkMap = async () => {
+    if (!bulkMapping.length) { showToast('لا توجد تعيينات', 'error'); return; }
+    try {
+      setMappingLoading(true);
+      const res = await bulkMapUsers(bulkMapping);
+      if (res.success) {
+        showToast(res.message);
+        setBulkMapping([]);
+        setShowBulkModal(false);
+        loadUnmappedUsers(showAllDeviceUsers);
+        loadSystemUsers(searchUser);
+      } else {
+        showToast(res.message || 'فشل الربط الجماعي', 'error');
+      }
+    } catch (err) {
+      showToast(err?.userMessage || 'فشل الربط الجماعي', 'error');
+    } finally {
+      setMappingLoading(false);
+    }
   };
 
   return (
@@ -593,7 +694,7 @@ export default function TempSupervisorPage() {
 
       {/* Tabs */}
       <div className="flex gap-0.5 px-4 bg-gray-900/60 border-b border-gray-800 overflow-x-auto">
-        {TABS.map(tab => (
+        {visibleTabs.map(tab => (
           <button
             key={tab.id}
             data-tab={tab.id}
@@ -1145,6 +1246,276 @@ export default function TempSupervisorPage() {
               </div>
             )}
           </>
+        )}
+
+        {/* TAB: MAPPING */}
+        {activeTab === 'mapping' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold flex items-center gap-2">
+                  <span>👥</span>
+                  {showAllDeviceUsers ? 'جميع مستخدمي الجهاز' : 'مستخدمي الجهاز غير المرتبطين'}
+                </h3>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <span className="text-xs text-gray-400">الكل</span>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={showAllDeviceUsers}
+                      onChange={e => setShowAllDeviceUsers(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-600 rounded-full peer-checked:bg-blue-600 transition-colors"></div>
+                    <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-[-16px] transition-transform"></div>
+                  </div>
+                  <span className="text-xs text-gray-400">غير المرتبطين</span>
+                </label>
+              </div>
+              {unmappedDeviceUsers.length === 0 ? (
+                <p className="text-sm text-gray-500 py-8 text-center">جميع مستخدمي الجهاز مرتبطون بالفعل</p>
+              ) : (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {unmappedDeviceUsers.map((u, i) => {
+                    const devId = String(u.userId || u.user_id || u.id || '');
+                    const isMapped = u.isMapped;
+                    const mappedTo = u.mappedTo;
+                    return (
+                      <div key={i}
+                        onClick={() => {
+                          if (!isMapped) setSelectedDeviceUser(devId);
+                        }}
+                        className={`p-3 rounded-lg border transition-colors ${
+                          isMapped
+                            ? 'border-green-800 bg-green-900/20 cursor-default'
+                            : selectedDeviceUser === devId
+                              ? 'border-blue-500 bg-blue-900/20 cursor-pointer'
+                              : 'border-gray-700 hover:border-gray-600 hover:bg-gray-700/50 cursor-pointer'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm truncate">{u.name || `مستخدم #${devId}`}</span>
+                              <span className="text-xs text-gray-500 shrink-0">معرف: {devId}</span>
+                            </div>
+                            {isMapped && mappedTo && (
+                              <p className="text-xs text-green-400 mt-0.5 flex items-center gap-1">
+                                <span>🔗</span>
+                                مرتبط بـ: {mappedTo.name} ({mappedTo.email})
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {isMapped ? (
+                              <span className="text-xs bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full">مرتبط</span>
+                            ) : (
+                              <span className="text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full">
+                                {u.fingerprintCount || u.fingerprints || 0} بصمات
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-5">
+              <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                <span className="text-green-400">🔗</span>
+                ربط مستخدم النظام بجهاز البصمة
+              </h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-400 mb-1">البحث عن مستخدم</label>
+                <div className="relative">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+                  <input
+                    type="text"
+                    value={searchUser}
+                    onChange={e => { setSearchUser(e.target.value); loadSystemUsers(e.target.value); }}
+                    placeholder="ابحث باسم المستخدم أو البريد الإلكتروني..."
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg pr-10 px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500 transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+                {systemUsers.map(u => (
+                  <div
+                    key={u._id}
+                    onClick={() => setSelectedSystemUser(u)}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      selectedSystemUser?._id === u._id
+                        ? 'border-green-500 bg-green-900/20'
+                        : 'border-gray-700 hover:border-green-700 hover:bg-green-900/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="font-medium text-sm">{u.name}</span>
+                        <span className="text-xs text-gray-500 mr-2">{u.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {u.zkUserId ? (
+                          <span className="text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full">
+                            مرتبط: {u.zkUserId}
+                          </span>
+                        ) : (
+                          <span className="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded-full">غير مرتبط</span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{u.department || '-'} · {u.role}</p>
+                  </div>
+                ))}
+                {systemUsers.length === 0 && (
+                  <p className="text-sm text-gray-500 py-4 text-center">لا توجد نتائج</p>
+                )}
+              </div>
+              {selectedSystemUser && selectedDeviceUser && (
+                <div className="bg-green-900/30 border border-green-700 rounded-lg p-3 text-sm text-green-400 mb-4">
+                  <span className="ml-1">🔗</span>
+                  ربط <strong>{selectedSystemUser.name}</strong> ← معرف الجهاز <strong>{selectedDeviceUser}</strong>
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleMapUser}
+                  disabled={!selectedSystemUser || !selectedDeviceUser || mappingLoading}
+                  className="flex-1 py-2.5 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>🔗</span>
+                  {mappingLoading ? 'جاري الربط...' : 'ربط المستخدم'}
+                </button>
+                <button
+                  onClick={() => setShowBulkModal(true)}
+                  className="px-4 py-2.5 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
+                >
+                  <span>👥</span>
+                  ربط جماعي
+                </button>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2 bg-gray-800/40 border border-gray-700 rounded-lg p-5">
+              <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                <span>📋</span>
+                المستخدمين المرتبطين حالياً
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-800/60 border-b border-gray-700">
+                      <th className="text-right p-3 text-xs font-medium">الموظف</th>
+                      <th className="text-right p-3 text-xs font-medium">معرف الجهاز</th>
+                      <th className="text-right p-3 text-xs font-medium">القسم</th>
+                      <th className="text-right p-3 text-xs font-medium"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {systemUsers.filter(u => u.zkUserId).map((u, i) => (
+                      <tr key={u._id || i} className="border-t border-gray-700 hover:bg-gray-700/30">
+                        <td className="p-3">
+                          <span className="font-medium">{u.name}</span>
+                          <span className="text-xs text-gray-500 mr-2">{u.email}</span>
+                        </td>
+                        <td className="p-3 text-blue-400">{u.zkUserId}</td>
+                        <td className="p-3 text-gray-400">{u.department || '-'}</td>
+                        <td className="p-3">
+                          <button
+                            onClick={() => handleUnmapUser(u._id)}
+                            className="text-xs px-3 py-1.5 bg-red-800/40 text-red-400 rounded-lg hover:bg-red-700/50 transition-colors"
+                          >
+                            فك الربط
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {systemUsers.filter(u => u.zkUserId).length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="p-8 text-center text-gray-500">لا يوجد مستخدمين مرتبطين</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* BULK MAPPING MODAL */}
+        {showBulkModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[85vh] overflow-y-auto">
+              <button onClick={() => setShowBulkModal(false)} className="absolute top-3 left-3 text-gray-500 hover:text-gray-300">
+                ✕
+              </button>
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <span className="text-blue-400">👥</span>
+                ربط جماعي لمستخدمي الجهاز
+              </h3>
+              <p className="text-sm text-gray-400 mb-4">اختر مستخدم النظام لكل معرف جهاز غير مرتبط</p>
+              <div className="space-y-4">
+                {unmappedDeviceUsers.filter(du => !du.isMapped).map((du, i) => {
+                  const devId = String(du.userId || du.user_id || du.id || '');
+                  const existingMapping = bulkMapping.find(m => m.deviceUserId === devId);
+                  return (
+                    <div key={i} className="p-4 border border-gray-700 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <span className="font-medium text-sm">{du.name || `مستخدم #${devId}`}</span>
+                          <span className="text-xs text-gray-500 mr-2">معرف: {devId}</span>
+                        </div>
+                        <span className="text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded-full">
+                          {du.fingerprintCount || du.fingerprints || 0} بصمات
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="ابحث عن مستخدم..."
+                          className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500 transition-colors"
+                          onChange={async (e) => {
+                            const val = e.target.value;
+                            if (val.length > 1) {
+                              const res = await getSystemUsersForMapping(val);
+                              const users = res.data || [];
+                              if (users.length > 0) {
+                                const updatedMapping = bulkMapping.filter(m => m.deviceUserId !== devId);
+                                updatedMapping.push({ userId: users[0]._id, deviceUserId: devId, userName: users[0].name });
+                                setBulkMapping(updatedMapping);
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                      {existingMapping && (
+                        <p className="text-xs text-green-400 mt-1">✓ {existingMapping.userName || 'تم الاختيار'}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={handleBulkMap}
+                  disabled={mappingLoading || !bulkMapping.length}
+                  className="flex-1 py-2.5 bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>🔗</span>
+                  {mappingLoading ? 'جاري الربط...' : `ربط ${bulkMapping.length} مستخدم`}
+                </button>
+                <button
+                  onClick={() => setShowBulkModal(false)}
+                  className="px-6 py-2.5 bg-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-600 transition-colors"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
       </div>

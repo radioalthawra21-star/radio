@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getAllPrompts, updatePrompt, resetPrompts } from '../../services/promptService';
+import { checkAIConfig, getAIModels } from '../../services/editorialPipelineService';
 
 const STAGES = [
   { id: 1, name: 'تحسين البداية', desc: 'Lead Optimization - إعادة صياغة الفقرة الأولى' },
@@ -20,9 +21,30 @@ const PromptManagement = () => {
   const [editForm, setEditForm] = useState({ prompt: '', name: '', description: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedStage, setCopiedStage] = useState(null);
+  const [aiConfigured, setAiConfigured] = useState(false);
+  const [availableModels, setAvailableModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState('');
+  const [loadingModels, setLoadingModels] = useState(false);
 
   useEffect(() => {
     loadPrompts();
+    checkAIConfig().then(res => {
+      if (res.success) setAiConfigured(res.data.configured);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (availableModels.length === 0 && !loadingModels) {
+      setLoadingModels(true);
+      getAIModels().then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          setAvailableModels(res.data);
+          if (res.data.length > 0 && !selectedModel) {
+            setSelectedModel(res.data[0].name);
+          }
+        }
+      }).catch(() => {}).finally(() => setLoadingModels(false));
+    }
   }, []);
 
   const loadPrompts = async () => {
@@ -181,6 +203,34 @@ const PromptManagement = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
           <p className="text-2xl font-bold text-blue-600">{stats.withContent}</p>
           <p className="text-xs text-gray-500 mt-1">محتوى مكتمل</p>
+        </div>
+      </div>
+
+      {/* AI Model Selector */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+            نموذج الذكاء الاصطناعي
+          </label>
+          <select
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="flex-1 p-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-700 bg-white text-sm"
+            dir="ltr"
+          >
+            {loadingModels ? (
+              <option>جاري تحميل النماذج...</option>
+            ) : availableModels.length === 0 ? (
+              <option value="">لا توجد نماذج متوفرة</option>
+            ) : (
+              availableModels.map(m => (
+                <option key={m.name} value={m.name}>{m.name} ({m.provider})</option>
+              ))
+            )}
+          </select>
+          {!aiConfigured && (
+            <span className="text-xs text-orange-500">(ضبط مفتاح API في .env)</span>
+          )}
         </div>
       </div>
 

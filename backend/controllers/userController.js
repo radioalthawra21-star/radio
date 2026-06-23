@@ -16,7 +16,17 @@ const Department = require('../models/Department');
  */
 const getAllEmployees = async (req, res) => {
   try {
-    const employees = await User.find({ role: UserRole.EMPLOYEE })
+    const query = { role: UserRole.EMPLOYEE };
+
+    if (req.user.role === 'manager') {
+      const hrDepts = ['hr', 'الموارد البشرية', 'موارد بشرية'];
+      const userDept = (req.user.department || '').toString().toLowerCase().trim();
+      if (!hrDepts.some(d => userDept === d.toLowerCase())) {
+        query.department = req.user.department;
+      }
+    }
+
+    const employees = await User.find(query)
       .select('-password')
       .sort({ createdAt: -1 });
 
@@ -42,10 +52,19 @@ const getAllEmployees = async (req, res) => {
 const getEmployeesByDepartment = async (req, res) => {
   try {
     const { department } = req.params;
-    
+
+    const deptDoc = await Department.findById(department).catch(() => null)
+      || await Department.findOne({ name: department }).catch(() => null);
+
+    const deptValues = [department];
+    if (deptDoc) {
+      deptValues.push(deptDoc._id.toString());
+      deptValues.push(deptDoc.name);
+    }
+
     const employees = await User.find({ 
       role: UserRole.EMPLOYEE,
-      department 
+      department: { $in: deptValues }
     })
       .select('-password')
       .sort({ name: 1 });
@@ -208,7 +227,7 @@ const createUser = async (req, res) => {
  */
 const updateUser = async (req, res) => {
   try {
-    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall } = req.body;
+    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -223,6 +242,16 @@ const updateUser = async (req, res) => {
 
     // Update fields
     if (name) user.name = name;
+    if (username && username !== user.username) {
+      const existing = await User.findOne({ username, _id: { $ne: req.params.id } });
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          message: 'اسم المستخدم مستخدم بالفعل من قبل مستخدم آخر'
+        });
+      }
+      user.username = username;
+    }
     if (phone) user.phone = phone;
     if (department !== undefined) user.department = department || null;
     if (baseSalary !== undefined) user.baseSalary = Number(baseSalary);

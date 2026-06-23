@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getTodayAttendance, getAllAttendanceRecords, syncZKTecoDevice } from '../../services/attendanceService';
+import { getStoredUser } from '../../services/authService';
 
 const STATUS_MAP = {
   present: { label: 'حاضر', color: 'text-green-600', bg: 'bg-green-50', icon: FaUserCheck, dot: 'bg-green-500' },
@@ -17,6 +18,8 @@ const STATUS_MAP = {
 
 const Attendance = () => {
   const navigate = useNavigate();
+  const user = getStoredUser();
+  const canSync = user?.role === 'admin' || user?.role === 'hr';
   const [todayRecord, setTodayRecord] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -198,11 +201,13 @@ const Attendance = () => {
             سجل اليوم
           </h2>
           <div className="flex items-center gap-2">
-            <button onClick={handleSync} disabled={syncing}
-              className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
-              <FaSync className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'جاري المزامنة...' : 'مزامنة مع جهاز البصمة'}
-            </button>
+            {canSync && (
+              <button onClick={handleSync} disabled={syncing}
+                className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
+                <FaSync className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'جاري المزامنة...' : 'مزامنة مع جهاز البصمة'}
+              </button>
+            )}
             <button onClick={() => navigate('/timesheet')}
               className="px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
               style={{ backgroundColor: '#182E4E', color: 'white' }}>

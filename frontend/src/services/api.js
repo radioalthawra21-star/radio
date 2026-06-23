@@ -10,7 +10,7 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL 
   ? import.meta.env.VITE_API_BASE_URL
   : import.meta.env.PROD 
-    ? 'https://cc-backend-2ogh.onrender.com'
+    ? ''
     : '';
 
 // Create axios instance
@@ -19,7 +19,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 60000,
+  timeout: 300000,
   withCredentials: true  // ✅ Important for CORS with cookies/auth
 });
 

@@ -257,7 +257,7 @@ const runPipeline = (text, originalText, prompts = null) => {
   return { stages, finalText: currentText };
 };
 
-const runAIPipeline = async (text, prompts) => {
+const runAIPipeline = async (text, prompts, model) => {
   const stages = [];
   let currentText = text;
   const promptMap = Object.fromEntries(prompts.map(p => [p.stage, p]));
@@ -272,7 +272,8 @@ const runAIPipeline = async (text, prompts) => {
     try {
       const result = await aiService.processWithPrompt(
         `أنت محرر أخبار محترف. ${systemPrompt}\n\nيجب أن تحافظ على جميع المعلومات والحقائق الواردة في النص الأصلي دون إضافة أو حذف أي معلومات جوهرية. النص الأصلي:\n\n${text}`,
-        currentText
+        currentText,
+        model
       );
       currentText = result;
     } catch (err) {
@@ -288,7 +289,7 @@ const runAIPipeline = async (text, prompts) => {
 
 exports.processPipeline = async (req, res) => {
   try {
-    const { text, mode } = req.body;
+    const { text, mode, model } = req.body;
     if (!text || !text.trim()) {
       return res.status(400).json({
         success: false,
@@ -304,13 +305,14 @@ exports.processPipeline = async (req, res) => {
           message: 'الذكاء الاصطناعي غير مهيأ. يرجى ضبط مفتاح API في ملف .env'
         });
       }
-      const result = await runAIPipeline(text, prompts || []);
+      const result = await runAIPipeline(text, prompts || [], model);
       return res.json({
         success: true,
         data: {
           stages: result.stages,
           finalText: result.finalText,
-          mode: 'ai'
+          mode: 'ai',
+          model: model || aiService.getAIConfig().model
         }
       });
     }
@@ -335,7 +337,7 @@ exports.processPipeline = async (req, res) => {
 
 exports.runSingleStage = async (req, res) => {
   try {
-    const { text, stage, mode } = req.body;
+    const { text, stage, mode, model } = req.body;
     if (!text || !text.trim()) {
       return res.status(400).json({
         success: false,
@@ -355,8 +357,9 @@ exports.runSingleStage = async (req, res) => {
       const stageInfo = STAGE_NAMES[parseInt(stage) - 1] || { name: '' };
       const systemPrompt = prompt?.prompt || stageInfo.name || '';
       const result = await aiService.processWithPrompt(
-        `أنت محرر أخبار محترف. ${systemPrompt}\n\nيجب أن تحافظ على جميع المعلومات والحقائق الواردة في النص الأصلي دون إضافة أو حذف أي معلومات جوهرية. النص الأصلي:\n\n${text}`,
-        text
+        `أنت محرر أخبار محترف. ${systemPrompt}\n\nيجب أن تحافظ على جميع المعلومات والحقائق الواردة في النص الأصلي دون إضافة أو حذف أي معلومات جوهرية.`,
+        text,
+        model
       );
       return res.json({
         success: true,
@@ -388,6 +391,15 @@ exports.runSingleStage = async (req, res) => {
       message: 'خطأ في معالجة المرحلة',
       error: error.message
     });
+  }
+};
+
+exports.getAIModels = async (req, res) => {
+  try {
+    const models = await aiService.fetchAvailableModels();
+    res.json({ success: true, data: models });
+  } catch {
+    res.json({ success: false, data: [], message: 'تعذر جلب النماذج من Ollama' });
   }
 };
 

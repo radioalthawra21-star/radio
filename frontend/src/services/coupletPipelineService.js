@@ -1,12 +1,12 @@
 import api from './api';
 
-export const processCoupletPipeline = async (text, mode = 'regex') => {
-  const response = await api.post('/couplet-pipeline/process', { text, mode });
+export const processCoupletPipeline = async (text, mode = 'regex', model = null) => {
+  const response = await api.post('/couplet-pipeline/process', { text, mode, model });
   return response.data;
 };
 
-export const runSingleStage = async (text, stage, mode = 'regex') => {
-  const response = await api.post('/couplet-pipeline/stage', { text, stage, mode });
+export const runSingleStage = async (text, stage, mode = 'regex', model = null) => {
+  const response = await api.post('/couplet-pipeline/stage', { text, stage, mode, model });
   return response.data;
 };
 

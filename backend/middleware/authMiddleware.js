@@ -142,6 +142,23 @@ const adminOrHR = (req, res, next) => {
 };
 
 /**
+ * Middleware to check if user is admin, hr, or an employee in HR department
+ */
+const adminOrHRorHrEmployee = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  const dept = (req.user?.department || '').toString().toLowerCase().trim();
+  const isHrDept = dept === 'hr' || dept === 'الموارد البشرية' || dept.includes('موارد بشرية');
+  if (role === 'admin' || role === 'hr' || (role === 'employee' && isHrDept)) {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+    });
+  }
+};
+
+/**
  * Middleware to check if user is General Manager (admin only, not hr)
  */
 const generalManagerOnly = (req, res, next) => {
@@ -160,6 +177,7 @@ module.exports = {
   protect,
   adminOnly,
   adminOrHR,
+  adminOrHRorHrEmployee,
   managerOrAdmin,
   employeeOnly,
   generalManagerOnly,

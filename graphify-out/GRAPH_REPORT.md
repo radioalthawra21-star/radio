@@ -1,13 +1,18 @@
-# Graph Report - .  (2026-06-09)
+# Graph Report - 1‏‏dd -copy with money & NEWS  (2026-06-22)
 
 ## Corpus Check
-- 281 files · ~201,300 words
+- 288 files · ~915,904 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 659 nodes · 757 edges · 133 communities (56 shown, 77 thin omitted)
-- Extraction: 80% EXTRACTED · 19% INFERRED · 0% AMBIGUOUS · INFERRED: 147 edges (avg confidence: 0.83)
+- 2467 nodes · 4286 edges · 221 communities (137 shown, 84 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 148 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `50a8c9e7`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Database Models|Database Models]]
@@ -27,6 +32,7 @@
 - [[_COMMUNITY_Community 14|Community 14]]
 - [[_COMMUNITY_Community 15|Community 15]]
 - [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
 - [[_COMMUNITY_Community 18|Community 18]]
 - [[_COMMUNITY_Community 19|Community 19]]
 - [[_COMMUNITY_Community 20|Community 20]]
@@ -40,6 +46,8 @@
 - [[_COMMUNITY_Community 28|Community 28]]
 - [[_COMMUNITY_Community 29|Community 29]]
 - [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
 - [[_COMMUNITY_Community 33|Community 33]]
 - [[_COMMUNITY_Community 34|Community 34]]
 - [[_COMMUNITY_Community 35|Community 35]]
@@ -54,6 +62,8 @@
 - [[_COMMUNITY_Community 44|Community 44]]
 - [[_COMMUNITY_Community 45|Community 45]]
 - [[_COMMUNITY_Community 46|Community 46]]
+- [[_COMMUNITY_Community 47|Community 47]]
+- [[_COMMUNITY_Community 48|Community 48]]
 - [[_COMMUNITY_Community 49|Community 49]]
 - [[_COMMUNITY_Community 50|Community 50]]
 - [[_COMMUNITY_Community 51|Community 51]]
@@ -68,11 +78,15 @@
 - [[_COMMUNITY_Community 60|Community 60]]
 - [[_COMMUNITY_Community 61|Community 61]]
 - [[_COMMUNITY_Community 62|Community 62]]
+- [[_COMMUNITY_Community 63|Community 63]]
+- [[_COMMUNITY_Community 64|Community 64]]
 - [[_COMMUNITY_Community 65|Community 65]]
 - [[_COMMUNITY_Community 66|Community 66]]
+- [[_COMMUNITY_Community 67|Community 67]]
 - [[_COMMUNITY_Community 68|Community 68]]
 - [[_COMMUNITY_Community 69|Community 69]]
 - [[_COMMUNITY_Community 70|Community 70]]
+- [[_COMMUNITY_Community 71|Community 71]]
 - [[_COMMUNITY_Community 72|Community 72]]
 - [[_COMMUNITY_Community 73|Community 73]]
 - [[_COMMUNITY_Community 74|Community 74]]
@@ -107,14 +121,18 @@
 - [[_COMMUNITY_Community 103|Community 103]]
 - [[_COMMUNITY_Community 104|Community 104]]
 - [[_COMMUNITY_Community 105|Community 105]]
+- [[_COMMUNITY_Community 106|Community 106]]
 - [[_COMMUNITY_Community 107|Community 107]]
 - [[_COMMUNITY_Community 108|Community 108]]
 - [[_COMMUNITY_Community 109|Community 109]]
 - [[_COMMUNITY_Community 110|Community 110]]
 - [[_COMMUNITY_Community 111|Community 111]]
+- [[_COMMUNITY_Community 112|Community 112]]
 - [[_COMMUNITY_Community 113|Community 113]]
 - [[_COMMUNITY_Community 114|Community 114]]
+- [[_COMMUNITY_Community 115|Community 115]]
 - [[_COMMUNITY_Community 116|Community 116]]
+- [[_COMMUNITY_Community 117|Community 117]]
 - [[_COMMUNITY_Community 118|Community 118]]
 - [[_COMMUNITY_Community 119|Community 119]]
 - [[_COMMUNITY_Community 120|Community 120]]
@@ -126,36 +144,116 @@
 - [[_COMMUNITY_Community 126|Community 126]]
 - [[_COMMUNITY_Community 127|Community 127]]
 - [[_COMMUNITY_Community 128|Community 128]]
+- [[_COMMUNITY_Community 129|Community 129]]
 - [[_COMMUNITY_Community 130|Community 130]]
 - [[_COMMUNITY_Community 131|Community 131]]
 - [[_COMMUNITY_Community 132|Community 132]]
+- [[_COMMUNITY_Community 133|Community 133]]
+- [[_COMMUNITY_Community 134|Community 134]]
+- [[_COMMUNITY_Community 135|Community 135]]
+- [[_COMMUNITY_Community 137|Community 137]]
+- [[_COMMUNITY_Community 138|Community 138]]
+- [[_COMMUNITY_Community 139|Community 139]]
+- [[_COMMUNITY_Community 140|Community 140]]
+- [[_COMMUNITY_Community 141|Community 141]]
+- [[_COMMUNITY_Community 142|Community 142]]
+- [[_COMMUNITY_Community 143|Community 143]]
+- [[_COMMUNITY_Community 144|Community 144]]
+- [[_COMMUNITY_Community 145|Community 145]]
+- [[_COMMUNITY_Community 146|Community 146]]
+- [[_COMMUNITY_Community 147|Community 147]]
+- [[_COMMUNITY_Community 148|Community 148]]
+- [[_COMMUNITY_Community 149|Community 149]]
+- [[_COMMUNITY_Community 150|Community 150]]
+- [[_COMMUNITY_Community 151|Community 151]]
+- [[_COMMUNITY_Community 152|Community 152]]
+- [[_COMMUNITY_Community 153|Community 153]]
+- [[_COMMUNITY_Community 154|Community 154]]
+- [[_COMMUNITY_Community 155|Community 155]]
+- [[_COMMUNITY_Community 156|Community 156]]
+- [[_COMMUNITY_Community 157|Community 157]]
+- [[_COMMUNITY_Community 158|Community 158]]
+- [[_COMMUNITY_Community 159|Community 159]]
+- [[_COMMUNITY_Community 160|Community 160]]
+- [[_COMMUNITY_Community 161|Community 161]]
+- [[_COMMUNITY_Community 162|Community 162]]
+- [[_COMMUNITY_Community 163|Community 163]]
+- [[_COMMUNITY_Community 164|Community 164]]
+- [[_COMMUNITY_Community 165|Community 165]]
+- [[_COMMUNITY_Community 166|Community 166]]
+- [[_COMMUNITY_Community 167|Community 167]]
+- [[_COMMUNITY_Community 168|Community 168]]
+- [[_COMMUNITY_Community 169|Community 169]]
+- [[_COMMUNITY_Community 170|Community 170]]
+- [[_COMMUNITY_Community 171|Community 171]]
+- [[_COMMUNITY_Community 172|Community 172]]
+- [[_COMMUNITY_Community 173|Community 173]]
+- [[_COMMUNITY_Community 174|Community 174]]
+- [[_COMMUNITY_Community 175|Community 175]]
+- [[_COMMUNITY_Community 176|Community 176]]
+- [[_COMMUNITY_Community 177|Community 177]]
+- [[_COMMUNITY_Community 178|Community 178]]
+- [[_COMMUNITY_Community 179|Community 179]]
+- [[_COMMUNITY_Community 180|Community 180]]
+- [[_COMMUNITY_Community 182|Community 182]]
+- [[_COMMUNITY_Community 183|Community 183]]
+- [[_COMMUNITY_Community 184|Community 184]]
+- [[_COMMUNITY_Community 185|Community 185]]
+- [[_COMMUNITY_Community 186|Community 186]]
+- [[_COMMUNITY_Community 187|Community 187]]
+- [[_COMMUNITY_Community 188|Community 188]]
+- [[_COMMUNITY_Community 189|Community 189]]
+- [[_COMMUNITY_Community 190|Community 190]]
+- [[_COMMUNITY_Community 191|Community 191]]
+- [[_COMMUNITY_Community 192|Community 192]]
+- [[_COMMUNITY_Community 193|Community 193]]
+- [[_COMMUNITY_Community 194|Community 194]]
+- [[_COMMUNITY_Community 195|Community 195]]
+- [[_COMMUNITY_Community 196|Community 196]]
+- [[_COMMUNITY_Community 197|Community 197]]
+- [[_COMMUNITY_Community 198|Community 198]]
+- [[_COMMUNITY_Community 199|Community 199]]
+- [[_COMMUNITY_Community 200|Community 200]]
+- [[_COMMUNITY_Community 202|Community 202]]
+- [[_COMMUNITY_Community 203|Community 203]]
+- [[_COMMUNITY_Community 204|Community 204]]
+- [[_COMMUNITY_Community 206|Community 206]]
+- [[_COMMUNITY_Community 207|Community 207]]
+- [[_COMMUNITY_Community 208|Community 208]]
+- [[_COMMUNITY_Community 209|Community 209]]
+- [[_COMMUNITY_Community 210|Community 210]]
+- [[_COMMUNITY_Community 211|Community 211]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Employee Dashboard` - 25 edges
-2. `User Model` - 23 edges
-3. `API Axios Instance` - 22 edges
-4. `mongoose ODM` - 21 edges
-5. `Express Server Entrypoint` - 19 edges
-6. `Manager Dashboard` - 18 edges
-7. `Attendance Model` - 15 edges
-8. `Leave Request Model` - 14 edges
-9. `HRMS Database Schema` - 12 edges
-10. `Assign Tasks` - 11 edges
+1. `mongoose ODM` - 54 edges
+2. `getStoredUser()` - 51 edges
+3. `Card()` - 36 edges
+4. `formatDateArabic()` - 35 edges
+5. `api` - 27 edges
+6. `protect()` - 25 edges
+7. `Employee Dashboard` - 25 edges
+8. `User Model` - 23 edges
+9. `AllEmployees()` - 22 edges
+10. `HRMS Database Schema` - 22 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `ZKTeco Biometric Sync System` --references--> `Express.js Backend Server`  [EXTRACTED]
+  AGENTS.md → backend/package.json
+- `ZKTeco Biometric Sync System` --references--> `ZKTeco Bridge Service`  [EXTRACTED]
+  AGENTS.md → bridge/package.json
+- `ZKTeco Biometric Sync System` --references--> `node-zklib Library v1.3.0`  [EXTRACTED]
+  AGENTS.md → backend/package.json
 - `0 Colored Branding Image` --represents_branding_for--> `Payroll Management System (Radio Al-Thawra)`  [INFERRED]
   0ملون.png → package.json
 - `Untitled Screenshot` --depicts_ui_of--> `Payroll Management System (Radio Al-Thawra)`  [INFERRED]
   بدون عنوان.png → package.json
-- `ZKTeco Device Service` --semantically_similar_to--> `ZKTeco Bridge Service`  [INFERRED] [semantically similar]
-  backend/services/zktecoService.js → bridge/index.js
-- `ZKTeco Bridge Service دليل التكامل` --references--> `ZKTeco Bridge Service`  [EXTRACTED]
-  ztk نصي.txt → bridge/package.json
-- `Multi-Repo Subtree Git Strategy` --references--> `Express.js Backend Server`  [EXTRACTED]
-  برومت المستودعين المنفصلين .txt → backend/package.json
 
 ## Import Cycles
-- None detected.
+- 1-file cycle: `backend/models/Attendance.js -> backend/models/Attendance.js`
+- 1-file cycle: `backend/models/User.js -> backend/models/User.js`
+- 1-file cycle: `backend/middleware/authMiddleware.js -> backend/middleware/authMiddleware.js`
+- 1-file cycle: `backend/middleware/cvUploadMiddleware.js -> backend/middleware/cvUploadMiddleware.js`
+- 1-file cycle: `frontend/src/utils/pdfFonts.js -> frontend/src/utils/pdfFonts.js`
 
 ## Hyperedges (group relationships)
 - **Attendance-Payroll-Leave Integration Flow** — attendanceController, leaveController, payrollController, attendancetracking_system [INFERRED 0.85]
@@ -189,23 +287,23 @@
 - **HRMS Payroll & Leave Management** — LeaveRequest_Model, Payroll_Model, PayrollItem_Model, Attendance_Model, User_Model, AuditLog_Model [EXTRACTED 1.00]
 - **Critical Security Vulnerabilities Cluster** — security_audit, Critical_Vuln_MongoDB, Critical_Vuln_JWT, Critical_Vuln_AdminPW, Security_Score_2_10, mogo.txt, Backend_Server [EXTRACTED 1.00]
 
-## Communities (133 total, 77 thin omitted)
+## Communities (221 total, 84 thin omitted)
 
 ### Community 0 - "Database Models"
-Cohesion: 0.06
-Nodes (54): Application Status Enum, Attendance Model, Attendance Status Enum, Audit Action Enum, Audit Log Model, BiometricErrorLog Model, Bonus Model, CandidateApplication Model (+46 more)
+Cohesion: 0.11
+Nodes (33): Audit Action Enum, Audit Log Model, BiometricErrorLog Model, Bonus Model, CandidateApplication Model, Couplet Prompt Model, Department Model, DeviceLog Model (+25 more)
 
 ### Community 1 - "Employee & Manager Self-Service"
-Cohesion: 0.08
-Nodes (49): Add Task, Approve Leaves, Assign Tasks, Change Password, Department Reports, Employee Dashboard, Evaluate Tasks, Manager Dashboard (+41 more)
+Cohesion: 0.09
+Nodes (44): Add Task, Assign Tasks, Change Password, Department Reports, Employee Dashboard, Evaluate Tasks, Manager Dashboard, My Tasks (+36 more)
 
 ### Community 2 - "Developer & Misc Panels"
-Cohesion: 0.06
-Nodes (43): Design Tab, Developer Config, Developer Panel, Financial Misc Page, Manager Evaluation, Manager Evaluation Dashboard, Messages, Resource Monitor (+35 more)
+Cohesion: 0.10
+Nodes (27): Design Tab, Developer Config, Developer Panel, Messages, Resource Monitor, Typography Settings, Visitor Monitor, Typography Context (+19 more)
 
 ### Community 3 - "ZKTeco Biometric Sync"
-Cohesion: 0.09
-Nodes (37): ZKTeco Biometric Sync System, Attendance Database Model, AuditLog Database Model, Express.js Backend Server, ZKTeco Bridge Service, Critical: Admin Password Reset on Startup, Critical: Weak JWT Secret, Critical: MongoDB Credential Leak (+29 more)
+Cohesion: 0.21
+Nodes (13): Express.js Backend Server, Critical: Admin Password Reset on Startup, Critical: Weak JWT Secret, Critical: MongoDB Credential Leak, React/Vite Frontend Application, MongoDB Atlas Database, Project Structure Overview, Security Score 2/10 CRITICAL (+5 more)
 
 ### Community 4 - "API Route Definitions"
 Cohesion: 0.08
@@ -216,12 +314,12 @@ Cohesion: 0.09
 Nodes (26): API Axios Instance, Attendance Service, Audit Log Service, Auth Service Type Declarations, Auth Service, Bonus Service, Couplet Pipeline Service, Couplet Prompt Service (+18 more)
 
 ### Community 6 - "Attendance & Auth Backend"
-Cohesion: 0.12
-Nodes (21): Attendance Controller, Attendance & Biometric Tracking, Auth Controller, Check API Script, Check API Script 2, Check Attendance Temp, Check Mongo 1, Check Mongo 2 (+13 more)
+Cohesion: 0.18
+Nodes (18): Attendance Controller, Attendance & Biometric Tracking, Check API Script, Check API Script 2, Check Attendance Temp, Check Mongo 1, Check Mongo 2, Check Mongo 3 (+10 more)
 
 ### Community 7 - "Payroll System"
-Cohesion: 0.13
-Nodes (23): ColumnManager, ComprehensiveHRPayrollSystem, DeleteConfirm, EditModal, HRConfig, HRUtils, PayrollAudit, PayrollDashboard (+15 more)
+Cohesion: 0.09
+Nodes (31): ColumnManager, ComprehensiveHRPayrollSystem, DeleteConfirm, EditModal, Financial Misc Page, HRConfig, HRUtils, PayrollAudit (+23 more)
 
 ### Community 8 - "App Routing & Navigation"
 Cohesion: 0.10
@@ -236,16 +334,16 @@ Cohesion: 0.13
 Nodes (17): Business Rule: Bonus Updates Performance Score, Package Configuration, Attendance Routes, Audit Log Routes, Auth Routes, Bonus Routes, Department Routes, Document Routes (+9 more)
 
 ### Community 11 - "Backend Controllers"
-Cohesion: 0.22
-Nodes (17): Database Configuration, Attendance Controller, Auth Controller, Bonus Controller, Department Controller, Document Controller, Leave Controller, Manager Evaluation Controller (+9 more)
+Cohesion: 0.15
+Nodes (20): check(), connectDB, mongoose, mongoose, Attendance Controller, Auth Controller, Bonus Controller, Department Controller (+12 more)
 
 ### Community 12 - "Admin Dashboard"
 Cohesion: 0.15
 Nodes (17): Application Entry Point, Admin Dashboard, All Employees, All Reports, Attendance Management, Department Form Modal, Employee Profile Page, GM Approve Leaves (+9 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.31
-Nodes (13): Attendance Entity, AuditLog Entity, HRMS Database Schema, Database Indexes, LeaveRequest Entity, LeaveRequest Status Flow (draft→pending_manager→pending_general_manager→approved|rejected|cancelled|synced_to_payroll), Leave Types (annual|sick|maternity|unpaid|hourly|mission|overtime|attendance_correction), Payroll Entity (+5 more)
+Cohesion: 0.18
+Nodes (18): AuditLog Database Model, Attendance Entity, AuditLog Entity, Database Indexes, LeaveRequest Entity, LeaveRequest Status Flow (draft→pending_manager→pending_general_manager→approved|rejected|cancelled|synced_to_payroll), Leave Types (annual|sick|maternity|unpaid|hourly|mission|overtime|attendance_correction), Payroll Entity (+10 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.17
@@ -258,6 +356,10 @@ Nodes (11): Backend Service (Node.js), Frontend Service (Vite), MongoDB Service,
 ### Community 16 - "Community 16"
 Cohesion: 0.27
 Nodes (11): ComprehensiveHRPayrollSystem, MySalary, PayslipDetail, PayslipView, PendingAssignmentModal, ColumnManager, DeleteConfirm, EditModal (+3 more)
+
+### Community 17 - "Community 17"
+Cohesion: 0.05
+Nodes (61): { Attendance, AttendanceStatus, CheckInStatus, CheckOutStatus }, checkIn(), checkOut(), getAttendanceHistory(), getAttendanceStats(), getDashboardStats(), getDepartmentAttendance(), getEmployeeAttendanceReport() (+53 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.25
@@ -311,6 +413,14 @@ Nodes (4): BarChart (Chart.js bar chart wrapper), Charts barrel export, LineChar
 Cohesion: 0.67
 Nodes (4): Couplet Pipeline Routes, Couplet Prompt Routes, Editorial Pipeline Routes, Prompt Routes
 
+### Community 31 - "Community 31"
+Cohesion: 0.06
+Nodes (53): approveWithPayrollSync(), { Attendance }, { calculateCompensation, checkFinancialOverlap, syncCompensationToPayroll }, cancelLeaveRequest(), createLeaveRequest(), crypto, deleteLeaveRequestPermanent(), Department (+45 more)
+
+### Community 32 - "Community 32"
+Cohesion: 0.14
+Nodes (21): checkSubmissionStatus(), { EvaluationPeriod, EvaluationResponse, EVALUATION_QUESTIONS, getEvaluationPeriod }, getCurrentPeriod(), getManagerResults(), getManagers(), getQuestions(), getResults(), getTrends() (+13 more)
+
 ### Community 33 - "Community 33"
 Cohesion: 0.67
 Nodes (3): BonusForm (bonus submission form), BonusList (bonus listing/filtering), BonusManagement (bonus CRUD orchestrator)
@@ -359,29 +469,345 @@ Nodes (3): Payroll Service, Payroll Service Type Definitions, PDF Download Servi
 Cohesion: 0.67
 Nodes (3): Puppeteer PDF Generator, PDF Generation Service, Font Preparation Script
 
+### Community 47 - "Community 47"
+Cohesion: 0.05
+Nodes (44): { Attendance }, { CheckExact, CHECKEXACT_ACTIONS }, _createEmployeeActivitySheet(), createManualOverride(), deleteManualOverride(), DeviceLog, downloadAllEmployeesActivityExcel(), downloadAttendanceExcel() (+36 more)
+
+### Community 48 - "Community 48"
+Cohesion: 0.06
+Nodes (51): SocketContext, NotificationPanel(), departmentNames, UserMenu(), WellBeingBanner(), ManagerEvaluation(), SCALE_LABELS, SCALES (+43 more)
+
+### Community 56 - "Community 56"
+Cohesion: 0.10
+Nodes (30): ATTENDANCE_STATUS_MAP, ATTENDANCE_STATUS_MAP, AttendanceManagement(), filterFields, tabs, ATTENDANCE_STATUS_MAP, EmployeeAttendanceReport(), AttendanceTimeline() (+22 more)
+
+### Community 57 - "Community 57"
+Cohesion: 0.50
+Nodes (3): Kilo Agent Manager Config, dependencies, @kilocode/plugin
+
+### Community 63 - "Community 63"
+Cohesion: 0.07
+Nodes (42): addInterviewFeedback(), addPeerFeedback(), approvePerformanceReview(), createApplication(), createJobPosting(), createKPI(), createPerformanceReview(), deleteJobPosting() (+34 more)
+
+### Community 64 - "Community 64"
+Cohesion: 0.06
+Nodes (39): multer, deleteDocument(), { Document, DocumentCategory, DocumentType, ALLOWED_EXTENSIONS, MAX_FILE_SIZE }, fs, getAllowedFileTypes(), getDocumentById(), getDocumentCategories(), getDocumentVersions() (+31 more)
+
+### Community 67 - "Community 67"
+Cohesion: 0.04
+Nodes (44): app, attendanceRoutes, auditLogRoutes, authRoutes, bonusRoutes, connectDB, cors, corsOptions (+36 more)
+
+### Community 71 - "Community 71"
+Cohesion: 0.15
+Nodes (18): AddTask(), MyTasks(), TaskHistory(), AssignTasks(), departmentNames, DepartmentReports(), EvaluateTasks(), TaskDetail() (+10 more)
+
+### Community 106 - "Community 106"
+Cohesion: 0.05
+Nodes (37): 1.1 المصادر الحالية للبيانات, 1.2 الفجوة, 1.3 خريطة الربط (USERID → BADGENUMBER → zkUserId), 1. تحليل الوضع الراهن, 2.1 ISADD = 1 — إضافة يدوية, 2.2 ISDELETE = 1 — حذف بصمة, 2.3 ISMODIFY = 1 — تعديل بصمة ⚠️, 2. أنواع الحركات اليدوية المطلوب دعمها (+29 more)
+
+### Community 112 - "Community 112"
+Cohesion: 0.08
+Nodes (18): safeDate(), safeDateTime(), safeTime(), TABS, createManualOverride(), deleteManualOverride(), downloadAllEmployeesActivityExcel(), downloadAttendanceExcel() (+10 more)
+
+### Community 115 - "Community 115"
+Cohesion: 0.10
+Nodes (18): Bonus Controller, approveBonus(), Bonus, deleteBonus(), { Notification, NotificationType }, { User }, adminOnly(), Bonus (+10 more)
+
+### Community 117 - "Community 117"
+Cohesion: 0.06
+Nodes (35): SocketProvider(), DEFAULT_FONTS, GOOGLE_FONTS, TypographyContext, TypographyProvider(), useTypography(), ALERT_TYPES, AlertsPanel() (+27 more)
+
+### Community 129 - "Community 129"
+Cohesion: 0.06
+Nodes (35): dependencies, axios, chart.js, html2canvas, jspdf, jspdf-autotable, lucide-react, opentype.js (+27 more)
+
+### Community 133 - "Community 133"
+Cohesion: 0.12
+Nodes (16): path, axios, cleanupSocket(), config, disconnectDevice(), fs, knownUsers, net (+8 more)
+
+### Community 134 - "Community 134"
+Cohesion: 0.14
+Nodes (24): AllEmployees(), mainTabs, roleNames, RecruitmentPerformanceManagement(), PerformanceSection(), StatCard(), StatusBadge(), RecruitmentSection() (+16 more)
+
+### Community 135 - "Community 135"
+Cohesion: 0.07
+Nodes (29): 1. هيكل النظام الحالي (Current Architecture), 2. التدفق المطلوب (Target Data Flow), 3.1 الاعتماديات والمفاتيح, 3.2 القاعدة 1: الأساس — CHECKINOUT هو نقطة البداية, 3.3 القاعدة 2: تطبيق الإخفاء (ISDELETE), 3.4 القاعدة 3: تطبيق الإضافة (ISADD), 3.5 القاعدة 4: التعديل (ISMODIFY) — النموذج المتوقع, 3.6 القاعدة 5: تحويل USERID → zkUserId → ObjectId (+21 more)
+
+### Community 137 - "Community 137"
+Cohesion: 0.08
+Nodes (24): adminOrHR(), adminOrHRorHrEmployee(), generalManagerOnly(), jwt, managerOrAdmin(), protect(), { User }, Holiday (+16 more)
+
+### Community 138 - "Community 138"
+Cohesion: 0.14
+Nodes (27): approvePayroll(), assignSalaryToPendingPayroll(), calculateDailyRate(), calculateGrossFromComponents(), crypto, deletePayroll(), exportPayslipPDF(), generatePayroll() (+19 more)
+
+### Community 139 - "Community 139"
+Cohesion: 0.11
+Nodes (27): createTask(), deleteTask(), evaluateTask(), finalApproveTask(), getCreatedTasks(), getDailySummary(), getMyTasks(), getTaskById() (+19 more)
+
+### Community 140 - "Community 140"
+Cohesion: 0.07
+Nodes (28): 1.1 البيانات الخام, 1.2 التصنيف, 1.3 الاستنتاج — ⚠️ مهم, 1. تفريغ CHECKEXACT — جميع السجلات, 2.1 اختبار: هل سجلات CHECKEXACT موجودة في CHECKINOUT؟, 2.2 المستخدمون المعنيون في CHECKEXACT, 2. تحليل العلاقة بين CHECKEXACT و CHECKINOUT, 3.1 هل CHECKEXACT يُعدّل CHECKINOUT؟ (+20 more)
+
+### Community 141 - "Community 141"
+Cohesion: 0.12
+Nodes (9): BiometricErrorLog, biometricErrorLogSchema, mongoose, axios, BiometricErrorLog, LOG_PREFIX, logger, net (+1 more)
+
+### Community 142 - "Community 142"
+Cohesion: 0.18
+Nodes (20): DynamicNumber(), ColumnManager(), ALL_COLUMN_KEYS, ALL_COLUMNS, DEDUCTION_RATES, DEFAULT_SALARIES, DEPARTMENT_BY_NAME, DEPARTMENTS (+12 more)
+
+### Community 143 - "Community 143"
+Cohesion: 0.11
+Nodes (26): activateUser(), calculatePerformanceScore(), changePassword(), createUser(), deleteUser(), Department, getAllEmployees(), getAllManagers() (+18 more)
+
+### Community 144 - "Community 144"
+Cohesion: 0.07
+Nodes (27): dependencies, axios, chart.js, class-variance-authority, clsx, jspdf, jspdf-autotable, lucide-react (+19 more)
+
+### Community 145 - "Community 145"
+Cohesion: 0.07
+Nodes (25): compilerOptions, allowImportingTsExtensions, isolatedModules, jsx, lib, module, moduleResolution, noEmit (+17 more)
+
+### Community 146 - "Community 146"
+Cohesion: 0.11
+Nodes (23): Auth Controller, changePassword(), departmentNames, { generateToken, JWT_SECRET }, getMe(), jwt, login(), { Notification, NotificationType } (+15 more)
+
+### Community 147 - "Community 147"
+Cohesion: 0.14
+Nodes (12): MySalary(), safeNum(), Allowance, Bonus, Mission, PayrollItem, PayslipData, getCurrentUser() (+4 more)
+
+### Community 148 - "Community 148"
+Cohesion: 0.10
+Nodes (22): { Attendance }, createDepartment(), DEFAULT_DEPARTMENTS, deleteDepartment(), Department, getAllDepartments(), getDepartmentCosts(), getDepartmentStats() (+14 more)
+
+### Community 149 - "Community 149"
+Cohesion: 0.11
+Nodes (16): PayrollAudit(), STATUS_CONFIG, apiLogsData, defaultIntegrations, methodColors, PayrollIntegration(), statusMeta, PayrollProcessing() (+8 more)
+
+### Community 150 - "Community 150"
+Cohesion: 0.13
+Nodes (22): GMApproveLeaves(), LEAVE_TYPE_ICONS, LEAVE_TYPE_LABELS, LEAVE_TYPE_ICONS, LEAVE_TYPE_LABELS, LeaveManagement(), leaveTypes, STATUS_LABELS (+14 more)
+
+### Community 151 - "Community 151"
+Cohesion: 0.09
+Nodes (21): compilerOptions, allowImportingTsExtensions, baseUrl, ignoreDeprecations, isolatedModules, jsx, lib, module (+13 more)
+
+### Community 152 - "Community 152"
+Cohesion: 0.12
+Nodes (18): { decodeFileName }, deleteCV(), fs, getEmployeeProfile(), path, updateEmployeeProfile(), uploadCV(), { User } (+10 more)
+
+### Community 153 - "Community 153"
+Cohesion: 0.11
+Nodes (18): 1. هيكل الجدولين والعلاقة بينهما, 2.1 الإضافة (`ISADD = 1`), 2.2 الحذف (`ISDELETE = 1`), 2.3 التعديل (`ISMODIFY = 1`) — ⚠️ يحتاج توثيق ميداني, 2. منطق الدمج التفصيلي, 3. خوارزمية الدمج الكاملة (Merge Algorithm), 4. تطابق النتائج مع Temp-Supervisor, 5. متى يتم استبدال/إضافة/إخفاء (+10 more)
+
+### Community 154 - "Community 154"
+Cohesion: 0.11
+Nodes (18): Architecture, Attendance (`backend/models/Attendance.js`), Database Models, Device Connection, Device IDs NOT mapped (24 target IDs from user), Dual Connection Architecture, Fingerprint Forgotten Flow, graphify (+10 more)
+
+### Community 155 - "Community 155"
+Cohesion: 0.18
+Nodes (3): emptyRow, FinancialMiscPage(), typeOptions
+
+### Community 156 - "Community 156"
+Cohesion: 0.24
+Nodes (10): Approve Leaves, Leave Request Model, Leave Status Enum, Leave Type Enum, General Manager Approval (>3 days), Leave Approval (Full/Partial/Reject), Leave Status Flow (Manager→GM Approval), Leave Types (10 types incl. hourly, maternity) (+2 more)
+
+### Community 157 - "Community 157"
+Cohesion: 0.11
+Nodes (18): dependencies, axios, bcryptjs, cors, dotenv, exceljs, express, jsonwebtoken (+10 more)
+
+### Community 158 - "Community 158"
+Cohesion: 0.16
+Nodes (15): getAllSettings(), getEvaluationWeights(), getSetting(), resetSettings(), { Settings, DEFAULT_EVALUATION_WEIGHTS }, updateMultipleSettings(), updateSetting(), DEFAULT_EVALUATION_WEIGHTS (+7 more)
+
+### Community 159 - "Community 159"
+Cohesion: 0.26
+Nodes (11): AdminDashboard(), LEAVE_LABELS, AllReports(), Rankings(), getAllDepartments(), getSettings(), getDailySummary(), getTasksToApprove() (+3 more)
+
+### Community 160 - "Community 160"
+Cohesion: 0.25
+Nodes (11): AuditFilterBar(), AuditLogs(), formatDateTime(), getActionLabel(), getRiskLevelColor(), exportAuditLogs(), getAuditActions(), getAuditEntities() (+3 more)
+
+### Community 161 - "Community 161"
+Cohesion: 0.14
+Nodes (17): Audit Log Controller, { AuditLog, AuditAction }, exportAuditLogs(), getAuditActions(), getAuditEntities(), getAuditLogById(), getAuditLogs(), getAuditLogStats() (+9 more)
+
+### Community 162 - "Community 162"
+Cohesion: 0.28
+Nodes (16): cleanBackups(), colorize(), colors, createStats(), DEFAULT_EXCLUDES, DEFAULT_EXTENSIONS, findBOMFiles(), findFiles() (+8 more)
+
+### Community 163 - "Community 163"
+Cohesion: 0.14
+Nodes (5): EmployeeProfilePage(), api, downloadBlob(), downloadFinancialMiscPDF(), downloadPayslipPDF()
+
+### Community 164 - "Community 164"
+Cohesion: 0.28
+Nodes (5): LEAVE_TYPE_LABELS, MonthlyTimesheet(), STATUS_MAP, getMonthlyTimesheet(), updateAttendanceRecord()
+
+### Community 165 - "Community 165"
+Cohesion: 0.18
+Nodes (10): PayrollActions(), RecentPaymentsTable(), usePayroll(), DashboardQuickMenu(), links, PayrollDashboard(), quickNavItems, getDepartmentCosts() (+2 more)
+
+### Community 166 - "Community 166"
+Cohesion: 0.17
+Nodes (13): { CoupletPrompt }, getAllPrompts(), getPromptByStage(), resetPrompt(), updatePrompt(), CoupletPrompt, coupletPromptSchema, mongoose (+5 more)
+
+### Community 167 - "Community 167"
+Cohesion: 0.15
+Nodes (15): getAllPrompts(), getPromptByStage(), { Prompt }, resetPrompt(), updatePrompt(), newsDepartmentOnly(), newsManagerOrAdmin(), mongoose (+7 more)
+
+### Community 168 - "Community 168"
+Cohesion: 0.43
+Nodes (8): Attendance Database Model, JWT Bearer Authentication, LeaveRequest Database Model, PayrollItem Database Model, Payroll Database Model, User Database Model, نظام الحضور والانصراف, HRMS Swagger API Documentation
+
+### Community 169 - "Community 169"
+Cohesion: 0.17
+Nodes (20): aiService, checkAIConfig(), { CoupletPrompt }, loadPrompts(), processPipeline(), runAIPipeline(), runPipeline(), runSingleStage() (+12 more)
+
+### Community 170 - "Community 170"
+Cohesion: 0.17
+Nodes (20): aiService, checkAIConfig(), loadPrompts(), processPipeline(), { Prompt }, runAIPipeline(), runPipeline(), runSingleStage() (+12 more)
+
+### Community 171 - "Community 171"
+Cohesion: 0.33
+Nodes (5): CoupletPipeline(), STAGES, NewsDashboard(), checkAIConfig(), processCoupletPipeline()
+
+### Community 172 - "Community 172"
+Cohesion: 0.15
+Nodes (13): node-zklib, dependencies, axios, dotenv, node-zklib, description, main, name (+5 more)
+
+### Community 173 - "Community 173"
+Cohesion: 0.25
+Nodes (9): BonusForm(), CRITERIA_OPTIONS, BonusList(), TYPE_LABELS, BonusManagement(), approveBonus(), deleteBonus(), getAllBonuses() (+1 more)
+
+### Community 174 - "Community 174"
+Cohesion: 0.32
+Nodes (14): connectDevice(), fetchAttendance(), fetchUsers(), loadSyncedIds(), log(), saveSyncedIds(), sdkConnect(), sdkFetchAllAttendance() (+6 more)
+
+### Community 175 - "Community 175"
+Cohesion: 0.17
+Nodes (19): AttendanceDashboard(), BiometricManagement(), safeDate(), safeDateTime(), safeTime(), TABS, AttendanceNavBar(), navItems (+11 more)
+
+### Community 176 - "Community 176"
+Cohesion: 0.18
+Nodes (3): FinancialMisc, financialMiscSchema, mongoose
+
+### Community 177 - "Community 177"
+Cohesion: 0.14
+Nodes (11): Attendance(), STATUS_MAP, bulkMapUsers(), getDepartmentAttendance(), getSystemUsersForMapping(), getTodayAttendance(), getUnmappedDeviceUsers(), getZKTecoStatus() (+3 more)
+
+### Community 178 - "Community 178"
+Cohesion: 0.16
+Nodes (17): TempSupervisorPage(), Login(), NotAuthorized(), Register(), HrDeptRoute(), NewsRoute(), ProtectedRoute(), PublicRoute() (+9 more)
+
+### Community 179 - "Community 179"
+Cohesion: 0.35
+Nodes (8): ColumnManagerModal(), DeleteColumnModal(), EditablePayrollTable(), DEFAULT_COLUMNS, getAllDefaultKeys(), loadFromStorage(), safeParse(), STORAGE_KEYS
+
+### Community 180 - "Community 180"
+Cohesion: 0.10
+Nodes (22): clearReadNotifications(), deleteNotification(), getMyNotifications(), markAllAsRead(), markAsRead(), { Notification, NotificationType }, Message, messageSchema (+14 more)
+
+### Community 182 - "Community 182"
+Cohesion: 0.29
+Nodes (7): HOLIDAY_TYPES, HolidayManagement(), TYPE_COLORS, TYPE_LABELS, createHoliday(), deleteHoliday(), getHolidays()
+
+### Community 183 - "Community 183"
+Cohesion: 0.18
+Nodes (10): defaultColors, DeptFormModal(), DEFAULT_WEIGHTS, Settings(), WEIGHT_RANGES, roleNames, UserFormModal(), Card() (+2 more)
+
+### Community 184 - "Community 184"
+Cohesion: 0.24
+Nodes (4): PayslipDetail(), generatePayslip(), formatCurrency(), formatNumber()
+
+### Community 185 - "Community 185"
+Cohesion: 0.29
+Nodes (5): getDepartmentStats(), getPeriodKey(), getStatus(), getTodayStats(), submitCheckIn()
+
+### Community 186 - "Community 186"
+Cohesion: 0.25
+Nodes (8): Attendance Model, Attendance Status Enum, Check-in Status Enum, Attendance Statistics (Present/Absent/Late Rate), Attendance Check-In/Out, Attendance Status Mapping, Attendance Feature, Attendance Service API
+
+### Community 187 - "Community 187"
+Cohesion: 0.25
+Nodes (7): القواعد المطلقة, الممنوعات الصريحة, الهدف النهائي, دستور النظام — Event Interpretation Engine, عندما لا أكون متأكداً, مصادر البيانات, هويتي
+
+### Community 188 - "Community 188"
+Cohesion: 0.32
+Nodes (8): Manager Evaluation, Manager Evaluation Dashboard, Evaluation Period Open/Close, Evaluation Results Dashboard, Evaluation Trends Over Periods, Anonymous Manager Evaluation (1-5 Scale), Manager Evaluation Feature, Manager Evaluation Service API
+
+### Community 189 - "Community 189"
+Cohesion: 0.25
+Nodes (7): description, main, name, scripts, dev, start, version
+
+### Community 190 - "Community 190"
+Cohesion: 0.32
+Nodes (4): getUserRole(), PayrollRouteWrapper(), PayrollContext, PayrollProvider()
+
+### Community 191 - "Community 191"
+Cohesion: 0.46
+Nodes (5): CoupletPromptManagement(), STAGES, getAllPrompts(), resetPrompts(), updatePrompt()
+
+### Community 192 - "Community 192"
+Cohesion: 0.46
+Nodes (5): PromptManagement(), STAGES, getAllPrompts(), resetPrompts(), updatePrompt()
+
+### Community 193 - "Community 193"
+Cohesion: 0.48
+Nodes (4): EditorialPipeline(), STAGES, checkAIConfig(), processPipeline()
+
+### Community 194 - "Community 194"
+Cohesion: 0.48
+Nodes (5): PayrollPendingAssignments(), formatDate(), PendingAssignmentModal(), assignSalaryToPendingPayroll(), getPendingPayrollAssignments()
+
+### Community 195 - "Community 195"
+Cohesion: 0.33
+Nodes (4): AI_CONFIG, executeWithFetch(), isGemini, processWithPrompt()
+
+### Community 196 - "Community 196"
+Cohesion: 0.53
+Nodes (6): ZKTeco Bridge Service, ZKTeco ETK-45A-ID Biometric Reader, Bridge Synced Attendance IDs, ZKTeco Bridge Service دليل التكامل, آلية ربط جهاز البصمة ZKTeco, خطوات تشغيل نظام البصمة ZKTeco
+
+### Community 197 - "Community 197"
+Cohesion: 0.50
+Nodes (4): http, httpReq(), main(), path
+
+### Community 198 - "Community 198"
+Cohesion: 0.50
+Nodes (4): http, httpReq(), main(), path
+
+### Community 199 - "Community 199"
+Cohesion: 0.40
+Nodes (4): args, __dirname, dirs, script
+
+### Community 200 - "Community 200"
+Cohesion: 0.50
+Nodes (4): Application Status Enum, Job Status Enum, Candidate Application Model, Job Posting Model
+
 ## Ambiguous Edges - Review These
 - `RecentPaymentsTable (recent payments display)` → `StatusBadge (active/inactive badge)`  [AMBIGUOUS]
-  None · relation: conceptually_related_to
+  frontend/src/components/common/StatusBadge.jsx · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **328 isolated node(s):** `Document Controller`, `Employee Profile Controller`, `Financial Misc Controller`, `Auth Middleware`, `Protect Middleware` (+323 more)
+- **998 isolated node(s):** `@kilocode/plugin`, `$schema`, `plugin`, `@opencode-ai/plugin`, `http` (+993 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **77 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **84 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `RecentPaymentsTable (recent payments display)` and `StatusBadge (active/inactive badge)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `Arabic RTL UI Pattern` connect `Developer & Misc Panels` to `Database Models`, `Employee & Manager Self-Service`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **Why does `User Model` connect `Database Models` to `Developer & Misc Panels`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
-- **Why does `Financial Misc Page` connect `Developer & Misc Panels` to `Payroll System`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
-- **Are the 8 inferred relationships involving `Employee Dashboard` (e.g. with `Assign Tasks` and `Change Password`) actually correct?**
-  _`Employee Dashboard` has 8 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `Document Controller`, `Employee Profile Controller`, `Financial Misc Controller` to the rest of the system?**
-  _328 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `dependencies` connect `Community 157` to `Community 64`, `Community 172`, `Community 189`?**
+  _High betweenness centrality (0.293) - this node is a cross-community bridge._
+- **Why does `jsPDF Library (external dependency)` connect `Community 56` to `Community 129`, `Community 134`, `Community 71`, `Community 144`, `Community 150`, `Community 155`, `Community 157`, `Community 159`?**
+  _High betweenness centrality (0.262) - this node is a cross-community bridge._
+- **Why does `mongoose ODM` connect `Database Models` to `Community 137`, `Backend Controllers`, `Community 139`, `Community 141`, `Community 17`, `Community 146`, `Community 148`, `Community 24`, `Community 156`, `Community 157`, `Community 158`, `Community 31`, `Community 32`, `Community 161`, `Community 166`, `Community 167`, `Community 47`, `Community 176`, `Community 180`, `Community 185`, `Community 186`, `Community 188`, `Community 63`, `Community 64`, `Community 67`, `Community 202`, `Community 203`, `Community 204`, `Community 206`, `Community 115`?**
+  _High betweenness centrality (0.240) - this node is a cross-community bridge._
+- **What connects `@kilocode/plugin`, `$schema`, `plugin` to the rest of the system?**
+  _998 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Database Models` be split into smaller, more focused modules?**
-  _Cohesion score 0.055051421657592255 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10606060606060606 - nodes in this community are weakly interconnected._
+- **Should `Employee & Manager Self-Service` be split into smaller, more focused modules?**
+  _Cohesion score 0.08562367864693446 - nodes in this community are weakly interconnected._

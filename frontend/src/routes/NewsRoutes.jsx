@@ -10,8 +10,8 @@ export const newsRoutes = (
   <>
     <Route path="/news" element={<NewsRoute><NewsDashboard /></NewsRoute>} />
     <Route path="/news/editorial-pipeline" element={<NewsRoute><EditorialPipeline /></NewsRoute>} />
-    <Route path="/news/prompts" element={<NewsRoute><PromptManagement /></NewsRoute>} />
+    <Route path="/news/prompts" element={<NewsRoute allowedRoles={['admin', 'manager']}><PromptManagement /></NewsRoute>} />
     <Route path="/news/couplet-pipeline" element={<NewsRoute><CoupletPipeline /></NewsRoute>} />
-    <Route path="/news/couplet-prompts" element={<NewsRoute><CoupletPromptManagement /></NewsRoute>} />
+    <Route path="/news/couplet-prompts" element={<NewsRoute allowedRoles={['admin', 'manager']}><CoupletPromptManagement /></NewsRoute>} />
   </>
 );

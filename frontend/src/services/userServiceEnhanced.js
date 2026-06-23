@@ -76,7 +76,7 @@ export const getTaskReports = async (filters = {}) => {
 // Get daily summary with error handling
 export const getDailySummary = async () => {
   try {
-    const response = await api.get('/tasks/daily-summary');
+    const response = await api.get('/tasks/summary/daily');
     return {
       success: true,
       data: {

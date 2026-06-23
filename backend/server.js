@@ -64,7 +64,7 @@ const corsOptions = {
     ];
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
-    } else if (origin.endsWith('.netlify.app')) {
+    } else if (origin.endsWith('.netlify.app') || origin.endsWith('.ngrok-free.dev')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -92,7 +92,7 @@ const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
       const allowedOrigins = ['https://radioalthawra.netlify.app', 'http://127.0.0.1:5173', 'http://localhost:5173'];
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.netlify.app')) {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('.ngrok-free.dev')) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -226,6 +226,9 @@ app.use('/api/holidays', holidayRoutes);
 // Serve the Temp-Supervisor page
 app.use('/supervisor', express.static(path.join(__dirname, 'public')));
 
+// Serve built frontend
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
+
 // Health check endpoint (مهم لـ Render)
 app.get('/api/health', (req, res) => {
   const mongoose = require('mongoose');
@@ -262,6 +265,12 @@ app.use((err, req, res, next) => {
     message: 'حدث خطأ في الخادم',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
+});
+
+// SPA fallback — serve index.html for non-API routes
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
 });
 
 // 404 handler

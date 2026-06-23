@@ -11,7 +11,7 @@ import PayrollIntegration from '../pages/PayrollIntegration';
 import PayslipView from '../pages/Payroll/PayslipView';
 import PayslipDetail from '../pages/Payroll/PayslipDetail';
 import ComprehensiveHRPayrollSystem from '../pages/Payroll/ComprehensiveHRPayrollSystem';
-import MySalary from '../pages/Payroll/MySalary';
+
 
 const PW = PayrollRouteWrapper;
 
@@ -26,7 +26,7 @@ export const payrollRoutes = (
     <Route path="/payroll/audit" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><PW><PayrollAudit /></PW></ProtectedRoute>} />
     <Route path="/payroll/workflow" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PW><PayrollWorkflow /></PW></ProtectedRoute>} />
     <Route path="/payroll/integration" element={<ProtectedRoute allowedRoles={['admin']}><PW><PayrollIntegration /></PW></ProtectedRoute>} />
-    <Route path="/payroll/my-salary" element={<ProtectedRoute allowedRoles={['employee']}><MySalary /></ProtectedRoute>} />
+
     <Route path="/payslip/:period" element={<ProtectedRoute><PayslipView /></ProtectedRoute>} />
     <Route path="/payslip/detail/:payrollId" element={<ProtectedRoute><PayslipDetail /></ProtectedRoute>} />
   </>

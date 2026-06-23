@@ -28,13 +28,31 @@ export const NewsRoute = ({ children, allowedRoles = [] }) => {
 
   if (user.role !== 'admin') {
     const dept = (user.department || '').trim().toLowerCase();
-    const isNewsDept = dept === 'news' || dept === 'الأخبار' || dept.includes('news') || dept.includes('إعلام');
+    const isNewsDept = dept === 'news' || dept === 'الأخبار' || dept === 'تحرير' || dept.includes('news') || dept.includes('إعلام') || dept.includes('تحرير');
     if (!isNewsDept) {
       return <Navigate to="/not-authorized" replace />;
     }
   }
 
   return children;
+};
+
+export const HrDeptRoute = ({ children }) => {
+  const user = getStoredUser();
+
+  if (!isLoggedIn()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const role = user?.role?.toLowerCase() || '';
+  const dept = (user?.department || '').toString().toLowerCase().trim();
+  const isHrDept = dept === 'hr' || dept === 'الموارد البشرية' || dept.includes('موارد بشرية');
+
+  if (role === 'admin' || role === 'hr' || (role === 'employee' && isHrDept)) {
+    return children;
+  }
+
+  return <Navigate to="/" replace />;
 };
 
 export const PublicRoute = ({ children }) => {

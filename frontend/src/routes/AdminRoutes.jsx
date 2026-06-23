@@ -1,5 +1,5 @@
 import { Route, Navigate } from 'react-router-dom';
-import { ProtectedRoute } from '../components/RouteGuards';
+import { ProtectedRoute, HrDeptRoute } from '../components/RouteGuards';
 import AllEmployees from '../pages/Admin/AllEmployees';
 import AllReports from '../pages/Admin/AllReports';
 import AttendanceReports from '../pages/reports/AttendanceReports';
@@ -39,12 +39,12 @@ export const adminRoutes = (
     <Route path="/admin/leave-management" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveManagement /></ProtectedRoute>} />
     <Route path="/admin/gm-approve-leaves" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><GMApproveLeaves /></ProtectedRoute>} />
     <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceManagement /></ProtectedRoute>} />
-    <Route path="/admin/attendance/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceDashboard /></ProtectedRoute>} />
+    <Route path="/admin/attendance/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><AttendanceDashboard /></ProtectedRoute>} />
     <Route path="/admin/employee-attendance-report" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><Navigate to="/admin/attendance" replace /></ProtectedRoute>} />
     <Route path="/biometric" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><BiometricManagement /></ProtectedRoute>} />
     <Route path="/admin/attendance/employee/:employeeId" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><EmployeeAttendanceReport /></ProtectedRoute>} />
-    <Route path="/admin/timesheet" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><MonthlyTimesheet /></ProtectedRoute>} />
-    <Route path="/admin/timesheet/:employeeId" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><MonthlyTimesheet /></ProtectedRoute>} />
+    <Route path="/admin/timesheet" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><MonthlyTimesheet /></ProtectedRoute>} />
+    <Route path="/admin/timesheet/:employeeId" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><MonthlyTimesheet /></ProtectedRoute>} />
     <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['admin']}><AuditLogs /></ProtectedRoute>} />
     <Route path="/admin/recruitment" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><RecruitmentPerformanceManagement /></ProtectedRoute>} />
     <Route path="/admin/bonuses" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'hr']}><BonusManagement /></ProtectedRoute>} />
@@ -53,8 +53,8 @@ export const adminRoutes = (
     <Route path="/manager/reports" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><DepartmentReports /></ProtectedRoute>} />
     <Route path="/manager/bonus" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><BonusManagement /></ProtectedRoute>} />
     <Route path="/admin/employee-profile/:id" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><EmployeeProfilePage /></ProtectedRoute>} />
-    <Route path="/admin/holidays" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><HolidayManagement /></ProtectedRoute>} />
-    <Route path="/admin/supervisor" element={<ProtectedRoute allowedRoles={['admin', 'hr', 'manager']}><TempSupervisorPage /></ProtectedRoute>} />
+    <Route path="/admin/holidays" element={<HrDeptRoute><HolidayManagement /></HrDeptRoute>} />
+    <Route path="/admin/supervisor" element={<HrDeptRoute><TempSupervisorPage /></HrDeptRoute>} />
 
   </>
 );

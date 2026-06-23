@@ -3,6 +3,7 @@ import { getStoredUser } from '../../services/authService';
 
 const NewsDashboard = () => {
   const user = getStoredUser();
+  const isManagerOrAdmin = user?.role === 'admin' || user?.role === 'manager';
 
   const sections = [
     {
@@ -13,14 +14,14 @@ const NewsDashboard = () => {
         { path: '/news/couplet-pipeline', label: 'تحرير الفيديو جراف', desc: 'تنسيق النصوص - 4 كلمات في ثنائيات', icon: '🔤' },
       ]
     },
-    {
+    ...(isManagerOrAdmin ? [{
       title: 'تعديل البرومتات',
       icon: '⚙️',
       items: [
         { path: '/news/prompts', label: 'تحرير برومت النصوص', desc: 'برومتات المسار التحريري القياسي', icon: '⚙️' },
         { path: '/news/couplet-prompts', label: 'تحرير برومت الفيديو جراف', desc: 'برومتات تحرير الفيديو جراف', icon: '🔧' },
       ]
-    }
+    }] : [])
   ];
 
   return (

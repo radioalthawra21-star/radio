@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaPlus, FaTrash } from 'react-icons/fa';
 import { getHolidays, createHoliday, deleteHoliday } from '../../services/holidayService';
+import { getStoredUser } from '../../services/authService';
 
 const HOLIDAY_TYPES = [
   { value: 'public_holiday', label: 'عطلة رسمية' },
@@ -37,6 +38,9 @@ const diffDays = (start, end) => {
 };
 
 const HolidayManagement = () => {
+  const holidayUser = getStoredUser();
+  const holidayUserRole = (holidayUser?.role || '').toLowerCase();
+  const canDelete = holidayUserRole === 'admin' || holidayUserRole === 'hr';
   const [holidays, setHolidays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -208,7 +212,7 @@ const HolidayManagement = () => {
                   <th className="px-4 py-3 text-white font-semibold text-xs text-right">اسم العطلة</th>
                   <th className="px-4 py-3 text-white font-semibold text-xs text-right">النوع</th>
                   <th className="px-4 py-3 text-white font-semibold text-xs text-center">عدد الأيام</th>
-                  <th className="px-4 py-3 text-white font-semibold text-xs text-center">حذف</th>
+                  {canDelete && <th className="px-4 py-3 text-white font-semibold text-xs text-center">حذف</th>}
                 </tr>
               </thead>
               <tbody>
@@ -237,13 +241,15 @@ const HolidayManagement = () => {
                       <td className="px-4 py-3 align-middle text-center">
                         <span className="text-xs font-bold" style={{ color: '#DC2626' }}>{days}</span>
                       </td>
-                      <td className="px-4 py-3 align-middle text-center">
-                        <button onClick={() => handleDelete(h._id, h.name)}
-                          className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
-                          title="حذف">
-                          <FaTrash className="w-4 h-4" />
-                        </button>
-                      </td>
+                      {canDelete && (
+                        <td className="px-4 py-3 align-middle text-center">
+                          <button onClick={() => handleDelete(h._id, h.name)}
+                            className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
+                            title="حذف">
+                            <FaTrash className="w-4 h-4" />
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}

@@ -2,15 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   FaFingerprint, FaPlug, FaSync, FaExclamationTriangle, FaInfoCircle,
   FaCheckCircle, FaTimesCircle, FaClock, FaCalendarAlt, FaSearch,
-  FaLink, FaUnlink, FaSave, FaTimes, FaChartBar, FaUsers, FaUserCheck,
+  FaSave, FaTimes, FaChartBar, FaUserCheck,
   FaUserTimes, FaFileExcel, FaEye, FaCheck, FaHistory, FaList,
   FaCog, FaArrowLeft, FaArrowRight, FaTools
 } from 'react-icons/fa';
 import {
   getBiometricDashboardStats, getDeviceStatusMonitor, getRecentBiometricActivity,
   pullDeviceAttendance, syncZKTecoDevice, testZKTecoConnection,
-  getUnmappedDeviceUsers, getSystemUsersForMapping, mapUserToDevice,
-  unmapUserFromDevice, getErrorLogs, resolveErrorLog, bulkMapUsers,
+  getErrorLogs, resolveErrorLog,
   getMappedUsersActivity, cleanSyncDevice
 } from '../../services/attendanceService';
 import AttendanceNavBar from '../../components/attendance/AttendanceNavBar';
@@ -20,7 +19,6 @@ import * as XLSX from 'xlsx';
 const TABS = [
   { id: 'dashboard', label: 'لوحة التحكم', icon: FaChartBar },
   { id: 'sync', label: 'مزامنة البيانات', icon: FaSync },
-  { id: 'mapping', label: 'ربط المستخدمين', icon: FaLink },
   { id: 'biometric_activity', label: 'نشاط البصمة', icon: FaUserCheck },
   { id: 'errors', label: 'سجل الأخطاء', icon: FaExclamationTriangle },
   { id: 'activity', label: 'النشاط الحديث', icon: FaHistory }
@@ -61,9 +59,6 @@ const BiometricManagement = () => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [errorLogs, setErrorLogs] = useState([]);
   const [errorLogPagination, setErrorLogPagination] = useState(null);
-  const [unmappedDeviceUsers, setUnmappedDeviceUsers] = useState([]);
-  const [showAllDeviceUsers, setShowAllDeviceUsers] = useState(false);
-  const [systemUsers, setSystemUsers] = useState([]);
   const [pullRecords, setPullRecords] = useState([]);
   const [pullCount, setPullCount] = useState(0);
 
@@ -77,13 +72,6 @@ const BiometricManagement = () => {
   const [errorFilterResolved, setErrorFilterResolved] = useState('');
   const [errorFilterType, setErrorFilterType] = useState('');
   const [errorPage, setErrorPage] = useState(1);
-
-  const [searchUser, setSearchUser] = useState('');
-  const [selectedSystemUser, setSelectedSystemUser] = useState(null);
-  const [selectedDeviceUser, setSelectedDeviceUser] = useState(null);
-  const [mappingLoading, setMappingLoading] = useState(false);
-  const [bulkMapping, setBulkMapping] = useState([]);
-  const [showBulkModal, setShowBulkModal] = useState(false);
 
   const [mappedActivity, setMappedActivity] = useState([]);
   const [mappedActivityLoading, setMappedActivityLoading] = useState(false);
@@ -136,13 +124,6 @@ const BiometricManagement = () => {
     }
   }, [errorFilterResolved, errorFilterType]);
 
-  const loadUnmappedUsers = useCallback(async (showAll) => {
-    try {
-      const res = await getUnmappedDeviceUsers(showAll);
-      if (res.success) setUnmappedDeviceUsers(res.data?.deviceUsers || []);
-    } catch { }
-  }, []);
-
   const loadMappedActivity = useCallback(async () => {
     try {
       setMappedActivityLoading(true);
@@ -153,24 +134,11 @@ const BiometricManagement = () => {
     }
   }, [activityDays]);
 
-  const loadSystemUsers = useCallback(async (search = '') => {
-    try {
-      const res = await getSystemUsersForMapping(search);
-      if (res.success) setSystemUsers(res.data || []);
-    } catch { }
-  }, []);
-
   useEffect(() => { loadDashboardStats(); }, [loadDashboardStats]);
   useEffect(() => { loadRecentActivity(); }, [loadRecentActivity]);
   useEffect(() => {
     if (activeTab === 'errors') loadErrorLogs(1);
   }, [activeTab, errorFilterResolved, errorFilterType, loadErrorLogs]);
-  useEffect(() => {
-    if (activeTab === 'mapping') {
-      loadUnmappedUsers(showAllDeviceUsers);
-      loadSystemUsers();
-    }
-  }, [activeTab, showAllDeviceUsers, loadUnmappedUsers, loadSystemUsers]);
   useEffect(() => {
     if (activeTab === 'dashboard') {
       loadDeviceStatus();
@@ -307,45 +275,6 @@ const BiometricManagement = () => {
     showSuccess('تم تصدير الملف بنجاح');
   };
 
-  const handleMapUser = async () => {
-    if (!selectedSystemUser || !selectedDeviceUser) { showError('اختر مستخدم النظام ومعرف الجهاز'); return; }
-    try {
-      setMappingLoading(true);
-      const res = await mapUserToDevice(selectedSystemUser._id, selectedDeviceUser);
-      if (res.success) {
-        showSuccess(res.message);
-        setSelectedSystemUser(null);
-        setSelectedDeviceUser(null);
-        loadUnmappedUsers(showAllDeviceUsers);
-        loadDashboardStats();
-        loadSystemUsers(searchUser);
-        loadRecentActivity();
-      } else {
-        showError(res.message || 'فشل ربط المستخدم');
-      }
-    } catch (err) {
-      showError(err.userMessage || 'فشل ربط المستخدم');
-    } finally {
-      setMappingLoading(false);
-    }
-  };
-
-  const handleUnmapUser = async (userId) => {
-    try {
-      const res = await unmapUserFromDevice(userId);
-      if (res.success) {
-        showSuccess(res.message);
-        loadDashboardStats();
-        loadSystemUsers(searchUser);
-        loadUnmappedUsers(showAllDeviceUsers);
-      } else {
-        showError(res.message || 'فشل فك الربط');
-      }
-    } catch (err) {
-      showError(err.userMessage || 'فشل فك الربط');
-    }
-  };
-
   const handleResolveError = async (id) => {
     try {
       const res = await resolveErrorLog(id, 'تم حل المشكلة');
@@ -355,28 +284,6 @@ const BiometricManagement = () => {
       }
     } catch (err) {
       showError(err.userMessage || 'فشل حل الخطأ');
-    }
-  };
-
-  const handleBulkMap = async () => {
-    if (!bulkMapping.length) { showError('لا توجد تعيينات'); return; }
-    try {
-      setMappingLoading(true);
-      const res = await bulkMapUsers(bulkMapping);
-      if (res.success) {
-        showSuccess(res.message);
-        setBulkMapping([]);
-        setShowBulkModal(false);
-        loadUnmappedUsers(showAllDeviceUsers);
-        loadDashboardStats();
-        loadSystemUsers(searchUser);
-      } else {
-        showError(res.message || 'فشل الربط الجماعي');
-      }
-    } catch (err) {
-      showError(err.userMessage || 'فشل الربط الجماعي');
-    } finally {
-      setMappingLoading(false);
     }
   };
 
@@ -688,202 +595,6 @@ const BiometricManagement = () => {
         </div>
       )}
 
-      {activeTab === 'mapping' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-dark flex items-center gap-2">
-                <FaUsers className="text-primary" />
-                {showAllDeviceUsers ? 'جميع مستخدمي الجهاز' : 'مستخدمي الجهاز غير المرتبطين'}
-              </h3>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <span className="text-xs text-gray-500">الكل</span>
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={showAllDeviceUsers}
-                    onChange={e => setShowAllDeviceUsers(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-gray-200 rounded-full peer-checked:bg-secondary transition-colors"></div>
-                  <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-[-16px] transition-transform"></div>
-                </div>
-                <span className="text-xs text-gray-500">غير المرتبطين</span>
-              </label>
-            </div>
-            {unmappedDeviceUsers.length === 0 ? (
-              <p className="text-sm text-gray-400 py-8 text-center">جميع مستخدمي الجهاز مرتبطون بالفعل</p>
-            ) : (
-              <div className="space-y-2 max-h-80 overflow-y-auto">
-                {unmappedDeviceUsers.map((u, i) => {
-                  const devId = String(u.userId || u.user_id || u.id || '');
-                  const isMapped = u.isMapped;
-                  const mappedTo = u.mappedTo;
-                  return (
-                    <div key={i}
-                      onClick={() => {
-                        if (!isMapped) setSelectedDeviceUser(devId);
-                      }}
-                      className={`p-3 rounded-lg border transition-colors ${
-                        isMapped
-                          ? 'border-green-100 bg-green-50/30 cursor-default'
-                          : selectedDeviceUser === devId
-                            ? 'border-secondary bg-secondary/5 cursor-pointer'
-                            : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50 cursor-pointer'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm truncate">{u.name || `مستخدم #${devId}`}</span>
-                            <span className="text-xs text-gray-400 shrink-0">معرف: {devId}</span>
-                          </div>
-                          {isMapped && mappedTo && (
-                            <p className="text-xs text-green-600 mt-0.5 flex items-center gap-1">
-                              <FaLink className="w-3 h-3" />
-                              مرتبط بـ: {mappedTo.name} ({mappedTo.email})
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {isMapped ? (
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">مرتبط</span>
-                          ) : (
-                            <span className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
-                              {u.fingerprintCount || u.fingerprints || 0} بصمات
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <h3 className="text-base font-bold text-dark mb-4 flex items-center gap-2">
-              <FaLink className="text-green-500" />
-              ربط مستخدم النظام بجهاز البصمة
-            </h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 mb-1">البحث عن مستخدم</label>
-              <div className="relative">
-                <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  value={searchUser}
-                  onChange={e => { setSearchUser(e.target.value); loadSystemUsers(e.target.value); }}
-                  placeholder="ابحث باسم المستخدم أو البريد الإلكتروني..."
-                  className="w-full border rounded-lg pr-10 px-3 py-2 text-sm"
-                />
-              </div>
-            </div>
-            <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
-              {systemUsers.map(u => (
-                <div
-                  key={u._id}
-                  onClick={() => setSelectedSystemUser(u)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedSystemUser?._id === u._id
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-100 hover:border-green-200 hover:bg-green-50/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium text-sm">{u.name}</span>
-                      <span className="text-xs text-gray-400 mr-2">{u.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {u.zkUserId ? (
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                          مرتبط: {u.zkUserId}
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">غير مرتبط</span>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">{u.department || '-'} · {u.role}</p>
-                </div>
-              ))}
-              {systemUsers.length === 0 && (
-                <p className="text-sm text-gray-400 py-4 text-center">لا توجد نتائج</p>
-              )}
-            </div>
-            {selectedSystemUser && selectedDeviceUser && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-700 mb-4">
-                <FaLink className="inline w-3 h-3 ml-1" />
-                ربط <strong>{selectedSystemUser.name}</strong> ← معرف الجهاز <strong>{selectedDeviceUser}</strong>
-              </div>
-            )}
-            <div className="flex gap-3">
-              <button
-                onClick={handleMapUser}
-                disabled={!selectedSystemUser || !selectedDeviceUser || mappingLoading}
-                className="flex-1 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <FaLink className="w-4 h-4" />
-                {mappingLoading ? 'جاري الربط...' : 'ربط المستخدم'}
-              </button>
-              <button
-                onClick={() => setShowBulkModal(true)}
-                className="px-4 py-2.5 bg-secondary text-white rounded-lg text-sm font-medium hover:bg-secondary/90 transition-colors flex items-center gap-2"
-              >
-                <FaUsers className="w-4 h-4" />
-                ربط جماعي
-              </button>
-            </div>
-          </div>
-
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <h3 className="text-base font-bold text-dark mb-4 flex items-center gap-2">
-              <FaList className="text-primary" />
-              المستخدمين المرتبطين حالياً
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="text-right p-3 font-bold text-dark text-xs">الاسم</th>
-                    <th className="text-right p-3 font-bold text-dark text-xs">البريد</th>
-                    <th className="text-right p-3 font-bold text-dark text-xs">القسم</th>
-                    <th className="text-center p-3 font-bold text-dark text-xs">معرف الجهاز</th>
-                    <th className="text-center p-3 font-bold text-dark text-xs">إجراء</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {systemUsers.filter(u => u.zkUserId).map(u => (
-                    <tr key={u._id} className="hover:bg-gray-50">
-                      <td className="p-3 font-medium">{u.name}</td>
-                      <td className="p-3 text-gray-500">{u.email}</td>
-                      <td className="p-3 text-gray-500">{u.department || '-'}</td>
-                      <td className="p-3 text-center">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-xs">{u.zkUserId}</span>
-                      </td>
-                      <td className="p-3 text-center">
-                        <button
-                          onClick={() => handleUnmapUser(u._id)}
-                          className="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 mx-auto"
-                        >
-                          <FaUnlink className="w-3 h-3" />
-                          فك الربط
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {systemUsers.filter(u => u.zkUserId).length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-gray-400">لا يوجد مستخدمين مرتبطين</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
       {activeTab === 'biometric_activity' && (
         <div className="space-y-4">
           <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
@@ -1188,77 +899,6 @@ const BiometricManagement = () => {
         </div>
       )}
 
-      {showBulkModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[85vh] overflow-y-auto">
-            <button onClick={() => setShowBulkModal(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
-              <FaTimes />
-            </button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <FaUsers className="text-secondary" />
-              ربط جماعي لمستخدمي الجهاز
-            </h3>
-            <p className="text-sm text-gray-500 mb-4">اختر مستخدم النظام لكل معرف جهاز غير مرتبط</p>
-            <div className="space-y-4">
-              {unmappedDeviceUsers.filter(du => !du.isMapped).map((du, i) => {
-                const devId = String(du.userId || du.user_id || du.id || '');
-                const existingMapping = bulkMapping.find(m => m.deviceUserId === devId);
-                return (
-                  <div key={i} className="p-4 border border-gray-200 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <span className="font-medium text-sm">{du.name || `مستخدم #${devId}`}</span>
-                        <span className="text-xs text-gray-400 mr-2">معرف: {devId}</span>
-                      </div>
-                      <span className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
-                        {du.fingerprintCount || du.fingerprints || 0} بصمات
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="ابحث عن مستخدم..."
-                        className="flex-1 border rounded-lg px-3 py-2 text-sm"
-                        onChange={async (e) => {
-                          const val = e.target.value;
-                          if (val.length > 1) {
-                            const res = await getSystemUsersForMapping(val);
-                            const users = res.data || [];
-                            if (users.length > 0) {
-                              const updatedMapping = bulkMapping.filter(m => m.deviceUserId !== devId);
-                              updatedMapping.push({ userId: users[0]._id, deviceUserId: devId, userName: users[0].name });
-                              setBulkMapping(updatedMapping);
-                            }
-                          }
-                        }}
-                      />
-                    </div>
-                    {existingMapping && (
-                      <p className="text-xs text-green-600 mt-1">✓ {existingMapping.userName || 'تم الاختيار'}</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={handleBulkMap}
-                disabled={mappingLoading || !bulkMapping.length}
-                className="flex-1 py-2.5 bg-secondary text-white rounded-lg font-medium hover:bg-secondary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <FaLink className="w-4 h-4" />
-                {mappingLoading ? 'جاري الربط...' : `ربط ${bulkMapping.length} مستخدم`}
-              </button>
-              <button
-                onClick={() => setShowBulkModal(false)}
-                className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

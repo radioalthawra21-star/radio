@@ -75,15 +75,15 @@ const taskSchema = new mongoose.Schema({
     default: 0
   },
   
-  // Start time
+  // Start time (HH:mm format)
   startTime: {
-    type: Date,
+    type: String,
     default: null
   },
   
-  // End time
+  // End time (HH:mm format)
   endTime: {
-    type: Date,
+    type: String,
     default: null
   },
   
