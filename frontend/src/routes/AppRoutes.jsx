@@ -10,6 +10,7 @@ import { payrollRoutes } from './PayrollRoutes';
 import { newsRoutes } from './NewsRoutes';
 import { selfServiceRoutes } from './SelfServiceRoutes';
 import { financialMiscRoutes } from './FinancialMiscRoutes';
+import { workflowRoutes } from './WorkflowRoutes';
 
 export default function AppRoutes({ user, onLogout }) {
   return (
@@ -27,6 +28,7 @@ export default function AppRoutes({ user, onLogout }) {
               {newsRoutes}
               {selfServiceRoutes}
               {financialMiscRoutes}
+              {workflowRoutes}
             </Routes>
           </Layout>
         </ProtectedRoute>

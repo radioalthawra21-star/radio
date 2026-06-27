@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Card from '../../components/common/Card';
 
 const WEIGHTS_KEY = 'evaluationWeights';
+const WORKFLOW_SETTINGS_KEY = 'workflowSettings';
 
 const DEFAULT_WEIGHTS = {
   taskCompletion: 25,
@@ -19,8 +20,15 @@ const WEIGHT_RANGES = {
   adherence: { min: 0, max: 30, label: 'الالتزام' }
 };
 
+const DEFAULT_WORKFLOW_SETTINGS = {
+  enableStageNotifications: true,
+  enableApprovalNotifications: true,
+  autoArchiveDays: 30
+};
+
 const Settings = () => {
   const [weights, setWeights] = useState(DEFAULT_WEIGHTS);
+  const [workflowSettings, setWorkflowSettings] = useState(DEFAULT_WORKFLOW_SETTINGS);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -30,6 +38,14 @@ const Settings = () => {
         setWeights(JSON.parse(stored));
       } catch (e) {
         console.error('Error loading weights:', e);
+      }
+    }
+    const wfStored = localStorage.getItem(WORKFLOW_SETTINGS_KEY);
+    if (wfStored) {
+      try {
+        setWorkflowSettings(JSON.parse(wfStored));
+      } catch (e) {
+        console.error('Error loading workflow settings:', e);
       }
     }
   }, []);
@@ -45,14 +61,17 @@ const Settings = () => {
 
   const handleSave = () => {
     localStorage.setItem(WEIGHTS_KEY, JSON.stringify(weights));
+    localStorage.setItem(WORKFLOW_SETTINGS_KEY, JSON.stringify(workflowSettings));
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
   const handleReset = () => {
-    if (window.confirm('هل أنت متأكد من إعادة تعيين الأوزان الافتراضية؟')) {
+    if (window.confirm('هل أنت متأكد من إعادة تعيين الإعدادات الافتراضية؟')) {
       setWeights(DEFAULT_WEIGHTS);
+      setWorkflowSettings(DEFAULT_WORKFLOW_SETTINGS);
       localStorage.removeItem(WEIGHTS_KEY);
+      localStorage.removeItem(WORKFLOW_SETTINGS_KEY);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     }
@@ -121,9 +140,38 @@ const Settings = () => {
         </Card>
       </div>
 
+      <div className="mt-8">
+        <Card>
+          <h2 className="text-xl font-bold text-dark mb-6">إعدادات سير العمل</h2>
+          <div className="space-y-4">
+            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer">
+              <span className="font-medium">إشعارات المراحل</span>
+              <input type="checkbox" checked={workflowSettings.enableStageNotifications}
+                onChange={(e) => setWorkflowSettings(prev => ({ ...prev, enableStageNotifications: e.target.checked }))}
+                className="w-5 h-5 rounded border-gray-300 text-primary"
+              />
+            </label>
+            <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer">
+              <span className="font-medium">إشعارات الموافقات</span>
+              <input type="checkbox" checked={workflowSettings.enableApprovalNotifications}
+                onChange={(e) => setWorkflowSettings(prev => ({ ...prev, enableApprovalNotifications: e.target.checked }))}
+                className="w-5 h-5 rounded border-gray-300 text-primary"
+              />
+            </label>
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <span className="font-medium">أرشفة تلقائية (أيام)</span>
+              <input type="number" min="1" max="365" value={workflowSettings.autoArchiveDays}
+                onChange={(e) => setWorkflowSettings(prev => ({ ...prev, autoArchiveDays: parseInt(e.target.value) || 30 }))}
+                className="input w-20 text-center en-num"
+              />
+            </div>
+          </div>
+        </Card>
+      </div>
+
       <div className="flex gap-4 mt-8">
         <button onClick={handleSave} className="btn btn-primary">
-          حفظ الأوزان
+          حفظ الإعدادات
         </button>
         <button onClick={handleReset} className="btn btn-outline">
           إعادة تعيين

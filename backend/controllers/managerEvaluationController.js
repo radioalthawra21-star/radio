@@ -137,7 +137,11 @@ exports.checkSubmissionStatus = async (req, res) => {
 // Get managers for evaluation (for employees to select)
 exports.getManagers = async (req, res) => {
   try {
-    const managers = await User.find({ role: 'manager', isActive: true })
+    const filter = { role: 'manager', isActive: true };
+    if (req.user.role === 'employee' && req.user.department) {
+      filter.department = req.user.department;
+    }
+    const managers = await User.find(filter)
       .select('_id name department');
     
     res.json({

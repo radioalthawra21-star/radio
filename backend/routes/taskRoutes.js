@@ -20,7 +20,12 @@ const {
   getDailySummary,
   getWeeklySummary,
   getTaskReports,
-  getTotalTasks
+  getTotalTasks,
+  getProposals,
+  approveProposal,
+  rejectProposal,
+  addEmployeeNotes,
+  getDepartmentTasks
 } = require('../controllers/taskController');
 const { protect, managerOrAdmin, adminOnly, adminOrHR } = require('../middleware/authMiddleware');
 
@@ -51,6 +56,12 @@ router.get('/reports', protect, managerOrAdmin, getTaskReports);
 // GET /api/tasks/total - Get total tasks count (all time)
 router.get('/total', protect, getTotalTasks);
 
+// GET /api/tasks/proposals - Get pending proposals (manager)
+router.get('/proposals', protect, managerOrAdmin, getProposals);
+
+// GET /api/tasks/department - Get department tasks (manager)
+router.get('/department', protect, managerOrAdmin, getDepartmentTasks);
+
 // GET /api/tasks/:id - Get task by ID
 router.get('/:id', protect, getTaskById);
 
@@ -60,11 +71,20 @@ router.put('/:id', protect, updateTask);
 // PUT /api/tasks/:id/status - Update task status
 router.put('/:id/status', protect, updateTaskStatus);
 
+// PUT /api/tasks/:id/notes - Add employee notes
+router.put('/:id/notes', protect, addEmployeeNotes);
+
 // POST /api/tasks/:id/evaluate - Evaluate task (manager)
 router.post('/:id/evaluate', protect, managerOrAdmin, evaluateTask);
 
 // POST /api/tasks/:id/final-approve - Final approve (admin)
 router.post('/:id/final-approve', protect, adminOnly, finalApproveTask);
+
+// POST /api/tasks/:id/approve-proposal - Approve a proposal (manager)
+router.post('/:id/approve-proposal', protect, managerOrAdmin, approveProposal);
+
+// POST /api/tasks/:id/reject-proposal - Reject a proposal (manager)
+router.post('/:id/reject-proposal', protect, managerOrAdmin, rejectProposal);
 
 // DELETE /api/tasks/:id - Delete task
 router.delete('/:id', protect, deleteTask);

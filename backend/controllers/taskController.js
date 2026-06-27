@@ -3,8 +3,12 @@
  * Handles all task-related operations
  */
 
-const { Task, TaskStatus, TaskDifficulty } = require('../models/Task');
+const { Task, TaskStatus, TaskDifficulty, TaskPriority, TaskKanbanStatus, WorkflowStatus } = require('../models/Task');
 const { User, UserRole } = require('../models/User');
+const Workflow = require('../models/Workflow');
+const TaskTimeline = require('../models/TaskTimeline');
+const TaskHistory = require('../models/TaskHistory');
+const Department = require('../models/Department');
 const { Notification, NotificationType } = require('../models/Notification');
 
 /**
@@ -23,7 +27,10 @@ const createTask = async (req, res) => {
       endTime,
       isUnusual,
       taskDate,
-      dueDate
+      dueDate,
+      priority,
+      workflowId,
+      isProposal
     } = req.body;
 
     // Validate required fields
@@ -43,12 +50,26 @@ const createTask = async (req, res) => {
       difficulty: difficulty || TaskDifficulty.MEDIUM,
       duration,
       isUnusual: isUnusual || false,
+      isProposal: isProposal || false,
       taskDate: taskDate || new Date(),
-      status: TaskStatus.PENDING
+      status: TaskStatus.PENDING,
+      priority: priority || TaskPriority.MEDIUM,
+      kanbanStatus: TaskKanbanStatus.NEW
     };
     if (startTime) taskData.startTime = startTime;
     if (endTime) taskData.endTime = endTime;
     if (dueDate) taskData.dueDate = dueDate;
+
+    // Link to workflow template if provided
+    if (workflowId) {
+      const workflow = await Workflow.findById(workflowId);
+      if (!workflow || !workflow.isActive) {
+        return res.status(400).json({ success: false, message: 'سير العمل غير موجود أو غير نشط' });
+      }
+      taskData.workflowId = workflow._id;
+      taskData.currentStage = 0;
+      taskData.workflowStatus = WorkflowStatus.IN_PROGRESS;
+    }
 
     const task = await Task.create(taskData);
 
@@ -56,19 +77,85 @@ const createTask = async (req, res) => {
     await task.populate('assignedTo', 'name email department');
     await task.populate('createdBy', 'name');
 
-    // Create notifications for assigned employees and track if any were created
+    // Set journey tracking fields
+    task.lastAction = 'created';
+    task.lastActionAt = new Date();
+    task.journeyStartedAt = new Date();
+    if (assignedTo && assignedTo.length > 0) {
+      const firstUser = await User.findById(assignedTo[0]);
+      if (firstUser && firstUser.department) {
+        const dept = await Department.findOne({ name: firstUser.department });
+        if (dept) task.currentDepartment = dept._id;
+      }
+    }
+    await task.save();
+
+    // Record journey history
+    await TaskHistory.record({
+      task: task._id, actionType: 'created',
+      performedBy: req.user._id,
+      toStatus: TaskStatus.PENDING,
+      notes: `تم إنشاء المهمة: ${title}`
+    });
+
+    // Log timeline entry for workflow-linked tasks
+    if (workflowId) {
+      await TaskTimeline.log({
+        task: task._id, action: 'created', user: req.user._id,
+        description: `تم إنشاء المهمة: ${title}`
+      });
+      await TaskTimeline.log({
+        task: task._id, action: 'stage_transitioned', user: req.user._id,
+        toStage: 0, description: 'بدأت المرحلة الأولى من سير العمل'
+      });
+    }
+
+    // Create notifications
     let notificationCreated = false;
-    for (const userId of task.assignedTo) {
-      const uid = userId._id ? userId._id.toString() : userId.toString();
-      if (uid !== req.user._id.toString()) {
+    if (isProposal) {
+      // Proposal: notify the direct manager instead of the employee
+      const manager = await User.findOne({ role: UserRole.MANAGER, department: req.user.department });
+      if (manager) {
         await Notification.createNotification(
-          userId,
-          NotificationType.TASK_ASSIGNED,
-          'مهمة جديدة',
-          `تم إسناد مهمة "${title}" إليك`,
+          manager._id,
+          NotificationType.TASK_PROPOSAL,
+          'اقتراح مهمة جديد',
+          `قدم ${req.user.name} اقتراح مهمة "${title}" للموافقة`,
           task._id
         );
         notificationCreated = true;
+      }
+    } else {
+      // Normal task: notify assigned employees (except self)
+      for (const userId of task.assignedTo) {
+        const uid = userId._id ? userId._id.toString() : userId.toString();
+        if (uid !== req.user._id.toString()) {
+          await Notification.createNotification(
+            userId,
+            NotificationType.TASK_ASSIGNED,
+            'مهمة جديدة',
+            `تم إسناد مهمة "${title}" إليك`,
+            task._id
+          );
+          notificationCreated = true;
+        }
+      }
+      // Notify department manager when employee creates/assigns a task to themselves
+      if (req.user.role === UserRole.EMPLOYEE) {
+        const manager = await User.findOne({ role: UserRole.MANAGER, department: req.user.department });
+        if (manager) {
+          const notif = await Notification.createNotification(
+            manager._id,
+            NotificationType.TASK_ASSIGNED,
+            'مهمة جديدة من موظف',
+            `أسند ${req.user.name} مهمة "${title}" إلى نفسه`,
+            task._id
+          );
+          if (global.io) {
+            global.io.to(manager._id.toString()).emit('notification', notif);
+          }
+          notificationCreated = true;
+        }
       }
     }
 
@@ -243,7 +330,7 @@ const getTasksToApprove = async (req, res) => {
  */
 const updateTaskStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, rejectionReason, employeeNotes } = req.body;
     
     const task = await Task.findById(req.params.id);
     
@@ -265,6 +352,8 @@ const updateTaskStatus = async (req, res) => {
       });
     }
 
+    const oldStatus = task.status;
+
     // Update status
     task.status = status;
     
@@ -273,16 +362,60 @@ const updateTaskStatus = async (req, res) => {
       task.endTime = new Date();
     }
 
+    // If rejecting, store reason
+    if (status === TaskStatus.REJECTED) {
+      task.rejectionReason = rejectionReason || '';
+    }
+
+    // Store employee notes if provided
+    if (employeeNotes !== undefined) {
+      task.employeeNotes = employeeNotes;
+    }
+
+    task.lastAction = `status_${status}`;
+    task.lastActionAt = new Date();
+
+    // Sync kanbanStatus with task status
+    const statusToKanban = {
+      [TaskStatus.PENDING]: TaskKanbanStatus.NEW,
+      [TaskStatus.IN_PROGRESS]: TaskKanbanStatus.IN_PROGRESS,
+      [TaskStatus.COMPLETED]: TaskKanbanStatus.PENDING_REVIEW,
+      [TaskStatus.REJECTED]: TaskKanbanStatus.REJECTED
+    };
+    if (statusToKanban[status]) {
+      task.kanbanStatus = statusToKanban[status];
+    }
+
     await task.save();
 
-    // Create notification for task creator
-    await Notification.createNotification(
-      task.createdBy,
-      NotificationType.TASK_COMPLETED,
-      'تم إكمال المهمة',
-      `تم إكمال المهمة "${task.title}"`,
-      task._id
-    );
+    // Record journey history
+    await TaskHistory.record({
+      task: task._id, actionType: 'status_changed',
+      performedBy: req.user._id,
+      fromStatus: oldStatus, toStatus: status,
+      notes: `تغيرت حالة المهمة من ${oldStatus} إلى ${status}`
+    });
+
+    // Notify manager when task is completed or rejected
+    if (status === TaskStatus.COMPLETED || status === TaskStatus.REJECTED) {
+      const employee = await User.findById(req.user._id);
+      if (employee) {
+        const manager = await User.findOne({ role: UserRole.MANAGER, department: employee.department });
+        if (manager) {
+          const title = status === TaskStatus.COMPLETED ? 'تم إكمال مهمة' : 'تم رفض مهمة';
+          const msg = status === TaskStatus.COMPLETED
+            ? `أكمل ${employee.name} المهمة "${task.title}"`
+            : `رفض ${employee.name} المهمة "${task.title}"${rejectionReason ? `: ${rejectionReason}` : ''}`;
+          await Notification.createNotification(
+            manager._id,
+            NotificationType.TASK_REJECTED,
+            title,
+            msg,
+            task._id
+          );
+        }
+      }
+    }
 
     res.json({
       success: true,
@@ -341,6 +474,18 @@ const evaluateTask = async (req, res) => {
     task.managerApprovalDate = new Date();
 
     await task.save();
+
+    task.lastAction = 'evaluated';
+    task.lastActionAt = new Date();
+    await task.save();
+
+    // Record journey history
+    await TaskHistory.record({
+      task: task._id, actionType: 'task_evaluated',
+      performedBy: req.user._id,
+      fromStatus: TaskStatus.COMPLETED, toStatus: TaskStatus.APPROVED,
+      notes: notes || `تم التقييم بـ ${score} درجة`
+    });
 
     // Create notifications for assigned employees
     for (const userId of task.assignedTo) {
@@ -409,7 +554,17 @@ const finalApproveTask = async (req, res) => {
 
     // Update status
     task.status = TaskStatus.FINAL_APPROVED;
+    task.lastAction = 'final_approved';
+    task.lastActionAt = new Date();
     await task.save();
+
+    // Record journey history
+    await TaskHistory.record({
+      task: task._id, actionType: 'task_final_approved',
+      performedBy: req.user._id,
+      fromStatus: TaskStatus.APPROVED, toStatus: TaskStatus.FINAL_APPROVED,
+      notes: 'تمت الموافقة النهائية على المهمة'
+    });
 
     // Create notifications
     for (const userId of task.assignedTo) {
@@ -446,7 +601,8 @@ const getTaskById = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id)
       .populate('assignedTo', 'name email department')
-      .populate('createdBy', 'name email');
+      .populate('createdBy', 'name email')
+      .populate('workflowId', 'name stages');
     
     if (!task) {
       return res.status(404).json({
@@ -522,6 +678,27 @@ const updateTask = async (req, res) => {
     await task.save();
     await task.populate('assignedTo', 'name email department');
 
+    // Notify assigned employees when manager modifies the task
+    const isManagerAction = req.user.role === 'manager' || req.user.role === 'admin';
+    if (isManagerAction) {
+      const taskCreator = await User.findById(task.createdBy);
+      for (const userId of task.assignedTo) {
+        const uid = userId._id ? userId._id.toString() : userId.toString();
+        if (uid !== req.user._id.toString()) {
+          const notif = await Notification.createNotification(
+            uid,
+            NotificationType.TASK_UPDATED,
+            'تم تعديل مهمة',
+            `تم تعديل المهمة "${task.title}" بواسطة ${req.user.name}`,
+            task._id
+          );
+          if (global.io) {
+            global.io.to(uid.toString()).emit('notification', notif);
+          }
+        }
+      }
+    }
+
     res.json({
       success: true,
       message: 'تم تحديث المهمة بنجاح',
@@ -553,11 +730,12 @@ const deleteTask = async (req, res) => {
       });
     }
 
-    // Check permission
+    // Check permission (creator, assigned employee, or manager/admin)
     const isCreator = task.createdBy.toString() === req.user._id.toString();
+    const isAssigned = task.assignedTo.some(a => a.toString() === req.user._id.toString());
     const isManager = req.user.role === 'manager' || req.user.role === 'admin';
     
-    if (!isCreator && !isManager) {
+    if (!isCreator && !isAssigned && !isManager) {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بحذف هذه المهمة'
@@ -794,6 +972,220 @@ const getTaskReports = async (req, res) => {
   }
 };
 
+/**
+ * Add employee notes to a task
+ * PUT /api/tasks/:id/notes
+ */
+const addEmployeeNotes = async (req, res) => {
+  try {
+    const { notes } = req.body;
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ success: false, message: 'المهمة غير موجودة' });
+    }
+
+    const isAssigned = task.assignedTo.some(a => a.toString() === req.user._id.toString());
+    if (!isAssigned && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بتعديل هذه المهمة' });
+    }
+
+    task.employeeNotes = notes || '';
+    await task.save();
+
+    res.json({ success: true, message: 'تم حفظ الملاحظة', data: { task } });
+  } catch (error) {
+    console.error('خطأ في حفظ الملاحظة:', error.message);
+    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+  }
+};
+
+/**
+ * Get pending proposals for manager
+ * GET /api/tasks/proposals
+ */
+const getProposals = async (req, res) => {
+  try {
+    const proposals = await Task.find({
+      isProposal: true,
+      status: TaskStatus.PENDING
+    })
+      .populate('createdBy', 'name email department')
+      .populate('assignedTo', 'name email department')
+      .sort({ createdAt: -1 });
+
+    // For managers: filter by their department
+    let filtered = proposals;
+    if (req.user.role === 'manager') {
+      filtered = proposals.filter(p =>
+        p.createdBy?.department === req.user.department
+      );
+    }
+
+    res.json({
+      success: true,
+      data: { proposals: filtered }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب الاقتراحات:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في الخادم'
+    });
+  }
+};
+
+/**
+ * Approve a proposal (manager)
+ * POST /api/tasks/:id/approve-proposal
+ */
+const approveProposal = async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id).populate('createdBy', 'department');
+    if (!task) {
+      return res.status(404).json({ success: false, message: 'المهمة غير موجودة' });
+    }
+    if (!task.isProposal) {
+      return res.status(400).json({ success: false, message: 'هذه المهمة ليست مقترحاً' });
+    }
+    if (task.status !== TaskStatus.PENDING) {
+      return res.status(400).json({ success: false, message: 'تم التعامل مع هذا المقترح مسبقاً' });
+    }
+
+    // Only manager of same department can approve
+    if (req.user.role === 'manager' && req.user.department !== task.createdBy?.department) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بالموافقة على هذا المقترح' });
+    }
+
+    task.isProposal = false;
+    task.lastAction = 'proposal_approved';
+    task.lastActionAt = new Date();
+    await task.save();
+
+    // Record journey history
+    await TaskHistory.record({
+      task: task._id, actionType: 'proposal_approved',
+      performedBy: req.user._id,
+      toStatus: TaskStatus.PENDING,
+      notes: 'تمت الموافقة على الاقتراح وأصبح مهمة رسمية'
+    });
+
+    // Notify the proposer
+    await Notification.createNotification(
+      task.createdBy,
+      NotificationType.TASK_PROPOSAL_APPROVED,
+      'تمت الموافقة على اقتراحك',
+      `تمت الموافقة على اقتراح المهمة "${task.title}"`,
+      task._id
+    );
+
+    res.json({
+      success: true,
+      message: 'تمت الموافقة على الاقتراح بنجاح',
+      data: { task }
+    });
+  } catch (error) {
+    console.error('خطأ في الموافقة على الاقتراح:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في الخادم'
+    });
+  }
+};
+
+/**
+ * Reject a proposal (manager)
+ * POST /api/tasks/:id/reject-proposal
+ */
+const rejectProposal = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ success: false, message: 'المهمة غير موجودة' });
+    }
+    if (!task.isProposal) {
+      return res.status(400).json({ success: false, message: 'هذه المهمة ليست مقترحاً' });
+    }
+
+    // Only manager of same department can reject
+    if (req.user.role === 'manager' && req.user.department !== task.createdBy?.department) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك برفض هذا المقترح' });
+    }
+
+    // Record journey history before deleting
+    await TaskHistory.record({
+      task: task._id, actionType: 'proposal_rejected',
+      performedBy: req.user._id,
+      fromStatus: TaskStatus.PENDING,
+      toStatus: 'rejected',
+      notes: reason || 'تم رفض الاقتراح'
+    });
+
+    // Notify the proposer
+    await Notification.createNotification(
+      task.createdBy,
+      NotificationType.TASK_PROPOSAL_REJECTED,
+      'تم رفض اقتراحك',
+      `تم رفض اقتراح المهمة "${task.title}"${reason ? `: ${reason}` : ''}`,
+      task._id
+    );
+
+    // Delete the proposal
+    await task.deleteOne();
+
+    res.json({
+      success: true,
+      message: 'تم رفض الاقتراح وحذفه',
+      data: { reason }
+    });
+  } catch (error) {
+    console.error('خطأ في رفض الاقتراح:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في الخادم'
+    });
+  }
+};
+
+/**
+ * Get all tasks from department employees (manager view)
+ * GET /api/tasks/department
+ */
+const getDepartmentTasks = async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    // Get employees in manager's department
+    const employees = await User.find({
+      role: UserRole.EMPLOYEE,
+      department: req.user.department
+    });
+    const employeeIds = employees.map(e => e._id);
+
+    const query = {
+      assignedTo: { $in: employeeIds },
+      isProposal: false
+    };
+    if (status) query.status = status;
+
+    const tasks = await Task.find(query)
+      .populate('assignedTo', 'name email department')
+      .populate('createdBy', 'name email department')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { tasks }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب مهام القسم:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في الخادم'
+    });
+  }
+};
+
 module.exports = {
   createTask,
   getMyTasks,
@@ -809,5 +1201,10 @@ module.exports = {
   getDailySummary,
   getWeeklySummary,
   getTaskReports,
-  getTotalTasks
+  getTotalTasks,
+  getProposals,
+  approveProposal,
+  rejectProposal,
+  addEmployeeNotes,
+  getDepartmentTasks
 };

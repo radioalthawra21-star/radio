@@ -27,7 +27,7 @@ const cvUploadMiddleware = require('../middleware/cvUploadMiddleware');
 const cvUpload = cvUploadMiddleware.upload;
 
 // GET /api/users/employees - Get all employees
-router.get('/employees', protect, managerOrAdmin, getAllEmployees);
+router.get('/employees', protect, getAllEmployees);
 
 // GET /api/users - Get all users (for messaging)
 router.get('/', protect, async (req, res) => {

@@ -3,11 +3,19 @@
  * Employees can add their daily tasks
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTask } from '../../services/taskService';
+import { getWorkflows } from '../../services/workflowService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
+
+const PRIORITY_OPTIONS = [
+  { value: 'low', label: 'منخفضة', icon: '🟢' },
+  { value: 'medium', label: 'متوسطة', icon: '🟡' },
+  { value: 'high', label: 'عالية', icon: '🟠' },
+  { value: 'urgent', label: 'عاجلة', icon: '🔴' }
+];
 
 const AddTask = () => {
   const navigate = useNavigate();
@@ -15,6 +23,7 @@ const AddTask = () => {
   const isManager = currentUser?.role === 'manager';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [workflows, setWorkflows] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -22,8 +31,22 @@ const AddTask = () => {
     startTime: '',
     endTime: '',
     taskDate: new Date().toISOString().split('T')[0],
-    isUnusual: false
+    isUnusual: false,
+    isProposal: false,
+    priority: 'medium',
+    workflowId: ''
   });
+
+  useEffect(() => {
+    fetchWorkflows();
+  }, []);
+
+  const fetchWorkflows = async () => {
+    try {
+      const res = await getWorkflows({ isActive: true });
+      if (res.success) setWorkflows(res.data.workflows || []);
+    } catch (err) { console.error(err); }
+  };
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -144,6 +167,46 @@ const AddTask = () => {
             </div>
           </div>
 
+          {/* Priority */}
+          <div className="mb-4">
+            <label className="label">الأولوية</label>
+            <div className="flex gap-2 flex-wrap">
+              {PRIORITY_OPTIONS.map(p => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setFormData(f => ({ ...f, priority: p.value }))}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    formData.priority === p.value
+                      ? 'border-primary bg-primary/10 text-primary font-bold'
+                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {p.icon} {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Workflow Template */}
+          <div className="mb-6">
+            <label className="label">قالب سير العمل (اختياري)</label>
+            <select
+              name="workflowId"
+              value={formData.workflowId}
+              onChange={handleChange}
+              className="input"
+            >
+              <option value="">-- بدون سير عمل --</option>
+              {workflows.map(w => (
+                <option key={w._id} value={w._id}>{w.name} ({w.stages?.length || 0} مراحل)</option>
+              ))}
+            </select>
+            <p className="text-sm text-gray-500 mt-1">
+              عند اختيار قالب سير عمل، ستظهر المهمة في لوحة سير العمل مع مراحل الاعتماد
+            </p>
+          </div>
+
           {/* Unusual Task Checkbox */}
           <div className="mb-6">
             <label className="flex items-center gap-3 cursor-pointer">
@@ -160,6 +223,25 @@ const AddTask = () => {
               حدد هذه الخانة إذا كانت المهمة تتطلب جهداً إضافياً أو خارج نطاق العمل المعتاد
             </p>
           </div>
+
+          {/* Proposal Checkbox */}
+          {!isManager && (
+            <div className="mb-6">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isProposal"
+                  checked={formData.isProposal}
+                  onChange={handleChange}
+                  className="w-5 h-5 text-primary rounded focus:ring-primary"
+                />
+                <span className="text-dark font-semibold">تقديم كاقتراح</span>
+              </label>
+              <p className="text-sm text-gray-500 mt-1 mr-8">
+                عند التفعيل، سيتم إرسال المهمة كاقتراح للمسؤول المباشر للموافقة عليها قبل أن تصبح مهمة رسمية
+              </p>
+            </div>
+          )}
 
           {/* Submit Buttons */}
           <div className="flex gap-4">

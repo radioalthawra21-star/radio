@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Employee Task Management System - Backend Server
  * Main entry point for the API
  * Modified for cloud deployment (Render)
@@ -45,15 +45,21 @@ const coupletPromptRoutes = require('./routes/coupletPromptRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
 const zktecoRoutes = require('./routes/zktecoRoutes');
 const supervisorRoutes = require('./routes/supervisorRoutes');
+const workflowRoutes = require('./routes/workflowRoutes');
+const workflowTaskRoutes = require('./routes/workflowTaskRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const taskHistoryRoutes = require('./routes/taskHistoryRoutes');
 
 const holidayRoutes = require('./routes/holidayRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const setupChatSocket = require('./services/chatSocket');
 
 // Initialize Express app
 const app = express();
 const server = http.createServer(app);
 
-// === إعدادات CORS للسحابة ===
-// ✅ Fixed: CORS configuration for Netlify domain and localhost development
+// === ط¥ط¹ط¯ط§ط¯ط§طھ CORS ظ„ظ„ط³ط­ط§ط¨ط© ===
+// âœ… Fixed: CORS configuration for Netlify domain and localhost development
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
@@ -121,6 +127,8 @@ io.on('connection', (socket) => {
 
 global.io = io;
 
+setupChatSocket(io);
+
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -157,29 +165,29 @@ const initializeData = async () => {
         username: 'admin',
         email: 'admin@radio.com',
         password: process.env.ADMIN_PASSWORD || 'admin123',
-        name: 'المدير العام',
+        name: 'ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…',
         role: 'admin',
         department: null,
         isActive: true
       });
-      console.log('✅ تم إنشاء حساب المدير العام (admin)');
+      console.log('âœ… طھظ… ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨ ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… (admin)');
     }
     // Force reset admin password on every start
     adminUser.password = process.env.ADMIN_PASSWORD || 'admin123';
     adminUser.isActive = true;
     await adminUser.save();
-    console.log('✅ تم تحديث كلمة مرور المدير العام');
-    // منح مصطفى الخشن صلاحيات كاملة كالمدير العام
+    console.log('âœ… طھظ… طھط­ط¯ظٹط« ظƒظ„ظ…ط© ظ…ط±ظˆط± ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…');
+    // ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© ظƒط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…
     const mustafaUser = await User.findOne({ username: 'mostafa' });
     if (mustafaUser) {
       mustafaUser.role = 'hr';
-      mustafaUser.department = 'الموارد البشرية';
+      mustafaUser.department = 'ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط©';
       mustafaUser.isActive = true;
       mustafaUser.password = process.env.MOSTAFA_PASSWORD || '123456';
       await mustafaUser.save();
-      console.log('✅ تم منح مصطفى الخشن صلاحيات كاملة (mostafa / admin)');
+      console.log('âœ… طھظ… ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© (mostafa / admin)');
     } else {
-      console.log('⚠️ لم يتم العثور على حساب مصطفى الخشن (mostafa)');
+      console.log('âڑ ï¸ڈ ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط­ط³ط§ط¨ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† (mostafa)');
     }
 
     // Initialize default settings
@@ -191,14 +199,14 @@ const initializeData = async () => {
     // Seed default editorial prompts
     await Prompt.seedDefaults();
   } catch (error) {
-    console.error('خطأ في تهيئة البيانات:', error.message);
+    console.error('ط®ط·ط£ ظپظٹ طھظ‡ظٹط¦ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ:', error.message);
   }
 };
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/tasks', taskRoutes);
+app.use('/api/tasks', workflowTaskRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/bonuses', bonusRoutes);
@@ -220,6 +228,11 @@ app.use('/api/financial-misc', financialMiscRoutes);
 app.use('/api/pdf', pdfRoutes);
 app.use('/api/zkteco', zktecoRoutes);
 app.use('/api/supervisor', supervisorRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/workflows', workflowRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/tasks', taskHistoryRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.use('/api/holidays', holidayRoutes);
 
@@ -229,13 +242,13 @@ app.use('/supervisor', express.static(path.join(__dirname, 'public')));
 // Serve built frontend
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
-// Health check endpoint (مهم لـ Render)
+// Health check endpoint (ظ…ظ‡ظ… ظ„ظ€ Render)
 app.get('/api/health', (req, res) => {
   const mongoose = require('mongoose');
   const dbName = mongoose.connection?.db?.databaseName || 'not connected';
   res.json({ 
     status: 'success', 
-    message: 'الخادم يعمل بشكل صحيح',
+    message: 'ط§ظ„ط®ط§ط¯ظ… ظٹط¹ظ…ظ„ ط¨ط´ظƒظ„ طµط­ظٹط­',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     database: dbName
@@ -250,7 +263,7 @@ app.get('/api/docs', (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: '🚀 Employee Task Management API is running',
+    message: 'ًںڑ€ Employee Task Management API is running',
     version: '1.0.0',
     docs: '/api/health',
     swagger: '/api/docs'
@@ -259,15 +272,16 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('خطأ في الخادم:', err);
+  console.error('ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…:', err.message || err);
+  console.error(err);
   res.status(500).json({
     success: false,
-    message: 'حدث خطأ في الخادم',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: 'ط­ط¯ط« ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…',
+    error: err.message || 'Unknown error'
   });
 });
 
-// SPA fallback — serve index.html for non-API routes
+// SPA fallback â€” serve index.html for non-API routes
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) return next();
   res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
@@ -277,36 +291,36 @@ app.use((req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'المسار غير موجود'
+    message: 'ط§ظ„ظ…ط³ط§ط± ط؛ظٹط± ظ…ظˆط¬ظˆط¯'
   });
 });
 
-// === إعدادات التشغيل للسحابة ===
+// === ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھط´ط؛ظٹظ„ ظ„ظ„ط³ط­ط§ط¨ط© ===
 const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0'; // مهم ليعمل على Render
+const HOST = '0.0.0.0'; // ظ…ظ‡ظ… ظ„ظٹط¹ظ…ظ„ ط¹ظ„ظ‰ Render
 
-// دالة بدء التشغيل
+// ط¯ط§ظ„ط© ط¨ط¯ط، ط§ظ„طھط´ط؛ظٹظ„
 const startServer = () => {
   server.listen(PORT, HOST, () => {
-    console.log(`✅ الخادم يعمل على ${HOST}:${PORT}`);
-    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`âœ… ط§ظ„ط®ط§ط¯ظ… ظٹط¹ظ…ظ„ ط¹ظ„ظ‰ ${HOST}:${PORT}`);
+    console.log(`ًںŒگ Environment: ${process.env.NODE_ENV || 'development'}`);
     initializeData();
   });
 };
 
-// التعامل مع إشارات الإغلاق الآمن
+// ط§ظ„طھط¹ط§ظ…ظ„ ظ…ط¹ ط¥ط´ط§ط±ط§طھ ط§ظ„ط¥ط؛ظ„ط§ظ‚ ط§ظ„ط¢ظ…ظ†
 process.on('SIGTERM', () => {
-  console.log('🔄 SIGTERM received, shutting down gracefully');
+  console.log('ًں”„ SIGTERM received, shutting down gracefully');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('🔄 SIGINT received, shutting down gracefully');
+  console.log('ًں”„ SIGINT received, shutting down gracefully');
   process.exit(0);
 });
 
-// بدء السيرفر (بعد التأكد من اتصال قاعدة البيانات)
-dbReady.then(() => startServer()).catch(err => { console.error('❌ فشل بدء الخادم:', err.message); process.exit(1); });
+// ط¨ط¯ط، ط§ظ„ط³ظٹط±ظپط± (ط¨ط¹ط¯ ط§ظ„طھط£ظƒط¯ ظ…ظ† ط§طھطµط§ظ„ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ)
+dbReady.then(() => startServer()).catch(err => { console.error('â‌Œ ظپط´ظ„ ط¨ط¯ط، ط§ظ„ط®ط§ط¯ظ…:', err.message); process.exit(1); });
 
-// تصدير التطبيق للاستخدام في الاختبارات أو الـ serverless
+// طھطµط¯ظٹط± ط§ظ„طھط·ط¨ظٹظ‚ ظ„ظ„ط§ط³طھط®ط¯ط§ظ… ظپظٹ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ ط£ظˆ ط§ظ„ظ€ serverless
 module.exports = app;

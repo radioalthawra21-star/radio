@@ -198,6 +198,24 @@
     from { transform: translateX(20px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes slideInLeft {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-slideInLeft {
+    animation: slideInLeft 0.25s ease-out;
+  }
   
   .custom-scrollbar::-webkit-scrollbar {
     width: 8px;

@@ -25,7 +25,20 @@ const NotificationType = {
   PAYROLL: 'payroll',
   RECRUITMENT: 'recruitment',
   PERFORMANCE: 'performance',
-  PROMOTION: 'promotion'
+  PROMOTION: 'promotion',
+  WORKFLOW_STAGE_ASSIGNED: 'workflow_stage_assigned',
+  WORKFLOW_APPROVAL_REQUESTED: 'workflow_approval_requested',
+  WORKFLOW_STAGE_APPROVED: 'workflow_stage_approved',
+  WORKFLOW_STAGE_REJECTED: 'workflow_stage_rejected',
+  WORKFLOW_TASK_COMPLETED: 'workflow_task_completed',
+  TASK_PROPOSAL: 'task_proposal',
+  TASK_PROPOSAL_APPROVED: 'task_proposal_approved',
+  TASK_PROPOSAL_REJECTED: 'task_proposal_rejected',
+  CHAT_MESSAGE: 'chat_message',
+  CHAT_MENTION: 'chat_mention',
+  CHAT_ADDED: 'chat_added',
+  CHAT_TASK_UPDATED: 'chat_task_updated',
+  TASK_UPDATED: 'task_updated'
 };
 
 // Notification Schema
@@ -56,6 +69,13 @@ const notificationSchema = new mongoose.Schema({
     required: true
   },
   
+  // Related chat (optional)
+  relatedChat: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Chat',
+    default: null
+  },
+
   // Related task (optional)
   relatedTask: {
     type: mongoose.Schema.Types.ObjectId,

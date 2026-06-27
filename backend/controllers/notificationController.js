@@ -11,7 +11,7 @@ const { Notification, NotificationType } = require('../models/Notification');
  */
 const getMyNotifications = async (req, res) => {
   try {
-    const { unreadOnly } = req.query;
+    const { unreadOnly, excludeChat } = req.query;
     
     const query = {
       user: req.user._id
@@ -19,6 +19,10 @@ const getMyNotifications = async (req, res) => {
 
     if (unreadOnly === 'true') {
       query.isRead = false;
+    }
+
+    if (excludeChat === 'true') {
+      query.type = { $nin: ['chat_message', 'chat_mention', 'chat_added', 'chat_task_updated'] };
     }
 
     const notifications = await Notification.find(query)

@@ -11,13 +11,16 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import { SocketProvider } from './context/SocketContext';
+import { ChatProvider } from './context/ChatContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <SocketProvider>
-        <App />
+        <ChatProvider>
+          <App />
+        </ChatProvider>
       </SocketProvider>
     </BrowserRouter>
   </React.StrictMode>

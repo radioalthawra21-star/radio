@@ -47,9 +47,15 @@ export const updateTask = async (taskId, taskData) => {
   return response.data;
 };
 
-// Update task status
-export const updateTaskStatus = async (taskId, status) => {
-  const response = await api.put(`/tasks/${taskId}/status`, { status });
+// Update task status (with optional rejection reason)
+export const updateTaskStatus = async (taskId, status, extra = {}) => {
+  const response = await api.put(`/tasks/${taskId}/status`, { status, ...extra });
+  return response.data;
+};
+
+// Add employee notes to a task
+export const addTaskNotes = async (taskId, notes) => {
+  const response = await api.put(`/tasks/${taskId}/notes`, { notes });
   return response.data;
 };
 
@@ -95,6 +101,30 @@ export const getTotalTasks = async () => {
   return response.data;
 };
 
+// Get pending proposals (manager)
+export const getProposals = async () => {
+  const response = await api.get('/tasks/proposals');
+  return response.data;
+};
+
+// Approve a proposal (manager)
+export const approveProposal = async (taskId) => {
+  const response = await api.post(`/tasks/${taskId}/approve-proposal`);
+  return response.data;
+};
+
+// Reject a proposal (manager)
+export const rejectProposal = async (taskId, reason = '') => {
+  const response = await api.post(`/tasks/${taskId}/reject-proposal`, { reason });
+  return response.data;
+};
+
+// Get all tasks from department employees (manager)
+export const getDepartmentTasks = async (filters = {}) => {
+  const response = await api.get('/tasks/department', { params: filters });
+  return response.data;
+};
+
 export default {
   createTask,
   getMyTasks,
@@ -110,5 +140,10 @@ export default {
   getDailySummary,
   getWeeklySummary,
   getTaskReports,
-  getTotalTasks
+  getTotalTasks,
+  getProposals,
+  approveProposal,
+  rejectProposal,
+  addTaskNotes,
+  getDepartmentTasks
 };

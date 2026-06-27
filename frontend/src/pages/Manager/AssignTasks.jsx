@@ -5,14 +5,23 @@
 
 import { useState, useEffect } from 'react';
 import { createTask } from '../../services/taskService';
+import { getWorkflows } from '../../services/workflowService';
 import { playTaskAssignedSound } from '../../utils/audioUtils';
 import { getEmployeesByDepartment, getAllUsers } from '../../services/userService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
+const PRIORITY_OPTIONS = [
+  { value: 'low', label: 'منخفضة', icon: '🟢' },
+  { value: 'medium', label: 'متوسطة', icon: '🟡' },
+  { value: 'high', label: 'عالية', icon: '🟠' },
+  { value: 'urgent', label: 'عاجلة', icon: '🔴' }
+];
+
 const AssignTasks = () => {
   const user = getStoredUser();
   const [employees, setEmployees] = useState([]);
+  const [workflows, setWorkflows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingEmployees, setFetchingEmployees] = useState(true);
   const [error, setError] = useState('');
@@ -25,12 +34,22 @@ const AssignTasks = () => {
     duration: 1,
     dueDate: '',
     dueTime: '',
-    isUnusual: false
+    isUnusual: false,
+    priority: 'medium',
+    workflowId: ''
   });
 
   useEffect(() => {
     fetchEmployees();
+    fetchWorkflows();
   }, []);
+
+  const fetchWorkflows = async () => {
+    try {
+      const res = await getWorkflows({ isActive: true });
+      if (res.success) setWorkflows(res.data.workflows || []);
+    } catch (err) { console.error(err); }
+  };
 
   const fetchEmployees = async () => {
     try {
@@ -249,6 +268,46 @@ const AssignTasks = () => {
                 className="input"
               />
             </div>
+          </div>
+
+          {/* Priority */}
+          <div className="mb-4">
+            <label className="label">الأولوية</label>
+            <div className="flex gap-2 flex-wrap">
+              {PRIORITY_OPTIONS.map(p => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setFormData(f => ({ ...f, priority: p.value }))}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    formData.priority === p.value
+                      ? 'border-primary bg-primary/10 text-primary font-bold'
+                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {p.icon} {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Workflow Template */}
+          <div className="mb-6">
+            <label className="label">قالب سير العمل (اختياري)</label>
+            <select
+              name="workflowId"
+              value={formData.workflowId}
+              onChange={handleChange}
+              className="input"
+            >
+              <option value="">-- بدون سير عمل --</option>
+              {workflows.map(w => (
+                <option key={w._id} value={w._id}>{w.name} ({w.stages?.length || 0} مراحل)</option>
+              ))}
+            </select>
+            <p className="text-sm text-gray-500 mt-1">
+              عند اختيار قالب سير عمل، ستظهر المهمة في لوحة سير العمل مع مراحل الاعتماد
+            </p>
           </div>
 
           <div className="mb-6">

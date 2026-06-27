@@ -6,8 +6,8 @@
 import api from './api';
 
 // Get my notifications
-export const getMyNotifications = async (unreadOnly = false) => {
-  const response = await api.get('/notifications', { params: { unreadOnly } });
+export const getMyNotifications = async (unreadOnly = false, excludeChat = false) => {
+  const response = await api.get('/notifications', { params: { unreadOnly, excludeChat } });
   return response.data;
 };
 

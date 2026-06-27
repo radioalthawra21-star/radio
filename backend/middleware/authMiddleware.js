@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication Middleware
  * Protects routes and verifies JWT tokens
  */
@@ -13,7 +13,7 @@ let JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   if (process.env.NODE_ENV !== 'production') {
     JWT_SECRET = 'dev-secret-key-2024';
-    console.warn('⚠️ WARNING: Using default JWT_SECRET. Set JWT_SECRET env var for production!');
+    console.warn('âڑ ï¸ڈ WARNING: Using default JWT_SECRET. Set JWT_SECRET env var for production!');
   } else {
     throw new Error('FATAL: JWT_SECRET environment variable is required');
   }
@@ -35,7 +35,7 @@ const protect = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'غير مصرح لك للوصول - يرجى تسجيل الدخول'
+        message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ظ„ظ„ظˆطµظˆظ„ - ظٹط±ط¬ظ‰ طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„'
       });
     }
     
@@ -48,7 +48,7 @@ const protect = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'المستخدم غير موجود'
+        message: 'ط§ظ„ظ…ط³طھط®ط¯ظ… ط؛ظٹط± ظ…ظˆط¬ظˆط¯'
       });
     }
     
@@ -56,7 +56,7 @@ const protect = async (req, res, next) => {
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
-        message: 'حسابك غير نشط - يرجى التواصل مع الإدارة'
+        message: 'ط­ط³ط§ط¨ظƒ ط؛ظٹط± ظ†ط´ط· - ظٹط±ط¬ظ‰ ط§ظ„طھظˆط§طµظ„ ظ…ط¹ ط§ظ„ط¥ط¯ط§ط±ط©'
       });
     }
     
@@ -64,10 +64,10 @@ const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('خطأ في التحقق من التوكن:', error.message);
+    console.error('ط®ط·ط£ ظپظٹ ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„طھظˆظƒظ†:', error.message);
     return res.status(401).json({
       success: false,
-      message: 'توكن غير صالح'
+      message: 'طھظˆظƒظ† ط؛ظٹط± طµط§ظ„ط­'
     });
   }
 };
@@ -82,7 +82,7 @@ const adminOnly = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
     });
   }
 };
@@ -97,7 +97,7 @@ const managerOrAdmin = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
     });
   }
 };
@@ -112,7 +112,7 @@ const employeeOnly = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      message: 'هذه الصفحة للموظفين فقط'
+      message: 'ظ‡ط°ظ‡ ط§ظ„طµظپط­ط© ظ„ظ„ظ…ظˆط¸ظپظٹظ† ظپظ‚ط·'
     });
   }
 };
@@ -136,7 +136,7 @@ const adminOrHR = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
     });
   }
 };
@@ -147,13 +147,13 @@ const adminOrHR = (req, res, next) => {
 const adminOrHRorHrEmployee = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
   const dept = (req.user?.department || '').toString().toLowerCase().trim();
-  const isHrDept = dept === 'hr' || dept === 'الموارد البشرية' || dept.includes('موارد بشرية');
+  const isHrDept = dept === 'hr' || dept === 'ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط©' || dept.includes('ظ…ظˆط§ط±ط¯ ط¨ط´ط±ظٹط©');
   if (role === 'admin' || role === 'hr' || (role === 'employee' && isHrDept)) {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
     });
   }
 };
@@ -168,11 +168,70 @@ const generalManagerOnly = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      message: 'غير مصرح لك بالوصول - هذه الصفحة للمدير العام فقط'
+      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ - ظ‡ط°ظ‡ ط§ظ„طµظپط­ط© ظ„ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… ظپظ‚ط·'
     });
   }
 };
 
+
+/**
+ * Middleware - Observer read-only access
+ */
+const observerReadOnly = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  if (role === 'observer') {
+    if (req.method !== 'GET') {
+      return res.status(403).json({
+        success: false,
+        message: 'المراقب لا يملك صلاحية التعديل'
+      });
+    }
+  }
+  next();
+};
+
+/**
+ * Middleware - Check workflow stage access
+ */
+const workflowAccess = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  if (role === 'admin' || role === 'hr') {
+    return next();
+  }
+  if (role === 'manager' || role === 'observer') {
+    return next();
+  }
+  if (role === 'employee') {
+    const taskId = req.params.id || req.body.taskId;
+    if (taskId) {
+      const Task = require('mongoose').model('Task');
+      Task.findById(taskId).then(task => {
+        if (!task) return res.status(404).json({ success: false, message: 'المهمة غير موجودة' });
+        const isAssigned = task.assignedTo.some(a => a.toString() === req.user._id.toString());
+        const isCreator = task.createdBy.toString() === req.user._id.toString();
+        if (isAssigned || isCreator) return next();
+        return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذه المهمة' });
+      }).catch(() => res.status(500).json({ success: false, message: 'خطأ في التحقق من الصلاحية' }));
+    } else {
+      return next();
+    }
+    return;
+  }
+  next();
+};
+
+/**
+ * Middleware - Department-scoped access
+ */
+const departmentOnly = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  const dept = (req.user?.department || '').toString().toLowerCase().trim();
+  if (role === 'admin' || role === 'hr') {
+    return next();
+  }
+  req.departmentFilter = dept;
+  next();
+};
 module.exports = {
   protect,
   adminOnly,
@@ -181,6 +240,10 @@ module.exports = {
   managerOrAdmin,
   employeeOnly,
   generalManagerOnly,
+  workflowAccess,
+  observerReadOnly,
+  departmentOnly,
   generateToken,
   JWT_SECRET
 };
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Task Model
  * Represents tasks assigned to employees
  */
@@ -11,7 +11,33 @@ const TaskStatus = {
   IN_PROGRESS: 'in_progress',   // In progress
   COMPLETED: 'completed',       // Completed
   APPROVED: 'approved',         // Approved by manager
-  FINAL_APPROVED: 'final_approved'  // Approved by admin
+  FINAL_APPROVED: 'final_approved',  // Approved by admin
+  REJECTED: 'rejected'          // Rejected by employee
+};
+
+const TaskPriority = {
+  LOW: 'low',
+  MEDIUM: 'medium',
+  HIGH: 'high',
+  URGENT: 'urgent'
+};
+
+const TaskKanbanStatus = {
+  NEW: 'new',
+  IN_PROGRESS: 'in_progress',
+  PENDING_REVIEW: 'pending_review',
+  PENDING_APPROVAL: 'pending_approval',
+  COMPLETED: 'completed',
+  REJECTED: 'rejected',
+  TASK_REJECTED: 'task_rejected'
+};
+
+const WorkflowStatus = {
+  NOT_STARTED: 'not_started',
+  IN_PROGRESS: 'in_progress',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  ARCHIVED: 'archived'
 };
 
 // Task difficulty percentages
@@ -68,6 +94,12 @@ const taskSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+
+  // Is this a proposal awaiting manager approval
+  isProposal: {
+    type: Boolean,
+    default: false
+  },
   
   // Work duration in hours
   duration: {
@@ -98,6 +130,18 @@ const taskSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+
+  // Employee notes (on assigned task)
+  employeeNotes: {
+    type: String,
+    default: ''
+  },
+
+  // Rejection reason
+  rejectionReason: {
+    type: String,
+    default: ''
+  },
   
   // Is approved by manager
   isApprovedByManager: {
@@ -121,6 +165,67 @@ const taskSchema = new mongoose.Schema({
   dueDate: {
     type: Date,
     default: null
+  },
+
+  // ---- Workflow Engine Fields ----
+  workflowId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Workflow',
+    default: null
+  },
+  currentStage: {
+    type: Number,
+    default: -1
+  },
+  workflowStatus: {
+    type: String,
+    enum: Object.values(WorkflowStatus),
+    default: WorkflowStatus.NOT_STARTED
+  },
+  priority: {
+    type: String,
+    enum: Object.values(TaskPriority),
+    default: TaskPriority.MEDIUM
+  },
+  kanbanStatus: {
+    type: String,
+    enum: Object.values(TaskKanbanStatus),
+    default: TaskKanbanStatus.NEW
+  },
+  completedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  completedAt: {
+    type: Date,
+    default: null
+  },
+  stageEvaluations: [{
+    stage: { type: Number, required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    action: { type: String, enum: ['approved', 'rejected', 'completed'] },
+    note: { type: String, default: '' },
+    createdAt: { type: Date, default: Date.now }
+  }],
+
+  // ---- Journey Tracking Fields ----
+  currentDepartment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department',
+    default: null
+  },
+  lastAction: {
+    type: String,
+    default: null
+  },
+  lastActionAt: {
+    type: Date,
+    default: null
+  },
+  journeyStartedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
@@ -130,6 +235,9 @@ const taskSchema = new mongoose.Schema({
 taskSchema.index({ assignedTo: 1, status: 1 });
 taskSchema.index({ createdBy: 1, status: 1 });
 taskSchema.index({ taskDate: 1 });
+taskSchema.index({ workflowId: 1 });
+taskSchema.index({ kanbanStatus: 1 });
+taskSchema.index({ priority: 1 });
 
 // Virtual for checking if task is overdue
 taskSchema.virtual('isOverdue').get(function() {
@@ -156,4 +264,4 @@ taskSchema.methods.approveByManager = function(score, notes) {
 
 const Task = mongoose.model('Task', taskSchema);
 
-module.exports = { Task, TaskStatus, TaskDifficulty };
+module.exports = { Task, TaskStatus, TaskDifficulty, TaskPriority, TaskKanbanStatus, WorkflowStatus };

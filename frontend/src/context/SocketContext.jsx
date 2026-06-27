@@ -94,6 +94,13 @@ export const SocketProvider = ({ children }) => {
       const title = notification?.title || 'إشعار جديد';
       const message = notification?.message || '';
 
+      const chatTypes = ['chat_message', 'chat_mention', 'chat_added', 'chat_task_updated'];
+
+      if (chatTypes.includes(notifType)) {
+        window.dispatchEvent(new CustomEvent('chat-notification', { detail: notification }));
+        return;
+      }
+
       switch (notifType) {
         case 'leave_requested':
         case 'leave_needs_gm':
@@ -110,6 +117,7 @@ export const SocketProvider = ({ children }) => {
           playLeaveRejectedSound();
           break;
         case 'task_assigned':
+        case 'task_updated':
           playTaskAssignedSound();
           break;
         case 'new_message':

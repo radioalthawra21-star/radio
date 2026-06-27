@@ -40,11 +40,14 @@ const NotificationPanel = () => {
     const notificationInterval = setInterval(fetchNotifications, 10000);
     const messageInterval = setInterval(checkNewMessages, 10000);
     const handleNewNotification = () => setTimeout(fetchNotifications, 300);
+    const handleChatNotification = () => setTimeout(checkNewMessages, 300);
     window.addEventListener('new-notification', handleNewNotification);
+    window.addEventListener('chat-notification', handleChatNotification);
     return () => {
       clearInterval(notificationInterval);
       clearInterval(messageInterval);
       window.removeEventListener('new-notification', handleNewNotification);
+      window.removeEventListener('chat-notification', handleChatNotification);
     };
   }, []);
 
@@ -60,7 +63,7 @@ const NotificationPanel = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await getMyNotifications();
+      const response = await getMyNotifications(false, true);
       if (response.success) {
         const newNotifications = response.data.notifications;
         const newUnreadCount = response.data.unreadCount;
@@ -90,7 +93,7 @@ const NotificationPanel = () => {
                 let url = null;
                 if (['leave_pending_gm', 'leave_needs_gm'].includes(latest.type)) url = '/admin/leave-management';
                 else if (['leave_approved', 'leave_rejected'].includes(latest.type)) url = '/employee/my-leaves';
-                if (latest.type === 'task_assigned') { playTaskAssignedSound(); showToast(t, m, url); }
+                if (latest.type === 'task_assigned' || latest.type === 'task_updated') { playTaskAssignedSound(); showToast(t, m, url); }
                 else if (latest.type === 'new_message') { playMessageSound(); showToast(t, m, url); }
                 else if (latest.type === 'role_change' || latest.type === 'reward') { playRoleChangeSound(); showToast(t, m, url); }
                 else { playNotificationSound(); showToast(t, m, url); }
@@ -147,6 +150,7 @@ const NotificationPanel = () => {
     const { type, relatedTask } = notification;
     switch (type) {
       case 'task_assigned':
+      case 'task_updated':
       case 'task_completed':
       case 'task_evaluated':
       case 'task_approved':

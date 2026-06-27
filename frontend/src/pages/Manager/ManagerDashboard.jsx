@@ -157,6 +157,14 @@ const ManagerDashboard = () => {
           </Card>
         </Link>
 
+        <Link to="/manager/department-tasks">
+          <Card className="hover:shadow-xl transition-shadow cursor-pointer text-center">
+            <div className="text-4xl mb-2">📋</div>
+            <h3 className="font-semibold text-dark">جميع مهام القسم</h3>
+            <p className="text-sm text-gray-600">عرض وتعديل مهام الموظفين</p>
+          </Card>
+        </Link>
+
         <Link to="/manager/evaluate-tasks">
           <Card className="hover:shadow-xl transition-shadow cursor-pointer text-center">
             <div className="text-4xl mb-2">⭐</div>

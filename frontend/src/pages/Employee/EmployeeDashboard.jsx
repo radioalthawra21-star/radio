@@ -7,8 +7,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyTasks, getDailySummary } from '../../services/taskService';
 import { getStoredUser } from '../../services/authService';
-import { getCurrentPayslip } from '../../services/payrollService';
-import { getLeaveBalance } from '../../services/leaveService';
 import { getWeeklyHours } from '../../services/attendanceService';
 import Card from '../../components/common/Card';
 
@@ -20,8 +18,6 @@ const EmployeeDashboard = () => {
     inProgress: 0,
     pending: 0
   });
-  const [payslip, setPayslip] = useState(null);
-  const [leaveBal, setLeaveBal] = useState(null);
   const [weeklyHours, setWeeklyHours] = useState(null);
   const [loading, setLoading] = useState(true);
   const user = getStoredUser();
@@ -33,11 +29,9 @@ const EmployeeDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [tasksRes, summaryRes, payslipRes, balanceRes, weeklyRes] = await Promise.allSettled([
+      const [tasksRes, summaryRes, weeklyRes] = await Promise.allSettled([
         getMyTasks(),
         getDailySummary(),
-        getCurrentPayslip(),
-        getLeaveBalance(),
         getWeeklyHours(),
       ]);
       if (tasksRes.status === 'fulfilled' && tasksRes.value?.success) {
@@ -45,12 +39,6 @@ const EmployeeDashboard = () => {
       }
       if (summaryRes.status === 'fulfilled' && summaryRes.value?.success) {
         setSummary(summaryRes.value.data.summary);
-      }
-      if (payslipRes.status === 'fulfilled' && payslipRes.value?.data?.payslip) {
-        setPayslip(payslipRes.value.data.payslip);
-      }
-      if (balanceRes.status === 'fulfilled' && balanceRes.value?.success) {
-        setLeaveBal(balanceRes.value.data.balances);
       }
       if (weeklyRes.status === 'fulfilled' && weeklyRes.value?.success) {
         setWeeklyHours(weeklyRes.value.data);
@@ -152,57 +140,7 @@ const EmployeeDashboard = () => {
 </Link>
       </div>
 
-      {/* Payroll & Leave Summary */}
-      {!loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Link to="/payslip">
-            <Card className="hover:shadow-xl transition-shadow cursor-pointer border-r-4 border-blue-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm mb-1">كشف الراتب الحالي</p>
-                  {payslip ? (
-                    <>
-                      <p className="text-2xl font-bold text-blue-600">{payslip.totals?.net?.toFixed(2) || '0.00'} ريال</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {new Date(payslip.periodStart).toLocaleDateString('ar-EG')} - {new Date(payslip.periodEnd).toLocaleDateString('ar-EG')}
-                      </p>
-                      <span className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-bold ${payslip.isDraft ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
-                        {payslip.isDraft ? 'مسودة' : 'معتمد'}
-                      </span>
-                    </>
-                  ) : (
-                    <p className="text-gray-400 text-sm">لا توجد فترة مفتوحة</p>
-                  )}
-                </div>
-                <span className="text-4xl opacity-30">💰</span>
-              </div>
-            </Card>
-          </Link>
 
-          <Link to="/leave-management">
-            <Card className="hover:shadow-xl transition-shadow cursor-pointer border-r-4 border-green-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm mb-1">أرصدة الإجازات</p>
-                  {leaveBal ? (
-                    <div className="space-y-1">
-                      <p className="text-lg font-bold text-green-600">
-                        سنوية: {leaveBal.annual?.remainingBalance ?? '--'} يوم
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        مرضية: {leaveBal.sick?.remainingBalance ?? '--'} يوم
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-gray-400 text-sm">جاري التحميل...</p>
-                  )}
-                </div>
-                <span className="text-4xl opacity-30">📅</span>
-              </div>
-            </Card>
-          </Link>
-        </div>
-      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -230,7 +168,7 @@ const EmployeeDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/leave-management">
+        <Link to="/leave-request">
           <Card className="hover:shadow-xl transition-shadow cursor-pointer text-center">
             <div className="text-4xl mb-2">📝</div>
             <h3 className="font-semibold text-dark">طلب إجازة</h3>
@@ -238,13 +176,6 @@ const EmployeeDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/payslip">
-          <Card className="hover:shadow-xl transition-shadow cursor-pointer text-center">
-            <div className="text-4xl mb-2">💰</div>
-            <h3 className="font-semibold text-dark">كشف الراتب</h3>
-            <p className="text-sm text-gray-600">عرض كشف الراتب وتفاصيل الإضافات والخصومات</p>
-          </Card>
-        </Link>
       </div>
 
       {/* Recent Tasks */}

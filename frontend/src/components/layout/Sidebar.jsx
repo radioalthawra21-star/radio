@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 
 const APP_LOGO_KEY = 'appLogo';
@@ -7,10 +7,9 @@ const APP_NAME_KEY = 'appName';
 const menuItems = {
   employee: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
-    { path: '/my-tasks', label: 'مهماتي', icon: '📋' },
-    { path: '/add-task', label: 'إضافة مهمة', icon: '➕' },
-    { path: '/task-history', label: 'سجل المهام', icon: '📜' },
+    { path: '/tasks', label: 'المهام', icon: '📋' },
     { path: '/messages', label: 'الرسائل', icon: '✉️' },
+    { path: '/chat', label: 'المحادثات', icon: '💬' },
     { path: '/evaluate-manager', label: 'تقييم المدير', icon: '⭐' },
     { path: '/well-being', label: 'الحالة اليومية', icon: '😊' },
 
@@ -21,20 +20,19 @@ const menuItems = {
   ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
-    { path: '/add-task', label: 'إضافة مهمة', icon: '➕' },
-    { path: '/manager/assign-tasks', label: 'إسناد المهام', icon: '👥' },
-    { path: '/manager/evaluate-tasks', label: 'تقييم المهام', icon: '⭐' },
+    { path: '/tasks', label: 'المهام', icon: '📋' },
     { path: '/manager/reports', label: 'تقارير القسم', icon: '📊' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👤' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
-    { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/leave-request', label: 'طلب إجازة', icon: '📅' },
+    { path: '/chat', label: 'المحادثات', icon: '💬' },
     { path: '/manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
-    { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
   ],
   hr: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
+    { path: '/tasks', label: 'المهام', icon: '📋' },
+    { path: '/chat', label: 'المحادثات', icon: '💬' },
     { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
     { path: '/admin/attendance/dashboard', label: 'لوحة البصمة والحضور', icon: '🕐' },
@@ -47,7 +45,8 @@ const menuItems = {
   ],
   admin: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
-    { path: '/admin/assign-tasks', label: 'إسناد المهام', icon: '👥' },
+    { path: '/tasks', label: 'المهام', icon: '📋' },
+    { path: '/chat', label: 'المحادثات', icon: '💬' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
     { path: '/admin/reports', label: 'التقارير', icon: '📊' },
     { path: '/admin/rankings', label: 'الترتيب', icon: '🏆' },
@@ -63,7 +62,9 @@ const menuItems = {
     { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
 
-    { path: '/financial-misc/report', label: 'تقرير متفرقات مالية', icon: '📊' }
+    { path: '/financial-misc/report', label: 'تقرير متفرقات مالية', icon: '📊' },
+
+    { path: '/workflows', label: 'قوالب سير العمل', icon: '📋' },
   ]
 };
 
@@ -92,17 +93,12 @@ const isNewsAuthorized = (user) => {
   return dept === 'news' || dept === 'الأخبار' || dept === 'تحرير' || dept.includes('news') || dept.includes('إعلام') || dept.includes('تحرير');
 };
 
-const Sidebar = ({ isOpen, setIsOpen, user }) => {
+const Sidebar = ({ isOpen, setIsOpen, user, onToggleChat }) => {
   const role = user?.role || 'employee';
   const username = user?.username || '';
   const userDept = (user?.department || '').toString().toLowerCase().trim();
   const isHrEmployee = role === 'employee' && (userDept === 'hr' || userDept === 'الموارد البشرية' || userDept.includes('موارد بشرية'));
   let items = menuItems[role] || menuItems.employee;
-
-  // Hide payroll from managers except Mostafa (HR manager)
-  if (role === 'manager' && username !== 'mostafa') {
-    items = items.filter(item => !item.path.startsWith('/payroll'));
-  }
 
   // Show HR-related pages only for HR department employees
   if (role === 'employee' && !isHrEmployee) {
@@ -111,6 +107,9 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
 
   const newsAuthorized = isNewsAuthorized(user);
   const [appLogo, setAppLogo] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const sidebarRef = useRef(null);
+  const touchStartRef = useRef(0);
 
   useEffect(() => {
     const logo = localStorage.getItem(APP_LOGO_KEY);
@@ -121,21 +120,50 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
       setAppLogo(logo || null);
     };
 
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('appLogoUpdate', handleStorageChange);
+    window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('appLogoUpdate', handleStorageChange);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
+  const handleTouchStart = (e) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isOpen) return;
+    const dx = e.touches[0].clientX - touchStartRef.current;
+    // In RTL: swiping left (negative dx) from edge toward center should close
+    if (dx < -50) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <>
-      <aside 
+      {/* Overlay for mobile */}
+      {isMobile && isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40"
+          onClick={() => setIsOpen(false)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+        />
+      )}
+      <aside
+        ref={sidebarRef}
         className={`fixed right-0 top-0 h-full text-white transition-all duration-300 z-50 ${
           isOpen ? 'w-64' : 'w-0 overflow-hidden'
         }`}
         style={{ backgroundColor: '#182E4E' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
       >
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-gray-700 flex-shrink-0">
@@ -170,20 +198,31 @@ const Sidebar = ({ isOpen, setIsOpen, user }) => {
 
           <nav className="flex-1 overflow-y-auto p-2">
             {items.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                `flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors ${
-                  isActive 
-                    ? 'bg-interactive text-white' 
-                    : 'hover:bg-gray-700 text-gray-300'
-                }`
-              }
-            >
-              <span className="text-xl">{item.icon}</span>
-              <span>{item.label}</span>
-            </NavLink>
+              item.path === '/chat' ? (
+                <button
+                  key={item.path}
+                  onClick={onToggleChat}
+                  className="flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors w-full text-right hover:bg-gray-700 text-gray-300"
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              ) : (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors ${
+                      isActive 
+                        ? 'bg-interactive text-white' 
+                        : 'hover:bg-gray-700 text-gray-300'
+                    }`
+                  }
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span>{item.label}</span>
+                </NavLink>
+              )
           ))}
 
           {/* News Department Navigation - Conditional */}

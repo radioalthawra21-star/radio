@@ -36,7 +36,7 @@ export const adminRoutes = (
     <Route path="/admin/reports/recruitment" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><RecruitmentReportsPage /></ProtectedRoute>} />
     <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><Settings /></ProtectedRoute>} />
     <Route path="/admin/rankings" element={<ProtectedRoute allowedRoles={['admin']}><Rankings /></ProtectedRoute>} />
-    <Route path="/admin/leave-management" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveManagement /></ProtectedRoute>} />
+    <Route path="/admin/leave-management" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><LeaveManagement /></ProtectedRoute>} />
     <Route path="/admin/gm-approve-leaves" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><GMApproveLeaves /></ProtectedRoute>} />
     <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceManagement /></ProtectedRoute>} />
     <Route path="/admin/attendance/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><AttendanceDashboard /></ProtectedRoute>} />
