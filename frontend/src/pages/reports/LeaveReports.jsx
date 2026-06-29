@@ -342,8 +342,6 @@ const LeaveReports = () => {
                     chartData.leaveTypeCounts.other
                   ]
                 }}
-                width={400}
-                height={300}
               />
             </div>
             <div className="bg-white rounded-lg shadow p-4">
@@ -351,6 +349,7 @@ const LeaveReports = () => {
               <LineChart 
                 data={chartData.monthlyTrend} 
                 options={{ 
+                  maintainAspectRatio: false,
                   plugins: { 
                     legend: { position: 'top' },
                     title: { 
@@ -359,8 +358,6 @@ const LeaveReports = () => {
                     } 
                   } 
                 }} 
-                width={400} 
-                height={300} 
               />
             </div>
           </div>
@@ -374,7 +371,7 @@ const LeaveReports = () => {
           <p className="text-center text-gray-500 py-8">لا توجد سجلات إجازات</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-responsive-cards">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">الموظف</th>
@@ -389,19 +386,19 @@ const LeaveReports = () => {
               <tbody className="divide-y divide-gray-200">
                 {leaveRecords.map((record, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 text-left text-sm text-gray-900">{record.employeeName || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{record.leaveType || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{record.startDate ? formatDateArabic(record.startDate) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{record.endDate ? formatDateArabic(record.endDate) : '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{record.durationDays || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm font-medium">
+                    <td className="px-6 py-4 text-left text-sm text-gray-900" data-label="الموظف">{record.employeeName || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="نوع الإجازة">{record.leaveType || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="من تاريخ">{record.startDate ? formatDateArabic(record.startDate) : '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="إلى تاريخ">{record.endDate ? formatDateArabic(record.endDate) : '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="المدة">{record.durationDays || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm font-medium" data-label="الحالة">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         record.isPaid === false ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                       }`}>
                         {record.isPaid === false ? 'غير مدفوعة' : 'مدفوعة'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-left text-sm">{record.notes || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm" data-label="ملاحظات">{record.notes || '-'}</td>
                   </tr>
                 ))}
               </tbody>

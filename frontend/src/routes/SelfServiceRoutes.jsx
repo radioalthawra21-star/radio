@@ -9,6 +9,7 @@ import Attendance from '../pages/Employee/Attendance';
 import MonthlyTimesheet from '../pages/Employee/MonthlyTimesheet';
 import LeaveRequest from '../pages/Employee/LeaveRequest';
 import ApproveLeaves from '../pages/Manager/ApproveLeaves';
+import DailyReport from '../pages/DailyReport';
 
 export const selfServiceRoutes = (
   <>
@@ -22,5 +23,6 @@ export const selfServiceRoutes = (
     <Route path="/timesheet/:employeeId" element={<ProtectedRoute><MonthlyTimesheet /></ProtectedRoute>} />
     <Route path="/leave-request" element={<ProtectedRoute><LeaveRequest /></ProtectedRoute>} />
     <Route path="/manager/approve-leaves" element={<ProtectedRoute allowedRoles={['manager']}><ApproveLeaves /></ProtectedRoute>} />
+    <Route path="/daily-report" element={<ProtectedRoute><DailyReport /></ProtectedRoute>} />
   </>
 );

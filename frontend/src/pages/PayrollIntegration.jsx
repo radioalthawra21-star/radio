@@ -184,7 +184,7 @@ const PayrollIntegration = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="payroll-table min-w-full">
+          <table className="payroll-table min-w-full table-responsive-cards">
             <thead>
               <tr>
                 <th>الوقت</th>
@@ -198,16 +198,16 @@ const PayrollIntegration = () => {
             <tbody>
               {apiLogs.map((log) => (
                 <tr key={log.id}>
-                  <td className="text-xs text-gray-500">{formatDateTime(log.timestamp)}</td>
-                  <td className="text-xs font-medium text-gray-900 dir-ltr">{log.endpoint}</td>
-                  <td>
+                  <td className="text-xs text-gray-500" data-label="الوقت">{formatDateTime(log.timestamp)}</td>
+                  <td className="text-xs font-medium text-gray-900 dir-ltr" data-label="النقطة النهائية">{log.endpoint}</td>
+                  <td data-label="الطريقة">
                     <span className={`status-badge ${methodColors[log.method] || 'bg-gray-100 text-gray-800'}`}>{log.method}</span>
                   </td>
-                  <td>
+                  <td data-label="الحالة">
                     <span className={`status-badge ${getStatusCodeColor(log.status)}`}>{log.status}</span>
                   </td>
-                  <td className="text-xs text-gray-500">{log.responseTime}</td>
-                  <td className="text-xs text-gray-500">{log.records.toLocaleString()}</td>
+                  <td className="text-xs text-gray-500" data-label="وقت الاستجابة">{log.responseTime}</td>
+                  <td className="text-xs text-gray-500" data-label="السجلات">{log.records.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

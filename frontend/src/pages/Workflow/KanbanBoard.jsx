@@ -50,39 +50,42 @@ const KanbanBoard = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-dark">لوحة سير العمل</h1>
-        <button onClick={() => navigate('/workflows')} className="btn btn-primary text-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-dark">لوحة سير العمل</h1>
+        <button onClick={() => navigate('/workflows')} className="btn btn-primary text-sm self-start md:self-auto">
           + قوالب سير العمل
         </button>
       </div>
 
-      <div className="flex items-center gap-4 mb-6">
-        <span className="text-sm text-gray-500">المجموع: <span className="font-bold text-dark en-num">{totalTasks}</span></span>
-        {STATUS_FLOW.map(status => (
-          <button
-            key={status}
-            onClick={() => setStatusFilter(statusFilter === status ? '' : status)}
-            className={`text-sm px-3 py-1 rounded-full transition-colors ${
-              statusFilter === status ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-            }`}
-          >
-            {STATUS_LABELS[status]} ({columns[status].length})
-          </button>
-        ))}
+      <div className="overflow-x-auto -mx-3 md:mx-0 mb-4 md:mb-6">
+        <div className="flex items-center gap-2 px-3 md:px-0 min-w-max">
+          <span className="text-sm text-gray-500 flex-shrink-0">المجموع: <span className="font-bold text-dark en-num">{totalTasks}</span></span>
+          {STATUS_FLOW.map(status => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(statusFilter === status ? '' : status)}
+              className={`text-xs md:text-sm px-2 md:px-3 py-1.5 min-h-[44px] rounded-full transition-colors whitespace-nowrap ${
+                statusFilter === status ? 'bg-primary text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+              }`}
+            >
+              {STATUS_LABELS[status]} ({columns[status].length})
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 -mx-3 md:mx-0 px-3 md:px-0 snap-x snap-mandatory">
         {STATUS_FLOW.map(status => {
           if (statusFilter && statusFilter !== status) return null;
           return (
-            <KanbanColumn
-              key={status}
-              status={status}
-              tasks={columns[status]}
-              onStatusChange={handleStatusChange}
-              onCardClick={(taskId) => navigate(`/workflow/task/${taskId}`)}
-            />
+            <div key={status} className="snap-start shrink-0 min-w-[75vw] md:min-w-[260px]">
+              <KanbanColumn
+                status={status}
+                tasks={columns[status]}
+                onStatusChange={handleStatusChange}
+                onCardClick={(taskId) => navigate(`/workflow/task/${taskId}`)}
+              />
+            </div>
           );
         })}
       </div>

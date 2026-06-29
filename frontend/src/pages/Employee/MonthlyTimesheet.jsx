@@ -163,7 +163,7 @@ const MonthlyTimesheet = () => {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-3 md:p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors" style={{ color: '#6B7280' }}>
@@ -179,7 +179,7 @@ const MonthlyTimesheet = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-4 mb-6 flex flex-wrap items-end gap-4">
+      <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
         {isAdminOrHr && (
           <div>
             <label className="block text-sm font-medium mb-1" style={{ color: '#374151' }}>الموظف</label>
@@ -294,7 +294,7 @@ const MonthlyTimesheet = () => {
               <h3 className="font-bold" style={{ color: '#182E4E' }}>تفاصيل الحضور اليومي</h3>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-responsive-cards">
                 <thead>
                   <tr style={{ backgroundColor: '#182E4E' }}>
                     <th className="px-3 py-3 text-white font-semibold text-xs text-right whitespace-nowrap">اليوم</th>
@@ -313,7 +313,7 @@ const MonthlyTimesheet = () => {
                       : null;
                     return (
                       <tr key={day.date} className={`border-b border-gray-100 transition-colors hover:bg-gray-50 ${!day.hasRecord && !day.attendanceStatus ? 'opacity-60' : ''}`}>
-                        <td className="px-3 py-2.5 align-middle whitespace-nowrap">
+                        <td className="px-3 py-2.5 align-middle whitespace-nowrap" data-label="اليوم">
                           <span className="text-xs font-medium" style={{
                             color: day.dayOfWeek === 5 ? '#DC2626' : '#6B7280',
                             fontWeight: day.dayOfWeek === 5 ? 700 : 500
@@ -321,7 +321,7 @@ const MonthlyTimesheet = () => {
                             {day.dayName} {day.dayOfWeek === 5 ? '‼' : ''}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 align-middle whitespace-nowrap">
+                        <td className="px-3 py-2.5 align-middle whitespace-nowrap" data-label="التاريخ">
                           <span className="font-medium text-xs" style={{
                             color: day.dayOfWeek === 5 ? '#DC2626' : '#182E4E',
                             fontWeight: day.dayOfWeek === 5 ? 700 : 500
@@ -330,22 +330,22 @@ const MonthlyTimesheet = () => {
                             {day.isHoliday && <span className="block text-[10px] text-red-600 font-semibold">{day.holidayName}</span>}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap">
+                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap" data-label="تسجيل الدخول">
                           <span className="font-semibold text-xs" style={{ color: day.firstCheckIn ? '#059669' : '#D1D5DB' }}>
                             {day.firstCheckIn ? formatTime(day.firstCheckIn) : '—'}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap">
+                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap" data-label="تسجيل الخروج">
                           <span className="font-semibold text-xs" style={{ color: day.lastCheckOut ? '#DC2626' : '#D1D5DB' }}>
                             {day.lastCheckOut ? formatTime(day.lastCheckOut) : '—'}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap">
+                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap" data-label="ساعات العمل">
                           <span className="font-medium text-xs" style={{ color: day.totalWorkedHours ? '#1C95A4' : '#D1D5DB' }}>
                             {day.totalWorkedHours ? formatHours(day.totalWorkedHours) : '—'}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap">
+                        <td className="px-3 py-2.5 align-middle text-center whitespace-nowrap" data-label="الحالة">
                           {statusInfo ? (
                             <span className={`inline-flex flex-col items-center gap-0.5 px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.bg} ${statusInfo.color}`}>
                               <span className="flex items-center gap-1">

@@ -32,24 +32,24 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
   return (
     <>
       <WellBeingBanner />
-      <nav className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={onToggleSidebar} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <svg className="w-6 h-6 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <nav className="bg-white shadow-md px-3 md:px-6 py-3 md:py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          <button onClick={onToggleSidebar} className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0" aria-label="فتح القائمة">
+            <svg className="w-6 h-6 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0">
             {appLogo ? (
-              <img src={appLogo} alt="Logo" className="h-10 w-auto" />
+              <img src={appLogo} alt="Logo" className="h-8 md:h-10 w-auto flex-shrink-0" />
             ) : (
-              <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
+              <img src="/logo.png" alt="Logo" className="h-8 md:h-10 w-auto flex-shrink-0" />
             )}
-            <h2 className="text-xl font-bold text-dark">{displayName}</h2>
+            <h2 className="text-sm md:text-xl font-bold text-dark truncate">{displayName}</h2>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
           <NotificationPanel />
           <UserMenu user={user} onLogout={onLogout} />
         </div>

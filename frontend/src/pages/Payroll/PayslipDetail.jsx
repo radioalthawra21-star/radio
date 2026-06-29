@@ -149,7 +149,7 @@ export default function PayslipDetail() {
 
           <div className="mb-8">
             <h4 className="text-lg font-bold text-gray-900 mb-4">تفصيل الراتب</h4>
-            <div className="overflow-hidden border border-gray-200 rounded-xl">
+            <div className="overflow-x-auto border border-gray-200 rounded-xl">
               <table className="payroll-table min-w-full">
                 <thead>
                   <tr>

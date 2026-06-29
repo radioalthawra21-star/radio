@@ -576,9 +576,9 @@ const AllEmployees = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-dark">الموظفين</h1>
-        <button onClick={openCreateModal} className="btn btn-primary">➕ إضافة مستخدم</button>
+      <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-dark">الموظفين</h1>
+        <button onClick={openCreateModal} className="btn btn-primary w-full md:w-auto text-center">➕ إضافة مستخدم</button>
       </div>
 
       <Card className="mb-6">
@@ -629,7 +629,7 @@ const AllEmployees = () => {
             ⚠️ طلبات الانضمام المعلقة <span className="badge bg-primary text-white">{pendingUsers.length}</span>
           </h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-right">
+            <table className="w-full text-right table-responsive-cards">
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
@@ -639,12 +639,12 @@ const AllEmployees = () => {
               <tbody>
                 {pendingUsers.map((user) => (
                   <tr key={user._id} className="border-b hover:bg-gray-50">
-                    <td className="p-3 font-semibold">{user.name}</td>
-                    <td className="p-3 text-gray-600">{user.username}</td>
-                    <td className="p-3 text-gray-600">{user.email}</td>
-                    <td className="p-3">{allDepartments[user.department] || '-'}</td>
-                    <td className="p-3">{roleNames[user.role] || user.role}</td>
-                    <td className="p-3"><button onClick={() => handleActivate(user._id)} className="btn btn-primary text-sm">✅ تفعيل</button></td>
+                    <td className="p-3 font-semibold" data-label="الاسم">{user.name}</td>
+                    <td className="p-3 text-gray-600" data-label="اسم المستخدم">{user.username}</td>
+                    <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{user.email}</td>
+                    <td className="p-3" data-label="القسم">{allDepartments[user.department] || '-'}</td>
+                    <td className="p-3" data-label="المنصب">{roleNames[user.role] || user.role}</td>
+                    <td className="p-3" data-label="إجراءات"><button onClick={() => handleActivate(user._id)} className="btn btn-primary text-sm w-full md:w-auto text-center">✅ تفعيل</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -662,7 +662,7 @@ const AllEmployees = () => {
             <p className="text-center text-gray-500 py-4">لا يوجد مديرين</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-right">
+              <table className="w-full text-right table-responsive-cards">
                 <thead>
                   <tr className="border-b-2 border-gray-300">
                     <th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
@@ -672,15 +672,15 @@ const AllEmployees = () => {
                 <tbody>
                   {managers.map((mgr) => (
                     <tr key={mgr._id} className="border-b hover:bg-gray-50">
-                      <td className="p-3 font-semibold">{mgr.name}</td>
-                      <td className="p-3 text-gray-600">{mgr.username}</td>
-                      <td className="p-3 text-gray-600">{mgr.email}</td>
-                      <td className="p-3">{getDepartmentName(mgr.department)}</td>
-                      <td className="p-3"><span className={`badge ${mgr.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>{mgr.isActive ? 'نشط' : 'غير نشط'}</span></td>
-                      <td className="p-3">
-                        <button onClick={() => navigate(`/admin/employee-profile/${mgr._id}`)} className="text-secondary hover:underline ml-2">عرض الملف</button>
-                        <button onClick={() => handleEdit(mgr)} className="text-interactive hover:underline ml-2">تعديل</button>
-                        <button onClick={() => handleDelete(mgr._id)} className="text-primary hover:underline">حذف</button>
+                      <td className="p-3 font-semibold" data-label="الاسم">{mgr.name}</td>
+                      <td className="p-3 text-gray-600" data-label="اسم المستخدم">{mgr.username}</td>
+                      <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{mgr.email}</td>
+                      <td className="p-3" data-label="القسم">{getDepartmentName(mgr.department)}</td>
+                      <td className="p-3" data-label="الحالة"><span className={`badge ${mgr.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>{mgr.isActive ? 'نشط' : 'غير نشط'}</span></td>
+                      <td className="p-3" data-label="إجراءات">
+                        <button onClick={() => navigate(`/admin/employee-profile/${mgr._id}`)} className="text-secondary hover:underline ml-2 whitespace-nowrap">عرض الملف</button>
+                        <button onClick={() => handleEdit(mgr)} className="text-interactive hover:underline ml-2 whitespace-nowrap">تعديل</button>
+                        <button onClick={() => handleDelete(mgr._id)} className="text-primary hover:underline whitespace-nowrap">حذف</button>
                       </td>
                     </tr>
                   ))}
@@ -699,7 +699,7 @@ const AllEmployees = () => {
           <p className="text-center text-gray-500 py-4">لا يوجد موظفين</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right">
+            <table className="w-full text-right table-responsive-cards">
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
@@ -709,16 +709,16 @@ const AllEmployees = () => {
               <tbody>
                 {employees.map((emp) => (
                   <tr key={emp._id} className="border-b hover:bg-gray-50">
-                    <td className="p-3 font-semibold">{emp.name}</td>
-                    <td className="p-3 text-gray-600">{emp.username}</td>
-                    <td className="p-3 text-gray-600">{emp.email}</td>
-                    <td className="p-3">{getDepartmentName(emp.department)}</td>
-                    <td className="p-3"><span className={`badge ${emp.performanceScore >= 70 ? 'bg-secondary text-white' : emp.performanceScore >= 40 ? 'bg-primary text-white' : 'bg-dark text-white'}`}>{emp.performanceScore || 0}</span></td>
-                    <td className="p-3"><span className={`badge ${emp.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>{emp.isActive ? 'نشط' : 'غير نشط'}</span></td>
-                    <td className="p-3">
-                      <button onClick={() => navigate(`/admin/employee-profile/${emp._id}`)} className="text-secondary hover:underline ml-2">عرض الملف</button>
-                      <button onClick={() => handleEdit(emp)} className="text-interactive hover:underline ml-2">تعديل</button>
-                      <button onClick={() => handleDelete(emp._id)} className="text-primary hover:underline">حذف</button>
+                    <td className="p-3 font-semibold" data-label="الاسم">{emp.name}</td>
+                    <td className="p-3 text-gray-600" data-label="اسم المستخدم">{emp.username}</td>
+                    <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{emp.email}</td>
+                    <td className="p-3" data-label="القسم">{getDepartmentName(emp.department)}</td>
+                    <td className="p-3" data-label="نقاط الأداء"><span className={`badge ${emp.performanceScore >= 70 ? 'bg-secondary text-white' : emp.performanceScore >= 40 ? 'bg-primary text-white' : 'bg-dark text-white'}`}>{emp.performanceScore || 0}</span></td>
+                    <td className="p-3" data-label="الحالة"><span className={`badge ${emp.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>{emp.isActive ? 'نشط' : 'غير نشط'}</span></td>
+                    <td className="p-3" data-label="إجراءات">
+                      <button onClick={() => navigate(`/admin/employee-profile/${emp._id}`)} className="text-secondary hover:underline ml-2 whitespace-nowrap">عرض الملف</button>
+                      <button onClick={() => handleEdit(emp)} className="text-interactive hover:underline ml-2 whitespace-nowrap">تعديل</button>
+                      <button onClick={() => handleDelete(emp._id)} className="text-primary hover:underline whitespace-nowrap">حذف</button>
                     </td>
                   </tr>
                 ))}

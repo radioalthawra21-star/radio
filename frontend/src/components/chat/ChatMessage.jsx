@@ -49,8 +49,8 @@ const ChatMessage = ({ message, onReadReceipt }) => {
   }
 
   return (
-    <div className={`flex ${isMine ? 'justify-start' : 'justify-end'} mb-3`}>
-      <div className={`max-w-[70%] ${isMine ? 'order-2' : 'order-2'}`}>
+    <div className={`flex ${isMine ? 'justify-start' : 'justify-end'} mb-3 px-1`}>
+      <div className={`max-w-[85%] md:max-w-[70%] ${isMine ? 'order-2' : 'order-2'}`}>
         {!isMine && message.sender && (
           <p className="text-xs text-gray-500 mb-1 mr-2">{message.sender.name}</p>
         )}

@@ -351,7 +351,7 @@ const AttendanceManagement = () => {
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); setPage(1); }}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-colors ${
                 activeTab === tab.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -511,14 +511,14 @@ const AttendanceManagement = () => {
           )}
 
           <Card>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">سجلات الحضور</h2>
-              <button onClick={exportToPDF} className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 text-sm font-medium">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-bold">سجلات الحضور</h2>
+              <button onClick={exportToPDF} className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 text-sm font-medium w-full md:w-auto text-center">
                 📥 تصدير PDF
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-responsive-cards">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-right p-3 font-bold text-dark text-xs uppercase">الموظف</th>
@@ -532,7 +532,7 @@ const AttendanceManagement = () => {
                 <tbody className="divide-y divide-gray-100">
                   {attendanceRecords.slice(0, 50).map((r) => (
                     <tr key={r._id || r.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-3">
+                      <td className="p-3" data-label="الموظف">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
                             {(r.employee?.name || '?').charAt(0)}
@@ -545,12 +545,12 @@ const AttendanceManagement = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3" data-label="التاريخ">
                         <span className="text-gray-600">
                           {r.date ? formatDateArabic(r.date) : '-'}
                         </span>
                       </td>
-                      <td className="p-3 text-center">
+                      <td className="p-3 text-center" data-label="دخول">
                         {r.checkIn?.time ? (
                           <span className="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
                             {formatTimeFn(r.checkIn.time)}
@@ -559,7 +559,7 @@ const AttendanceManagement = () => {
                           <span className="text-xs text-gray-400">--:--</span>
                         )}
                       </td>
-                      <td className="p-3 text-center">
+                      <td className="p-3 text-center" data-label="خروج">
                         {r.checkOut?.time ? (
                           <span className="text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">
                             {formatTimeFn(r.checkOut.time)}
@@ -572,7 +572,7 @@ const AttendanceManagement = () => {
                           <span className="text-xs text-gray-400">--:--</span>
                         )}
                       </td>
-                      <td className="p-3 text-center">
+                      <td className="p-3 text-center" data-label="المدة">
                         {r.checkIn?.time && r.checkOut?.time ? (
                           <span className="text-xs font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
                             {r.duration ? `${r.duration.toFixed(1)} س` : '-'}
@@ -583,7 +583,7 @@ const AttendanceManagement = () => {
                           <span className="text-xs text-gray-400">--</span>
                         )}
                       </td>
-                      <td className="p-3">{getStatusBadge(r.status)}</td>
+                      <td className="p-3" data-label="الحالة">{getStatusBadge(r.status)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -606,7 +606,7 @@ const AttendanceManagement = () => {
           ) : (
             <>
               <div className="overflow-x-auto rounded-lg border border-gray-200">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-responsive-cards">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
                       <th className="text-right p-3 font-bold text-dark text-xs uppercase tracking-wider">الموظف</th>
@@ -621,7 +621,7 @@ const AttendanceManagement = () => {
                   <tbody className="divide-y divide-gray-100">
                     {paginatedRecords.map((r, idx) => (
                       <tr key={r._id || r.id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                        <td className="p-3">
+                        <td className="p-3" data-label="الموظف">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
                               {(r.employee?.name || '?').charAt(0)}
@@ -634,12 +634,12 @@ const AttendanceManagement = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="p-3">
+                        <td className="p-3" data-label="التاريخ">
                           <span className="text-gray-600">
                             {formatDateArabic(r.date)}
                           </span>
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-center" data-label="تسجيل الدخول">
                           {r.checkIn?.time ? (
                             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
                               <FaSignInAlt className="text-[10px]" />
@@ -649,7 +649,7 @@ const AttendanceManagement = () => {
                             <span className="text-xs text-gray-400">--:--</span>
                           )}
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-center" data-label="تسجيل الخروج">
                           {r.checkOut?.time ? (
                             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">
                               <FaSignOutAlt className="text-[10px]" />
@@ -664,7 +664,7 @@ const AttendanceManagement = () => {
                             <span className="text-xs text-gray-400">--:--</span>
                           )}
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-center" data-label="المدة">
                           {r.checkIn?.time && r.checkOut?.time ? (
                             <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
                               <FaHourglassHalf className="text-[10px] text-gray-400" />
@@ -679,8 +679,8 @@ const AttendanceManagement = () => {
                             <span className="text-xs text-gray-400">--</span>
                           )}
                         </td>
-                        <td className="p-3">{getStatusBadge(r.status)}</td>
-                        <td className="p-3 text-center">
+                        <td className="p-3" data-label="الحالة">{getStatusBadge(r.status)}</td>
+                        <td className="p-3 text-center" data-label="الإجراءات">
                           <button
                             onClick={() => openEditModal(r)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-secondary bg-secondary/5 border border-secondary/20 rounded-lg hover:bg-secondary/10 hover:border-secondary/30 transition-colors"
@@ -704,7 +704,7 @@ const AttendanceManagement = () => {
                     <button
                       onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page === 1}
-                      className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                      className="px-3 py-1.5 min-h-[44px] text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
                     >
                       <FaChevronRight className="text-[10px]" />
                       السابق
@@ -718,7 +718,7 @@ const AttendanceManagement = () => {
                           )}
                           <button
                             onClick={() => setPage(p)}
-                            className={`min-w-[32px] h-8 text-xs rounded-lg font-medium transition-colors ${
+                            className={`min-w-[44px] h-10 text-xs rounded-lg font-medium transition-colors ${
                               page === p
                                 ? 'bg-primary text-white shadow-sm'
                                 : 'text-gray-600 hover:bg-gray-50 border border-transparent'
@@ -731,7 +731,7 @@ const AttendanceManagement = () => {
                     <button
                       onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}
-                      className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                      className="px-3 py-1.5 min-h-[44px] text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
                     >
                       التالي
                       <FaChevronLeft className="text-[10px]" />

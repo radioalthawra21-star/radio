@@ -168,9 +168,10 @@
 
   .text-cell {
     max-width: 140px;
-    min-width: 80px;
+    min-width: 60px;
     overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .date-display {
@@ -336,7 +337,7 @@
 }
 
 .rate-input {
-  @apply border-2 border-gray-300 rounded-lg px-4 py-2 text-lg font-bold text-dark text-left w-32 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all;
+  @apply border-2 border-gray-300 rounded-lg px-4 py-2 text-lg font-bold text-dark text-left w-full sm:w-32 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none transition-all;
 }
 
 .rate-hint {
@@ -817,6 +818,465 @@
 
 .payroll-table-sm td {
   @apply px-4 py-2 text-sm;
+}
+
+/* ===== Touch-friendly improvements ===== */
+@media (hover: none) and (pointer: coarse) {
+  .btn, button, a, select, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+  }
+  .btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+  nav a, nav button, .sidebar a {
+    min-height: 48px;
+  }
+}
+
+/* ===== Safe area for notched devices ===== */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* ===== Line clamp utility ===== */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* ===== Responsive table helper ===== */
+@media (max-width: 767px) {
+  .table-responsive-cards table,
+  .table-responsive-cards thead,
+  .table-responsive-cards tbody,
+  .table-responsive-cards th,
+  .table-responsive-cards td,
+  .table-responsive-cards tr {
+    display: block;
+  }
+  .table-responsive-cards thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  .table-responsive-cards tr {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .table-responsive-cards td {
+    border: none;
+    padding: 6px 0;
+    text-align: right;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .table-responsive-cards td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 12px;
+    color: #6B7280;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+}
+
+/* ===== Horizontal scroll must be fixed at source, not hidden on body ===== */
+/* DO NOT add overflow-x:hidden here — fix overflow at the specific element */
+
+/* ===== Mobile-first responsive improvements ===== */
+
+/* Better modal handling on mobile */
+@media (max-width: 767px) {
+  .modal-content {
+    max-width: 100% !important;
+    margin: 0 8px;
+    max-height: 85vh !important;
+    border-radius: 16px !important;
+  }
+
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal-overlay .modal-content {
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 90vh !important;
+  }
+
+  /* Stack buttons on mobile */
+  .modal-actions {
+    flex-direction: column !important;
+  }
+
+  .modal-actions button,
+  .modal-actions a {
+    width: 100% !important;
+  }
+
+  /* Full-width cards stack better */
+  .stats-grid {
+    gap: 0.5rem !important;
+  }
+
+  .stat-card {
+    padding: 0.75rem !important;
+  }
+
+  .stat-value {
+    font-size: 1rem !important;
+  }
+
+  /* Better spacing for filter sections */
+  .filters-section {
+    flex-direction: column !important;
+  }
+
+  .filter-group {
+    width: 100% !important;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    width: 100% !important;
+  }
+
+  /* Form improvements */
+  .form-grid {
+    gap: 0.75rem !important;
+  }
+
+  /* Page headers */
+  .page-header {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Card improvements */
+  .card {
+    padding: 1rem !important;
+  }
+
+  .section-card {
+    padding: 1rem !important;
+  }
+
+  /* Tabs horizontal scroll */
+  .tabs-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Better spacing for action buttons row */
+  .header-actions {
+    width: 100% !important;
+  }
+
+  .header-actions .btn-primary,
+  .header-actions .btn-secondary,
+  .header-actions .btn-success,
+  .header-actions .btn-info {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Fix table cells on mobile for non-responsive tables */
+  table:not(.table-responsive-cards) td,
+  table:not(.table-responsive-cards) th {
+    white-space: nowrap;
+  }
+
+  /* Better stats card layout */
+  .stat-icon {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+}
+
+/* ===== Medium screens (tablets) ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .modal-content {
+    max-width: 90% !important;
+  }
+}
+
+/* ===== Improve touch targets globally ===== */
+@media (hover: none) and (pointer: coarse) {
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Increase spacing between clickable items in lists */
+  .list-item + .list-item {
+    margin-top: 0.5rem;
+  }
+
+  /* Better form controls for touch */
+  input, select, textarea {
+    min-height: 48px !important;
+  }
+
+  select {
+    background-position: left 12px center !important;
+    padding-left: 36px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Ensure enough space for touch scrolling in modals */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===== Smooth scroll for the whole app ===== */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== Safe area for modern phones ===== */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ===== Responsive grid helpers ===== */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.responsive-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.responsive-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ===== Responsive table card style for mobile ===== */
+@media (max-width: 767px) {
+  .card-table {
+    border: none !important;
+  }
+
+  .card-table thead {
+    display: none;
+  }
+
+  .card-table tbody,
+  .card-table tr {
+    display: block;
+  }
+
+  .card-table tr {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .card-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0 !important;
+    border: none !important;
+    text-align: right;
+  }
+
+  .card-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 12px;
+    color: #6B7280;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+}
+
+/* ===== TempSupervisorPage responsive overrides (mobile only) ===== */
+
+/* Table containers: scrollable inside, not expanding the page */
+@media (max-width: 767px) {
+  .temp-supervisor-page .overflow-x-auto,
+  .temp-supervisor-page [class*="overflow-x-auto"] {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+}
+
+/* Prevent charts/any element from pushing past viewport width */
+@media (max-width: 767px) {
+  .temp-supervisor-page {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: auto;
+  }
+}
+
+/* Fix filter rows on small screens */
+@media (max-width: 640px) {
+  .temp-supervisor-page .supervisor-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .temp-supervisor-page .supervisor-filters > * {
+    width: 100%;
+  }
+  .temp-supervisor-page .supervisor-filters input,
+  .temp-supervisor-page .supervisor-filters select {
+    width: 100%;
+  }
+  .temp-supervisor-page .supervisor-filters label {
+    margin-top: 4px;
+  }
+}
+
+/* Fix bulk modal on mobile */
+@media (max-width: 640px) {
+  .temp-supervisor-page .bulk-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .temp-supervisor-page .bulk-modal-overlay > div {
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 85vh;
+    margin: 0;
+    width: 100%;
+  }
+}
+
+/* Mobile: show only check-in & check-out in supervisor employee tables */
+@media (max-width: 767px) {
+  .temp-supervisor-page .table-responsive-cards td[data-label]:not([data-label="أول دخول"]):not([data-label="آخر خروج"]):not([data-label="التاريخ"]):not([data-label="اليوم"]) {
+    display: none !important;
+  }
+  .temp-supervisor-page .table-responsive-cards tr {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+  }
+  .temp-supervisor-page .table-responsive-cards td::before {
+    color: #94a3b8 !important;
+  }
+}
+
+/* Improved sidebar positioning on mobile - prevent shift during zoom */
+@media (max-width: 767px) {
+  aside[role="navigation"] {
+    right: 0 !important;
+    transform: none !important;
+    translate: none !important;
+  }
+}
+
+/* ===== Improved modal backdrop for mobile ===== */
+.fixed {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== Better snap scrolling for kanban on mobile ===== */
+.snap-x {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-mandatory > * {
+  scroll-snap-align: start;
+}
+
+/* ===== Kanban column width on mobile ===== */
+@media (max-width: 767px) {
+  .kanban-column {
+    min-width: 75vw;
+    max-width: 75vw;
+  }
 }
 
 .status-badge {

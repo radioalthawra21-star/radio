@@ -92,7 +92,7 @@ const PayrollAudit = () => {
       <div className="section-card mb-8">
         <h2><FaShieldAlt className="text-secondary" /> مصفوفة فصل المهام</h2>
         <div className="overflow-x-auto">
-          <table className="payroll-table">
+          <table className="payroll-table table-responsive-cards">
             <thead><tr>
               <th>العملية</th><th>المسؤولية</th><th>الموافقة</th><th>المراجعة</th><th>مستوى المخاطرة</th><th>الحالة</th>
             </tr></thead>
@@ -101,12 +101,12 @@ const PayrollAudit = () => {
                 const StatusIcon = STATUS_CONFIG[item.status]?.icon || FaCheckCircle;
                 return (
                   <tr key={item.id}>
-                    <td className="font-medium text-dark">{item.process}</td>
-                    <td className="text-gray-600">{item.responsibility}</td>
-                    <td className="text-gray-600">{item.approval}</td>
-                    <td className="text-gray-600">{item.review}</td>
-                    <td><span className={`px-2 py-1 rounded-full text-xs font-medium ${riskColor(item.risk)}`}>{riskLabel(item.risk)}</span></td>
-                    <td><StatusIcon className={`h-5 w-5 ${STATUS_CONFIG[item.status]?.color || 'text-gray-600'}`} /></td>
+                    <td className="font-medium text-dark" data-label="العملية">{item.process}</td>
+                    <td className="text-gray-600" data-label="المسؤولية">{item.responsibility}</td>
+                    <td className="text-gray-600" data-label="الموافقة">{item.approval}</td>
+                    <td className="text-gray-600" data-label="المراجعة">{item.review}</td>
+                    <td data-label="مستوى المخاطرة"><span className={`px-2 py-1 rounded-full text-xs font-medium ${riskColor(item.risk)}`}>{riskLabel(item.risk)}</span></td>
+                    <td data-label="الحالة"><StatusIcon className={`h-5 w-5 ${STATUS_CONFIG[item.status]?.color || 'text-gray-600'}`} /></td>
                   </tr>
                 );
               })}
@@ -119,18 +119,18 @@ const PayrollAudit = () => {
         <div className="section-card">
           <h2><FaDatabase className="text-success" /> المطابقة البنكية</h2>
           <div className="overflow-x-auto">
-            <table className="payroll-table">
+            <table className="payroll-table table-responsive-cards">
               <thead><tr>
                 <th>الحساب</th><th>النظام</th><th>البنك</th><th>الاختلاف</th><th>الحالة</th>
               </tr></thead>
               <tbody>
                 {reconciliationData.map(item => (
                   <tr key={item.id}>
-                    <td className="font-medium text-dark">{item.account}</td>
-                    <td className="currency">{item.systemAmount.toLocaleString()} $</td>
-                    <td className="currency">{item.bankAmount.toLocaleString()} $</td>
-                    <td className={`currency ${item.difference === 0 ? 'text-success' : 'text-error'}`}>{item.difference.toLocaleString()} $</td>
-                    <td><span className="status-badge paid">{item.status === 'matched' ? 'مطابق' : 'غير مطابق'}</span></td>
+                    <td className="font-medium text-dark" data-label="الحساب">{item.account}</td>
+                    <td className="currency" data-label="النظام">{item.systemAmount.toLocaleString()} $</td>
+                    <td className="currency" data-label="البنك">{item.bankAmount.toLocaleString()} $</td>
+                    <td className={`currency ${item.difference === 0 ? 'text-success' : 'text-error'}`} data-label="الاختلاف">{item.difference.toLocaleString()} $</td>
+                    <td data-label="الحالة"><span className="status-badge paid">{item.status === 'matched' ? 'مطابق' : 'غير مطابق'}</span></td>
                   </tr>
                 ))}
               </tbody>

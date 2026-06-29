@@ -74,11 +74,11 @@ const MyTasks = () => {
     <div className="animate-fade-in">
       <h1 className="text-3xl font-bold text-dark mb-8">مهماتي</h1>
 
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-x-hidden">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="label">الحالة</label>
-            <select className="input" value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
+            <select className="input min-h-[48px]" value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
               <option value="">الكل</option>
               <option value="pending">قيد الانتظار</option>
               <option value="in_progress">في التنفيذ</option>
@@ -88,11 +88,11 @@ const MyTasks = () => {
           </div>
           <div>
             <label className="label">من تاريخ</label>
-            <input type="date" lang="en" dir="ltr" className="input" value={filter.startDate} onChange={(e) => setFilter({ ...filter, startDate: e.target.value })} />
+            <input type="date" lang="en" dir="ltr" className="input min-h-[48px]" value={filter.startDate} onChange={(e) => setFilter({ ...filter, startDate: e.target.value })} />
           </div>
           <div>
             <label className="label">إلى تاريخ</label>
-            <input type="date" lang="en" dir="ltr" className="input" value={filter.endDate} onChange={(e) => setFilter({ ...filter, endDate: e.target.value })} />
+            <input type="date" lang="en" dir="ltr" className="input min-h-[48px]" value={filter.endDate} onChange={(e) => setFilter({ ...filter, endDate: e.target.value })} />
           </div>
         </div>
       </Card>
@@ -102,37 +102,38 @@ const MyTasks = () => {
       ) : tasks.length === 0 ? (
         <Card><p className="text-center text-gray-500 py-8">لا توجد مهام حالياً</p></Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {tasks.map((task) => (
-            <Card key={task._id} className="hover:shadow-xl transition-shadow">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+            <Card key={task._id} className="hover:shadow-xl transition-shadow p-4 md:p-6">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start gap-3 min-h-[48px]">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-lg md:text-xl">
                     {isProposal(task) ? '💡' : task.isUnusual ? '⚠️' : task.status === 'rejected' ? '🚫' : '📝'}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-dark text-lg">{task.title}</h3>
-                    <p className="text-sm text-gray-600">{task.description}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                      <span>🕐 {task.duration} ساعة</span>
-                      <span>📅 <span className="en-num">{formatDateArabic(task.taskDate)}</span></span>
-                      {task.managerScore && <span>⭐ التقييم: {task.managerScore}/100</span>}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-dark text-base md:text-lg break-words">{task.title}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs md:text-sm text-gray-500">
+                      <span data-label="المدة">🕐 {task.duration} ساعة</span>
+                      <span data-label="التاريخ">📅 <span className="en-num">{formatDateArabic(task.taskDate)}</span></span>
+                      {task.managerScore && <span data-label="التقييم">⭐ التقييم: {task.managerScore}/100</span>}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex flex-wrap items-center gap-2 min-h-[48px]">
                   {task.isUnusual && <span className="badge bg-warning text-white">غير عادية</span>}
                   {getStatusBadge(task)}
+                  <div className="flex-1"></div>
                   {task.status === 'in_progress' && (
-                    <button onClick={() => handleStatusChange(task._id, 'completed')} className="btn btn-interactive">إكمال</button>
+                    <button onClick={() => handleStatusChange(task._id, 'completed')} className="btn btn-interactive text-xs md:text-sm px-3 py-1.5">إكمال</button>
                   )}
                   {task.status === 'pending' && !isProposal(task) && (
-                    <button onClick={() => handleStatusChange(task._id, 'in_progress')} className="btn btn-primary">بدء</button>
+                    <button onClick={() => handleStatusChange(task._id, 'in_progress')} className="btn btn-primary text-xs md:text-sm px-3 py-1.5">بدء</button>
                   )}
                   {canReject(task) && (
-                    <button onClick={() => { setRejectModal(task); setRejectReason(''); }} className="btn btn-outline border-error text-error hover:bg-error/10">رفض</button>
+                    <button onClick={() => { setRejectModal(task); setRejectReason(''); }} className="btn btn-outline border-error text-error hover:bg-error/10 text-xs md:text-sm px-3 py-1.5">رفض</button>
                   )}
-                  <button onClick={() => handleDelete(task._id)} className="btn btn-outline border-gray-300 text-gray-500 hover:bg-gray-100 text-sm px-2 py-1">🗑️</button>
+                  <button onClick={() => handleDelete(task._id)} className="btn btn-outline border-gray-300 text-gray-500 hover:bg-gray-100 text-xs md:text-sm px-2 py-1.5" aria-label="حذف">🗑️</button>
                 </div>
               </div>
 
@@ -158,7 +159,7 @@ const MyTasks = () => {
                     placeholder="أضف ملاحظة للمهمة..."
                     value={notesInput[task._id] ?? task.employeeNotes ?? ''}
                     onChange={(e) => setNotesInput(n => ({ ...n, [task._id]: e.target.value }))}
-                    className="input flex-1 text-sm"
+                    className="input min-h-[48px] flex-1 text-sm"
                   />
                   <button onClick={() => handleSaveNotes(task._id)} className="btn btn-primary text-sm whitespace-nowrap px-3 py-1">حفظ</button>
                 </div>
@@ -169,10 +170,10 @@ const MyTasks = () => {
       )}
 
       {rejectModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setRejectModal(null)}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3" onClick={() => setRejectModal(null)}>
+          <div className="bg-white rounded-xl p-4 md:p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold mb-2">رفض المهمة</h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 mb-4 break-words">
               رفض المهمة: {rejectModal.title}
             </p>
             <textarea
@@ -182,9 +183,9 @@ const MyTasks = () => {
               placeholder="اذكر سبب الرفض..."
               className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none text-sm"
             />
-            <div className="flex items-center gap-2 mt-4">
-              <button onClick={handleReject} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">تأكيد الرفض</button>
-              <button onClick={() => setRejectModal(null)} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">إلغاء</button>
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 mt-4">
+              <button onClick={handleReject} className="px-4 py-3 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">تأكيد الرفض</button>
+              <button onClick={() => setRejectModal(null)} className="px-4 py-3 md:py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">إلغاء</button>
             </div>
           </div>
         </div>

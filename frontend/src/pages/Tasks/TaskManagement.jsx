@@ -86,21 +86,23 @@ const TaskManagement = () => {
     <div className="animate-fade-in">
       <h1 className="text-3xl font-bold text-dark mb-6">المهام</h1>
 
-      <div className="flex gap-2 flex-wrap mb-6 border-b border-gray-200 pb-2">
-        {tabItems.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-              activeTab === tab.key
-                ? 'bg-primary text-white shadow'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            <span className="ml-1">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
+      <div className="overflow-x-auto -mx-3 md:mx-0 mb-6">
+        <div className="flex gap-2 border-b border-gray-200 pb-2 px-3 md:px-0 min-w-max">
+          {tabItems.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-3 md:px-4 py-2 rounded-t-lg text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
+                activeTab === tab.key
+                  ? 'bg-primary text-white shadow'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <span className="ml-1" aria-hidden="true">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-4">

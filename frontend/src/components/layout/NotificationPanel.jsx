@@ -209,7 +209,7 @@ const NotificationPanel = () => {
         </button>
 
         {showNotifications && (
-          <div className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 animate-fade-in">
+          <div className="absolute left-0 mt-2 w-72 md:w-80 bg-white rounded-lg shadow-xl z-50 animate-fade-in right-0 md:right-auto">
             <div className="p-3 border-b flex justify-between items-center">
               <h3 className="font-semibold text-dark">الإشعارات</h3>
               {unreadCount > 0 && (
@@ -229,7 +229,7 @@ const NotificationPanel = () => {
                     className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${!notification.isRead ? 'bg-secondary/10' : ''}`}
                   >
                     <p className="font-semibold text-sm text-dark">{notification.title}</p>
-                    <p className="text-sm text-gray-600">{notification.message}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
                     <p className="text-xs text-gray-400 mt-1 en-num">{formatDateTimeArabic(notification.createdAt)}</p>
                   </div>
                 ))

@@ -306,6 +306,7 @@ const AttendanceReports = () => {
               <BarChart 
                 data={chartData} 
                 options={{ 
+                  maintainAspectRatio: false,
                   plugins: { 
                     legend: { position: 'top' },
                     title: { 
@@ -314,8 +315,6 @@ const AttendanceReports = () => {
                     } 
                   } 
                 }} 
-                width={400} 
-                height={300} 
               />
             </div>
             <div className="bg-white rounded-lg shadow p-4">
@@ -330,8 +329,6 @@ const AttendanceReports = () => {
                     Math.max(0, 100 - (attendanceStats?.attendanceRate || 0) - 5) // Simplified late calculation
                   ]
                 }}
-                width={400}
-                height={300}
               />
             </div>
           </div>
@@ -345,7 +342,7 @@ const AttendanceReports = () => {
           <p className="text-center text-gray-500 py-8">لا توجد سجلات حضور</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-responsive-cards">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">الموظف</th>
@@ -362,20 +359,20 @@ const AttendanceReports = () => {
                   const statusInfo = ATTENDANCE_STATUS_MAP[record.status];
                   return (
                     <tr key={record._id || index} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">{record.employee?.name || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium" data-label="الموظف">{record.employee?.name || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500" data-label="التاريخ">
                         <span className="date-display inline-flex items-center gap-1.5">
                           <FaCalendarAlt className="text-[10px] text-gray-400" />
                           {record.date ? formatDateArabic(record.date) : '-'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium">
+                      <td className="px-6 py-4 text-sm font-medium" data-label="الحالة">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${statusInfo?.class || 'bg-gray-100 text-gray-800 border border-gray-200'}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {statusInfo?.label || record.status || '-'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 text-sm" data-label="وقت الدخول">
                         {record.checkIn?.time ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
                             <FaSignInAlt className="text-[10px]" />
@@ -383,7 +380,7 @@ const AttendanceReports = () => {
                           </span>
                         ) : <span className="text-gray-400 text-xs">--:--</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 text-sm" data-label="وقت الخروج">
                         {record.checkOut?.time ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">
                             <FaSignOutAlt className="text-[10px]" />
@@ -396,7 +393,7 @@ const AttendanceReports = () => {
                           </span>
                         ) : <span className="text-gray-400 text-xs">--:--</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-6 py-4 text-sm" data-label="الساعات العاملة">
                         {record.checkIn?.time && record.checkOut?.time ? (
                           <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
                             <FaHourglassHalf className="text-[10px] text-gray-400" />
@@ -406,7 +403,7 @@ const AttendanceReports = () => {
                           <span className="text-xs text-gray-400">قيد العمل</span>
                         ) : <span className="text-xs text-gray-400">--</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-500" data-label="ملاحظات">
                         {record.checkIn?.notes || record.checkOut?.notes || '-'}
                       </td>
                     </tr>

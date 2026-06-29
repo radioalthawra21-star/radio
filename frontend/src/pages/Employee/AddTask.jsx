@@ -88,44 +88,42 @@ const AddTask = () => {
             </div>
           )}
 
-          {/* Task Title */}
-          <div className="mb-4">
-            <label className="label">عنوان المهمة *</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className="input"
-              placeholder="أدخل عنوان المهمة"
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div className="mb-4">
-            <label className="label">الوصف</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="input min-h-[100px]"
-              placeholder="أدخل وصف المهمة"
-            />
-          </div>
-
-          {/* Task Date */}
-          <div className="mb-4">
-            <label className="label">التاريخ</label>
-            <input
-              type="date"
-              lang="en"
-              dir="ltr"
-              name="taskDate"
-              value={formData.taskDate}
-              onChange={handleChange}
-              className="input"
-            />
+          {/* Task Title & Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="label">عنوان المهمة *</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                className="input min-h-[48px]"
+                placeholder="أدخل عنوان المهمة"
+                required
+              />
+            </div>
+            <div>
+              <label className="label">التاريخ</label>
+              <input
+                type="date"
+                lang="en"
+                dir="ltr"
+                name="taskDate"
+                value={formData.taskDate}
+                onChange={handleChange}
+                className="input min-h-[48px]"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="label">الوصف</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className="input min-h-[100px]"
+                placeholder="أدخل وصف المهمة"
+              />
+            </div>
           </div>
 
           {/* Duration & Time */}
@@ -138,7 +136,7 @@ const AddTask = () => {
                 name="duration"
                 value={formData.duration}
                 onChange={handleChange}
-                className="input"
+                className="input min-h-[48px]"
                 min="0.5"
                 step="0.5"
               />
@@ -151,7 +149,7 @@ const AddTask = () => {
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
-                className="input"
+                className="input min-h-[48px]"
               />
             </div>
             <div>
@@ -162,7 +160,7 @@ const AddTask = () => {
                 name="endTime"
                 value={formData.endTime}
                 onChange={handleChange}
-                className="input"
+                className="input min-h-[48px]"
               />
             </div>
           </div>
@@ -195,7 +193,7 @@ const AddTask = () => {
               name="workflowId"
               value={formData.workflowId}
               onChange={handleChange}
-              className="input"
+              className="input min-h-[48px]"
             >
               <option value="">-- بدون سير عمل --</option>
               {workflows.map(w => (
@@ -244,18 +242,18 @@ const AddTask = () => {
           )}
 
           {/* Submit Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-3">
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary"
+              className="btn btn-primary w-full md:w-auto py-3 md:py-2 min-h-[48px]"
             >
               {loading ? 'جاري الحفظ...' : 'حفظ المهمة'}
             </button>
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="btn btn-outline"
+              className="btn btn-outline w-full md:w-auto py-3 md:py-2 min-h-[48px]"
             >
               إلغاء
             </button>

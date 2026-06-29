@@ -144,10 +144,10 @@ const EmployeeProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#E3D4BE', direction: 'rtl' }}>
+    <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: '#E3D4BE', direction: 'rtl' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-200 transition-colors">
               <span className="text-2xl" style={{ color: '#182E4E' }}>→</span>
@@ -184,7 +184,7 @@ const EmployeeProfilePage = () => {
 
         {/* Profile Image & Basic Info */}
         <div className="rounded-lg p-6 mb-6 shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: '#E3D4BE' }}>
               {employee.profileImage ? (
                 <img src={employee.profileImage} alt={employee.name} className="w-full h-full object-cover" />
@@ -197,7 +197,7 @@ const EmployeeProfilePage = () => {
             <div>
               <h2 className="text-xl font-bold" style={{ color: '#182E4E' }}>{employee.name}</h2>
               <p style={{ color: '#182E4E80' }}>{employee.jobTitle || 'بدون مسمى وظيفي'}</p>
-              <div className="flex gap-4 mt-2 text-sm" style={{ color: '#182E4E80' }}>
+              <div className="flex flex-col md:flex-row gap-1 md:gap-4 mt-2 text-sm" style={{ color: '#182E4E80' }}>
                 <span>البريد: {employee.email}</span>
                 <span>الهاتف: {employee.phone || '-'}</span>
                 <span>تاريخ البدء: {formatDate(employee.startDate)}</span>
@@ -210,8 +210,8 @@ const EmployeeProfilePage = () => {
         <div className="rounded-lg p-6 mb-6 shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#182E4E' }}>السيرة الذاتية</h3>
           {employee.cvUrl ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 p-4 rounded-lg flex-1" style={{ backgroundColor: '#E3D4BE' }}>
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+                <div className="flex items-center gap-2 p-4 rounded-lg flex-1" style={{ backgroundColor: '#E3D4BE' }}>
                 <span className="text-2xl">📄</span>
                 <div>
                   <p className="font-medium" style={{ color: '#182E4E' }}>{employee.cvFileName}</p>

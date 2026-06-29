@@ -555,7 +555,7 @@ const BiometricManagement = () => {
                 </h3>
               </div>
               <div className="overflow-x-auto max-h-96 overflow-y-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-responsive-cards">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr className="border-b border-gray-200">
                       <th className="text-right p-3 font-bold text-dark text-xs">#</th>
@@ -570,19 +570,19 @@ const BiometricManagement = () => {
                   <tbody className="divide-y divide-gray-100">
                     {pullRecords.map((r, i) => (
                       <tr key={i} className="hover:bg-gray-50">
-                        <td className="p-3 text-gray-500">{i + 1}</td>
-                        <td className="p-3 font-medium">{r.employeeName || 'غير معروف'}</td>
-                        <td className="p-3 text-gray-500">{r.department || '-'}</td>
-                        <td className="p-3 text-center">{safeDate(r.date)}</td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-gray-500" data-label="#">{i + 1}</td>
+                        <td className="p-3 font-medium" data-label="الموظف">{r.employeeName || 'غير معروف'}</td>
+                        <td className="p-3 text-gray-500" data-label="القسم">{r.department || '-'}</td>
+                        <td className="p-3 text-center" data-label="التاريخ">{safeDate(r.date)}</td>
+                        <td className="p-3 text-center" data-label="الحضور">
                           <span className="text-green-700 bg-green-50 px-2 py-1 rounded-lg text-xs">{safeTime(r.checkInTime)}</span>
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-center" data-label="الانصراف">
                           {r.checkOutTime
                             ? <span className="text-red-700 bg-red-50 px-2 py-1 rounded-lg text-xs">{safeTime(r.checkOutTime)}</span>
                             : <span className="text-gray-400 text-xs">لم يسجل</span>}
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-center" data-label="المسحات">
                           <span className="bg-secondary/10 text-secondary px-2 py-0.5 rounded-full text-xs font-bold">{r.totalScans}</span>
                         </td>
                       </tr>
@@ -659,7 +659,7 @@ const BiometricManagement = () => {
                           <p className="text-sm text-gray-400 py-4 text-center">لا توجد سجلات حضور لهذا المستخدم</p>
                         ) : (
                           <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
+                            <table className="w-full text-sm table-responsive-cards">
                               <thead className="bg-gray-50">
                                 <tr className="border-b border-gray-200">
                                   <th className="text-right p-3 font-bold text-dark text-xs">التاريخ</th>
@@ -672,13 +672,13 @@ const BiometricManagement = () => {
                               <tbody className="divide-y divide-gray-100">
                                 {user.attendance.map(rec => (
                                   <tr key={rec.id} className="hover:bg-gray-50">
-                                    <td className="p-3 text-gray-700">{safeDate(rec.date)}</td>
-                                    <td className="p-3 text-center">
+                                    <td className="p-3 text-gray-700" data-label="التاريخ">{safeDate(rec.date)}</td>
+                                    <td className="p-3 text-center" data-label="الحضور">
                                       <span className="text-green-700 bg-green-50 px-2 py-1 rounded-lg text-xs">
                                         {safeTime(rec.checkIn)}
                                       </span>
                                     </td>
-                                    <td className="p-3 text-center">
+                                    <td className="p-3 text-center" data-label="الانصراف">
                                       {rec.checkOut ? (
                                         <span className="text-red-700 bg-red-50 px-2 py-1 rounded-lg text-xs">
                                           {safeTime(rec.checkOut)}
@@ -687,7 +687,7 @@ const BiometricManagement = () => {
                                         <span className="text-gray-400 text-xs">لم يسجل</span>
                                       )}
                                     </td>
-                                    <td className="p-3 text-center">
+                                    <td className="p-3 text-center" data-label="الحالة">
                                       <span className={`text-xs px-2 py-1 rounded-full ${
                                         rec.status === 'present' ? 'bg-green-50 text-green-700' :
                                         rec.status === 'late' ? 'bg-yellow-50 text-yellow-700' :
@@ -699,7 +699,7 @@ const BiometricManagement = () => {
                                          rec.status === 'absent' ? 'غائب' : rec.status}
                                       </span>
                                     </td>
-                                    <td className="p-3 text-center text-gray-600">
+                                    <td className="p-3 text-center text-gray-600" data-label="عدد الساعات">
                                       {rec.duration ? `${rec.duration.toFixed(1)} س` : '-'}
                                     </td>
                                   </tr>
@@ -754,7 +754,7 @@ const BiometricManagement = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-responsive-cards">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
                       <th className="text-right p-3 font-bold text-dark text-xs">التاريخ</th>
@@ -770,8 +770,8 @@ const BiometricManagement = () => {
                       <tr><td colSpan={6} className="p-8 text-center text-gray-400">لا توجد أخطاء مسجلة</td></tr>
                     ) : errorLogs.map((log) => (
                       <tr key={log._id} className={`hover:bg-gray-50 ${log.resolved ? 'opacity-60' : ''}`}>
-                        <td className="p-3 text-gray-500 text-xs">{safeDateTime(log.createdAt)}</td>
-                        <td className="p-3">
+                        <td className="p-3 text-gray-500 text-xs" data-label="التاريخ">{safeDateTime(log.createdAt)}</td>
+                        <td className="p-3" data-label="نوع الخطأ">
                           <span className={`text-xs px-2 py-1 rounded-full ${
                             log.errorType === 'fingerprint_mismatch' ? 'bg-yellow-100 text-yellow-700' :
                             log.errorType === 'device_communication' || log.errorType === 'device_offline' ? 'bg-red-100 text-red-700' :
@@ -786,20 +786,20 @@ const BiometricManagement = () => {
                              log.errorType}
                           </span>
                         </td>
-                        <td className="p-3 text-gray-600">{log.errorMessage}</td>
-                        <td className="p-3 text-center text-xs text-gray-500">{log.deviceUserId || '-'}</td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-gray-600" data-label="الرسالة">{log.errorMessage}</td>
+                        <td className="p-3 text-center text-xs text-gray-500" data-label="معرف الجهاز">{log.deviceUserId || '-'}</td>
+                        <td className="p-3 text-center" data-label="الحالة">
                           {log.resolved ? (
                             <span className="text-green-600 bg-green-50 px-2 py-1 rounded-full text-xs">تم الحل</span>
                           ) : (
                             <span className="text-red-600 bg-red-50 px-2 py-1 rounded-full text-xs">قيد المعالجة</span>
                           )}
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-3 text-center" data-label="إجراء">
                           {!log.resolved && (
                             <button
                               onClick={() => handleResolveError(log._id)}
-                              className="text-green-600 hover:text-green-800 text-xs flex items-center gap-1 mx-auto"
+                              className="text-green-600 hover:text-green-800 text-xs flex items-center gap-1 mx-auto min-h-[44px]"
                             >
                               <FaCheck className="w-3 h-3" /> حل
                             </button>

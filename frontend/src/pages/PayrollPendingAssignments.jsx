@@ -126,51 +126,51 @@ const PayrollPendingAssignments = () => {
           <p>جميع الموظفين الجدد لديهم بيانات راتب مكتملة.</p>
         </div>
       ) : (
-        <Card className="overflow-hidden rounded-xl shadow-md">
-          <div className="overflow-x-auto">
-            <table className="payroll-table">
-              <thead><tr>
-                {['الموظف', 'البريد الإلكتروني', 'القسم', 'تاريخ التسجيل', 'مدة الانتظار', 'الإجراءات'].map(h => (
-                  <th key={h}>{h}</th>
-                ))}
-              </tr></thead>
-              <tbody className="divide-y divide-gray-200">
-                {pendingEntries.map(entry => {
-                  const days = getDaysSince(entry.createdAt);
-                  const dayColor = days > 7 ? 'bg-red-100 text-red-800' : days > 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
-                  return (
-                    <tr key={entry._id} className="hover:bg-gray-50 transition-colors">
-                      <td>
-                        <div className="employee-name-group">
-                          <div className="employee-avatar">{entry.employee?.name?.charAt(0) || 'م'}</div>
-                          <div className="name-details">
-                            <span className="full-name">{entry.employee?.name || 'غير معروف'}</span>
-                            <span className="username">{entry.employee?.username || '—'}</span>
+<Card className="overflow-hidden rounded-xl shadow-md">
+            <div className="overflow-x-auto">
+              <table className="payroll-table table-responsive-cards">
+                <thead><tr>
+                  {['الموظف', 'البريد الإلكتروني', 'القسم', 'تاريخ التسجيل', 'مدة الانتظار', 'الإجراءات'].map(h => (
+                    <th key={h}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody className="divide-y divide-gray-200">
+                  {pendingEntries.map(entry => {
+                    const days = getDaysSince(entry.createdAt);
+                    const dayColor = days > 7 ? 'bg-red-100 text-red-800' : days > 3 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+                    return (
+                      <tr key={entry._id} className="hover:bg-gray-50 transition-colors">
+                        <td data-label="الموظف">
+                          <div className="employee-name-group">
+                            <div className="employee-avatar">{entry.employee?.name?.charAt(0) || 'م'}</div>
+                            <div className="name-details">
+                              <span className="full-name">{entry.employee?.name || 'غير معروف'}</span>
+                              <span className="username">{entry.employee?.username || '—'}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="text-gray-600 text-sm">{entry.employee?.email || '—'}</td>
-                      <td>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <FaBuilding className="text-xs" /> {entry.employee?.department || 'غير محدد'}
-                        </span>
-                      </td>
-                      <td className="text-gray-600 text-sm">{formatDate(entry.employee?.startDate) || formatDate(entry.createdAt)}</td>
-                      <td>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${dayColor}`}>{days} يوم</span>
-                      </td>
-                      <td>
-                        <button onClick={() => handleOpenModal(entry)}
-                          className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium flex items-center gap-2">
-                          <FaMoneyBillWave /> إدخال الراتب
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td className="text-gray-600 text-sm" data-label="البريد الإلكتروني">{entry.employee?.email || '—'}</td>
+                        <td data-label="القسم">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <FaBuilding className="text-xs" /> {entry.employee?.department || 'غير محدد'}
+                          </span>
+                        </td>
+                        <td className="text-gray-600 text-sm" data-label="تاريخ التسجيل">{formatDate(entry.employee?.startDate) || formatDate(entry.createdAt)}</td>
+                        <td data-label="مدة الانتظار">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${dayColor}`}>{days} يوم</span>
+                        </td>
+                        <td data-label="الإجراءات">
+                          <button onClick={() => handleOpenModal(entry)}
+                            className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium flex items-center gap-2 min-h-[44px]">
+                            <FaMoneyBillWave /> إدخال الراتب
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
           {pagination.totalPages > 1 && (
             <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center text-sm">

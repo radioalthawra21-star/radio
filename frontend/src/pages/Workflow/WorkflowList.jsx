@@ -29,9 +29,9 @@ const WorkflowList = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-dark">قوالب سير العمل</h1>
-        <button onClick={() => navigate('/workflows/new')} className="btn btn-primary">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-dark">قوالب سير العمل</h1>
+        <button onClick={() => navigate('/workflows/new')} className="btn btn-primary text-sm min-h-[44px] self-stretch sm:self-auto">
           + إنشاء قالب
         </button>
       </div>
@@ -60,11 +60,11 @@ const WorkflowList = () => {
                 ))}
               </div>
               <p className="text-xs text-gray-400 mb-3">{wf.stages?.length || 0} مرحلة</p>
-              <div className="flex gap-2">
-                <button onClick={() => navigate(`/workflows/${wf._id}`)} className="btn btn-outline text-sm flex-1">تعديل</button>
-                <button onClick={() => navigate(`/workflows/create-task/${wf._id}`)} className="btn btn-primary text-sm flex-1">استخدام</button>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => navigate(`/workflows/${wf._id}`)} className="btn btn-outline text-sm flex-1 min-h-[44px]">تعديل</button>
+                <button onClick={() => navigate(`/workflows/create-task/${wf._id}`)} className="btn btn-primary text-sm flex-1 min-h-[44px]">استخدام</button>
                 {wf.isActive && (
-                  <button onClick={() => handleDelete(wf._id)} className="btn btn-outline text-sm text-error">تعطيل</button>
+                  <button onClick={() => handleDelete(wf._id)} className="btn btn-outline text-sm text-error min-h-[44px]">تعطيل</button>
                 )}
               </div>
             </Card>

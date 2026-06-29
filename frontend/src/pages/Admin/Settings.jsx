@@ -169,11 +169,11 @@ const Settings = () => {
         </Card>
       </div>
 
-      <div className="flex gap-4 mt-8">
-        <button onClick={handleSave} className="btn btn-primary">
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mt-8">
+        <button onClick={handleSave} className="btn btn-primary w-full md:w-auto min-h-[48px]">
           حفظ الإعدادات
         </button>
-        <button onClick={handleReset} className="btn btn-outline">
+        <button onClick={handleReset} className="btn btn-outline w-full md:w-auto min-h-[48px]">
           إعادة تعيين
         </button>
       </div>

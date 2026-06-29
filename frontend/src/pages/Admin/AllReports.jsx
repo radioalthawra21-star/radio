@@ -221,8 +221,8 @@ const AllReports = () => {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <Card className="text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6 mb-8">
+          <Card className="text-center p-3 md:p-4">
             <p className="text-gray-600 text-sm">إجمالي المهام</p>
             <p className="text-3xl font-bold text-dark">{summary.total}</p>
           </Card>
@@ -303,7 +303,7 @@ const AllReports = () => {
           <p className="text-center text-gray-500 py-8">لا توجد مهام</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-right">
+            <table className="w-full text-right table-responsive-cards">
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="p-3">المهمة</th>
@@ -319,20 +319,20 @@ const AllReports = () => {
               <tbody>
                 {tasks.map((task) => (
                   <tr key={task._id} className="border-b hover:bg-gray-50">
-                    <td className="p-3">
+                    <td className="p-3" data-label="المهمة">
                       <div className="flex items-center gap-2">
                         {task.isUnusual && <span>⚠️</span>}
                         <span>{task.title}</span>
                       </div>
                     </td>
-                    <td className="p-3 text-gray-600">
+                    <td className="p-3 text-gray-600" data-label="الموظف">
                       {task.assignedTo?.map(u => u.name).join(', ')}
                     </td>
-                    <td className="p-3">
+                    <td className="p-3" data-label="القسم">
                       {getDepartmentName(task.assignedTo?.[0]?.department)}
                     </td>
-                    <td className="p-3">{task.duration} ساعة</td>
-                    <td className="p-3">
+                    <td className="p-3" data-label="المدة">{task.duration} ساعة</td>
+                    <td className="p-3" data-label="الصعوبة">
                       <span className={`badge ${
                         task.difficulty === 100 ? 'bg-error' :
                         task.difficulty === 50 ? 'bg-warning' : 'bg-success'
@@ -340,7 +340,7 @@ const AllReports = () => {
                         {task.difficulty}%
                       </span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3" data-label="الحالة">
                       <span className={`badge ${
                         task.status === 'completed' || task.status === 'approved' || task.status === 'final_approved' ? 'bg-success' :
                         task.status === 'in_progress' ? 'bg-warning' : 'bg-gray-500'
@@ -351,12 +351,12 @@ const AllReports = () => {
                          task.status === 'in_progress' ? 'في التنفيذ' : 'قيد الانتظار'}
                       </span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3" data-label="التقييم">
                       {task.managerScore ? (
                         <span className="badge bg-info text-white">{task.managerScore}/100</span>
                       ) : '-'}
                     </td>
-                    <td className="p-3 text-gray-600">
+                    <td className="p-3 text-gray-600" data-label="التاريخ">
                       <span className="en-num">{formatDateArabic(task.taskDate)}</span>
                     </td>
                   </tr>

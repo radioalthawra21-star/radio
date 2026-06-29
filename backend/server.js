@@ -49,6 +49,7 @@ const workflowRoutes = require('./routes/workflowRoutes');
 const workflowTaskRoutes = require('./routes/workflowTaskRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const taskHistoryRoutes = require('./routes/taskHistoryRoutes');
+const dailyReportRoutes = require('./routes/dailyReportRoutes');
 
 const holidayRoutes = require('./routes/holidayRoutes');
 const chatRoutes = require('./routes/chatRoutes');
@@ -235,6 +236,7 @@ app.use('/api/tasks', taskHistoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 app.use('/api/holidays', holidayRoutes);
+app.use('/api/daily-report', dailyReportRoutes);
 
 // Serve the Temp-Supervisor page
 app.use('/supervisor', express.static(path.join(__dirname, 'public')));

@@ -148,15 +148,15 @@ const LeaveRequest = () => {
   const canDelete = (status) => ['rejected', 'cancelled'].includes(status);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" dir="rtl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-3 md:p-6 max-w-6xl mx-auto" dir="rtl">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">طلبات الإجازة</h1>
-          <p className="text-gray-500 text-sm mt-1">تقديم وإدارة طلبات الإجازة</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">طلبات الإجازة</h1>
+          <p className="text-gray-500 text-xs md:text-sm mt-1">تقديم وإدارة طلبات الإجازة</p>
         </div>
         <button
           onClick={() => { setShowForm(!showForm); setError(''); setSuccess(''); }}
-          className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium shadow-sm flex items-center gap-2"
+          className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium shadow-sm flex items-center justify-center gap-2 w-full md:w-auto"
         >
           <span>{showForm ? 'إلغاء' : 'طلب إجازة جديد'}</span>
           <span>{showForm ? '✕' : '➕'}</span>
@@ -177,7 +177,7 @@ const LeaveRequest = () => {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">طلب إجازة جديد</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
@@ -298,18 +298,18 @@ const LeaveRequest = () => {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="px-6 py-3 md:py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               {submitting ? 'جاري التقديم...' : 'تقديم الطلب'}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              className="px-4 py-3 md:py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
             >
               إلغاء
             </button>
@@ -352,7 +352,7 @@ const LeaveRequest = () => {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="px-6 py-4 border-b border-gray-100">
+            <div className="px-4 md:px-6 py-4 border-b border-gray-100">
               <h2 className="font-bold text-gray-900">طلبات الإجازة السابقة</h2>
             </div>
             {requests.length === 0 ? (
@@ -366,13 +366,13 @@ const LeaveRequest = () => {
                   const typeInfo = getLeaveTypeInfo(req.type);
                   const statusInfo = STATUS_MAP[req.status] || STATUS_MAP.pending_manager;
                   return (
-                    <div key={req._id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center justify-between">
+                    <div key={req._id} className="px-4 md:px-6 py-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 ${typeInfo.bg} rounded-xl flex items-center justify-center text-lg`}>
+                          <div className={`w-10 h-10 ${typeInfo.bg} rounded-xl flex items-center justify-center text-lg flex-shrink-0`}>
                             {typeInfo.icon}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <h4 className="font-semibold text-gray-900 text-sm">{typeInfo.label}</h4>
                             <p className="text-xs text-gray-500 mt-0.5">
                               {req.type === 'fingerprint_forgotten' ? (
@@ -391,10 +391,10 @@ const LeaveRequest = () => {
                                 </>
                               )}
                             </p>
-                            <p className="text-xs text-gray-400 mt-0.5">{req.reason?.slice(0, 80)}{req.reason?.length > 80 ? '...' : ''}</p>
+                            <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[200px] md:max-w-none">{req.reason?.slice(0, 80)}{req.reason?.length > 80 ? '...' : ''}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                             {statusInfo.label}
                           </span>
@@ -418,12 +418,12 @@ const LeaveRequest = () => {
                         </div>
                       </div>
                       {req.status === 'rejected' && req.rejectionReason && (
-                        <div className="mt-2 mr-14 p-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-700">
+                        <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-700">
                           سبب الرفض: {req.rejectionReason}
                         </div>
                       )}
                       {req.status === 'pending_general_manager' && (
-                        <div className="mt-2 mr-14 p-2 bg-orange-50 border border-orange-100 rounded-lg text-xs text-orange-700">
+                        <div className="mt-2 p-2 bg-orange-50 border border-orange-100 rounded-lg text-xs text-orange-700">
                           {req.managerSuggestedDays
                             ? `وافق المدير المباشر على ${req.managerSuggestedDays} يوم من أصل ${req.days}، بانتظار موافقة المدير العام`
                             : 'تمت موافقة المدير المباشر، بانتظار موافقة المدير العام'}

@@ -25,10 +25,10 @@ const NewsDashboard = () => {
   ];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" dir="rtl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">قسم الأخبار</h1>
-        <p className="text-gray-500">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto" dir="rtl">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">قسم الأخبار</h1>
+        <p className="text-sm md:text-base text-gray-500">
           مرحباً {user?.name} - قسم الأخبار والمحتوى
         </p>
       </div>
@@ -36,19 +36,19 @@ const NewsDashboard = () => {
       <div className="space-y-8">
         {sections.map((section, i) => (
           <div key={i}>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">{section.icon}</span>
-              <h2 className="text-lg font-bold text-gray-800">{section.title}</h2>
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
+              <span className="text-xl md:text-2xl">{section.icon}</span>
+              <h2 className="text-base md:text-lg font-bold text-gray-800">{section.title}</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               {section.items.map((tool, j) => (
                 <Link
                   key={j}
                   to={tool.path}
-                  className="block p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/30 transition-all duration-200 group"
+                  className="block p-4 md:p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/30 transition-all duration-200 group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="text-3xl">{tool.icon}</div>
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="text-2xl md:text-3xl">{tool.icon}</div>
                     <div>
                       <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
                         {tool.label}

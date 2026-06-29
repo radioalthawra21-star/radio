@@ -116,12 +116,12 @@ const Messages = () => {
   }
 
   return (
-    <div className="p-6" dir="rtl">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">الرسائل الداخلية</h2>
+    <div className="p-3 md:p-6" dir="rtl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">الرسائل الداخلية</h2>
         <button
           onClick={() => setShowCompose(true)}
-          className="bg-[#182E4E] text-white px-4 py-2 rounded-lg hover:bg-[#152842]"
+          className="bg-[#182E4E] text-white px-4 py-2 rounded-lg hover:bg-[#152842] w-full sm:w-auto text-center"
         >
           ➕ رسالة جديدة
         </button>
@@ -136,10 +136,10 @@ const Messages = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b">
+      <div className="flex gap-4 mb-6 border-b overflow-x-auto">
         <button
           onClick={() => setActiveTab('inbox')}
-            className={`pb-2 px-4 ${
+            className={`pb-2 px-4 whitespace-nowrap ${
               activeTab === 'inbox' 
                 ? 'border-b-2 border-[#182E4E] text-[#182E4E] font-semibold' 
                 : 'text-gray-500'
@@ -149,7 +149,7 @@ const Messages = () => {
         </button>
         <button
           onClick={() => setActiveTab('sent')}
-            className={`pb-2 px-4 ${
+            className={`pb-2 px-4 whitespace-nowrap ${
               activeTab === 'sent' 
                 ? 'border-b-2 border-[#182E4E] text-[#182E4E] font-semibold' 
                 : 'text-gray-500'

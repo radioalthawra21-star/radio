@@ -120,54 +120,54 @@ const TaskDetail = () => {
   const priorityStyle = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.medium;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-dark">تفاصيل المهمة</h1>
+    <div className="max-w-4xl mx-auto p-3 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <h1 className="text-2xl md:text-3xl font-bold text-dark">تفاصيل المهمة</h1>
         {isManager && !editing && (
-          <button onClick={startEditing} className="btn btn-interactive">
+          <button onClick={startEditing} className="btn btn-interactive self-start md:self-auto">
             ✏️ تعديل المهمة
           </button>
         )}
       </div>
       
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <div className="flex items-center gap-2 flex-wrap border-b pb-4">
-          {editing ? (
-            <input
-              type="text"
-              name="title"
-              value={editForm.title}
-              onChange={handleChange}
-              className="input text-xl font-semibold flex-1"
-            />
-          ) : (
-            <h2 className="text-xl font-semibold flex-1">{task.title}</h2>
-          )}
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${priorityStyle.bg}`}>
-            {priorityStyle.label}
+      <div className="bg-white rounded-lg shadow p-4 md:p-6 space-y-4">
+      <div className="flex items-start gap-2 flex-wrap border-b pb-4">
+        {editing ? (
+          <input
+            type="text"
+            name="title"
+            value={editForm.title}
+            onChange={handleChange}
+            className="input text-xl font-semibold flex-1 w-full md:w-auto"
+          />
+        ) : (
+          <h2 className="text-xl font-semibold flex-1 min-w-[200px]">{task.title}</h2>
+        )}
+        <span className={`px-2 md:px-3 py-1 rounded-full text-[11px] md:text-sm font-medium ${priorityStyle.bg}`}>
+          {priorityStyle.label}
+        </span>
+        <span className={`px-2 md:px-3 py-1 rounded-full text-[11px] md:text-sm font-medium ${
+          task.status === 'completed' ? 'bg-green-100 text-green-800' : 
+          task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+          task.status === 'in_progress' ? 'bg-orange-100 text-orange-800' : 
+          task.status === 'approved' ? 'bg-green-100 text-green-800' : 
+          'bg-[#CDD6E8] text-[#182E4E]'
+        }`}>
+          {task.status === 'completed' ? 'مكتملة' : 
+           task.status === 'pending' ? 'قيد الانتظار' :
+           task.status === 'in_progress' ? 'في التنفيذ' :
+           task.status === 'approved' ? 'موافقة المدير' :
+           task.status === 'final_approved' ? 'موافقة نهائية' : task.status}
+        </span>
+        {task.kanbanStatus && (
+          <span className="px-2 md:px-3 py-1 rounded-full text-[11px] md:text-sm font-medium bg-purple-100 text-purple-700">
+            {KANBAN_LABELS[task.kanbanStatus] || task.kanbanStatus}
           </span>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-            task.status === 'completed' ? 'bg-green-100 text-green-800' : 
-            task.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-            task.status === 'in_progress' ? 'bg-orange-100 text-orange-800' : 
-            task.status === 'approved' ? 'bg-green-100 text-green-800' : 
-            'bg-[#CDD6E8] text-[#182E4E]'
-          }`}>
-            {task.status === 'completed' ? 'مكتملة' : 
-             task.status === 'pending' ? 'قيد الانتظار' :
-             task.status === 'in_progress' ? 'في التنفيذ' :
-             task.status === 'approved' ? 'موافقة المدير' :
-             task.status === 'final_approved' ? 'موافقة نهائية' : task.status}
-          </span>
-          {task.kanbanStatus && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-700">
-              {KANBAN_LABELS[task.kanbanStatus] || task.kanbanStatus}
-            </span>
-          )}
-        </div>
+        )}
+      </div>
         
         {task.workflowId && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <span className="text-blue-600 font-bold">📋</span>
             <div className="flex-1">
               <p className="text-sm text-blue-800 font-semibold">{task.workflowId.name}</p>
@@ -177,14 +177,14 @@ const TaskDetail = () => {
             </div>
             <button
               onClick={() => navigate(`/workflow/task/${task._id}`)}
-              className="text-sm px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="text-sm px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto text-center"
             >
               فتح في سير العمل
             </button>
           </div>
         )}
         
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-gray-600">الوصف</p>
             {editing ? (
@@ -203,7 +203,7 @@ const TaskDetail = () => {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-gray-600">الصعوبة</p>
             {editing ? (
@@ -226,7 +226,7 @@ const TaskDetail = () => {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-gray-600">تاريخ الاستحقاق</p>
             {editing ? (
@@ -241,7 +241,7 @@ const TaskDetail = () => {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-gray-600">وقت البدء</p>
             {editing ? (
@@ -261,9 +261,9 @@ const TaskDetail = () => {
         </div>
         
         {editing && (
-          <div className="flex gap-3 pt-4 border-t">
-            <button onClick={cancelEditing} className="btn btn-ghost flex-1">إلغاء</button>
-            <button onClick={handleSave} disabled={saving} className="btn btn-primary flex-1">
+          <div className="flex flex-col md:flex-row gap-3 pt-4 border-t">
+            <button onClick={cancelEditing} className="btn btn-ghost w-full md:flex-1 py-3 md:py-2">إلغاء</button>
+            <button onClick={handleSave} disabled={saving} className="btn btn-primary w-full md:flex-1 py-3 md:py-2">
               {saving ? 'جاري الحفظ...' : 'حفظ التعديلات'}
             </button>
           </div>
@@ -271,7 +271,7 @@ const TaskDetail = () => {
         
         <div className="border-t pt-4">
           <h3 className="font-semibold text-gray-700 mb-3">تقييم المدير</h3>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-gray-600">التقييم</p>
               <p className="text-dark font-bold text-lg">

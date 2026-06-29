@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getStoredUser } from '../../services/authService';
 import {
   getSupervisorDashboard, getRawLogs, getManualOverrides,
@@ -100,35 +100,35 @@ function EventBadge({ type }) {
 
 function StatCard({ label, value, color }) {
   return (
-    <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 text-center">
-      <div className={`text-2xl font-bold ${color || 'text-blue-400'}`}>{value ?? '-'}</div>
-      <div className="text-xs text-gray-400 mt-0.5">{label}</div>
+    <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-2 sm:p-3 text-center">
+      <div className={`text-lg sm:text-2xl font-bold truncate leading-tight ${color || 'text-blue-400'}`}>{value ?? '-'}</div>
+      <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5 leading-tight">{label}</div>
     </div>
   );
 }
 
 function Filters({ children }) {
-  return <div className="flex flex-wrap gap-2.5 items-center mb-4">{children}</div>;
+  return <div className="flex flex-wrap gap-2.5 items-center mb-4 supervisor-filters">{children}</div>;
 }
 
 function FilterLabel({ children }) {
-  return <label className="text-xs text-gray-400">{children}</label>;
+  return <label className="text-xs text-gray-400 shrink-0">{children}</label>;
 }
 
 function FilterInput(props) {
-  return <input {...props} className="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />;
+  return <input {...props} className="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-200 text-sm outline-none focus:border-blue-500 transition-colors sm:w-auto w-full" />;
 }
 
 function FilterSelect(props) {
-  return <select {...props} className="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />;
+  return <select {...props} className="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-200 text-sm outline-none focus:border-blue-500 transition-colors sm:w-auto w-full" />;
 }
 
 function Table({ title, count, legend, children }) {
   return (
     <div className="bg-gray-800/40 border border-gray-700 rounded-lg">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-800/60 rounded-t-lg">
-        <h3 className="text-sm font-semibold">{title}</h3>
-        <span className="text-xs text-gray-400 bg-gray-800 px-2.5 py-1 rounded-full">{count}</span>
+      <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-b border-gray-700 bg-gray-800/60 rounded-t-lg">
+        <h3 className="text-xs sm:text-sm font-semibold truncate ml-2">{title}</h3>
+        <span className="text-xs text-gray-400 bg-gray-800 px-2.5 py-1 rounded-full shrink-0">{count}</span>
       </div>
       {legend && (
         <div className="flex gap-3 px-4 py-2 bg-gray-800/30 border-b border-gray-700 text-xs flex-wrap">
@@ -518,6 +518,19 @@ export default function TempSupervisorPage() {
   useEffect(() => { if (!isHrEmployee) { loadAdminOverrides(); } }, [loadAdminOverrides, isHrEmployee]);
   useEffect(() => { if (!isHrEmployee) { loadMergeView(); } }, [loadMergeView, isHrEmployee]);
 
+  // tab dropdown state for mobile
+  const [tabDropdownOpen, setTabDropdownOpen] = useState(false);
+  const tabDropdownRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (tabDropdownRef.current && !tabDropdownRef.current.contains(e.target)) {
+        setTabDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // auto refresh
   const [autoRefresh, setAutoRefresh] = useState(null);
   const toggleAutoRefresh = () => {
@@ -654,7 +667,7 @@ export default function TempSupervisorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1117] text-gray-200" dir="rtl">
+    <div className="min-h-screen bg-[#0f1117] text-gray-200 temp-supervisor-page" dir="rtl">
       {toast && (
         <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg text-sm font-medium shadow-lg animate-fadeIn ${
           toast.type === 'error' ? 'bg-red-900/80 border border-red-500 text-red-300' : 'bg-green-900/80 border border-green-500 text-green-300'
@@ -664,7 +677,7 @@ export default function TempSupervisorPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 p-4 bg-gray-900/60 border-b border-gray-800">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-900/60 border-b border-gray-800">
         <StatCard label="بصمات خام (اليوم)" value={stats?.todayRawCount} color="text-blue-400" />
         <StatCard label="تعديلات يدوية (اليوم)" value={stats?.todayOverrideCount} color="text-yellow-400" />
         <StatCard label="سجلات نهائية (اليوم)" value={stats?.todayAttendanceCount} color="text-green-400" />
@@ -674,32 +687,33 @@ export default function TempSupervisorPage() {
           <button
             onClick={handleSync}
             disabled={syncing}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all w-full ${
+            className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all w-full ${
               syncing
                 ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/30'
             }`}
           >
             {syncing ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="inline-block w-4 h-4 border-2 border-gray-400 border-t-white rounded-full animate-spin"></span>
+              <span className="flex items-center justify-center gap-1 sm:gap-2">
+                <span className="inline-block w-3 h-3 sm:w-4 sm:h-4 border-2 border-gray-400 border-t-white rounded-full animate-spin"></span>
                 جاري المزامنة...
               </span>
             ) : (
-              <span className="flex items-center justify-center gap-2">🔄 مزامنة الجهاز</span>
+              <span className="flex items-center justify-center gap-1 sm:gap-2">🔄 مزامنة</span>
             )}
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-0.5 px-4 bg-gray-900/60 border-b border-gray-800 overflow-x-auto">
+      {/* Tabs - Desktop: horizontal buttons, Mobile: dropdown select */}
+      <div className="hidden md:flex gap-0.5 bg-gray-900/60 border-b border-gray-800 overflow-x-auto px-3 sm:px-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="flex gap-0.5 flex-1 min-w-0">
         {visibleTabs.map(tab => (
           <button
             key={tab.id}
             data-tab={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`tab-btn px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+            className={`tab-btn px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
                 ? 'text-blue-400 border-blue-400'
                 : 'text-gray-500 border-transparent hover:text-gray-300'
@@ -708,10 +722,11 @@ export default function TempSupervisorPage() {
             {tab.label}
           </button>
         ))}
-        <div className="mr-auto flex items-center">
+        </div>
+        <div className="flex-shrink-0 flex items-center pr-2">
           <button
             onClick={toggleAutoRefresh}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
               autoRefresh ? 'bg-green-900/40 text-green-400 border border-green-700' : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
             }`}
           >
@@ -720,7 +735,49 @@ export default function TempSupervisorPage() {
         </div>
       </div>
 
-      <div className="p-4">
+      {/* Mobile tab dropdown */}
+      <div className="flex md:hidden items-center gap-2 bg-gray-900/60 border-b border-gray-800 px-3 py-2" ref={tabDropdownRef}>
+        <div className="relative flex-1">
+          <button
+            type="button"
+            onClick={() => setTabDropdownOpen(prev => !prev)}
+            className="w-full flex items-center justify-between bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-200 outline-none focus:border-blue-500 transition-colors cursor-pointer"
+          >
+            <span className="truncate ml-2">{TABS.find(t => t.id === activeTab)?.label || activeTab}</span>
+            <svg className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${tabDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {tabDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+              {visibleTabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setActiveTab(tab.id); setTabDropdownOpen(false); }}
+                  className={`w-full text-right px-3 py-3 text-sm transition-colors border-b border-gray-700/50 last:border-b-0 ${
+                    activeTab === tab.id
+                      ? 'bg-blue-900/30 text-blue-400 font-medium'
+                      : 'text-gray-300 hover:bg-gray-700/50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <button
+          onClick={toggleAutoRefresh}
+          className={`shrink-0 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+            autoRefresh ? 'bg-green-900/40 text-green-400 border border-green-700' : 'bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700'
+          }`}
+          title={autoRefresh ? 'إيقاف التحديث التلقائي' : 'تفعيل التحديث التلقائي'}
+        >
+          {autoRefresh ? '⏱' : '⏱'}
+        </button>
+      </div>
+
+      <div className="p-3 sm:p-4">
 
         {/* TAB: RAW LOGS */}
         {activeTab === 'raw' && (
@@ -745,7 +802,8 @@ export default function TempSupervisorPage() {
             ]}>
               {loading.raw ? <Loading /> : !rawLogs.length
                 ? <EmptyState icon="📭" text="لا توجد بصمات خام في هذا التاريخ" />
-                : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
+                : <div className="overflow-x-auto">
+                <table className="w-full text-sm table-responsive-cards"><thead><tr className="bg-gray-800/60">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الموظف</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الوقت</th>
@@ -755,15 +813,15 @@ export default function TempSupervisorPage() {
                 </tr></thead><tbody>
                   {rawLogs.map((log, i) => (
                     <tr key={log._id || i} className="border-t border-gray-800 hover:bg-gray-800/40">
-                      <td className="p-3">{i + 1}</td>
-                      <td className="p-3">
+                      <td className="p-3" data-label="#">{i + 1}</td>
+                      <td className="p-3" data-label="الموظف">
                         <div className="font-medium">{log.employee?.name || log.deviceUserName || 'غير معروف'}</div>
                         <div className="text-xs text-gray-500">{log.employee?.department || '-'}</div>
                       </td>
-                      <td className="p-3 whitespace-nowrap">{safeDateTime(log.timestamp)}</td>
-                      <td className="p-3"><EventBadge type={log.eventType} /></td>
-                      <td className="p-3">{log.deviceUserId || '-'}</td>
-                      <td className="p-3">{log.employee ? <span className="text-green-400">✔ مربوط</span> : <span className="text-gray-500">⛔ غير مربوط</span>}</td>
+                      <td className="p-3 whitespace-nowrap" data-label="الوقت">{safeDateTime(log.timestamp)}</td>
+                      <td className="p-3" data-label="نوع الحركة"><EventBadge type={log.eventType} /></td>
+                      <td className="p-3" data-label="رقم الجهاز">{log.deviceUserId || '-'}</td>
+                      <td className="p-3" data-label="حالة الربط">{log.employee ? <span className="text-green-400">✔ مربوط</span> : <span className="text-gray-500">⛔ غير مربوط</span>}</td>
                     </tr>
                   ))}
                 </tbody></table></div>
@@ -799,7 +857,7 @@ export default function TempSupervisorPage() {
             ]}>
               {loading.overrides ? <Loading /> : !overrides.length
                 ? <EmptyState icon="✏️" text="لا توجد تعديلات يدوية في هذا التاريخ" />
-                : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
+                : <div className="overflow-x-auto"><table className="w-full text-sm table-responsive-cards"><thead><tr className="bg-gray-800/60">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الموظف</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الوقت</th>
@@ -811,17 +869,17 @@ export default function TempSupervisorPage() {
                 </tr></thead><tbody>
                   {overrides.map((o, i) => (
                     <tr key={o._id || i} className={`border-t border-gray-800 hover:bg-gray-800/40 ${o.action === 'ISADD' ? 'border-r-2 border-r-green-500' : 'border-r-2 border-r-red-500 opacity-70'}`}>
-                      <td className="p-3">{i + 1}</td>
-                      <td className="p-3">
+                      <td className="p-3" data-label="#">{i + 1}</td>
+                      <td className="p-3" data-label="الموظف">
                         <div className="font-medium">{o.employee?.name || `مستخدم #${o.deviceUserId}`}</div>
                         <div className="text-xs text-gray-500">ID: {o.deviceUserId}</div>
                       </td>
-                      <td className="p-3 whitespace-nowrap">{safeDateTime(o.timestamp)}</td>
-                      <td className="p-3 whitespace-nowrap">{safeDate(o.date)}</td>
-                      <td className="p-3"><ActionBadge action={o.action} /></td>
-                      <td className="p-3 max-w-[150px] truncate">{o.reason || '-'}</td>
-                      <td className="p-3">{o.createdBy?.name || 'النظام'}</td>
-                      <td className="p-3">{o.isApplied ? <span className="text-green-400">✔ نعم ({safeDateTime(o.appliedAt)})</span> : <span className="text-gray-500">⌛ لا</span>}</td>
+                      <td className="p-3" data-label="الوقت">{safeDateTime(o.timestamp)}</td>
+                      <td className="p-3" data-label="التاريخ">{safeDate(o.date)}</td>
+                      <td className="p-3" data-label="نوع"><ActionBadge action={o.action} /></td>
+                      <td className="p-3" data-label="السبب">{o.reason || '-'}</td>
+                      <td className="p-3" data-label="بواسطة">{o.createdBy?.name || 'النظام'}</td>
+                      <td className="p-3" data-label="تم التطبيق">{o.isApplied ? <span className="text-green-400">✔ نعم</span> : <span className="text-gray-500">⌛ لا</span>}</td>
                     </tr>
                   ))}
                 </tbody></table></div>
@@ -866,7 +924,7 @@ export default function TempSupervisorPage() {
             ]}>
               {loading.final ? <Loading /> : !finalAttendance.length
                 ? <EmptyState icon="✅" text="لا توجد سجلات حضور نهائية في هذا التاريخ" />
-                : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
+                : <div className="overflow-x-auto"><table className="w-full text-sm table-responsive-cards"><thead><tr className="bg-gray-800/60">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الموظف</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">التاريخ</th>
@@ -879,18 +937,18 @@ export default function TempSupervisorPage() {
                 </tr></thead><tbody>
                   {finalAttendance.map((r, i) => (
                     <tr key={r._id || i} className="border-t border-gray-800 hover:bg-gray-800/40">
-                      <td className="p-3">{i + 1}</td>
-                      <td className="p-3">
+                      <td className="p-3" data-label="#">{i + 1}</td>
+                      <td className="p-3" data-label="الموظف">
                         <div className="font-medium">{r.employee?.name || r.deviceUserName || 'غير معروف'}</div>
                         <div className="text-xs text-gray-500">{r.employee?.department || r.department || '-'}</div>
                       </td>
-                      <td className="p-3 whitespace-nowrap">{safeDate(r.date)}</td>
-                      <td className="p-3">{r.checkIn?.time ? safeTime(r.checkIn.time) : '---'}</td>
-                      <td className="p-3">{r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
-                      <td className="p-3">{r.duration ? `${r.duration.toFixed(1)} س` : '-'}</td>
-                      <td className="p-3"><StatusBadge status={r.status} /></td>
-                      <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                      <td className="p-3">
+                      <td className="p-3" data-label="التاريخ">{safeDate(r.date)}</td>
+                      <td className="p-3" data-label="أول دخول">{r.checkIn?.time ? safeTime(r.checkIn.time) : '---'}</td>
+                      <td className="p-3" data-label="آخر خروج">{r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
+                      <td className="p-3" data-label="المدة">{r.duration ? `${r.duration.toFixed(1)} س` : '-'}</td>
+                      <td className="p-3" data-label="الحالة"><StatusBadge status={r.status} /></td>
+                      <td className="p-3" data-label="إضافي">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
+                      <td className="p-3" data-label="Excel">
                         {r.employee?._id && (
                           <button
                             onClick={() => downloadAttendanceExcel(r.employee._id, fnStartDate, fnEndDate)}
@@ -912,8 +970,8 @@ export default function TempSupervisorPage() {
         {/* TAB: ADMIN */}
         {activeTab === 'admin' && (
           <>
-            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-5 mb-4">
-              <h3 className="text-base font-semibold mb-2">➕ إضافة تعليمة يدوية جديدة</h3>
+            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-4 sm:p-5 mb-4">
+              <h3 className="text-sm sm:text-base font-semibold mb-2">➕ إضافة تعليمة يدوية جديدة</h3>
               <p className="text-sm text-gray-400 mb-4">
                 ⚠️ هذه العملية لا تعدل أي سجل موجود. تقوم فقط بإنشاء تعليمة (ISADD / ISDELETE) في CHECKEXACT.
                 محرك الدمج سيطبق هذه التعليمات لاحقاً.
@@ -944,14 +1002,14 @@ export default function TempSupervisorPage() {
                     className="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
                 </div>
               </div>
-              <div className="flex gap-2 mt-3">
-                <button onClick={handleCreateOverride} className="px-5 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white text-sm font-medium transition-colors">💾 حفظ التعليمة</button>
-                <button onClick={() => { setAdminReason(''); setAdminTimestamp(''); }} className="px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm transition-colors">🧹 تفريغ</button>
+              <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                <button onClick={handleCreateOverride} className="w-full sm:w-auto px-5 py-2.5 sm:py-2 rounded-md bg-green-600 hover:bg-green-500 text-white text-sm font-medium transition-colors">💾 حفظ التعليمة</button>
+                <button onClick={() => { setAdminReason(''); setAdminTimestamp(''); }} className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm transition-colors">🧹 تفريغ</button>
               </div>
             </div>
 
-            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-4 mb-4">
-              <h3 className="text-sm font-semibold mb-2 text-yellow-400">🔗 إعادة ربط سجلات البصمة القديمة</h3>
+            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-3 sm:p-4 mb-4">
+              <h3 className="text-xs sm:text-sm font-semibold mb-2 text-yellow-400">🔗 إعادة ربط سجلات البصمة القديمة</h3>
               <p className="text-xs text-gray-400 mb-3">
                 بعد ربط موظفين جدد بمعرفات البصمة، قم بهذه العملية لربط سجلات البصمة السابقة بهم. هذا يضمن ظهور أسمائهم في جدول البصمات الخام.
               </p>
@@ -971,7 +1029,7 @@ export default function TempSupervisorPage() {
             <Table title="📋 آخر التعديلات اليدوية" count={adminOverrides.length}>
               {!adminOverrides.length
                 ? <EmptyState icon="✏️" text="لا توجد تعديلات بعد" />
-                : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
+                : <div className="overflow-x-auto"><table className="w-full text-sm table-responsive-cards"><thead><tr className="bg-gray-800/60">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الموظف</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الوقت</th>
@@ -982,13 +1040,13 @@ export default function TempSupervisorPage() {
                 </tr></thead><tbody>
                   {adminOverrides.map((o, i) => (
                     <tr key={o._id || i} className={`border-t border-gray-800 hover:bg-gray-800/40 ${o.action === 'ISADD' ? 'border-r-2 border-r-green-500' : 'border-r-2 border-r-red-500 opacity-70'}`}>
-                      <td className="p-3">{i + 1}</td>
-                      <td className="p-3">{o.employee?.name || `مستخدم #${o.deviceUserId}`} <span className="text-xs text-gray-500">(ID: {o.deviceUserId})</span></td>
-                      <td className="p-3 whitespace-nowrap">{safeDateTime(o.timestamp)}</td>
-                      <td className="p-3"><ActionBadge action={o.action} /></td>
-                      <td className="p-3 max-w-[150px] truncate">{o.reason || '-'}</td>
-                      <td className="p-3">{o.createdBy?.name || 'النظام'}</td>
-                      <td className="p-3">
+                      <td className="p-3" data-label="#">{i + 1}</td>
+                      <td className="p-3" data-label="الموظف">{o.employee?.name || `مستخدم #${o.deviceUserId}`} <span className="text-xs text-gray-500">(ID: {o.deviceUserId})</span></td>
+                      <td className="p-3" data-label="الوقت">{safeDateTime(o.timestamp)}</td>
+                      <td className="p-3" data-label="نوع"><ActionBadge action={o.action} /></td>
+                      <td className="p-3" data-label="السبب">{o.reason || '-'}</td>
+                      <td className="p-3" data-label="بواسطة">{o.createdBy?.name || 'النظام'}</td>
+                      <td className="p-3" data-label="حذف">
                         <button onClick={() => handleDeleteOverride(o._id)} className="px-2 py-1 rounded border border-gray-700 bg-gray-800 text-gray-400 hover:bg-red-900/40 hover:text-red-400 hover:border-red-700 text-xs transition-colors">🗑</button>
                       </td>
                     </tr>
@@ -1022,7 +1080,7 @@ export default function TempSupervisorPage() {
             ]}>
               {loading.merge ? <Loading /> : !mergeData.length
                 ? <EmptyState icon="🔄" text="لا توجد بيانات للدمج في هذا التاريخ" />
-                : <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-gray-800/60">
+                : <div className="overflow-x-auto"><table className="w-full text-sm table-responsive-cards"><thead><tr className="bg-gray-800/60">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الموظف</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">الوقت</th>
@@ -1036,11 +1094,11 @@ export default function TempSupervisorPage() {
                     else if (m.type === 'final') bgClass = 'bg-blue-900/20';
                     return (
                       <tr key={i} className={`border-t border-gray-800 hover:bg-gray-800/40 ${bgClass}`}>
-                        <td className="p-3">{i + 1}</td>
-                        <td className="p-3">{m.employeeName}</td>
-                        <td className="p-3 whitespace-nowrap">{safeDateTime(m.timestamp)}</td>
-                        <td className="p-3"><span className={`text-xs font-medium ${m.eventBadge}`}>{m.eventLabel}</span></td>
-                        <td className="p-3 text-sm">{m.detail}</td>
+                        <td className="p-3" data-label="#">{i + 1}</td>
+                        <td className="p-3" data-label="الموظف">{m.employeeName}</td>
+                        <td className="p-3" data-label="الوقت">{safeDateTime(m.timestamp)}</td>
+                        <td className="p-3" data-label="المصدر"><span className={`text-xs font-medium ${m.eventBadge}`}>{m.eventLabel}</span></td>
+                        <td className="p-3" data-label="التفاصيل">{m.detail}</td>
                       </tr>
                     );
                   })}
@@ -1110,7 +1168,7 @@ export default function TempSupervisorPage() {
             ]}>
               {activityLoading ? <Loading /> : !filteredData.length
                 ? <EmptyState icon="📊" text="اختر موظفاً واضغط بحث لعرض نشاطه" />
-                : <div className="max-h-[70vh] overflow-y-auto overflow-x-auto rounded-b-lg"><table className="w-full text-sm"><thead className="sticky top-0 z-10 bg-gray-800"><tr className="bg-gray-800">
+                 : <div className="max-h-[70vh] overflow-y-auto rounded-b-lg" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table className="w-full text-sm table-responsive-cards"><thead className="sticky top-0 z-10 bg-gray-800"><tr className="bg-gray-800">
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">#</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">التاريخ</th>
                   <th className="text-right p-3 text-xs text-gray-400 font-medium">اليوم</th>
@@ -1173,17 +1231,17 @@ export default function TempSupervisorPage() {
                     const diffClasses = 'text-xs font-medium';
                     return (
                       <tr key={r._id || i} className={`border-t border-gray-800 hover:bg-gray-800/40 ${rowBg}`} style={isFri ? { backgroundColor: 'rgba(236, 72, 153, 0.2)' } : {}}>
-                        <td className="p-3">{i + 1}</td>
-                        <td className="p-3 whitespace-nowrap">{safeDate(r.date)}</td>
-                        <td className="p-3">{getDayName(r.date)}</td>
-                        <td className="p-3">{r.checkIn?.time ? safeTime(r.checkIn.time) : '---'}</td>
-                        <td className="p-3">{r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
-                        <td className="p-3 font-medium text-blue-400">{r.duration ? `${r.duration.toFixed(1)} س` : (compensated ? '-' : '-')}</td>
-                        <td className="p-3">{statusDisplay ? <StatusBadge status={r.status} /> : <span className="text-gray-500">---</span>}</td>
-                        <td className={`p-3 ${diffClasses} ${lateArrival > 0 ? 'text-red-400' : 'text-gray-500'}`}>{lateArrival > 0 ? fmtMin(lateArrival) : '---'}</td>
-                        <td className={`p-3 ${diffClasses} ${earlyDeparture > 0 ? 'text-yellow-400' : 'text-gray-500'}`}>{earlyDeparture > 0 ? fmtMin(earlyDeparture) : '---'}</td>
-                        <td className="p-3">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                        <td className="p-3 text-xs max-w-[200px]" style={{ color: holiday ? '#ef4444' : compensated ? '#4ade80' : r._isWeeklyHoliday ? '#60a5fa' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
+                        <td className="p-3" data-label="#">{i + 1}</td>
+                        <td className="p-3" data-label="التاريخ">{safeDate(r.date)}</td>
+                        <td className="p-3" data-label="اليوم">{getDayName(r.date)}</td>
+                        <td className="p-3" data-label="أول دخول">{r.checkIn?.time ? safeTime(r.checkIn.time) : '---'}</td>
+                        <td className="p-3" data-label="آخر خروج">{r.checkOut?.time ? safeTime(r.checkOut.time) : '---'}</td>
+                        <td className="p-3 font-medium text-blue-400" data-label="المدة">{r.duration ? `${r.duration.toFixed(1)} س` : (compensated ? '-' : '-')}</td>
+                        <td className="p-3" data-label="الحالة">{statusDisplay ? <StatusBadge status={r.status} /> : <span className="text-gray-500">---</span>}</td>
+                        <td className={`p-3 ${diffClasses} ${lateArrival > 0 ? 'text-red-400' : 'text-gray-500'}`} data-label="تأخر الدخول">{lateArrival > 0 ? fmtMin(lateArrival) : '---'}</td>
+                        <td className={`p-3 ${diffClasses} ${earlyDeparture > 0 ? 'text-yellow-400' : 'text-gray-500'}`} data-label="خروج مبكر">{earlyDeparture > 0 ? fmtMin(earlyDeparture) : '---'}</td>
+                        <td className="p-3" data-label="إضافي">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
+                        <td className="p-3 text-xs" data-label="ملاحظات" style={{ color: holiday ? '#ef4444' : compensated ? '#4ade80' : r._isWeeklyHoliday ? '#60a5fa' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
                     );
                   })}
@@ -1194,9 +1252,9 @@ export default function TempSupervisorPage() {
             })()}
 
             {activityData.length > 0 && (
-              <div className="mt-4 bg-gray-800/40 border border-gray-700 rounded-lg p-4">
+              <div className="mt-4 bg-gray-800/40 border border-gray-700 rounded-lg p-3 sm:p-4">
                 <h4 className="text-sm font-semibold text-blue-400 mb-3">📊 ملخص النشاط</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-8 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3">
                   <StatCard label="إجمالي الأيام" value={activityData.length} color="text-blue-400" />
                   <StatCard label="أيام الحضور" value={activityData.filter(r => !r.isMissing && r.status !== 'absent' && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-green-400" />
                   <StatCard label="أيام الغياب" value={activityData.filter(r => !r.isMissing && r.status === 'absent' && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-red-400" />
@@ -1208,14 +1266,14 @@ export default function TempSupervisorPage() {
                   <StatCard label="إجمالي الإضافي" value={activityData.reduce((s, r) => s + (r.isMissing || r._isWeeklyHoliday || r._isHoliday ? 0 : (r.overtime || 0)), 0).toFixed(1)} color="text-purple-400" />
                 </div>
                 <h4 className="text-sm font-semibold text-orange-400 mb-3 mt-4">⚠️ حالات البصمات الناقصة</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                   <StatCard label="نقص بصمة دخول" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday && !r.checkIn?.time).length} color="text-orange-400" />
                   <StatCard label="نقص بصمة خروج" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday && !r.checkOut?.time).length} color="text-orange-400" />
                   <StatCard label="نقص البصمتين معاً" value={activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday && !r.checkIn?.time && !r.checkOut?.time).length} color="text-red-400" />
                   <StatCard label="أيام بدون أي سجل" value={activityData.filter(r => r.isMissing && !r._isWeeklyHoliday && !r._isHoliday).length} color="text-purple-400" />
                 </div>
                 <h4 className="text-sm font-semibold text-blue-400 mb-3 mt-4">⏱ فروقات وقت الدوام</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                   {(() => {
                     const valid = activityData.filter(r => !r.isMissing && !r._isWeeklyHoliday && !r._isHoliday);
                     const totalLate = valid.reduce((s, r) => {
@@ -1251,13 +1309,13 @@ export default function TempSupervisorPage() {
         {/* TAB: MAPPING */}
         {activeTab === 'mapping' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold flex items-center gap-2">
+            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-4 gap-2">
+                <h3 className="text-sm sm:text-base font-bold flex items-center gap-2 ml-2">
                   <span>👥</span>
-                  {showAllDeviceUsers ? 'جميع مستخدمي الجهاز' : 'مستخدمي الجهاز غير المرتبطين'}
+                  <span className="truncate">{showAllDeviceUsers ? 'جميع مستخدمي الجهاز' : 'مستخدمي الجهاز غير المرتبطين'}</span>
                 </h3>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer shrink-0">
                   <span className="text-xs text-gray-400">الكل</span>
                   <div className="relative">
                     <input
@@ -1323,10 +1381,10 @@ export default function TempSupervisorPage() {
               )}
             </div>
 
-            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-5">
-              <h3 className="text-base font-bold mb-4 flex items-center gap-2">
-                <span className="text-green-400">🔗</span>
-                ربط مستخدم النظام بجهاز البصمة
+            <div className="bg-gray-800/40 border border-gray-700 rounded-lg p-4 sm:p-5">
+              <h3 className="text-sm sm:text-base font-bold mb-4 flex items-center gap-2">
+                <span className="text-green-400 shrink-0">🔗</span>
+                <span>ربط مستخدم النظام بجهاز البصمة</span>
               </h3>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-400 mb-1">البحث عن مستخدم</label>
@@ -1380,18 +1438,18 @@ export default function TempSupervisorPage() {
                   ربط <strong>{selectedSystemUser.name}</strong> ← معرف الجهاز <strong>{selectedDeviceUser}</strong>
                 </div>
               )}
-              <div className="flex gap-3">
+              <div className="flex-col sm:flex-row flex gap-3">
                 <button
                   onClick={handleMapUser}
                   disabled={!selectedSystemUser || !selectedDeviceUser || mappingLoading}
-                  className="flex-1 py-2.5 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 py-2.5 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <span>🔗</span>
                   {mappingLoading ? 'جاري الربط...' : 'ربط المستخدم'}
                 </button>
                 <button
                   onClick={() => setShowBulkModal(true)}
-                  className="px-4 py-2.5 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
                 >
                   <span>👥</span>
                   ربط جماعي
@@ -1399,13 +1457,13 @@ export default function TempSupervisorPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-2 bg-gray-800/40 border border-gray-700 rounded-lg p-5">
-              <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+            <div className="lg:col-span-2 bg-gray-800/40 border border-gray-700 rounded-lg p-4 sm:p-5">
+              <h3 className="text-sm sm:text-base font-bold mb-4 flex items-center gap-2">
                 <span>📋</span>
                 المستخدمين المرتبطين حالياً
               </h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-responsive-cards">
                   <thead>
                     <tr className="bg-gray-800/60 border-b border-gray-700">
                       <th className="text-right p-3 text-xs font-medium">الموظف</th>
@@ -1417,13 +1475,13 @@ export default function TempSupervisorPage() {
                   <tbody>
                     {systemUsers.filter(u => u.zkUserId).map((u, i) => (
                       <tr key={u._id || i} className="border-t border-gray-700 hover:bg-gray-700/30">
-                        <td className="p-3">
+                        <td className="p-3" data-label="الموظف">
                           <span className="font-medium">{u.name}</span>
                           <span className="text-xs text-gray-500 mr-2">{u.email}</span>
                         </td>
-                        <td className="p-3 text-blue-400">{u.zkUserId}</td>
-                        <td className="p-3 text-gray-400">{u.department || '-'}</td>
-                        <td className="p-3">
+                        <td className="p-3 text-blue-400" data-label="معرف الجهاز">{u.zkUserId}</td>
+                        <td className="p-3 text-gray-400" data-label="القسم">{u.department || '-'}</td>
+                        <td className="p-3" data-label="">
                           <button
                             onClick={() => handleUnmapUser(u._id)}
                             className="text-xs px-3 py-1.5 bg-red-800/40 text-red-400 rounded-lg hover:bg-red-700/50 transition-colors"
@@ -1447,8 +1505,8 @@ export default function TempSupervisorPage() {
 
         {/* BULK MAPPING MODAL */}
         {showBulkModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[85vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center sm:items-center justify-center bg-black/60 p-0 sm:p-4 bulk-modal-overlay" onClick={() => setShowBulkModal(false)}>
+            <div className="bg-gray-800 border border-gray-700 shadow-2xl w-full sm:max-w-2xl p-4 sm:p-6 relative max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-xl mx-0 sm:mx-4" onClick={e => e.stopPropagation()}>
               <button onClick={() => setShowBulkModal(false)} className="absolute top-3 left-3 text-gray-500 hover:text-gray-300">
                 ✕
               </button>
@@ -1472,11 +1530,11 @@ export default function TempSupervisorPage() {
                           {du.fingerprintCount || du.fingerprints || 0} بصمات
                         </span>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full">
                         <input
                           type="text"
                           placeholder="ابحث عن مستخدم..."
-                          className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500 transition-colors"
+                          className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 outline-none focus:border-blue-500 transition-colors min-w-0"
                           onChange={async (e) => {
                             const val = e.target.value;
                             if (val.length > 1) {
@@ -1498,18 +1556,18 @@ export default function TempSupervisorPage() {
                   );
                 })}
               </div>
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex-col sm:flex-row flex gap-3">
                 <button
                   onClick={handleBulkMap}
                   disabled={mappingLoading || !bulkMapping.length}
-                  className="flex-1 py-2.5 bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 py-2.5 bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <span>🔗</span>
                   {mappingLoading ? 'جاري الربط...' : `ربط ${bulkMapping.length} مستخدم`}
                 </button>
                 <button
                   onClick={() => setShowBulkModal(false)}
-                  className="px-6 py-2.5 bg-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-600 transition-colors"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-600 transition-colors"
                 >
                   إلغاء
                 </button>

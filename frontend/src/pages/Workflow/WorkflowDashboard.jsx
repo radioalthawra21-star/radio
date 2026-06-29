@@ -68,7 +68,7 @@ const WorkflowDashboard = () => {
         <Card>
           <h3 className="font-bold text-dark mb-4">أداء الموظفين</h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-responsive-cards">
               <thead>
                 <tr className="border-b text-gray-500">
                   <th className="text-right py-2">الموظف</th>
@@ -81,11 +81,11 @@ const WorkflowDashboard = () => {
               <tbody>
                 {employeePerf.slice(0, 10).map((emp, i) => (
                   <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 font-medium text-dark">{emp.user?.name}</td>
-                    <td className="text-center en-num">{emp.total}</td>
-                    <td className="text-center en-num text-success">{emp.completed}</td>
-                    <td className="text-center en-num text-error">{emp.overdue}</td>
-                    <td className="text-center en-num">{emp.completionRate}%</td>
+                    <td className="py-2 font-medium text-dark" data-label="الموظف">{emp.user?.name}</td>
+                    <td className="text-center en-num" data-label="الإجمالي">{emp.total}</td>
+                    <td className="text-center en-num text-success" data-label="مكتمل">{emp.completed}</td>
+                    <td className="text-center en-num text-error" data-label="متأخر">{emp.overdue}</td>
+                    <td className="text-center en-num" data-label="معدل الإنجاز">{emp.completionRate}%</td>
                   </tr>
                 ))}
                 {employeePerf.length === 0 && (
@@ -99,7 +99,7 @@ const WorkflowDashboard = () => {
         <Card>
           <h3 className="font-bold text-dark mb-4">أداء الأقسام</h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-responsive-cards">
               <thead>
                 <tr className="border-b text-gray-500">
                   <th className="text-right py-2">القسم</th>
@@ -112,11 +112,11 @@ const WorkflowDashboard = () => {
               <tbody>
                 {departmentPerf.map((dept, i) => (
                   <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 font-medium text-dark">{dept.department}</td>
-                    <td className="text-center en-num">{dept.employeeCount}</td>
-                    <td className="text-center en-num">{dept.total}</td>
-                    <td className="text-center en-num text-success">{dept.completed}</td>
-                    <td className="text-center en-num">{dept.completionRate}%</td>
+                    <td className="py-2 font-medium text-dark" data-label="القسم">{dept.department}</td>
+                    <td className="text-center en-num" data-label="الموظفون">{dept.employeeCount}</td>
+                    <td className="text-center en-num" data-label="المهام">{dept.total}</td>
+                    <td className="text-center en-num text-success" data-label="مكتمل">{dept.completed}</td>
+                    <td className="text-center en-num" data-label="معدل الإنجاز">{dept.completionRate}%</td>
                   </tr>
                 ))}
                 {departmentPerf.length === 0 && (

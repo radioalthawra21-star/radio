@@ -336,8 +336,6 @@ const DepartmentReports = () => {
                   labels: chartData.deptDistribution.labels,
                   data: chartData.deptDistribution.data
                 }}
-                width={400}
-                height={300}
               />
             </div>
             <div className="bg-white rounded-lg shadow p-4">
@@ -345,6 +343,7 @@ const DepartmentReports = () => {
               <LineChart 
                 data={chartData.performanceTrend} 
                 options={{ 
+                  maintainAspectRatio: false,
                   plugins: { 
                     legend: { position: 'top' },
                     title: { 
@@ -353,8 +352,6 @@ const DepartmentReports = () => {
                     } 
                   } 
                 }} 
-                width={400} 
-                height={300} 
               />
             </div>
           </div>
@@ -368,7 +365,7 @@ const DepartmentReports = () => {
           <p className="text-center text-gray-500 py-8">لا توجد موظفين</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-responsive-cards">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">الموظف</th>
@@ -388,20 +385,20 @@ const DepartmentReports = () => {
                   const net = gross - deductions;
                   return (
                     <tr key={index}>
-                      <td className="px-3 py-4 text-left text-sm text-gray-900">{emp.name || '-'}</td>
-                      <td className="px-3 py-4 text-left text-sm text-gray-500">{emp.department ? getDepartmentName(emp.department) : '-'}</td>
-                      <td className="px-3 py-4 text-left text-sm text-gray-500">{emp.jobTitle || emp.position || '-'}</td>
-                      <td className="px-3 py-4 text-left text-sm font-medium">
+                      <td className="px-3 py-4 text-left text-sm text-gray-900" data-label="الموظف">{emp.name || '-'}</td>
+                      <td className="px-3 py-4 text-left text-sm text-gray-500" data-label="القسم">{emp.department ? getDepartmentName(emp.department) : '-'}</td>
+                      <td className="px-3 py-4 text-left text-sm text-gray-500" data-label="المنصب">{emp.jobTitle || emp.position || '-'}</td>
+                      <td className="px-3 py-4 text-left text-sm font-medium" data-label="الحالة">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           emp.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
                           {emp.isActive ? 'نشط' : 'غير نشط'}
                         </span>
                       </td>
-                      <td className="px-3 py-4 text-left text-sm font-mono text-gray-700">{formatCurrency(emp.baseSalary || 0)}</td>
-                      <td className="px-3 py-4 text-left text-sm font-mono text-green-600">{formatCurrency(gross - safeNum(emp.baseSalary))}</td>
-                      <td className="px-3 py-4 text-left text-sm font-mono text-red-600">{formatCurrency(deductions)}</td>
-                      <td className="px-3 py-4 text-left text-sm font-mono font-bold text-gray-900">{formatCurrency(net)}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono text-gray-700" data-label="الراتب الأساسي">{formatCurrency(emp.baseSalary || 0)}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono text-green-600" data-label="البدلات">{formatCurrency(gross - safeNum(emp.baseSalary))}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono text-red-600" data-label="الخصومات">{formatCurrency(deductions)}</td>
+                      <td className="px-3 py-4 text-left text-sm font-mono font-bold text-gray-900" data-label="صافي الراتب">{formatCurrency(net)}</td>
                     </tr>
                   );
                 })}
@@ -416,7 +413,7 @@ const DepartmentReports = () => {
         <Card className="mb-6">
           <h2 className="text-xl font-bold text-dark mb-4">إحصائيات الأقسام المفصلة</h2>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-responsive-cards">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">القسم</th>
@@ -430,12 +427,12 @@ const DepartmentReports = () => {
               <tbody className="divide-y divide-gray-200">
                 {deptStats.departmentBreakdown.map((dept, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 text-left text-sm text-gray-900">{dept.name || '-'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{dept.employeeCount || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{dept.activeEmployeeCount || '0'}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{formatNumber(dept.averagePerformance || 0)}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{formatCurrency(dept.averageSalary || 0)}</td>
-                    <td className="px-6 py-4 text-left text-sm text-gray-500">{formatNumber(dept.workHours || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-900" data-label="القسم">{dept.name || '-'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="الموظفين">{dept.employeeCount || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="الموظفين النشطين">{dept.activeEmployeeCount || '0'}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="متوسط الأداء">{formatNumber(dept.averagePerformance || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="الراتب المتوسط">{formatCurrency(dept.averageSalary || 0)}</td>
+                    <td className="px-6 py-4 text-left text-sm text-gray-500" data-label="الساعات العاملة">{formatNumber(dept.workHours || 0)}</td>
                   </tr>
                 ))}
               </tbody>

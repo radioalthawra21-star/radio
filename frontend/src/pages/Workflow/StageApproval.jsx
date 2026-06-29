@@ -60,7 +60,7 @@ const StageApproval = () => {
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex-1 cursor-pointer" onClick={() => navigate(`/workflow/task/${task._id}`)}>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-dark text-lg">{task.title}</h3>
+                    <h3 className="font-bold text-dark text-lg break-words">{task.title}</h3>
                     <span className={`badge text-xs px-2 py-0.5 rounded-full ${
                       task.kanbanStatus === 'pending_approval' ? 'bg-primary text-white' : 'bg-info text-white'
                     }`}>
@@ -68,7 +68,7 @@ const StageApproval = () => {
                     </span>
                   </div>
                   {task.description && <p className="text-sm text-gray-500 line-clamp-1">{task.description}</p>}
-                  <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                  <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-400">
                     <span>👤 {task.assignedTo?.map(u => u.name).join(', ') || 'غير معين'}</span>
                     {task.dueDate && <span className="en-num">📅 {formatDateArabic(task.dueDate)}</span>}
                     {task.workflowId && <span>📋 {task.workflowId.name}</span>}
@@ -78,7 +78,7 @@ const StageApproval = () => {
                   <div className="flex flex-col items-end gap-1">
                     <textarea
                       placeholder="ملاحظات (اختياري)"
-                      className="input text-sm min-h-[40px] w-40"
+                      className="input text-sm min-h-[44px] w-full md:w-40"
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                     />

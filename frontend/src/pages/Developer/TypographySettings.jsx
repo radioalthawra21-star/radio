@@ -192,6 +192,7 @@ const TypographySettings = () => {
 
         <div className="p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-500 mb-2">جدول</p>
+          <div className="overflow-x-auto">
            <table className="w-full text-right" style={{}}>
             <thead>
               <tr className="border-b">
@@ -213,6 +214,7 @@ const TypographySettings = () => {
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       </Card>
     </div>

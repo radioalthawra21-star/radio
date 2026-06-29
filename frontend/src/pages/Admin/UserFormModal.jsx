@@ -12,8 +12,8 @@ export default function UserFormModal({
   if (!showModal) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-md m-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 md:p-4 modal-overlay">
+      <Card className="w-full max-w-md mx-2 md:mx-4 modal-content">
         <h2 className="text-xl font-bold text-dark mb-4">
           {editingUser ? 'تعديل مستخدم' : 'إضافة مستخدم'}
         </h2>
@@ -26,26 +26,26 @@ export default function UserFormModal({
 
           <div className="mb-4">
             <label className="label">الاسم</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} className="input" required />
+            <input type="text" name="name" value={formData.name} onChange={handleChange} className="input min-h-[48px]" required />
           </div>
           <div className="mb-4">
             <label className="label">اسم المستخدم</label>
-            <input type="text" name="username" value={formData.username} onChange={handleChange} className="input" required />
+            <input type="text" name="username" value={formData.username} onChange={handleChange} className="input min-h-[48px]" required />
           </div>
           <div className="mb-4">
             <label className="label">البريد الإلكتروني</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} className="input" required />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} className="input min-h-[48px]" required />
           </div>
           <div className="mb-4">
             <label className="label">{editingUser ? 'كلمة المرور (اتركها فارغة إذا لا تريد تغييرها)' : 'كلمة المرور'}</label>
             <input type="password" name="password" value={formData.password} onChange={handleChange}
-              className="input" required={!editingUser} />
+              className="input min-h-[48px]" required={!editingUser} />
           </div>
 
           {isAdmin && (
             <div className="mb-4">
               <label className="label">الدور</label>
-              <select name="role" value={formData.role} onChange={handleChange} className="input">
+              <select name="role" value={formData.role} onChange={handleChange} className="input min-h-[48px]">
                 <option value="employee">موظف</option>
                 <option value="manager">مدير قسم</option>
                 <option value="hr">مسؤول الموارد البشرية</option>
@@ -55,7 +55,7 @@ export default function UserFormModal({
 
           <div className="mb-4">
             <label className="label">القسم</label>
-            <select name="department" value={formData.department} onChange={handleChange} className="input">
+            <select name="department" value={formData.department} onChange={handleChange} className="input min-h-[48px]">
               <option value="">اختر القسم</option>
               {customDepartments.length > 0 ? (
                 customDepartments.map(d => (
@@ -71,11 +71,11 @@ export default function UserFormModal({
             </select>
           </div>
 
-          <div className="flex gap-4">
-            <button type="submit" className="btn btn-primary flex-1">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+            <button type="submit" className="btn btn-primary flex-1 min-h-[48px]">
               {loading ? 'جاري الحفظ...' : 'حفظ'}
             </button>
-            <button type="button" onClick={onClose} className="btn btn-outline flex-1">إلغاء</button>
+            <button type="button" onClick={onClose} className="btn btn-outline flex-1 min-h-[48px]">إلغاء</button>
           </div>
         </form>
       </Card>

@@ -77,7 +77,7 @@ const TaskHistory = () => {
             <input type="date" lang="en" dir="ltr" className="input" value={filter.endDate} onChange={(e) => setFilter({ ...filter, endDate: e.target.value })} />
           </div>
           <div className="flex items-end gap-2">
-            <button onClick={() => setFilter({ status: '', startDate: '', endDate: '' })} className="btn btn-outline flex-1">إعادة تعيين</button>
+              <button onClick={() => setFilter({ status: '', startDate: '', endDate: '' })} className="btn btn-outline flex-1 min-h-[44px]">إعادة تعيين</button>
           </div>
         </div>
       </Card>
@@ -104,9 +104,9 @@ const TaskHistory = () => {
                           {task.status === 'rejected' ? '🚫' : task.isUnusual ? '⚠️' : '📝'}
                         </div>
                         <div>
-                          <h4 className="font-semibold text-dark">{task.title}</h4>
+                          <h4 className="font-semibold text-dark break-words">{task.title}</h4>
                           <p className="text-sm text-gray-600">{task.description}</p>
-                          <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                          <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-500">
                             <span>⏱️ {task.duration} ساعة</span>
                             {task.startTime && <span>🕐 {task.startTime} - {task.endTime}</span>}
                           </div>
@@ -115,11 +115,11 @@ const TaskHistory = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {task.isUnusual && <span className="badge bg-warning text-white">غير عادية</span>}
                         {task.managerScore && <span className="badge bg-info text-white">⭐ {task.managerScore}/100</span>}
                         {getStatusBadge(task.status)}
-                        <button onClick={() => handleDelete(task._id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors" title="حذف من السجل">🗑️</button>
+                        <button onClick={() => handleDelete(task._id)} className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors" title="حذف من السجل">🗑️</button>
                       </div>
                     </div>
                     {task.employeeNotes && (

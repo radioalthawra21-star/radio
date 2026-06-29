@@ -296,7 +296,7 @@ const EmployeeAttendanceReport = () => {
             </h3>
             {data.records && data.records.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-responsive-cards">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
                       <th className="text-right p-3 font-bold text-dark text-xs">التاريخ</th>
@@ -312,11 +312,11 @@ const EmployeeAttendanceReport = () => {
                       const statusInfo = ATTENDANCE_STATUS_MAP[r.status] || { label: r.status || '-', color: 'text-gray-600', dot: 'bg-gray-500' };
                       return (
                         <tr key={r._id} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-3 text-gray-700 font-medium">
+                          <td className="p-3 text-gray-700 font-medium" data-label="التاريخ">
                             <FaCalendarAlt className="inline w-3 h-3 ml-1 text-gray-400" />
                             {formatDateArabic(r.date)}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center" data-label="الحضور">
                             {r.checkIn?.time ? (
                               <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
                                 <FaSignInAlt className="text-[10px]" />
@@ -324,7 +324,7 @@ const EmployeeAttendanceReport = () => {
                               </span>
                             ) : <span className="text-xs text-gray-400">--:--</span>}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center" data-label="الانصراف">
                             {r.checkOut?.time ? (
                               <span className="inline-flex items-center gap-1 text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">
                                 <FaSignOutAlt className="text-[10px]" />
@@ -334,7 +334,7 @@ const EmployeeAttendanceReport = () => {
                               <span className="text-xs text-yellow-600">لم يسجل</span>
                             ) : <span className="text-xs text-gray-400">--:--</span>}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center" data-label="المدة">
                             {r.checkIn?.time && r.checkOut?.time ? (
                               <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
                                 <FaHourglassHalf className="text-[10px] text-gray-400" />
@@ -345,14 +345,14 @@ const EmployeeAttendanceReport = () => {
                               </span>
                             ) : <span className="text-xs text-gray-400">--</span>}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center" data-label="ساعات إضافية">
                             {r.overtime && r.overtime > 0 ? (
                               <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">
                                 {formatDuration(r.overtime)}
                               </span>
                             ) : <span className="text-xs text-gray-400">--</span>}
                           </td>
-                          <td className="p-3 text-center">
+                          <td className="p-3 text-center" data-label="الحالة">
                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusInfo.color}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot}`} />
                               {statusInfo.label}

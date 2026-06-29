@@ -92,7 +92,7 @@ const WorkflowForm = () => {
                     <span className="text-sm font-bold text-dark">المرحلة {index + 1}</span>
                     <button type="button" onClick={() => removeStage(index)} className="text-error text-sm">✕ حذف</button>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-gray-500">الاسم *</label>
                       <input type="text" value={stage.name} onChange={(e) => updateStage(index, 'name', e.target.value)} className="input text-sm" required />
@@ -124,9 +124,9 @@ const WorkflowForm = () => {
               ))}
             </div>
           </div>
-          <div className="flex gap-4">
-            <button type="submit" disabled={loading} className="btn btn-primary">{loading ? 'جاري الحفظ...' : (isEdit ? 'تحديث' : 'إنشاء')}</button>
-            <button type="button" onClick={() => navigate('/workflows')} className="btn btn-outline">إلغاء</button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button type="submit" disabled={loading} className="btn btn-primary min-h-[44px]">{loading ? 'جاري الحفظ...' : (isEdit ? 'تحديث' : 'إنشاء')}</button>
+            <button type="button" onClick={() => navigate('/workflows')} className="btn btn-outline min-h-[44px]">إلغاء</button>
           </div>
         </form>
       </Card>

@@ -108,21 +108,21 @@ const Attendance = () => {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-3 md:p-6 max-w-5xl mx-auto">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(205, 111, 19, 0.1)', color: '#CD6F13' }}>
-            <FaClock className="w-6 h-6" />
+          <div className="p-3 rounded-xl flex-shrink-0" style={{ backgroundColor: 'rgba(205, 111, 19, 0.1)', color: '#CD6F13' }}>
+            <FaClock className="w-5 h-5 md:w-6 md:h-6" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#182E4E' }}>الحضور والانصراف</h1>
-            <p className="text-sm" style={{ color: '#6B7280' }}>{formatDate(new Date().toISOString())}</p>
+          <div className="min-w-0">
+            <h1 className="text-xl md:text-2xl font-bold truncate" style={{ color: '#182E4E' }}>الحضور والانصراف</h1>
+            <p className="text-xs md:text-sm truncate" style={{ color: '#6B7280' }}>{formatDate(new Date().toISOString())}</p>
           </div>
         </div>
         {todayRecord?.status && (
-          <span className={`px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 ${
+          <span className={`px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 self-start md:self-auto ${
             STATUS_MAP[todayRecord.status]?.bg || 'bg-gray-100'
           } ${STATUS_MAP[todayRecord.status]?.color || 'text-gray-600'}`}>
             <FaCircle className={`w-2 h-2 ${STATUS_MAP[todayRecord.status]?.dot || 'bg-gray-500'}`} />
@@ -192,26 +192,26 @@ const Attendance = () => {
       </div>
 
       {/* Today Card */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white rounded-xl shadow-md p-4 md:p-6 mb-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
           <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#182E4E' }}>
-            <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(28, 149, 164, 0.1)', color: '#1C95A4' }}>
+            <div className="p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: 'rgba(28, 149, 164, 0.1)', color: '#1C95A4' }}>
               <FaCalendarAlt className="w-4 h-4" />
             </div>
             سجل اليوم
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
             {canSync && (
               <button onClick={handleSync} disabled={syncing}
-                className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2">
-                <FaSync className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+                className="px-3 py-2.5 min-h-[44px] bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                <FaSync className={`w-3.5 h-3.5 flex-shrink-0 ${syncing ? 'animate-spin' : ''}`} />
                 {syncing ? 'جاري المزامنة...' : 'مزامنة مع جهاز البصمة'}
               </button>
             )}
             <button onClick={() => navigate('/timesheet')}
-              className="px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              className="px-3 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
               style={{ backgroundColor: '#182E4E', color: 'white' }}>
-              <FaFileInvoice className="w-3.5 h-3.5" />
+              <FaFileInvoice className="w-3.5 h-3.5 flex-shrink-0" />
               كشف الحضور الشهري
             </button>
           </div>
@@ -240,20 +240,20 @@ const Attendance = () => {
           )}
 
           {checkedIn && checkedOut && (
-            <div className="flex items-center gap-6 mb-6">
-              <div className="text-center">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-6">
+              <div className="text-center min-w-[80px]">
                 <p className="text-xs mb-1" style={{ color: '#6B7280' }}>الحضور</p>
-                <p className="text-xl font-bold text-green-600">{formatTime(checkedIn)}</p>
+                <p className="text-lg sm:text-xl font-bold text-green-600">{formatTime(checkedIn)}</p>
               </div>
-              <div className="w-px h-10" style={{ backgroundColor: '#E5E7EB' }} />
-              <div className="text-center">
+              <div className="hidden sm:block w-px h-10" style={{ backgroundColor: '#E5E7EB' }} />
+              <div className="text-center min-w-[80px]">
                 <p className="text-xs mb-1" style={{ color: '#6B7280' }}>الانصراف</p>
-                <p className="text-xl font-bold text-red-600">{formatTime(checkedOut)}</p>
+                <p className="text-lg sm:text-xl font-bold text-red-600">{formatTime(checkedOut)}</p>
               </div>
-              <div className="w-px h-10" style={{ backgroundColor: '#E5E7EB' }} />
-              <div className="text-center">
+              <div className="hidden sm:block w-px h-10" style={{ backgroundColor: '#E5E7EB' }} />
+              <div className="text-center min-w-[80px]">
                 <p className="text-xs mb-1" style={{ color: '#6B7280' }}>المدة</p>
-                <p className="text-xl font-bold" style={{ color: '#1C95A4' }}>{workDuration}</p>
+                <p className="text-lg sm:text-xl font-bold" style={{ color: '#1C95A4' }}>{workDuration}</p>
               </div>
             </div>
           )}
@@ -269,7 +269,7 @@ const Attendance = () => {
 
       {/* History Section */}
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="p-6 pb-0">
+        <div className="p-4 md:p-6 pb-0">
           <h2 className="flex items-center gap-2 text-lg font-bold mb-0" style={{ color: '#182E4E' }}>
             <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(205, 111, 19, 0.1)', color: '#CD6F13' }}>
               <FaHistory className="w-4 h-4" />
@@ -285,7 +285,7 @@ const Attendance = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-responsive-cards">
               <thead>
                 <tr style={{ backgroundColor: '#182E4E' }}>
                   <th className="px-4 py-3 text-white font-semibold text-xs text-right whitespace-nowrap">التاريخ</th>
@@ -308,22 +308,22 @@ const Attendance = () => {
                   }
                   return (
                     <tr key={r._id || r.id} className="border-b border-gray-100 transition-colors hover:bg-gray-50">
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="التاريخ">
                         <span className="flex items-center gap-2 font-medium">
-                          <FaCalendarAlt className="w-3 h-3" style={{ color: '#9CA3AF' }} />
+                          <FaCalendarAlt className="w-3 h-3 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                           {r.date ? new Date(r.date).toLocaleDateString('ar-SA') : '-'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="الحضور">
                         <span className="font-semibold text-green-700">{formatTime(r.checkIn?.time)}</span>
                       </td>
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="الانصراف">
                         <span className="font-semibold text-red-700">{formatTime(r.checkOut?.time)}</span>
                       </td>
-                      <td className="px-4 py-3 align-middle" style={{ color: '#1C95A4' }}>
+                      <td className="px-4 py-3 align-middle" data-label="المدة" style={{ color: '#1C95A4' }}>
                         <span className="font-medium">{duration}</span>
                       </td>
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="الحالة">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusInfo.bg} ${statusInfo.color}`}>
                           <StatusIcon className="w-3 h-3" />
                           {statusInfo.label}

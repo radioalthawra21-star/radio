@@ -55,7 +55,7 @@ const EmployeeWorkflowTasks = () => {
     <div className="animate-fade-in">
       <h1 className="text-3xl font-bold text-dark mb-6">مهامي</h1>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {TABS.map(tab => (
           <button
             key={tab.key}
@@ -83,17 +83,17 @@ const EmployeeWorkflowTasks = () => {
             <div key={task._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100">
               <div className="flex items-start justify-between">
                 <div className="flex-1 cursor-pointer" onClick={() => navigate(`/workflow/task/${task._id}`)}>
-                  <h3 className="font-bold text-dark">{task.title}</h3>
+                  <h3 className="font-bold text-dark break-words">{task.title}</h3>
                   <p className="text-sm text-gray-500 mt-1 line-clamp-2">{task.description}</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${PRIORITY_CLASSES[task.priority] || 'bg-gray-100 text-gray-600'}`}>
                     {task.priority === 'urgent' ? 'عاجل' : task.priority === 'high' ? 'عالية' : task.priority === 'low' ? 'منخفضة' : 'متوسطة'}
                   </span>
                   <select
                     value={task.kanbanStatus || 'new'}
                     onChange={(e) => handleStatusChange(task._id, e.target.value)}
-                    className="text-xs border rounded-lg px-2 py-1 bg-gray-50 cursor-pointer"
+                    className="text-xs border rounded-lg px-2 py-1 min-h-[44px] bg-gray-50 cursor-pointer"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {Object.entries(STATUS_LABELS).map(([key, label]) => (
@@ -102,7 +102,7 @@ const EmployeeWorkflowTasks = () => {
                   </select>
                 </div>
               </div>
-              <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-gray-400">
                 {task.dueDate && (
                   <span className={`en-num ${new Date(task.dueDate) < new Date() && task.kanbanStatus !== 'completed' ? 'text-error font-bold' : ''}`}>
                     📅 {formatDateArabic(task.dueDate)}

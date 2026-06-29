@@ -9,15 +9,15 @@ export default function DeptFormModal({
   if (!showDeptModal) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-md m-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 md:p-4 modal-overlay">
+      <Card className="w-full max-w-md mx-2 md:mx-4 modal-content">
         <h2 className="text-xl font-bold text-dark mb-4">إضافة قسم جديد</h2>
         <form onSubmit={handleAddDepartment}>
           <div className="mb-4">
             <label className="label">اسم القسم</label>
             <input type="text" value={deptForm.name}
               onChange={(e) => setDeptForm({ ...deptForm, name: e.target.value })}
-              className="input" placeholder="أدخل اسم القسم" required />
+              className="input min-h-[48px]" placeholder="أدخل اسم القسم" required />
           </div>
           <div className="mb-4">
             <label className="label">اللون</label>
@@ -30,13 +30,13 @@ export default function DeptFormModal({
               ))}
             </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
             <button type={deptLoading ? 'button' : 'submit'}
               disabled={deptLoading}
-              className={deptLoading ? 'btn btn-primary opacity-50' : 'btn btn-primary flex-1'}>
+              className={deptLoading ? 'btn btn-primary opacity-50 min-h-[48px]' : 'btn btn-primary flex-1 min-h-[48px]'}>
               {deptLoading ? 'جاري الحفظ...' : 'حفظ'}
             </button>
-            <button type="button" onClick={onClose} className="btn btn-outline flex-1">إلغاء</button>
+            <button type="button" onClick={onClose} className="btn btn-outline flex-1 min-h-[48px]">إلغاء</button>
           </div>
         </form>
       </Card>

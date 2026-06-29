@@ -64,11 +64,11 @@ const AuditLogs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-3 md:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-dark">سجلات التدقيق</h1>
-          <p className="text-gray-600 mt-1">مراجعة وتصفية أحداث النظام للأمان والامتثال</p>
+          <h1 className="text-xl md:text-2xl font-bold text-dark">سجلات التدقيق</h1>
+          <p className="text-gray-600 mt-1 text-sm md:text-base">مراجعة وتصفية أحداث النظام للأمان والامتثال</p>
         </div>
 
         {stats && (
@@ -91,13 +91,13 @@ const AuditLogs = () => {
           onReset={handleReset} onApply={loadAuditLogs} />
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b">
-            <div className="flex justify-between items-center">
+          <div className="px-4 md:px-6 py-4 border-b">
+            <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
               <h2 className="text-lg font-semibold text-dark">سجلات التدقيق</h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-col md:flex-row">
                 {['csv', 'json'].map(f => (
                   <button key={f} onClick={() => handleExport(f)} disabled={exporting}
-                    className={`px-3 py-1.5 ${f === 'csv' ? 'bg-success' : 'bg-info'} text-white rounded hover:opacity-90 transition-colors ${exporting ? 'opacity-70' : ''}`}>
+                    className={`px-3 py-1.5 ${f === 'csv' ? 'bg-success' : 'bg-info'} text-white rounded hover:opacity-90 transition-colors ${exporting ? 'opacity-70' : ''} w-full md:w-auto text-center`}>
                     {exporting ? 'جاري التصدير...' : `تصدير ${f.toUpperCase()}`}
                   </button>
                 ))}
@@ -119,7 +119,7 @@ const AuditLogs = () => {
             <div className="py-12 text-center text-gray-500"><p>لا توجد سجلات تدقيق مطابقة للمعايير المحددة</p></div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 table-responsive-cards">
                 <thead className="bg-gray-50">
                   <tr>
                     {['التاريخ والوقت', 'المستخدم', 'الإجراء', 'الكيان', 'معرف الكيان', 'مستوى المخاطر', 'الوصف'].map(h => (
@@ -130,20 +130,20 @@ const AuditLogs = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {auditLogs.map(log => (
                     <tr key={log._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDateTime(log.createdAt)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="التاريخ والوقت">{formatDateTime(log.createdAt)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap" data-label="المستخدم">
                         <div className="text-sm font-medium text-dark">{log.user?.name || 'نظام'}</div>
                         {log.user?.username && <p className="text-xs text-gray-500">(@{log.user.username})</p>}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">{getActionLabel(log.action)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">{log.entity || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm break-all">{log.entityId || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm" data-label="الإجراء">{getActionLabel(log.action)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm" data-label="الكيان">{log.entity || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm break-all" data-label="معرف الكيان">{log.entityId || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap" data-label="مستوى المخاطر">
                         <span className={`px-2 py-0.5 text-xs rounded-full ${getRiskLevelColor(log.riskLevel)}`}>
                           {log.riskLevel?.charAt(0).toUpperCase() + log.riskLevel?.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600" data-label="الوصف">
                         {log.details ? JSON.stringify(log.details).substring(0, 50) + '...' : '-'}
                       </td>
                     </tr>

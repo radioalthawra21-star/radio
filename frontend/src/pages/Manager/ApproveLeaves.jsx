@@ -125,13 +125,13 @@ const ApproveLeaves = () => {
         <div className="space-y-4">
           {requests.map((req) => (
             <div key={req._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                <div className="flex items-start gap-4 flex-1 min-w-0">
+                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
                     {LEAVE_TYPE_ICONS[req.type] || '📋'}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h3 className="font-bold text-gray-900">{req.employee?.name || 'موظف'}</h3>
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                         {req.employee?.department || ''}
@@ -162,22 +162,22 @@ const ApproveLeaves = () => {
                     <p className="text-sm text-gray-600 mt-2 bg-gray-50 p-2 rounded-lg">
                       {req.reason}
                     </p>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 flex-wrap">
                       <span>🕐 قدّم: {new Date(req.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                       {req.coveragePlan && <span>🔄 التغطية: {req.coveragePlan}</span>}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mr-4">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => req.days > 3 ? openApproveModal(req) : handleApproveFull(req._id)}
-                    className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
+                    className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
                   >
                     ✔ موافقة
                   </button>
                   <button
                     onClick={() => setRejectionModal(req._id)}
-                    className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+                    className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
                   >
                     ✕ رفض
                   </button>
@@ -199,7 +199,7 @@ const ApproveLeaves = () => {
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <button
                   onClick={() => { handleApproveFull(approveModal._id); setApproveModal(null); }}
-                  className="w-full text-green-800 hover:text-green-900 text-sm font-medium transition-colors text-center py-2"
+                  className="w-full text-green-800 hover:text-green-900 text-sm font-medium transition-colors text-center py-2.5 min-h-[44px]"
                 >
                   ✔ قبول كامل الإجازة ({approveModal.days} يوم)
                 </button>
@@ -223,7 +223,7 @@ const ApproveLeaves = () => {
                   <button
                     onClick={() => { handleApprovePartial(approveModal._id, approvedDays); }}
                     disabled={!approvedDays || approvedDays < 1}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50"
+                    className="px-4 py-2.5 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50"
                   >
                     تأكيد
                   </button>
@@ -254,13 +254,13 @@ const ApproveLeaves = () => {
             <div className="flex items-center gap-2 mt-4">
               <button
                 onClick={handleReject}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                className="px-4 py-2.5 min-h-[44px] bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
               >
                 تأكيد الرفض
               </button>
               <button
                 onClick={() => { setRejectionModal(null); setRejectionReason(''); }}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                className="px-4 py-2.5 min-h-[44px] bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
               >
                 إلغاء
               </button>

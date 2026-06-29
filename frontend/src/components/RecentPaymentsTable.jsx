@@ -27,7 +27,7 @@ const RecentPaymentsTable = ({ payments, formatCurrency }) => {
           المدفوعات الأخيرة
         </h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 table-responsive-cards">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">الموظف</th>
@@ -49,10 +49,10 @@ const RecentPaymentsTable = ({ payments, formatCurrency }) => {
                 </tr>
               ) : (payments.map((payment) => (
                 <tr key={payment.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{payment.employee}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(payment.amount)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-label="الموظف">{payment.employee}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="المبلغ">{formatCurrency(payment.amount)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="التاريخ">{payment.date}</td>
+                  <td className="px-6 py-4 whitespace-nowrap" data-label="الحالة">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(payment.status)}`}>
                       {statusLabel(payment.status)}
                     </span>

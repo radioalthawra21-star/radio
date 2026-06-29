@@ -56,7 +56,7 @@ export default function PerformanceSection({
               <div className="p-8 text-center text-gray-500">لا توجد تقييمات أداء</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full table-responsive-cards">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الموظف</th>
@@ -70,15 +70,15 @@ export default function PerformanceSection({
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {reviews.map((review) => (
                       <tr key={review._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{review.employee?.name || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{review.reviewer?.name || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{review.reviewPeriod?.period} {review.reviewPeriod?.year}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{review.finalRating || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={`${review.status === 'draft' ? 'draft_review' : review.status}`} /></td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button onClick={() => navigate(`/performance/reviews/${review._id}`)} className="text-blue-600 hover:text-blue-900 mr-3">عرض</button>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-label="الموظف">{review.employee?.name || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="المدقق">{review.reviewer?.name || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="الفترة">{review.reviewPeriod?.period} {review.reviewPeriod?.year}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="التقييم">{review.finalRating || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap" data-label="الحالة"><StatusBadge status={`${review.status === 'draft' ? 'draft_review' : review.status}`} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="إجراءات">
+                          <button onClick={() => navigate(`/performance/reviews/${review._id}`)} className="text-blue-600 hover:text-blue-900 mr-3 min-h-[44px]">عرض</button>
                           {review.status === 'draft' && (
-                            <button onClick={() => navigate(`/performance/reviews/${review._id}/edit`)} className="text-green-600 hover:text-green-900">تعديل</button>
+                            <button onClick={() => navigate(`/performance/reviews/${review._id}/edit`)} className="text-green-600 hover:text-green-900 min-h-[44px]">تعديل</button>
                           )}
                         </td>
                       </tr>
@@ -100,7 +100,7 @@ export default function PerformanceSection({
               <div className="p-8 text-center text-gray-500">لا توجد مؤشرات رئيسية</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full table-responsive-cards">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
@@ -115,14 +115,14 @@ export default function PerformanceSection({
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {kpis.map((kpi) => (
                       <tr key={kpi._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{kpi.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{kpi.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{kpi.metric}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{kpi.target} {kpi.unit}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{kpi.applicableRoles?.join(', ') || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={kpi.isActive ? 'open' : 'closed'} /></td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button onClick={() => navigate(`/performance/kpis/${kpi._id}/edit`)} className="text-green-600 hover:text-green-900">تعديل</button>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-label="الاسم">{kpi.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="الفئة">{kpi.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="المؤشر">{kpi.metric}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="الهدف">{kpi.target} {kpi.unit}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="الأقسام">{kpi.applicableRoles?.join(', ') || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap" data-label="الحالة"><StatusBadge status={kpi.isActive ? 'open' : 'closed'} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="إجراءات">
+                          <button onClick={() => navigate(`/performance/kpis/${kpi._id}/edit`)} className="text-green-600 hover:text-green-900 min-h-[44px]">تعديل</button>
                         </td>
                       </tr>
                     ))}

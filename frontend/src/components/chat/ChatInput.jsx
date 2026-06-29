@@ -130,7 +130,7 @@ const ChatInput = ({ chat }) => {
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white p-3">
+    <div className="border-t border-gray-200 bg-white p-3 safe-bottom">
       {inputDisabled && (
         <div className="mb-2 p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 text-center">
           🔒 المحادثة مقفلة — فقط المشرف يمكنه الإرسال

@@ -98,7 +98,7 @@ const ProposalsList = () => {
                   <div>
                     <h3 className="font-semibold text-dark text-lg">{proposal.title}</h3>
                     <p className="text-sm text-gray-600">{proposal.description}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
                       <span>👤 {proposal.createdBy?.name}</span>
                       <span>🏢 {proposal.createdBy?.department}</span>
                       <span>⏱️ {proposal.duration} ساعة</span>

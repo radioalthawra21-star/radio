@@ -337,7 +337,7 @@ const LeaveManagement = () => {
   const renderTableContent = () => (
     <>
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full table-responsive-cards">
           <thead>
             <tr className="border-b text-right">
               <th className="p-3">الموظف</th>
@@ -354,18 +354,18 @@ const LeaveManagement = () => {
               const statusInfo = getStatusInfo(r.status);
               return (
                 <tr key={r._id || r.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{getEmployeeNameFromRecord(r)}</td>
-                  <td className="p-3">{getLeaveTypeLabelFn(r.type)}</td>
-                  <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintDate ? new Date(r.fingerprintDate).toLocaleDateString('ar-SA') : '-') : (r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-')}</td>
-                  <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintType === 'in' ? 'دخول' : 'خروج') : (r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-')}</td>
-                  <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintTime || '-') : (r.days || 0)}</td>
-                  <td className="p-3">
+                  <td className="p-3" data-label="الموظف">{getEmployeeNameFromRecord(r)}</td>
+                  <td className="p-3" data-label="النوع">{getLeaveTypeLabelFn(r.type)}</td>
+                  <td className="p-3" data-label="من">{r.type === 'fingerprint_forgotten' ? (r.fingerprintDate ? new Date(r.fingerprintDate).toLocaleDateString('ar-SA') : '-') : (r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-')}</td>
+                  <td className="p-3" data-label="إلى">{r.type === 'fingerprint_forgotten' ? (r.fingerprintType === 'in' ? 'دخول' : 'خروج') : (r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-')}</td>
+                  <td className="p-3" data-label="الأيام">{r.type === 'fingerprint_forgotten' ? (r.fingerprintTime || '-') : (r.days || 0)}</td>
+                  <td className="p-3" data-label="الحالة">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                       {statusInfo.label}
                     </span>
                   </td>
-                  <td className="p-3">
-                    <div className="flex gap-2 items-center">
+                  <td className="p-3" data-label="الإجراءات">
+                    <div className="flex gap-2 items-center flex-wrap">
                       {canApprove(r.status) ? (
                         <>
                           <button
@@ -403,20 +403,20 @@ const LeaveManagement = () => {
       </div>
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-4">
-          <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50">السابق</button>
-          <span className="px-3 py-1">{currentPage} / {totalPages}</span>
-          <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1 border rounded disabled:opacity-50">التالي</button>
+          <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50 min-h-[44px] min-w-[80px]">السابق</button>
+          <span className="px-3 py-1 flex items-center">{currentPage} / {totalPages}</span>
+          <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1 border rounded disabled:opacity-50 min-h-[44px] min-w-[80px]">التالي</button>
         </div>
       )}
     </>
   );
-
+        
   return (
-    <div className="p-6" dir="rtl">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">إدارة الإجازات</h1>
+    <div className="p-4 md:p-6" dir="rtl">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
+        <h1 className="text-xl md:text-2xl font-bold">إدارة الإجازات</h1>
         {activeTab === 'reports' && (
-          <button onClick={exportToPDF} className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 text-sm font-medium">
+          <button onClick={exportToPDF} className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 text-sm font-medium w-full md:w-auto text-center">
             📥 تصدير PDF
           </button>
         )}
@@ -435,12 +435,12 @@ const LeaveManagement = () => {
       )}
 
       <Card className="mb-6">
-        <div className="flex gap-4 mb-4 flex-wrap">
+        <div className="flex gap-4 mb-4 overflow-x-auto pb-2 snap-x snap-mandatory">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex-shrink-0 snap-start ${
                 activeTab === tab.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -562,16 +562,16 @@ const LeaveManagement = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mr-4">
+                      <div className="flex flex-wrap items-center gap-2 mr-4">
                         <button
                           onClick={() => openApproveModal(req)}
-                          className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-sm font-medium"
+                          className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-sm font-medium min-h-[44px] min-w-[80px]"
                         >
                           موافقة
                         </button>
                         <button
                           onClick={() => setRejectionModal(req)}
-                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-medium"
+                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-medium min-h-[44px] min-w-[80px]"
                         >
                           رفض
                         </button>
@@ -582,9 +582,9 @@ const LeaveManagement = () => {
               </div>
               {totalPages > 1 && (
                 <div className="flex justify-center gap-2 mt-4">
-                  <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50">السابق</button>
-                  <span className="px-3 py-1">{currentPage} / {totalPages}</span>
-                  <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1 border rounded disabled:opacity-50">التالي</button>
+                  <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50 min-h-[44px] min-w-[80px]">السابق</button>
+                  <span className="px-3 py-1 flex items-center">{currentPage} / {totalPages}</span>
+                  <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1 border rounded disabled:opacity-50 min-h-[44px] min-w-[80px]">التالي</button>
                 </div>
               )}
             </>
@@ -651,7 +651,7 @@ const LeaveManagement = () => {
             ) : (
               <>
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full table-responsive-cards">
                     <thead>
                       <tr className="border-b text-right">
                         <th className="p-3">الموظف</th>
@@ -667,12 +667,12 @@ const LeaveManagement = () => {
                         const statusInfo = getStatusInfo(r.status);
                         return (
                           <tr key={r._id || r.id} className="border-b hover:bg-gray-50">
-                            <td className="p-3">{getEmployeeNameFromRecord(r)}</td>
-                            <td className="p-3">{getLeaveTypeLabelFn(r.type)}</td>
-                            <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintDate ? new Date(r.fingerprintDate).toLocaleDateString('ar-SA') : '-') : (r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-')}</td>
-                            <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintType === 'in' ? 'دخول' : 'خروج') : (r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-')}</td>
-                            <td className="p-3">{r.type === 'fingerprint_forgotten' ? (r.fingerprintTime || '-') : (r.days || 0)}</td>
-                            <td className="p-3">
+                            <td className="p-3" data-label="الموظف">{getEmployeeNameFromRecord(r)}</td>
+                            <td className="p-3" data-label="النوع">{getLeaveTypeLabelFn(r.type)}</td>
+                            <td className="p-3" data-label="من">{r.type === 'fingerprint_forgotten' ? (r.fingerprintDate ? new Date(r.fingerprintDate).toLocaleDateString('ar-SA') : '-') : (r.startDate ? new Date(r.startDate).toLocaleDateString('ar-SA') : '-')}</td>
+                            <td className="p-3" data-label="إلى">{r.type === 'fingerprint_forgotten' ? (r.fingerprintType === 'in' ? 'دخول' : 'خروج') : (r.endDate ? new Date(r.endDate).toLocaleDateString('ar-SA') : '-')}</td>
+                            <td className="p-3" data-label="الأيام">{r.type === 'fingerprint_forgotten' ? (r.fingerprintTime || '-') : (r.days || 0)}</td>
+                            <td className="p-3" data-label="الحالة">
                               <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                                 {statusInfo.label}
                               </span>

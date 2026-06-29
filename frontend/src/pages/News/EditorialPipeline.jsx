@@ -126,10 +126,10 @@ const EditorialPipeline = () => {
         <p className="text-gray-500 text-sm">AI Editorial Pipeline - معالجة النصوص الإخبارية مرحلة بمرحلة</p>
       </div>
 
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         <button
           onClick={() => setMode('regex')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
             mode === 'regex'
               ? 'bg-primary text-white shadow-sm'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -139,7 +139,7 @@ const EditorialPipeline = () => {
         </button>
         <button
           onClick={() => setMode('ai')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
             mode === 'ai'
               ? 'bg-purple-600 text-white shadow-sm'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -201,7 +201,7 @@ const EditorialPipeline = () => {
         <button
           onClick={handleRunAll}
           disabled={!inputText.trim() || runningAll || !!processingStage}
-          className={`w-full px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`w-full px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 min-h-[48px] ${
             runningAll
               ? 'bg-purple-100 text-purple-700 border border-purple-200'
               : inputText.trim() && !processingStage
@@ -254,13 +254,13 @@ const EditorialPipeline = () => {
                 <button
                   onClick={() => handleRunStage(s.id)}
                   disabled={!enabled || processing}
-                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                    done
-                      ? 'bg-green-50 text-green-600 border border-green-200'
-                      : enabled && !processing
-                        ? 'bg-primary text-white shadow-sm hover:bg-primary-dark'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
+          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-h-[44px] ${
+            done
+              ? 'bg-green-50 text-green-600 border border-green-200'
+              : enabled && !processing
+                ? 'bg-primary text-white shadow-sm hover:bg-primary-dark'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
                 >
                   {processing ? (
                     <span className="flex items-center gap-2">
@@ -283,7 +283,7 @@ const EditorialPipeline = () => {
                   </div>
                   <button
                     onClick={() => handleCopy(stageResult.text)}
-                    className="absolute top-2 left-2 p-1.5 bg-white rounded-lg shadow-sm border border-gray-200 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute top-2 left-2 p-2 bg-white rounded-lg shadow-sm border border-gray-200 text-gray-400 hover:text-gray-600 transition-colors min-h-[44px] min-w-[44px]"
                     title="نسخ"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,7 +312,7 @@ const EditorialPipeline = () => {
             </div>
             <button
               onClick={() => handleCopy(results[6].text)}
-              className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium border border-green-200"
+              className="px-4 py-2.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium border border-green-200 min-h-[44px]"
             >
               نسخ النص النهائي
             </button>

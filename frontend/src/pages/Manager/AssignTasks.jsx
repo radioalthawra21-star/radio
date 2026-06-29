@@ -279,7 +279,7 @@ const AssignTasks = () => {
                   key={p.value}
                   type="button"
                   onClick={() => setFormData(f => ({ ...f, priority: p.value }))}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-3 md:py-2 rounded-lg border transition-colors min-h-[44px] ${
                     formData.priority === p.value
                       ? 'border-primary bg-primary/10 text-primary font-bold'
                       : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
@@ -326,7 +326,7 @@ const AssignTasks = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary"
+            className="btn btn-primary w-full md:w-auto min-h-[44px] flex items-center justify-center"
           >
             {loading ? 'جاري الإسناد...' : 'إسناد المهمة'}
           </button>

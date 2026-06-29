@@ -67,7 +67,7 @@ export default function RecruitmentSection({
               <div className="p-8 text-center text-gray-500">لا توجد إعلانات وظيفية</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full table-responsive-cards">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">العنوان</th>
@@ -82,16 +82,16 @@ export default function RecruitmentSection({
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {jobs.map((job) => (
                       <tr key={job._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{job.title}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{job.department?.name || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{job.level}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{job.jobType}</td>
-                        <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={job.status} /></td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{job.applications}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button onClick={() => navigate(`/recruitment/jobs/${job._id}`)} className="text-blue-600 hover:text-blue-900 mr-3">عرض</button>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-label="العنوان">{job.title}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="القسم">{job.department?.name || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="المستوى">{job.level}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="نوع العمل">{job.jobType}</td>
+                        <td className="px-6 py-4 whitespace-nowrap" data-label="الحالة"><StatusBadge status={job.status} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="التقديمات">{job.applications}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="إجراءات">
+                          <button onClick={() => navigate(`/recruitment/jobs/${job._id}`)} className="text-blue-600 hover:text-blue-900 mr-3 min-h-[44px]">عرض</button>
                           {(currentUser?.role === 'admin' || currentUser?.role === 'manager') && (
-                            <button onClick={() => navigate(`/recruitment/jobs/${job._id}/edit`)} className="text-green-600 hover:text-green-900 mr-3">تعديل</button>
+                            <button onClick={() => navigate(`/recruitment/jobs/${job._id}/edit`)} className="text-green-600 hover:text-green-900 mr-3 min-h-[44px]">تعديل</button>
                           )}
                         </td>
                       </tr>
@@ -136,7 +136,7 @@ export default function RecruitmentSection({
               <div className="p-8 text-center text-gray-500">لا توجد طلبات توظيف</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full table-responsive-cards">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">المرشح</th>
@@ -151,16 +151,16 @@ export default function RecruitmentSection({
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {applications.map((app) => (
                       <tr key={app._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{app.applicantName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.jobPosting?.title || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.email}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.experience?.years || 0} سنة</td>
-                        <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={app.status} /></td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.overallRating || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button onClick={() => navigate(`/recruitment/applications/${app._id}`)} className="text-blue-600 hover:text-blue-900 mr-3">عرض</button>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-label="المرشح">{app.applicantName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="الوظيفة">{app.jobPosting?.title || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="البريد">{app.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="التجربة">{app.experience?.years || 0} سنة</td>
+                        <td className="px-6 py-4 whitespace-nowrap" data-label="الحالة"><StatusBadge status={app.status} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-label="التقييم">{app.overallRating || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" data-label="إجراءات">
+                          <button onClick={() => navigate(`/recruitment/applications/${app._id}`)} className="text-blue-600 hover:text-blue-900 mr-3 min-h-[44px]">عرض</button>
                           {app.status !== 'hired' && app.status !== 'rejected' && (
-                            <button onClick={() => navigate(`/recruitment/applications/${app._id}/edit`)} className="text-green-600 hover:text-green-900">تحديث</button>
+                            <button onClick={() => navigate(`/recruitment/applications/${app._id}/edit`)} className="text-green-600 hover:text-green-900 min-h-[44px]">تحديث</button>
                           )}
                         </td>
                       </tr>

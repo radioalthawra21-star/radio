@@ -120,9 +120,9 @@ const EvaluateTasks = () => {
                     📝
                   </div>
                   <div>
-                    <h3 className="font-semibold text-dark text-lg">{task.title}</h3>
+                    <h3 className="font-semibold text-dark text-lg break-words">{task.title}</h3>
                     <p className="text-sm text-gray-600">{task.description}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
                       <span>👤 {task.assignedTo?.map(u => u.name).join(', ')}</span>
                       <span>⏱️ {task.duration} ساعة</span>
                       <span>📅 <span className="en-num">{formatDateArabic(task.taskDate)}</span></span>
@@ -161,7 +161,7 @@ const EvaluateTasks = () => {
                   <button
                     onClick={() => handleEvaluate(task._id)}
                     disabled={evaluating === task._id}
-                    className="btn btn-interactive w-full"
+                    className="btn btn-interactive w-full min-h-[44px] flex items-center justify-center"
                   >
                     {evaluating === task._id ? 'جاري التقييم...' : 'تقييم'}
                   </button>

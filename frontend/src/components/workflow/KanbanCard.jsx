@@ -13,7 +13,7 @@ const KanbanCard = ({ task, onStatusChange, onClick }) => {
 
   return (
     <div
-      className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100"
+      className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100 min-h-[44px]"
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-2">

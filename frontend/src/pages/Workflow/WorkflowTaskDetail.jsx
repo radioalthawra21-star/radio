@@ -124,15 +124,15 @@ const WorkflowTaskDetail = () => {
   const canAct = workflow && task.workflowStatus === 'in_progress';
 
   return (
-    <div className="animate-fade-in max-w-5xl mx-auto space-y-6">
+    <div className="animate-fade-in max-w-5xl mx-auto space-y-4 md:space-y-6 p-3 md:p-0">
       <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-dark">← العودة</button>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-dark">{task.title}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-dark break-words">{task.title}</h1>
           {workflow && <p className="text-sm text-gray-500">سير العمل: {workflow.name}</p>}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className={`badge px-3 py-1 rounded-full text-sm font-medium ${
             task.workflowStatus === 'approved' ? 'bg-success text-white' :
             task.workflowStatus === 'rejected' ? 'bg-error text-white' :

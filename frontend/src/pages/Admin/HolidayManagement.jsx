@@ -109,15 +109,15 @@ const HolidayManagement = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-3 md:p-6 max-w-4xl mx-auto">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(220, 38, 38, 0.1)', color: '#DC2626' }}>
-            <FaCalendarAlt className="w-6 h-6" />
+          <div className="p-3 rounded-xl flex-shrink-0" style={{ backgroundColor: 'rgba(220, 38, 38, 0.1)', color: '#DC2626' }}>
+            <FaCalendarAlt className="w-5 h-5 md:w-6 md:h-6" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#182E4E' }}>إدارة الإجازات والعطل الرسمية</h1>
-            <p className="text-sm" style={{ color: '#6B7280' }}>أضف العطل الرسمية والدينية والوطنية لتستثنى من كشف الحضور</p>
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold truncate" style={{ color: '#182E4E' }}>إدارة الإجازات والعطل الرسمية</h1>
+            <p className="text-xs md:text-sm truncate" style={{ color: '#6B7280' }}>أضف العطل الرسمية والدينية والوطنية لتستثنى من كشف الحضور</p>
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@ const HolidayManagement = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <label className="text-sm font-medium" style={{ color: '#374151' }}>السنة</label>
           <select value={year} onChange={(e) => setYear(parseInt(e.target.value))}
@@ -143,7 +143,7 @@ const HolidayManagement = () => {
           </select>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors w-full md:w-auto">
           <FaPlus className="w-4 h-4" />
           إضافة عطلة
         </button>
@@ -182,13 +182,13 @@ const HolidayManagement = () => {
                 style={{ color: '#182E4E' }} required />
             </div>
           </div>
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-2 mt-4 flex-col md:flex-row">
             <button type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors w-full md:w-auto">
               حفظ
             </button>
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors w-full md:w-auto">
               إلغاء
             </button>
           </div>
@@ -205,7 +205,7 @@ const HolidayManagement = () => {
       ) : (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-responsive-cards">
               <thead>
                 <tr style={{ backgroundColor: '#182E4E' }}>
                   <th className="px-4 py-3 text-white font-semibold text-xs text-right">المدة</th>
@@ -221,7 +221,7 @@ const HolidayManagement = () => {
                   const isMulti = days > 1;
                   return (
                     <tr key={h._id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="المدة">
                         <span className="font-medium text-xs whitespace-nowrap" style={{ color: '#182E4E' }}>
                           {isMulti ? (
                             <span>{formatDate(h.startDate)} <span className="text-gray-400">→</span> {formatDate(h.endDate)}</span>
@@ -230,19 +230,19 @@ const HolidayManagement = () => {
                           )}
                         </span>
                       </td>
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="اسم العطلة">
                         <span className="font-semibold text-xs" style={{ color: '#182E4E' }}>{h.name}</span>
                       </td>
-                      <td className="px-4 py-3 align-middle">
+                      <td className="px-4 py-3 align-middle" data-label="النوع">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-xs border ${TYPE_COLORS[h.type] || TYPE_COLORS.other}`}>
                           {TYPE_LABELS[h.type] || h.type}
                         </span>
                       </td>
-                      <td className="px-4 py-3 align-middle text-center">
+                      <td className="px-4 py-3 align-middle text-center" data-label="عدد الأيام">
                         <span className="text-xs font-bold" style={{ color: '#DC2626' }}>{days}</span>
                       </td>
                       {canDelete && (
-                        <td className="px-4 py-3 align-middle text-center">
+                        <td className="px-4 py-3 align-middle text-center" data-label="حذف">
                           <button onClick={() => handleDelete(h._id, h.name)}
                             className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 hover:text-red-700 transition-colors"
                             title="حذف">

@@ -5,7 +5,7 @@ import { getStoredUser } from '../../services/authService';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
-const ChatMessages = ({ chat, onToggleDetails, onMessageSent }) => {
+const ChatMessages = ({ chat, onToggleDetails, onMessageSent, onBack }) => {
   const { socket, typingUsers, joinChat, markAsRead } = useChat();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -159,22 +159,34 @@ const ChatMessages = ({ chat, onToggleDetails, onMessageSent }) => {
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 min-w-0">
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#182E4E] flex items-center justify-center text-white text-sm">
+      <div className="bg-white border-b border-gray-200 px-3 md:px-4 py-3 flex items-center justify-between flex-shrink-0 relative z-10">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="md:hidden p-2 -mr-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+              aria-label="العودة للقائمة"
+            >
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#182E4E] flex items-center justify-center text-white text-sm flex-shrink-0">
             {chat.type === 'task' ? '📋' : chat.type === 'shared' ? '🔗' : '💬'}
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-800 text-sm">{getChatTitle()}</h3>
-            <p className="text-xs text-gray-500">{getChatSubtitle()}</p>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-gray-800 text-sm truncate">{getChatTitle()}</h3>
+            <p className="text-xs text-gray-500 truncate">{getChatSubtitle()}</p>
           </div>
         </div>
         <button
           onClick={onToggleDetails}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
           title="تفاصيل المحادثة"
+          aria-label="تفاصيل المحادثة"
         >
-          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </button>

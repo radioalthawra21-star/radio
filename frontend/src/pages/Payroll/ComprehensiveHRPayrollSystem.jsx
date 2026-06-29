@@ -349,7 +349,7 @@ const ComprehensiveHRPayrollSystem = () => {
       <div className="system-header">
         <div className="header-content">
           <div className="header-title-row">
-            <button onClick={() => navigate('/payroll')} className="back-btn" title="العودة إلى لوحة الرواتب">
+            <button onClick={() => navigate('/payroll')} className="back-btn touch-target" title="العودة إلى لوحة الرواتب">
               <FaArrowLeft /> العودة
             </button>
             <div className="header-title">
@@ -358,23 +358,23 @@ const ComprehensiveHRPayrollSystem = () => {
             </div>
           </div>
           <div className="header-actions">
-            <button onClick={() => setShowColumnManager(true)} className="btn-secondary" title="إدارة الأعمدة">
+            <button onClick={() => setShowColumnManager(true)} className="btn-secondary touch-target" title="إدارة الأعمدة">
               <FaColumns /> إدارة الأعمدة
             </button>
-            <button onClick={() => setCurrency(c => c === 'SYP' ? 'USD' : 'SYP')} className="btn-secondary"
+            <button onClick={() => setCurrency(c => c === 'SYP' ? 'USD' : 'SYP')} className="btn-secondary touch-target"
               title={`التبديل إلى ${currency === 'SYP' ? 'دولار أمريكي' : 'ليرة سورية'}`}>
               <FaExchangeAlt /> {currency === 'SYP' ? 'USD' : 'SYP'}
             </button>
-            <button onClick={() => setShowExchangeRate(v => !v)} className="btn-secondary" title="إعدادات سعر الصرف">
+            <button onClick={() => setShowExchangeRate(v => !v)} className="btn-secondary touch-target" title="إعدادات سعر الصرف">
               <FaCog />
             </button>
-            <button onClick={() => fetchDataRef.current?.(true)} className="btn-secondary" disabled={loading}>
+            <button onClick={() => fetchDataRef.current?.(true)} className="btn-secondary touch-target" disabled={loading}>
               <FaSync className={loading ? 'spinning' : ''} />{loading ? 'جاري التحديث...' : 'تحديث'}
             </button>
-            <button onClick={handleAdd} className="btn-primary"><FaPlus /> إضافة موظف</button>
-            <button onClick={handleRecalculateAll} className="btn-secondary"><FaCalculator /> إعادة حساب الكل</button>
-            <button onClick={() => exportToExcel(filteredEmployees, allVisibleColumns, DEPARTMENTS)} className="btn-success"><FaDownload /> تصدير Excel</button>
-            <button onClick={() => window.print()} className="btn-info"><FaPrint /> طباعة</button>
+            <button onClick={handleAdd} className="btn-primary touch-target"><FaPlus /> إضافة موظف</button>
+            <button onClick={handleRecalculateAll} className="btn-secondary touch-target"><FaCalculator /> إعادة حساب الكل</button>
+            <button onClick={() => exportToExcel(filteredEmployees, allVisibleColumns, DEPARTMENTS)} className="btn-success touch-target"><FaDownload /> تصدير Excel</button>
+            <button onClick={() => window.print()} className="btn-info touch-target"><FaPrint /> طباعة</button>
           </div>
         </div>
       </div>
@@ -452,7 +452,7 @@ const ComprehensiveHRPayrollSystem = () => {
       </div>
 
       <div className="table-container">
-        <table className="payroll-table">
+        <table className="payroll-table table-responsive-cards">
           <thead>
             <tr>
               <th>#</th>
@@ -469,25 +469,25 @@ const ComprehensiveHRPayrollSystem = () => {
           <tbody>
             {filteredEmployees.map((emp, index) => (
               <tr key={emp._id || emp.id || index} className={selectedEmployee?._id === emp._id ? 'selected' : ''}>
-                <td>{index + 1}</td>
-                <td>
+                <td data-label="#">{index + 1}</td>
+                <td data-label="الموظف">
                   <div className="employee-info">
                     <strong>{emp.name}</strong>
                     <small>{emp._id || emp.id || '---'}</small>
                   </div>
                 </td>
-                <td><span className="dept-badge">{getDeptName(emp.department)}</span></td>
-                <td>{ROLE_LABELS[emp.role] || emp.jobTitle || emp.role || 'موظف'}</td>
+                <td data-label="القسم"><span className="dept-badge">{getDeptName(emp.department)}</span></td>
+                <td data-label="الوظيفة">{ROLE_LABELS[emp.role] || emp.jobTitle || emp.role || 'موظف'}</td>
                 {allVisibleColumns.map(col => (
-                  <td key={col.key} className="currency">{formatCurrency(emp[col.key])}</td>
+                  <td key={col.key} className="currency" data-label={col.label}>{formatCurrency(emp[col.key])}</td>
                 ))}
-                <td className="gross">{formatCurrency(emp.grossSalary || 0)}</td>
-                <td className="deductions">{formatCurrency(emp.totalDeductions || 0)}</td>
-                <td className="net">{formatCurrency(emp.netSalary || 0)}</td>
-                <td>
+                <td className="gross" data-label="الإجمالي">{formatCurrency(emp.grossSalary || 0)}</td>
+                <td className="deductions" data-label="الخصومات">{formatCurrency(emp.totalDeductions || 0)}</td>
+                <td className="net" data-label="الصافي">{formatCurrency(emp.netSalary || 0)}</td>
+                <td data-label="الإجراءات">
                   <div className="action-buttons">
-                    <button onClick={() => handleEdit(emp)} className="edit-btn" title="تعديل"><FaEdit /></button>
-                    <button onClick={() => handleDelete(emp._id || emp.id)} className="delete-btn" title="حذف"><FaTrash /></button>
+                    <button onClick={() => handleEdit(emp)} className="edit-btn touch-target" title="تعديل"><FaEdit /></button>
+                    <button onClick={() => handleDelete(emp._id || emp.id)} className="delete-btn touch-target" title="حذف"><FaTrash /></button>
                   </div>
                 </td>
               </tr>
