@@ -1,0 +1,76 @@
+=== مراجعة الباك اند - التقرير الثالث ===
+المجلدات: controllers/ (task, zkteco, supervisor, dashboard, notification, well-being)
+
+============================================
+🔴 أخطاء أمنية (Security)
+============================================
+
+1. BRIDGE_SECRET_KEY hardcoded fallback
+   الملف: zktecoController.js:7
+   التفاصيل: BRIDGE_KEY = process.env.BRIDGE_SECRET_KEY || 'my-secret-key'
+   الخطر: استخدام مفتاح افتراضي معروف
+
+2. Routes بدون مصادقة
+   الملف: zktecoRoutes.js
+   التفاصيل: بعض المسارات (POST /attendance, GET /status) بدون protect
+   الأثر: يمكن لأي شخص قراءة حالة الجهاز أو إرسال حضور وهمي بالـ bridge key
+
+============================================
+🟡 أخطاء منطقية (Logic Bugs)
+============================================
+
+3. Performance Score يتجاهل multiple assignees
+   الملف: taskController.js:502-513
+   التفاصيل: يستخدم task.assignedTo[0] فقط
+   الأثر: المهام المعينة لأكثر من شخص تحسب لواحد فقط
+
+4. supervisorController - startDt بدلاً من endDt
+   الملف: supervisorController.js:476-479
+   التفاصيل:
+     if (records.length > 0) startDt = new Date(records[0].date);
+     else endDt = new Date();
+   الخطأ: يجب أن يكون endDt = new Date(records[0].date) وليس startDt
+   الأثر: النطاق الزمني دائماً خاطئ عندما لا توجد سجلات
+
+5. Duplicate Timestamps في ZKTeco Sync
+   الملف: zktecoController.js:124-129
+   التفاصيل: push checkIn/checkOut الحالي إلى group.timestamps قد ينتج duplicates
+   الأثر: ربط time-in/time-out غير صحيح
+
+6. checkoutTime = last timestamp (افتراض خاطئ)
+   الملف: zktecoController.js:360-362
+   التفاصيل: يفترض أن آخر timestamp هو checkout دائماً
+   الأثر: إذا سجل الموظف حضور أكثر من مرة، checkout قد يكون حضوراً
+
+7. attendanceStatus يتجاهل checkout
+   الملف: zktecoController.js:366
+   التفاصيل: status مبني على checkIn فقط، checkout المفقود لا يؤثر
+
+============================================
+🔵 مشاكل أداء (Performance)
+============================================
+
+8. N+1 في Dashboard
+   الملف: dashboardController.js:38-72
+   التفاصيل: لكل موظف 3 استعلامات منفصلة (total, completed, pending tasks)
+
+9. Dashboard يختار حقول غير كافية
+   الملف: dashboardController.js:38-72
+   التفاصيل: .select('name department') فقط - يفتقد role, position, avatar
+
+10. Well-Being: require داخل الدالة
+    الملف: wellBeingController.js:170
+    التفاصيل: require('../models/User') داخل getDepartmentStats بدلاً من أعلى الملف
+    الأثر: ضعف أداء بسيط لكنه يخالف convention
+
+11. supervisorController - Dynamic import لكل طلب
+    الملف: supervisorController.js (عدة أسطر)
+    التفاصيل: require('../models/...') داخل دوال متعددة
+
+============================================
+🟢 ملاحظات إضافية
+============================================
+
+12. notificationController: نظيف واستخدام جيد لـ populate مع relatedTask
+13. wellBeingController: تصميم جيد للـ anonymous check-in، استخدام hasSubmittedToday يمنع الإرسال المتكرر
+14. supervisorController: تنظيم جيد للـ middleware hierarchy (adminOrHR vs adminOrHRorHrEmployee)

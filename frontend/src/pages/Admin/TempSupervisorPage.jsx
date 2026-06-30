@@ -13,6 +13,30 @@ import {
   unmapUserFromDevice, bulkMapUsers
 } from '../../services/attendanceService';
 
+function getCycleRange(day) {
+  const now = new Date();
+  const cd = now.getDate();
+  let startYear = now.getFullYear();
+  let startMonth = now.getMonth();
+
+  if (cd < day) {
+    startMonth--;
+    if (startMonth < 0) { startMonth = 11; startYear--; }
+  }
+
+  const startDay = Math.min(day, new Date(startYear, startMonth + 1, 0).getDate());
+  const startDate = new Date(startYear, startMonth, startDay);
+
+  let endYear = startYear;
+  let endMonth = startMonth + 1;
+  if (endMonth > 11) { endMonth = 0; endYear++; }
+
+  const endDay = Math.min(day, new Date(endYear, endMonth + 1, 0).getDate());
+  const endDate = new Date(endYear, endMonth, endDay);
+
+  return { startDate, endDate };
+}
+
 const TABS = [
   { id: 'raw', label: '📋 البصمات الخام' },
   { id: 'overrides', label: '✏️ التعديلات اليدوية' },
@@ -231,11 +255,42 @@ export default function TempSupervisorPage() {
   const [syncing, setSyncing] = useState(false);
 
   const [toast, setToast] = useState(null);
+  const [cycleDay, setCycleDay] = useState(() => {
+    const saved = localStorage.getItem('supervisor_cycleDay_react');
+    return saved ? parseInt(saved) : null;
+  });
 
   const showToast = useCallback((msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   }, []);
+
+  // Update all tab dates when cycle day changes
+  const updateDatesFromCycle = useCallback((day) => {
+    if (!day || day < 1 || day > 31) return;
+    const range = getCycleRange(day);
+    const startStr = toLocalDateStr(range.startDate);
+    const endStr = toLocalDateStr(range.endDate);
+    setRawStartDate(startStr);
+    setRawEndDate(endStr);
+    setOvStartDate(startStr);
+    setOvEndDate(endStr);
+    setFnStartDate(startStr);
+    setFnEndDate(endStr);
+    setMergeStartDate(startStr);
+    setMergeEndDate(endStr);
+    setActStartDate(startStr);
+    setActEndDate(endStr);
+  }, []);
+
+  useEffect(() => {
+    if (cycleDay && cycleDay >= 1 && cycleDay <= 31) {
+      updateDatesFromCycle(cycleDay);
+      localStorage.setItem('supervisor_cycleDay_react', cycleDay.toString());
+    } else if (cycleDay === null) {
+      localStorage.removeItem('supervisor_cycleDay_react');
+    }
+  }, [cycleDay, updateDatesFromCycle]);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -703,6 +758,27 @@ export default function TempSupervisorPage() {
             )}
           </button>
         </div>
+      </div>
+
+      {/* Cycle Day Bar */}
+      <div className="flex items-center gap-3 px-3 sm:px-4 py-2 bg-gray-900/40 border-b border-gray-800 flex-wrap">
+        <label className="text-xs text-gray-400 font-medium shrink-0">📅 دورة القطع</label>
+        <input
+          type="number" min="1" max="31"
+          value={cycleDay ?? ''}
+          onChange={e => {
+            const val = e.target.value ? parseInt(e.target.value) : null;
+            setCycleDay(val);
+          }}
+          placeholder="--"
+          className="w-16 px-2 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-200 text-sm text-center outline-none focus:border-blue-500 transition-colors"
+        />
+        {cycleDay && cycleDay >= 1 && cycleDay <= 31 && (() => {
+          const range = getCycleRange(cycleDay);
+          const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+          return <span className="text-xs text-blue-400 font-medium">📅 من {fmt(range.startDate)} إلى {fmt(range.endDate)}</span>;
+        })()}
+        <span className="text-[11px] text-gray-500">— أدخل رقم اليوم (1-31) لتحديد نطاق التاريخ تلقائياً</span>
       </div>
 
       {/* Tabs - Desktop: horizontal buttons, Mobile: dropdown select */}

@@ -1,0 +1,63 @@
+=== مراجعة الباك اند - التقرير الثاني ===
+المجلدات: controllers/ (auth, user, attendance, leave, payroll, settings)
+
+============================================
+🔴 أخطاء أمنية (Security)
+============================================
+
+1. تغيير كلمة المرور بدون Audit Trail
+   الملف: userController.js:282-284
+   التفاصيل: admin يغير password لأي مستخدم عبر req.body.password
+   الخطر: لا يوجد تسجيل حدث إجباري - يمكن استغلاله دون ترك أثر
+
+2. Email Enumeration
+   الملف: authController.js:62-68
+   التفاصيل: رسالة "البريد الإلكتروني مستخدم بالفعل" تكشف عن عناوين بريد مسجلة
+   الحل: استخدم رسالة عامة مثل "فشل التسجيل"
+
+3. لا يوجد Rate Limiting
+   الملف: authController.js
+   التفاصيل: login endpoint معرض لـ brute force
+
+============================================
+🟡 أخطاء منطقية (Logic Bugs)
+============================================
+
+4. شرط Cancel Leave مستحيل التحقق
+   الملف: leaveController.js:503
+   التفاصيل: الشرط (isOwner && employee._id !== req.user._id) دائماً false
+   الأثر: notification للمدير عند إلغاء الإجازة لا يرسل أبداً
+
+5. حساب Calendar Days خطأ
+   الملف: leaveController.js:378-380
+   التفاصيل: Math.ceil مناسب لكن قد ينتج أيام ناقصة بسبب التوقيت الصيفي
+   الحل: Math.round أو دوال date/time library
+
+6. N+1 Query في Rankings
+   الملف: userController.js:539-553
+   التفاصيل: لكل موظف استعلام Task.countDocuments منفصل
+   الأثر: مع 50 موظف -> 51 استعلام (واحد لجلبهم + 50 لكل منهم)
+
+7. N+1 Query في Department Stats
+   الملف: userController.js:586-612
+   التفاصيل: لكل Department استعلام مستقل للموظفين والمهام
+
+8. Settings Validation ضعيف
+   الملف: settingsController.js:91-98
+   التفاصيل: يعتمد على key.includes('Weight') لتحديد نطاق التحقق
+
+9. getAttendanceStats بدون Pagination
+   الملف: attendanceController.js:327
+   التفاصيل: Attendance.find(query) يمكن أن يحمل آلاف السجلات بالذاكرة
+
+============================================
+🔵 مشاكل استقرار (Stability)
+============================================
+
+10. injectFingerprintToDevice يمسح الأخطاء
+    الملف: leaveController.js:92-130
+    التفاصيل: catch يطبع الخطأ ولا يعيده للمستخدم - API تنجح رغم فشل البصمة
+
+11. Session خارج Transaction (منخفضة)
+    الملف: leaveController.js:132-252
+    التفاصيل: استخدام session في create لكن خارج ترانزكشن صريح

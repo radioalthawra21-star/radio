@@ -2,7 +2,7 @@ import { FaChartBar, FaFingerprint, FaUsers, FaCog } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
-  { path: '/admin/attendance/dashboard', label: 'لوحة الحضور', icon: FaChartBar, roles: ['admin'] },
+
   { path: '/admin/attendance', label: 'إدارة الحضور', icon: FaUsers, roles: ['admin'] },
   { path: '/admin/employee-attendance-report', label: 'تقرير الموظفين', icon: FaChartBar, roles: ['admin'] },
   { path: '/biometric', label: 'جهاز البصمة', icon: FaFingerprint, roles: ['admin', 'manager', 'hr'] },

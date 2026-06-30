@@ -1,0 +1,48 @@
+====================================================
+تقرير صفحة سجلات التدقيق  /admin/audit-logs
+====================================================
+
+الوصف:
+صفحة سجل تدقيق (Audit Trail) متاحة فقط للمدير العام (role: admin).
+توفر مسار تدقيق كامل لكل الأحداث الهامة في النظام لأغراض الأمان والامتثال.
+
+الهيكل العام:
+- frontend/src/pages/Admin/AuditLogs.jsx - المكون الرئيسي
+- frontend/src/pages/Admin/AuditFilterBar.jsx - شريط الفلترة
+- frontend/src/pages/Admin/auditLogUtils.js - أدوات مساعدة (تنسيق تاريخ، ألوان المخاطر)
+- frontend/src/services/auditLogService.js - طبقة API (6 دوال)
+- backend/controllers/auditLogController.js - 6 endpoints
+- backend/models/AuditLog.js - نموذج Mongoose + حساب المخاطر تلقائياً
+- backend/routes/auditLogRoutes.js - تعريف المسارات
+
+API Endpoints:
+- GET /api/audit-logs - سجلات مع فلترة وترقيم
+- GET /api/audit-logs/stats - إحصائيات (اليوم، الأسبوع، الشهر)
+- GET /api/audit-logs/export - تصدير CSV/JSON
+- GET /api/audit-logs/actions - أنواع الإجراءات (enum)
+- GET /api/audit-logs/entities - أسماء الكيانات المميزة
+- GET /api/audit-logs/:id - سجل واحد
+
+مصادر إنشاء السجلات:
+- payrollController.js - إنشاء/تعديل/حذف/صرف رواتب
+- chatController.js - إنشاء/حذف/تحديث محادثات
+- workflowController.js - إنشاء/تحديث/حذف سير العمل
+- workflowTaskController.js - إنشاء مهام
+- authMiddleware.js - تسجيل دخول/خروج
+
+مستويات المخاطر (Auto-calculated):
+- critical: DELETE + كيان عالي الخطورة
+- high: Payroll, User, Department, Settings
+- medium: الإجراءات الافتراضية
+- low: LOGIN/LOGOUT
+
+ضوابط الوصول:
+- جميع الـ endpoints محمية بـ JWT (protect middleware)
+- المدير (admin) يرى كل السجلات
+- الموظف العادي يرى سجلاته فقط
+- الصفحة نفسها متاحة فقط للأدمن في الـ AdminRoutes
+
+طريقة التخزين:
+- MongoDB collection: auditlogs
+- unique indexes على user+createdAt, entity+entityId, action+createdAt
+====================================================

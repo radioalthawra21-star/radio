@@ -1,0 +1,74 @@
+=== مراجعة الباك اند - التقرير الرابع ===
+المجلدات: services/ + models/
+
+============================================
+🔴 أخطاء منطقية (Logic Bugs)
+============================================
+
+1. ManagerEvaluation.hasSubmitted يمنع الجميع بعد أول تقييم
+   الملف: ManagerEvaluation.js:72-75
+   التفاصيل: hasSubmitted يبحث فقط عن (period, manager) بدون userId
+   الأثر: بعد أن يقيم موظف واحد مديره، لا يستطيع أي موظف آخر التقييم
+   السبب: لا يوجد حقل employee في الـ Response Schema!
+   الحل: إما إضافة userId مع تعمية الهوية، أو إزالة hasSubmitted للسماح بتقييمات متعددة
+
+============================================
+🟡 مشاكل أداء (Performance)
+============================================
+
+2. WellBeingCheckIn.getAggregatedStats يحمل كل السجلات بالذاكرة
+   الملف: WellBeingCheckIn.js:91-151
+   التفاصيل: this.find(query) ثم معالجة يدوية في JavaScript
+   الأثر: مع 1000+ استجابة، تحمل كلها في الذاكرة
+   الحل: استخدام MongoDB Aggregation Pipeline ($group, $avg, $sum)
+
+3. Payroll.pre('save') يحسب totals في كل حفظ
+   الملف: Payroll.js:268-271
+   التفاصيل: calculateTotals() يستدعى في pre-save حتى عند تحديث status فقط
+   الأثر: حسابات غير ضرورية في كل تحديث
+   الحل: استدعاء calculateTotals فقط عند تغيير الحقول المالية
+
+============================================
+🔵 مشاكل استقرار (Stability)
+============================================
+
+4. AuditLog بدون TTL Index
+   الملف: AuditLog.js
+   التفاصيل: سجلات المراجعة تتراكم بلا حذف تلقائي
+   الأثر: growth غير محدود في قاعدة البيانات
+   الحل: إضافة TTL index على createdAt
+
+5. Document.js - Circular dependency محتمل
+   الملف: Document.js:139, 144
+   التفاصيل: require('./User') داخل allowedRoles و allowedDepartments
+   الأثر: قد يسبب مشاكل في الـ require order إذا User ref Document
+
+============================================
+🟢 إيجابيات (Good Patterns)
+============================================
+
+6. PayrollItem: Idempotency Key ممتاز
+   التفاصيل: idempotencyKey مع unique:true يمنع المعالجة المكررة
+
+7. compensationService: تصميم نظيف
+   التفاصيل: calculateCompensation + checkFinancialOverlap + syncCompensationToPayroll
+   مع دعم idempotency ومنع overlap
+
+8. Settings: static methods getValue/setValue مع upsert
+   التفاصيل: نمط جيد لـ key-value store في MongoDB
+
+9. AuditLog: تصميم متكامل
+   التفاصيل: riskLevel, ipAddress, userAgent, sessionId, previousValues, newValues
+
+10. Services/chatSocket.js: تصميم جيد مع JWT authentication للـ Socket.IO
+    والعزل عبر namespaces
+
+============================================
+🔴 استمرار مشاكل zktecoService
+============================================
+
+11. zktecoService.js: أكثر ملف يحتاج تحسين
+    - 41: IP افتراضي hardcoded (192.168.1.201)
+    - 123: getAttendances() بدون timeout
+    - 176: getRealTimeLogs(callback) قد يسبب memory leak
+    - 306-330: _getFirmwareFromSDKBridge يتصل بـ 127.0.0.1:3457 بدون auth

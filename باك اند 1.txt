@@ -1,0 +1,54 @@
+=== مراجعة الباك اند - التقرير الأول ===
+المجلدات: config/ + middleware/ + routes/
+
+============================================
+🔴 أخطاء أمنية خطيرة (Critical)
+============================================
+
+1. Hardcoded JWT fallback في Socket.IO
+   الملف: server.js:116 + chatSocket.js:17
+   التفاصيل: استخدام 'dev-secret-key-2024' كـ fallback بدون فحص NODE_ENV
+   الخطر: تزوير توكن والاتصال بـ Socket.IO
+
+2. إعادة تعيين كلمة مرور الأدمن قسراً مع كل boot
+   الملف: server.js:163-179
+   التفاصيل: adminUser.password = 'admin123' في كل تشغيل
+   الخطر: أي إعادة تشغيل تعيد كلمة السر للافتراضي. نفس المشكلة للمستخدم mostafa (123456)
+
+3. حذف راتب بدون صلاحية admin
+   الملف: payrollRoutes.js:21
+   التفاصيل: deletePayroll محمي بـ protect فقط بدون adminOnly
+   الخطر: أي مستخدم مسجل يمكنه حذف كشف راتب
+
+4. 50MB body parser limit
+   الملف: server.js:94-95
+   التفاصيل: express.json({ limit: '50mb' })
+   الخطر: ثغرة DoS - يمكن إرسال طلبات ضخمة لتعطيل السيرفر
+
+============================================
+🟡 أخطاء صلاحيات (Medium)
+============================================
+
+5. adminOnly function يسمح بالـ HR أيضاً
+   الملف: authMiddleware.js:78-88
+   التفاصيل: الاسم مضلل - يمرر users من role=hr أيضاً
+
+6. الوصول لبيانات أي مستخدم بدون صلاحية
+   الملف: userRoutes.js:68
+   التفاصيل: GET /:id محمي بـ protect فقط - أي موظف يرى بيانات أي مستخدم
+
+7. CORS wildcard على /fonts
+   الملف: server.js:140-141
+   التفاصيل: setHeader('Access-Control-Allow-Origin', '*')
+
+============================================
+🔵 أخطاء استقرار (Stability)
+============================================
+
+8. workflowAccess middleware بدون await
+   الملف: authMiddleware.js:207-214
+   التفاصيل: Promise غير متحكم فيه - race condition
+
+9. SIGTERM/SIGINT بدون graceful shutdown حقيقي
+   الملف: server.js:314-322
+   التفاصيل: process.exit(0) يقطع الاتصالات الحالية

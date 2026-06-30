@@ -1,0 +1,81 @@
+=== مراجعة الباك اند - التقرير السادس ===
+المجلدات: services/ (aiService, pdfService, taskChatIntegration)
+          routes/ المتبقية (recruitment, bonus, managerEvaluation, etc.)
+          models/ المتبقية (Task, DeviceLog, BiometricErrorLog, chat/*)
+
+============================================
+🔴 أخطاء أمنية (Security)
+============================================
+
+1. AI Service: API Key في URL query string
+   الملف: aiService.js:30
+   التفاصيل:
+     const url = isGemini
+       ? `${cfg.baseUrl}/chat/completions?key=${cfg.apiKey}`
+       ...
+   الخطر: Gemini API key يظهر في URL - مكشوف في server logs, proxy logs, network
+   الحل: استخدم header `x-goog-api-key` بدلاً من query parameter
+
+============================================
+🟡 مشاكل منطقية وأداء (Logic/Performance)
+============================================
+
+2. Task Model: assignedTo مصفوفة لكن بعض العمليات تستخدم [0]
+   الملف: taskController.js:502
+   التفاصيل: performance score يحسب لـ assignedTo[0] فقط
+   الأثر: المهام المعينة لأكثر من موظف لا تحسب الأداء لباقي الموظفين
+
+3. recruitmentPerformance Routes: POST /applications عام
+   الملف: recruitmentPerformanceRoutes.js:98
+   التفاصيل: لا يحتاج مصادقة (متعمد لتقديم طلبات التوظيف)
+   ملاحظة: مقبول لكن يجب حماية rate limiting
+
+============================================
+🟢 إيجابيات وقوة (Good Patterns)
+============================================
+
+4. aiService.js: تصميم قوي
+   - Timeout مع AbortController (600s)
+   - دعم multiple providers (OpenRouter, Gemini)
+   - رسائل خطأ بالعربية للمستخدم
+   - التحقق من API key قبل الاتصال
+
+5. pdfService.js: نمط Adapter نظيف
+   - يفصل pdfGenerator (pure HTML/CSS/puppeteer) عن الـ service layer
+   - دوال مساعدة fmtDate, fmtCurrency مع locale ar-SA
+
+6. recruitmentPerformanceRoutes: تنظيم ممتاز
+   - توثيق كل endpoint بـ JSDoc
+   - فصل واضح بين Job Posting / Application / Performance Review / KPI
+   - Middleware مناسب لكل مسار (adminOnly vs managerOrAdmin vs protect)
+
+============================================
+🔵 مشاكل استقرار بسيطة
+============================================
+
+7. aiService: AI_TIMEOUT = 600000 (10 دقائق!) طويل جداً
+   الملف: aiService.js:22
+   التفاصيل: `parseInt(process.env.AI_TIMEOUT) || 600000`
+   الأثر: تعليق الطلب لمدة 10 دقائق قبل الفشل
+   الحل: استخدام 120000 (دقيقتين) كافٍ
+
+8. DeviceLog + BiometricErrorLog: لا يوجد TTL Index
+   الملف: DeviceLog.js, BiometricErrorLog.js
+   التفاصيل: سجلات الأجهزة والأخطاء البيومترية تنمو بلا ضوابط
+   الحل: إضافة TTL index على timestamp/createdAt
+
+============================================
+📊 إحصاءات المجلدات
+============================================
+المجلدات المفحوصة بالكامل:
+- config/ (1 ملف)
+- middleware/ (7 ملفات)
+- routes/ (28 ملف)
+- controllers/ (29 ملف)
+- models/ (30 ملف)
+- services/ (5 ملفات)
+- utils/ (1 ملف)
+
+إجمالي الملفات: ~101 ملف
+التقارير: 6
+الأخطاء المكتشفة: ~50 مشكلة

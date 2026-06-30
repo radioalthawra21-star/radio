@@ -458,6 +458,15 @@
   </div>
 </div>
 
+<div class="cycle-bar" style="background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <label style="font-size:12px;color:var(--text2);font-weight:600;">📅 دورة القطع</label>
+  <input type="number" id="cycleDay" min="1" max="31" placeholder="--"
+         style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;text-align:center;"
+         oninput="onCycleDayInput()" onchange="onCycleDayChange()">
+  <span id="cycleRange" style="font-size:12px;color:var(--primary);font-weight:500;"></span>
+  <span style="font-size:11px;color:var(--text2);">— أدخل رقم اليوم (1-31) لتحديد نطاق التاريخ تلقائياً من هذا اليوم إلى مثله في الشهر التالي</span>
+</div>
+
 <div class="tabs" id="tabsContainer">
   <button class="tab-btn active" data-tab="raw">📋 البصمات الخام</button>
   <button class="tab-btn" data-tab="overrides">✏️ التعديلات اليدوية</button>
@@ -639,6 +648,8 @@ let allRawLogs = [];
 let allOverrides = [];
 let allFinal = [];
 let refreshInterval = null;
+let cycleStartDate = null;
+let cycleEndDate = null;
 
 function getToken() {
   return localStorage.getItem('token');
@@ -731,6 +742,77 @@ function getEventBadge(type) {
   return '<span class="badge-status badge-unknown">❓ غير معروف</span>';
 }
 
+// ---------- CYCLE DAY (دورة القطع) ----------
+function getCycleRange(day) {
+  const now = new Date();
+  const cd = now.getDate();
+  let startYear = now.getFullYear();
+  let startMonth = now.getMonth();
+
+  if (cd < day) {
+    startMonth--;
+    if (startMonth < 0) { startMonth = 11; startYear--; }
+  }
+
+  const startDay = Math.min(day, new Date(startYear, startMonth + 1, 0).getDate());
+  const startDate = new Date(startYear, startMonth, startDay);
+
+  let endYear = startYear;
+  let endMonth = startMonth + 1;
+  if (endMonth > 11) { endMonth = 0; endYear++; }
+
+  const endDay = Math.min(day, new Date(endYear, endMonth + 1, 0).getDate());
+  const endDate = new Date(endYear, endMonth, endDay);
+
+  return { startDate, endDate };
+}
+
+function onCycleDayInput() {
+  const input = document.getElementById('cycleDay');
+  const day = parseInt(input.value);
+  if (isNaN(day) || day < 1 || day > 31) {
+    document.getElementById('cycleRange').textContent = '';
+    localStorage.removeItem('supervisor_cycleDay');
+    return;
+  }
+  const range = getCycleRange(day);
+  const fmt = d => {
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}/${d.getFullYear()}`;
+  };
+  document.getElementById('cycleRange').textContent = `📅 من ${fmt(range.startDate)} إلى ${fmt(range.endDate)}`;
+}
+
+function onCycleDayChange() {
+  const input = document.getElementById('cycleDay');
+  const day = parseInt(input.value);
+
+  if (isNaN(day) || day < 1 || day > 31) {
+    cycleStartDate = null;
+    cycleEndDate = null;
+    document.getElementById('cycleRange').textContent = '';
+    localStorage.removeItem('supervisor_cycleDay');
+  } else {
+    const range = getCycleRange(day);
+    cycleStartDate = range.startDate;
+    cycleEndDate = range.endDate;
+    localStorage.setItem('supervisor_cycleDay', day);
+  }
+
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab) activeTab.click();
+}
+
+function getCycleQuery() {
+  if (cycleStartDate && cycleEndDate) {
+    const s = cycleStartDate.toISOString().split('T')[0];
+    const e = cycleEndDate.toISOString().split('T')[0];
+    return { startDate: s, endDate: e };
+  }
+  return null;
+}
+
 // ---------- TABS ----------
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -760,6 +842,12 @@ async function init() {
   document.getElementById('overrideDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('finalDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('mergeDate').value = new Date().toISOString().split('T')[0];
+
+  const savedCycleDay = localStorage.getItem('supervisor_cycleDay');
+  if (savedCycleDay) {
+    document.getElementById('cycleDay').value = savedCycleDay;
+    onCycleDayChange();
+  }
 
   try {
     const res = await apiGet(`${API}/device-users`);
@@ -817,7 +905,12 @@ async function loadRawLogs() {
     const date = document.getElementById('rawDate').value;
     const employeeId = document.getElementById('rawEmployee').value;
     let url = `${API}/raw-logs?limit=500`;
-    if (date) url += `&startDate=${date}`;
+    const cq = getCycleQuery();
+    if (cq) {
+      url += `&startDate=${cq.startDate}&endDate=${cq.endDate}`;
+    } else if (date) {
+      url += `&startDate=${date}`;
+    }
     if (employeeId) url += `&deviceUserId=${employeeId}`;
     const res = await apiGet(url);
     if (res.success) {
@@ -864,7 +957,12 @@ async function loadOverrides() {
     const employeeId = document.getElementById('overrideEmployee').value;
     const action = document.getElementById('overrideAction').value;
     let url = `${API}/manual-overrides?limit=500`;
-    if (date) url += `&startDate=${date}`;
+    const cq = getCycleQuery();
+    if (cq) {
+      url += `&startDate=${cq.startDate}&endDate=${cq.endDate}`;
+    } else if (date) {
+      url += `&startDate=${date}`;
+    }
     if (employeeId) url += `&deviceUserId=${employeeId}`;
     if (action) url += `&action=${action}`;
     const res = await apiGet(url);
@@ -914,7 +1012,12 @@ async function loadFinalAttendance() {
     const employeeId = document.getElementById('finalEmployee').value;
     const status = document.getElementById('finalStatus').value;
     let url = `${API}/final-attendance?limit=500`;
-    if (date) url += `&startDate=${date}`;
+    const cq = getCycleQuery();
+    if (cq) {
+      url += `&startDate=${cq.startDate}&endDate=${cq.endDate}`;
+    } else if (date) {
+      url += `&startDate=${date}`;
+    }
     if (employeeId) {
       const user = allUsers.find(u => u.zkUserId === employeeId);
       if (user) url += `&employeeId=${user._id}`;
@@ -1046,7 +1149,10 @@ async function loadMergeView() {
     const employeeId = document.getElementById('mergeEmployee').value;
     const dateParam = date || new Date().toISOString().split('T')[0];
 
-    let url = `${API}/dashboard?date=${dateParam}`;
+    const cq = getCycleQuery();
+    let url = cq
+      ? `${API}/dashboard?startDate=${cq.startDate}&endDate=${cq.endDate}`
+      : `${API}/dashboard?date=${dateParam}`;
     const res = await apiGet(url);
     if (!res.success) { container.innerHTML = '<div class="empty-state"><p>⚠️ خطأ في تحميل البيانات</p></div>'; return; }
 
