@@ -4,11 +4,16 @@ const BiometricErrorLog = require('../models/BiometricErrorLog');
 const DeviceLog = require('../models/DeviceLog');
 const zktecoService = require('../services/zktecoService');
 
-const BRIDGE_KEY = process.env.BRIDGE_SECRET_KEY || 'my-secret-key';
+const BRIDGE_KEY = process.env.BRIDGE_SECRET_KEY;
+if (!BRIDGE_KEY && process.env.NODE_ENV === 'production') {
+  console.error('FATAL: BRIDGE_SECRET_KEY must be set in production');
+  process.exit(1);
+}
+const BRIDGE_SECRET = BRIDGE_KEY || 'dev-bridge-key';
 
 function verifyBridge(req, res, next) {
   const key = req.headers['x-bridge-key'];
-  if (!key || key !== BRIDGE_KEY) {
+  if (!key || key !== BRIDGE_SECRET) {
     return res.status(401).json({ success: false, message: 'مفتاح bridge غير صحيح' });
   }
   next();
@@ -121,11 +126,14 @@ async function receiveAttendance(req, res) {
     for (const [, group] of groups) {
       const existing = group.existing;
       if (existing) {
+        const existingTimes = new Set(group.timestamps.map(t => t.getTime()));
         if (existing.checkIn && existing.checkIn.time) {
-          group.timestamps.push(new Date(existing.checkIn.time));
+          const t = new Date(existing.checkIn.time);
+          if (!existingTimes.has(t.getTime())) group.timestamps.push(t);
         }
         if (existing.checkOut && existing.checkOut.time) {
-          group.timestamps.push(new Date(existing.checkOut.time));
+          const t = new Date(existing.checkOut.time);
+          if (!existingTimes.has(t.getTime())) group.timestamps.push(t);
         }
       }
 
@@ -136,8 +144,10 @@ async function receiveAttendance(req, res) {
         : null;
 
       const checkInStatus = determineCheckInStatus(checkInTime);
-      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME
-        ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
+      const hasCheckOut = checkOutTime !== null;
+      const attendanceStatus = hasCheckOut
+        ? (checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT)
+        : AttendanceStatus.HALF_DAY;
 
       if (existing) {
         const currentCheckIn = existing.checkIn && existing.checkIn.time ? new Date(existing.checkIn.time).getTime() : null;
@@ -347,11 +357,14 @@ async function syncDeviceAttendance(req, res) {
     for (const [, group] of groups) {
       const existing = group.existing;
       if (existing) {
+        const existingTimes = new Set(group.timestamps.map(t => t.getTime()));
         if (existing.checkIn && existing.checkIn.time) {
-          group.timestamps.push(new Date(existing.checkIn.time));
+          const t = new Date(existing.checkIn.time);
+          if (!existingTimes.has(t.getTime())) group.timestamps.push(t);
         }
         if (existing.checkOut && existing.checkOut.time) {
-          group.timestamps.push(new Date(existing.checkOut.time));
+          const t = new Date(existing.checkOut.time);
+          if (!existingTimes.has(t.getTime())) group.timestamps.push(t);
         }
       }
 
@@ -362,8 +375,10 @@ async function syncDeviceAttendance(req, res) {
         : null;
 
       const checkInStatus = determineCheckInStatus(checkInTime);
-      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME
-        ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
+      const hasCheckOut = checkOutTime !== null;
+      const attendanceStatus = hasCheckOut
+        ? (checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT)
+        : AttendanceStatus.HALF_DAY;
 
       const deviceName = `ZKTeco_${process.env.ZK_IP || '192.168.15.50'}`;
 

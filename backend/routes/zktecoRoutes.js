@@ -26,7 +26,7 @@ const {
 } = require('../controllers/zktecoController');
 
 router.post('/attendance', verifyBridge, receiveAttendance);
-router.get('/status', getBridgeStatus);
+router.get('/status', protect, getBridgeStatus);
 router.post('/sync', protect, syncDeviceAttendance);
 router.get('/test-connection', protect, adminOnly, testDeviceConnection);
 router.get('/device-users', protect, adminOnly, getDeviceUsers);

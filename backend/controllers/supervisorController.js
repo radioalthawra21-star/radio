@@ -3,6 +3,10 @@ const { User } = require('../models/User');
 const { CheckExact, CHECKEXACT_ACTIONS } = require('../models/CheckExact');
 const DeviceLog = require('../models/DeviceLog');
 const pdfService = require('../services/pdfService');
+const Holiday = require('../models/Holiday');
+const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
+const { LeaveRequest } = require('../models/LeaveRequest');
 
 function getDayRange(date) {
   const dayStart = new Date(date);
@@ -359,8 +363,6 @@ async function downloadAttendanceExcel(req, res) {
     const fmtDate = d => d ? new Date(d).toLocaleDateString('en-CA') : '-';
     const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
 
-    const XLSX = require('xlsx');
-
     // ============================================================
     // Sheet 1: قاعدة البيانات
     // ============================================================
@@ -475,17 +477,16 @@ async function downloadEmployeeActivityExcel(req, res) {
     else if (records.length > 0) startDt = new Date(records[records.length - 1].date);
     else startDt = new Date();
     if (endDate) endDt = new Date(endDate);
-    else if (records.length > 0) startDt = new Date(records[0].date);
+    else if (records.length > 0) endDt = new Date(records[0].date);
     else endDt = new Date();
     startDt.setHours(0, 0, 0, 0);
     endDt.setHours(0, 0, 0, 0);
 
-    const holidays = await require('../models/Holiday').find({
+    const holidays = await Holiday.find({
       startDate: { $lte: endDt },
       endDate: { $gte: startDt }
     }).select('name startDate endDate').lean();
 
-    const ExcelJS = require('exceljs');
     const wb = new ExcelJS.Workbook();
     wb.creator = 'نظام الحضور';
     wb.created = new Date();
@@ -823,7 +824,6 @@ async function downloadAllEmployeesActivityExcel(req, res) {
     startDt.setHours(0, 0, 0, 0);
     endDt.setHours(0, 0, 0, 0);
 
-    const Holiday = require('../models/Holiday');
     const holidays = await Holiday.find({
       startDate: { $lte: endDt },
       endDate: { $gte: startDt }
@@ -831,7 +831,6 @@ async function downloadAllEmployeesActivityExcel(req, res) {
 
     const fmtD = (d) => `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}`;
     const eng = (v) => v == null || v === '' ? '' : '\u200E' + v;
-    const ExcelJS = require('exceljs');
     const wb = new ExcelJS.Workbook();
     wb.creator = 'نظام الحضور';
     wb.created = new Date();
@@ -930,7 +929,7 @@ async function getEmployeeActivity(req, res) {
         .populate('leave', 'type status startDate endDate reason')
         .sort({ date: -1 }).lean(),
 
-      require('../models/LeaveRequest').LeaveRequest.find({
+      LeaveRequest.find({
         employee: employeeId,
         status: { $in: ['approved', 'synced_to_payroll'] },
         startDate: { $lte: dayEnd },
@@ -938,7 +937,7 @@ async function getEmployeeActivity(req, res) {
       }).select('type status startDate endDate reason isHalfDay fingerprintDate fingerprintType')
         .sort({ startDate: -1 }).lean(),
 
-      require('../models/Holiday').find({
+      Holiday.find({
         startDate: { $lte: dayEnd },
         endDate: { $gte: dayStart }
       }).select('name startDate endDate type').lean()

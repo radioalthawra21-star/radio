@@ -43,26 +43,28 @@ const getEmployeePerformance = async (req, res) => {
     } else if (req.query.department) {
       filter.department = req.query.department;
     }
-    const employees = await User.find(filter).select('name department');
-    const performance = await Promise.all(employees.map(async (emp) => {
-      const total = await Task.countDocuments({ assignedTo: emp._id });
-      const completed = await Task.countDocuments({
-        assignedTo: emp._id,
-        status: { $in: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
-      });
-      const overdue = await Task.countDocuments({
-        assignedTo: emp._id, dueDate: { $lt: new Date() },
-        status: { $nin: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
-      });
-      const inProgress = await Task.countDocuments({
-        assignedTo: emp._id, status: TaskStatus.IN_PROGRESS
-      });
+    const employees = await User.find(filter).select('name department role position avatar');
+
+    const taskStats = await Task.aggregate([
+      { $match: { assignedTo: { $in: employees.map(e => e._id) } } },
+      { $group: {
+        _id: '$assignedTo',
+        total: { $sum: 1 },
+        completed: { $sum: { $cond: [{ $in: ['$status', [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED]] }, 1, 0] } },
+        overdue: { $sum: { $cond: [{ $and: [{ $lt: ['$dueDate', new Date()] }, { $nin: ['$status', [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED]] }] }, 1, 0] } },
+        inProgress: { $sum: { $cond: [{ $eq: ['$status', TaskStatus.IN_PROGRESS] }, 1, 0] } }
+      } }
+    ]);
+    const statsMap = new Map(taskStats.map(s => [s._id.toString(), s]));
+
+    const performance = employees.map(emp => {
+      const stats = statsMap.get(emp._id.toString()) || { total: 0, completed: 0, overdue: 0, inProgress: 0 };
       return {
-        user: { _id: emp._id, name: emp.name, department: emp.department },
-        total, completed, overdue, inProgress,
-        completionRate: total > 0 ? Math.round((completed / total) * 100) : 0
+        user: { _id: emp._id, name: emp.name, department: emp.department, role: emp.role, position: emp.position, avatar: emp.avatar },
+        total: stats.total, completed: stats.completed, overdue: stats.overdue, inProgress: stats.inProgress,
+        completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0
       };
-    }));
+    });
     performance.sort((a, b) => b.completionRate - a.completionRate);
     res.json({ success: true, data: { performance } });
   } catch (error) {

@@ -5,6 +5,7 @@
 
 var WellBeingCheckIn = require('../models/WellBeingCheckIn').WellBeingCheckIn;
 var MoodLevel = require('../models/WellBeingCheckIn').MoodLevel;
+var User = require('../models/User');
 
 function getPeriodKey(date) {
   if (!date) date = new Date();
@@ -167,7 +168,6 @@ exports.getBurnoutRisk = async function(req, res) {
 
 exports.getDepartmentStats = async function(req, res) {
   try {
-    var User = require('../models/User');
     var department = req.query.department;
     var periodKey = getPeriodKey();
 

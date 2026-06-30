@@ -498,19 +498,21 @@ const evaluateTask = async (req, res) => {
       );
     }
 
-    // Recalculate performance score
-    const user = await User.findById(task.assignedTo[0]);
-    if (user) {
-      const tasks = await Task.find({
-        assignedTo: user._id,
-        status: { $in: [TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] },
-        managerScore: { $ne: null }
-      });
+    // Recalculate performance score for all assignees
+    for (const userId of task.assignedTo) {
+      const user = await User.findById(userId);
+      if (user) {
+        const tasks = await Task.find({
+          assignedTo: user._id,
+          status: { $in: [TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] },
+          managerScore: { $ne: null }
+        });
 
-      const totalScore = tasks.reduce((sum, t) => sum + t.managerScore, 0);
-      const avgScore = tasks.length > 0 ? totalScore / tasks.length : 0;
-      user.performanceScore = Math.round(avgScore * 100) / 100;
-      await user.save();
+        const totalScore = tasks.reduce((sum, t) => sum + t.managerScore, 0);
+        const avgScore = tasks.length > 0 ? totalScore / tasks.length : 0;
+        user.performanceScore = Math.round(avgScore * 100) / 100;
+        await user.save();
+      }
     }
 
     res.json({
