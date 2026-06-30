@@ -91,8 +91,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Socket.IO for real-time notifications
 const io = new Server(server, {
@@ -113,7 +113,11 @@ io.use((socket, next) => {
   try {
     const token = socket.handshake.auth.token;
     if (!token) return next(new Error('Authentication required'));
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret-key-2024');
+    const secret = process.env.JWT_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+      return next(new Error('JWT_SECRET not configured'));
+    }
+    const decoded = jwt.verify(token, secret || 'dev-secret-key-2024');
     socket.userId = decoded.id;
     next();
   } catch (err) {
@@ -173,20 +177,15 @@ const initializeData = async () => {
       });
       console.log('âœ… طھظ… ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨ ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… (admin)');
     }
-    // Force reset admin password on every start
-    adminUser.password = process.env.ADMIN_PASSWORD || 'admin123';
-    adminUser.isActive = true;
-    await adminUser.save();
-    console.log('âœ… طھظ… طھط­ط¯ظٹط« ظƒظ„ظ…ط© ظ…ط±ظˆط± ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…');
+    console.log('âœ… ط­ط³ط§ط¨ ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… ظ…ظˆط¬ظˆط¯');
     // ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© ظƒط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…
     const mustafaUser = await User.findOne({ username: 'mostafa' });
     if (mustafaUser) {
       mustafaUser.role = 'hr';
       mustafaUser.department = 'ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط©';
       mustafaUser.isActive = true;
-      mustafaUser.password = process.env.MOSTAFA_PASSWORD || '123456';
       await mustafaUser.save();
-      console.log('âœ… طھظ… ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© (mostafa / admin)');
+      console.log('âœ… طھظ… ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© (mostafa)');
     } else {
       console.log('âڑ ï¸ڈ ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط­ط³ط§ط¨ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† (mostafa)');
     }
@@ -311,15 +310,23 @@ const startServer = () => {
 };
 
 // ط§ظ„طھط¹ط§ظ…ظ„ ظ…ط¹ ط¥ط´ط§ط±ط§طھ ط§ظ„ط¥ط؛ظ„ط§ظ‚ ط§ظ„ط¢ظ…ظ†
-process.on('SIGTERM', () => {
-  console.log('ًں”„ SIGTERM received, shutting down gracefully');
-  process.exit(0);
-});
+const gracefulShutdown = (signal) => {
+  console.log(`ًں”„ ${signal} received, shutting down gracefully`);
+  server.close(() => {
+    console.log('âœ… HTTP server closed');
+    mongoose.connection.close(false).then(() => {
+      console.log('âœ… MongoDB connection closed');
+      process.exit(0);
+    });
+  });
+  setTimeout(() => {
+    console.error('â‌Œ Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+};
 
-process.on('SIGINT', () => {
-  console.log('ًں”„ SIGINT received, shutting down gracefully');
-  process.exit(0);
-});
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // ط¨ط¯ط، ط§ظ„ط³ظٹط±ظپط± (ط¨ط¹ط¯ ط§ظ„طھط£ظƒط¯ ظ…ظ† ط§طھطµط§ظ„ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ)
 dbReady.then(() => startServer()).catch(err => { console.error('â‌Œ ظپط´ظ„ ط¨ط¯ط، ط§ظ„ط®ط§ط¯ظ…:', err.message); process.exit(1); });

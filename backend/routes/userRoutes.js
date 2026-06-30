@@ -64,8 +64,8 @@ router.get('/counts', protect, adminOrHR, getUserCounts);
 // POST /api/users/:id/activate - Activate user (admin or HR)
 router.post('/:id/activate', protect, adminOrHR, activateUser);
 
-// GET /api/users/:id - Get user by ID
-router.get('/:id', protect, getUserById);
+// GET /api/users/:id - Get user by ID (admin/HR/manager only)
+router.get('/:id', protect, managerOrAdmin, getUserById);
 
 // POST /api/users - Create user (admin or manager)
 router.post('/', protect, managerOrAdmin, createUser);

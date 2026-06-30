@@ -18,7 +18,7 @@ router.post('/generate', protect, managerOrAdmin, generatePayroll);
 router.put('/:id', protect, managerOrAdmin, updatePayroll);
 router.put('/:id/approve', protect, adminOnly, approvePayroll);
 router.put('/:id/pay', protect, managerOrAdmin, markAsPaid);
-router.delete('/:id', protect, deletePayroll);
+router.delete('/:id', protect, adminOnly, deletePayroll);
 router.get('/summary', protect, managerOrAdmin, getPayrollSummary);
 router.get('/pending-assignments', protect, getPendingPayrollAssignments);
 router.put('/:id/assign-salary', protect, assignSalaryToPendingPayroll);

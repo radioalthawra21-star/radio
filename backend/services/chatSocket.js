@@ -14,7 +14,11 @@ const setupChatSocket = (io) => {
       const token = socket.handshake.auth.token;
       if (!token) return next(new Error('Authentication required'));
       const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret-key-2024');
+      const secret = process.env.JWT_SECRET;
+      if (!secret && process.env.NODE_ENV === 'production') {
+        return next(new Error('JWT_SECRET not configured'));
+      }
+      const decoded = jwt.verify(token, secret || 'dev-secret-key-2024');
       socket.userId = decoded.id;
       next();
     } catch (err) {

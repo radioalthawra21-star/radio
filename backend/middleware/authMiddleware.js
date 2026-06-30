@@ -193,7 +193,7 @@ const observerReadOnly = (req, res, next) => {
 /**
  * Middleware - Check workflow stage access
  */
-const workflowAccess = (req, res, next) => {
+const workflowAccess = async (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
   if (role === 'admin' || role === 'hr') {
     return next();
@@ -204,18 +204,20 @@ const workflowAccess = (req, res, next) => {
   if (role === 'employee') {
     const taskId = req.params.id || req.body.taskId;
     if (taskId) {
-      const Task = require('mongoose').model('Task');
-      Task.findById(taskId).then(task => {
+      try {
+        const Task = require('mongoose').model('Task');
+        const task = await Task.findById(taskId);
         if (!task) return res.status(404).json({ success: false, message: 'المهمة غير موجودة' });
         const isAssigned = task.assignedTo.some(a => a.toString() === req.user._id.toString());
         const isCreator = task.createdBy.toString() === req.user._id.toString();
         if (isAssigned || isCreator) return next();
         return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذه المهمة' });
-      }).catch(() => res.status(500).json({ success: false, message: 'خطأ في التحقق من الصلاحية' }));
+      } catch (err) {
+        return res.status(500).json({ success: false, message: 'خطأ في التحقق من الصلاحية' });
+      }
     } else {
       return next();
     }
-    return;
   }
   next();
 };
