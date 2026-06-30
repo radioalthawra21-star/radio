@@ -89,8 +89,10 @@ const updateSetting = async (req, res) => {
     }
 
     // Validate numeric values for weights
-    if (key.includes('Weight')) {
-      if (value < 0 || value > 1) {
+    const WEIGHT_KEYS = new Set(['managerScoreWeight', 'hoursWeight', 'tasksWeight']);
+    if (WEIGHT_KEYS.has(key)) {
+      const numValue = Number(value);
+      if (isNaN(numValue) || numValue < 0 || numValue > 1) {
         return res.status(400).json({
           success: false,
           message: 'يجب أن تكون القيمة بين 0 و 1'

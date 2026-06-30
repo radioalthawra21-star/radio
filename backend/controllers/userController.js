@@ -240,6 +240,28 @@ const updateUser = async (req, res) => {
     const previousRole = user.role;
     let roleChanged = false;
 
+    // Validate financial fields are non-negative
+    const negativeFields = [
+      { key: 'baseSalary', label: 'الراتب الأساسي' },
+      { key: 'housingAllowance', label: 'بدل السكن' },
+      { key: 'transportAllowance', label: 'بدل النقل' },
+      { key: 'otherAllowances', label: 'بدلات أخرى' },
+      { key: 'bonus', label: 'المكافآت' },
+      { key: 'overtime', label: 'الإضافي' },
+      { key: 'socialInsurance', label: 'التأمينات' },
+      { key: 'tax', label: 'الضريبة' },
+      { key: 'otherDeductions', label: 'خصومات أخرى' },
+      { key: 'hoursShortfall', label: 'ساعات النقص' }
+    ];
+    for (const f of negativeFields) {
+      if (req.body[f.key] !== undefined && Number(req.body[f.key]) < 0) {
+        return res.status(400).json({
+          success: false,
+          message: `${f.label} لا يمكن أن يكون سالباً`
+        });
+      }
+    }
+
     // Update fields
     if (name) user.name = name;
     if (username && username !== user.username) {
@@ -265,6 +287,13 @@ const updateUser = async (req, res) => {
     if (otherDeductions !== undefined) user.otherDeductions = Number(otherDeductions);
     if (hoursShortfall !== undefined) user.hoursShortfall = Number(hoursShortfall);
     if (role) {
+      const VALID_ROLES = ['employee', 'manager', 'admin', 'super_admin'];
+      if (!VALID_ROLES.includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: 'دور غير صالح'
+        });
+      }
       // If changing to manager, require department
       if (role === 'manager' && !department && !user.department) {
         return res.status(400).json({
@@ -279,7 +308,8 @@ const updateUser = async (req, res) => {
     }
     if (isActive !== undefined) user.isActive = isActive;
 
-    if (req.body.password && req.body.password.trim().length > 0) {
+    const passwordChanged = req.body.password && req.body.password.trim().length > 0;
+    if (passwordChanged) {
       user.password = req.body.password;
     }
 
@@ -291,6 +321,22 @@ const updateUser = async (req, res) => {
         success: false,
         message: 'خطأ في الحفظ: ' + saveError.message
       });
+    }
+
+    if (passwordChanged) {
+      try {
+        const { AuditLog, AuditAction } = require('../models/AuditLog');
+        await AuditLog.logAction({
+          user: req.user._id,
+          userRole: req.user.role,
+          userDepartment: req.user.department,
+          action: AuditAction.UPDATE,
+          entity: 'User',
+          entityId: user._id,
+          details: { passwordChanged: true, changedBy: req.user.role },
+          riskLevel: 'critical'
+        });
+      } catch (e) { console.error('Audit log error:', e.message); }
     }
 
     // Sync salary fields to pending Payroll records for this employee

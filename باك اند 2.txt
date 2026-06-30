@@ -59,5 +59,97 @@
     التفاصيل: catch يطبع الخطأ ولا يعيده للمستخدم - API تنجح رغم فشل البصمة
 
 11. Session خارج Transaction (منخفضة)
-    الملف: leaveController.js:132-252
-    التفاصيل: استخدام session في create لكن خارج ترانزكشن صريح
+     الملف: leaveController.js:132-252
+     التفاصيل: استخدام session في create لكن خارج ترانزكشن صريح
+
+============================================
+🟢 تقرير الإصلاح (Fixes Applied)
+============================================
+
+التاريخ: 2026-06-30
+الحالة: ✅ تم إصلاح 16 مشكلة
+
+1. Audit Trail عند تغيير كلمة المرور
+   الحل: إضافة AuditLog.logAction بعد حفظ المستخدم في updateUser
+   الملف: userController.js:295-308
+   التفاصيل: يسجل حدث تغيير كلمة المرور مع riskLevel: 'critical'
+
+2. Email Enumeration
+   الحل: تغيير رسالة الخطأ إلى رسالة عامة
+   الملف: authController.js:66
+   من: "البريد الإلكتروني مستخدم بالفعل"
+   إلى: "فشل إنشاء الحساب، يرجى التحقق من البيانات"
+
+3. شرط Cancel Leave مستحيل التحقق
+   الحل: إزالة الشرط المستحيل isOwner && employeeId !== req.user._id
+   الملف: leaveController.js:503
+   من: if (isOwner && leaveRequest.employee?._id?.toString() !== req.user._id?.toString())
+   إلى: if (isOwner && leaveRequest.department)
+   الأثر: يعمل notification للمدير عند إلغاء الإجازة بشكل صحيح
+
+4. حساب Calendar Days
+   الحل: إضافة Math.abs + Math.round لمنع مشاكل التوقيت الصيفي
+   الملف: leaveController.js
+   من: Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1
+   إلى: Math.round(Math.abs(new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1
+
+5. Settings Validation
+   الحل: استخدام Set.has() بدلاً من key.includes('Weight')
+   الملف: settingsController.js:91
+   من: if (key.includes('Weight'))
+   إلى: const WEIGHT_KEYS = new Set(['managerScoreWeight', 'hoursWeight', 'tasksWeight']); if (WEIGHT_KEYS.has(key))
+   بالإضافة: التحقق من NaN
+
+6. Pagination في getAttendanceStats
+   الحل: إضافة page/limit, skip/limit, countDocuments, sort({ date: -1 })
+   الملف: attendanceController.js:329-330
+   التفاصيل: حد أقصى 365 سجل لكل طلب + معلومات pagination في response
+
+7. injectFingerprintToDevice Error Handling
+   الحل: إعادة { success, error } + تسجيل BiometricErrorLog
+   الملف: leaveController.js:128-138
+   التفاصيل: تسجيل الخطأ في قاعدة البيانات مع employee/errorType/errorMessage/deviceIp
+
+8. Validation للرواتب في editUser
+   الحل: إضافة التحقق من 10 حقول مالية لا يمكن أن تكون سالبة
+   الملف: userController.js:249-267
+   الحقول: baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall
+
+9. API Request Validation Middleware (جديد)
+   الملف: middleware/validateRequest.js (جديد)
+   التفاصيل: middleware يدعم required|string|email|number|boolean|min:N|max:N
+   التطبيق: authRoutes.js - register (name, email, password)
+
+10. Notification.createNotification Validation
+    الحل: إضافة if (!type) throw + if (!title) throw + if (!message) throw
+    الملف: models/Notification.js:107-109
+
+11. bulkMapUsers Validation
+    الحل: إضافة التحقق من deviceUserId فارغ + userId فارغ + deviceUserId مكرر
+    الملف: controllers/zktecoController.js:1131-1146
+
+12. changePassword min-length
+    الحل: إضافة التحقق من 6 أحرف لكلمة المرور الجديدة
+    الملف: authController.js:232-237
+
+13. updateUser Role Whitelist
+    الحل: إضافة التحقق من VALID_ROLES = [employee, manager, admin, super_admin]
+    الملف: userController.js:289-296
+
+14. Register Email Format Validation
+    الحل: إضافة emailRegex في register
+    الملف: authController.js:61-67
+
+15. supervisor.html console.error(e)
+    الحل: تغيير console.error(e) إلى console.error('label:', e.message)
+    الملف: backend/public/supervisor.html:858, 897, 1095
+
+16. passwordChanged متغير مكرر
+    الحل: استخدام متغير passwordChanged بدلاً من تكرار الشرط
+    الملف: userController.js:282-296
+
+ملاحظات:
+- جميع التغييرات اجتازت فحص syntax (node -c)
+- الملفات المعدلة: authController.js, userController.js, leaveController.js, attendanceController.js, settingsController.js, zktecoController.js, Notification.js, authRoutes.js, supervisor.html
+- ملف جديد: middleware/validateRequest.js
+- تم إنشاء نقطة استعادة: git tag bakend2-restore

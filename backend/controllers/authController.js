@@ -58,12 +58,21 @@ const register = async (req, res) => {
       });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'البريد الإلكتروني غير صالح'
+      });
+    }
+
     // Check if email already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'البريد الإلكتروني مستخدم بالفعل'
+        message: 'فشل إنشاء الحساب، يرجى التحقق من البيانات'
       });
     }
 
@@ -220,6 +229,14 @@ const changePassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'يرجى ملء جميع الحقول المطلوبة'
+      });
+    }
+
+    // Check new password minimum length
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'
       });
     }
 

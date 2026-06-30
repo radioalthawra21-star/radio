@@ -855,7 +855,7 @@ async function init() {
       allUsers = res.data;
       populateEmployeeSelects();
     }
-  } catch (e) { console.error(e); }
+  } catch (e) { console.error('loadUsers:', e.message); }
 
   await Promise.all([
     loadStats(),
@@ -894,7 +894,7 @@ async function loadStats() {
       document.getElementById('statISADD').textContent = res.data.totalISADD;
       document.getElementById('statISDELETE').textContent = res.data.totalISDELETE;
     }
-  } catch (e) { console.error(e); }
+  } catch (e) { console.error('loadStats:', e.message); }
 }
 
 // ---------- RAW LOGS ----------
@@ -1092,7 +1092,7 @@ async function loadAdminOverrides() {
       html += '</tbody></table>';
       container.innerHTML = html;
     }
-  } catch (e) { console.error(e); }
+  } catch (e) { console.error('loadOverrideLogs:', e.message); }
 }
 
 async function createOverride() {

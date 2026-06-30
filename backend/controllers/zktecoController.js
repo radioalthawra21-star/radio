@@ -1125,17 +1125,33 @@ async function bulkMapUsers(req, res) {
       return res.status(400).json({ success: false, message: 'لا توجد تعيينات' });
     }
 
+    const seenDeviceIds = new Set();
     let successCount = 0;
     const results = [];
 
     for (const mapping of mappings) {
       try {
+        if (!mapping.deviceUserId || String(mapping.deviceUserId).trim() === '') {
+          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'deviceUserId مطلوب' });
+          continue;
+        }
+        if (!mapping.userId) {
+          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'userId مطلوب' });
+          continue;
+        }
+        const deviceIdKey = String(mapping.deviceUserId).trim();
+        if (seenDeviceIds.has(deviceIdKey)) {
+          results.push({ userId: mapping.userId, deviceUserId: deviceIdKey, status: 'failed', error: 'deviceUserId مكرر في نفس الدفعة' });
+          continue;
+        }
+        seenDeviceIds.add(deviceIdKey);
+
         const user = await User.findById(mapping.userId);
         if (!user) {
           results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'مستخدم غير موجود' });
           continue;
         }
-        user.zkUserId = String(mapping.deviceUserId);
+        user.zkUserId = deviceIdKey;
         await user.save();
         successCount++;
         results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'mapped', userName: user.name });

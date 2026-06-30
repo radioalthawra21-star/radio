@@ -104,6 +104,9 @@ notificationSchema.index({ createdAt: -1 });
 
 // Static method to create notification
 notificationSchema.statics.createNotification = async function(userId, type, title, message, taskId = null) {
+  if (!type) throw new Error('نوع الإشعار مطلوب');
+  if (!title) throw new Error('عنوان الإشعار مطلوب');
+  if (!message) throw new Error('نص الإشعار مطلوب');
   return this.create({
     user: userId,
     type,

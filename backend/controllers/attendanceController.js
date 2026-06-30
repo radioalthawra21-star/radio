@@ -312,7 +312,7 @@ const getAttendanceHistory = async (req, res) => {
 const getAttendanceStats = async (req, res) => {
   try {
     const employeeId = req.user._id;
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, page = 1, limit = 365 } = req.query;
     
     const query = { employee: employeeId };
     const sDate = startDate ? new Date(startDate) : null;
@@ -324,7 +324,9 @@ const getAttendanceStats = async (req, res) => {
       if (eDate) query.date.$lte = eDate;
     }
     
-    const attendances = await Attendance.find(query);
+    const totalRecords = await Attendance.countDocuments(query);
+    const skip = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
+    const attendances = await Attendance.find(query).sort({ date: -1 }).skip(skip).limit(Math.min(parseInt(limit), 365));
     
     const Holiday = require('../models/Holiday');
     const holidays = await Holiday.find({
@@ -360,7 +362,7 @@ const getAttendanceStats = async (req, res) => {
     
     res.json({
       success: true,
-      data: { stats }
+      data: { stats, pagination: { total: totalRecords, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(totalRecords / parseInt(limit)) } }
     });
   } catch (error) {
     console.error('Error getting attendance stats:', error);

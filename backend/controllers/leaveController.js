@@ -91,6 +91,7 @@ const notifyHR = async (leaveRequest) => {
 
 const injectFingerprintToDevice = async (leaveRequest, timeDate) => {
   let device = null;
+  let success = false;
   try {
     const ZKLib = require('node-zklib');
     const { COMMANDS } = require('node-zklib/constants');
@@ -102,7 +103,7 @@ const injectFingerprintToDevice = async (leaveRequest, timeDate) => {
     const employee = await User.findById(leaveRequest.employee._id).select('zkUserId');
     if (!employee || !employee.zkUserId) {
       console.log('[injectFingerprintToDevice] No zkUserId for employee, skipping device injection');
-      return;
+      return { success: false, error: 'لا يوجد zkUserId للموظف' };
     }
 
     const date = new Date(timeDate);
@@ -122,8 +123,20 @@ const injectFingerprintToDevice = async (leaveRequest, timeDate) => {
 
     await device.executeCmd(COMMANDS.CMD_DATA_WRRQ, recordBuf);
     console.log(`[injectFingerprintToDevice] Successfully injected attendance for user ${employee.zkUserId}`);
+    success = true;
+    return { success: true };
   } catch (err) {
     console.error('[injectFingerprintToDevice] Error:', err.message);
+    const { BiometricErrorLog } = require('../models/BiometricErrorLog');
+    try {
+      await BiometricErrorLog.create({
+        employee: leaveRequest.employee?._id,
+        errorType: 'device_communication',
+        errorMessage: `فشل حقن البصمة: ${err.message}`,
+        deviceIp: process.env.ZK_IP || '192.168.15.50',
+      });
+    } catch (logErr) { console.error('Failed to log biometric error:', logErr.message); }
+    return { success: false, error: err.message };
   } finally {
     if (device) { try { await device.disconnect(); } catch (e) {} }
   }
@@ -376,7 +389,7 @@ const updateLeaveRequestStatus = async (req, res) => {
         leaveRequest.approvedAt = new Date();
 
         const calendarDays = leaveRequest.startDate && leaveRequest.endDate
-          ? Math.ceil((new Date(leaveRequest.endDate) - new Date(leaveRequest.startDate)) / (1000 * 60 * 60 * 24)) + 1
+          ? Math.round(Math.abs(new Date(leaveRequest.endDate) - new Date(leaveRequest.startDate)) / (1000 * 60 * 60 * 24)) + 1
           : 1;
         if (calendarDays > 3) {
           if (approvedDays && approvedDays < leaveRequest.days) {
@@ -500,7 +513,7 @@ const cancelLeaveRequest = async (req, res) => {
       } catch (e) { console.error('Error cancelling payroll items:', e.message); }
     }
 
-    if (isOwner && leaveRequest.department && leaveRequest.employee?._id?.toString() !== req.user._id?.toString()) {
+    if (isOwner && leaveRequest.department) {
       try {
         const deptDoc = await Department.findById(leaveRequest.department).catch(() => null)
           || await Department.findOne({ name: leaveRequest.department }).catch(() => null);

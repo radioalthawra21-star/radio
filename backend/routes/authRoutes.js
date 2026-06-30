@@ -14,10 +14,11 @@ const {
   updateProfileImage 
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+const { validateRequest } = require('../middleware/validateRequest');
 const upload = require('../middleware/uploadMiddleware');
 
 // POST /api/auth/register - Register new user
-router.post('/register', register);
+router.post('/register', validateRequest({ name: 'required|string|min:2', email: 'required|email', password: 'required|string|min:6' }), register);
 
 // POST /api/auth/login - Login user
 router.post('/login', login);
