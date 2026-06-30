@@ -91,62 +91,68 @@ wellBeingCheckInSchema.statics.hasSubmittedToday = async function(userId) {
 wellBeingCheckInSchema.statics.getAggregatedStats = async function(periodKey, departmentId, minResponses) {
   if (minResponses === undefined) minResponses = 5;
   var query = { periodKey: periodKey };
-  var responses = await this.find(query);
-  
-  if (responses.length < minResponses) {
-    return null;
-  }
 
-  var moodScores = responses.map(function(r) { return r.mood; });
-  var sumMood = 0;
-  for (var i = 0; i < moodScores.length; i++) sumMood += moodScores[i];
-  var avgMood = sumMood / moodScores.length;
+  const [count, agg] = await Promise.all([
+    this.countDocuments(query),
+    this.aggregate([
+      { $match: query },
+      { $group: {
+        _id: null,
+        avgMood: { $avg: '$mood' },
+        moodValues: { $push: '$mood' },
+        workloadTooHeavy: { $sum: { $cond: [{ $eq: ['$workload', 'too_heavy'] }, 1, 0] } },
+        workloadNormal: { $sum: { $cond: [{ $eq: ['$workload', 'normal'] }, 1, 0] } },
+        workloadLight: { $sum: { $cond: [{ $eq: ['$workload', 'light'] }, 1, 0] } },
+        energyVeryLow: { $sum: { $cond: [{ $eq: ['$energy', 'very_low'] }, 1, 0] } },
+        energyLow: { $sum: { $cond: [{ $eq: ['$energy', 'low'] }, 1, 0] } },
+        energyNormal: { $sum: { $cond: [{ $eq: ['$energy', 'normal'] }, 1, 0] } },
+        energyHigh: { $sum: { $cond: [{ $eq: ['$energy', 'high'] }, 1, 0] } },
+        supportYes: { $sum: { $cond: [{ $eq: ['$supportNeeded', 'yes'] }, 1, 0] } },
+        supportMaybe: { $sum: { $cond: [{ $eq: ['$supportNeeded', 'maybe'] }, 1, 0] } },
+        supportNo: { $sum: { $cond: [{ $eq: ['$supportNeeded', 'no'] }, 1, 0] } },
+        comments: { $push: { $cond: [{ $ifNull: ['$comment', false] }, '$comment', '$$REMOVE'] } }
+      } }
+    ])
+  ]);
 
-  var workloadCounts = { too_heavy: 0, normal: 0, light: 0 };
-  var energyCounts = { very_low: 0, low: 0, normal: 0, high: 0 };
-  var supportCounts = { yes: 0, maybe: 0, no: 0 };
+  if (count < minResponses) return null;
+  if (!agg || agg.length === 0) return null;
+  var r = agg[0];
 
-  for (var j = 0; j < responses.length; j++) {
-    var r = responses[j];
-    if (workloadCounts[r.workload] !== undefined) workloadCounts[r.workload]++;
-    if (energyCounts[r.energy] !== undefined) energyCounts[r.energy]++;
-    if (supportCounts[r.supportNeeded] !== undefined) supportCounts[r.supportNeeded]++;
-  }
-
-  var totalResponses = responses.length;
-  var comments = [];
-  for (var k = 0; k < responses.length; k++) {
-    if (responses[k].comment) comments.push(responses[k].comment);
-  }
-
-  var veryStressed = 0, stressed = 0, neutral = 0, good = 0, excellent = 0;
-  for (var m = 0; m < moodScores.length; m++) {
-    if (moodScores[m] === 1) veryStressed++;
-    else if (moodScores[m] === 2) stressed++;
-    else if (moodScores[m] === 3) neutral++;
-    else if (moodScores[m] === 4) good++;
-    else if (moodScores[m] === 5) excellent++;
+  var moodDist = { veryStressed: 0, stressed: 0, neutral: 0, good: 0, excellent: 0 };
+  if (r.moodValues) {
+    for (var m = 0; m < r.moodValues.length; m++) {
+      var v = r.moodValues[m];
+      if (v === 1) moodDist.veryStressed++;
+      else if (v === 2) moodDist.stressed++;
+      else if (v === 3) moodDist.neutral++;
+      else if (v === 4) moodDist.good++;
+      else if (v === 5) moodDist.excellent++;
+    }
   }
 
   return {
-    responseCount: totalResponses,
-    avgMood: Math.round(avgMood * 100) / 100,
-    moodDistribution: {
-      veryStressed: veryStressed,
-      stressed: stressed,
-      neutral: neutral,
-      good: good,
-      excellent: excellent
-    },
+    responseCount: count,
+    avgMood: Math.round((r.avgMood || 0) * 100) / 100,
+    moodDistribution: moodDist,
     workloadDistribution: {
-      tooHeavy: workloadCounts.too_heavy,
-      normal: workloadCounts.normal,
-      light: workloadCounts.light
+      tooHeavy: r.workloadTooHeavy || 0,
+      normal: r.workloadNormal || 0,
+      light: r.workloadLight || 0
     },
-    energyDistribution: energyCounts,
-    supportDistribution: supportCounts,
-    comments: comments.slice(0, 20),
-    supportPercentage: Math.round((supportCounts.yes / totalResponses) * 100)
+    energyDistribution: {
+      very_low: r.energyVeryLow || 0,
+      low: r.energyLow || 0,
+      normal: r.energyNormal || 0,
+      high: r.energyHigh || 0
+    },
+    supportDistribution: {
+      yes: r.supportYes || 0,
+      maybe: r.supportMaybe || 0,
+      no: r.supportNo || 0
+    },
+    comments: (r.comments || []).filter(Boolean).slice(0, 20),
+    supportPercentage: count > 0 ? Math.round(((r.supportYes || 0) / count) * 100) : 0
   };
 };
 

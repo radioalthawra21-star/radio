@@ -93,14 +93,9 @@ exports.submitEvaluation = async (req, res) => {
       return res.status(404).json({ success: false, message: 'المدير غير موجود' });
     }
     
-    const hasAlreadyEvaluated = await EvaluationResponse.findOne({ 
-      period, 
-      manager: managerId,
-      _id: { $ne: req.user._id }
-    });
-    
     const evaluation = await EvaluationResponse.create({
       period,
+      employeeHash: EvaluationResponse.hashEmployee(period, req.user._id),
       manager: managerId,
       responses,
       strengthsComment: strengthsComment || null,

@@ -136,12 +136,12 @@ const documentSchema = new mongoose.Schema({
   
   allowedRoles: [{
     type: String,
-    enum: Object.values(require('./User').UserRole)
+    enum: ['employee', 'manager', 'hr', 'admin']
   }],
   
   allowedDepartments: [{
     type: String,
-    enum: Object.values(require('./User').Department)
+    enum: ['financial', 'it', 'marketing', 'news', 'production', 'live_broadcast', 'hr']
   }],
   
   // Security and validation

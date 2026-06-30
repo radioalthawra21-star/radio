@@ -38,11 +38,14 @@ class ZKTecoService {
   async loadConfig() {
     if (this.config) return this.config;
     this.config = {
-      ip: process.env.ZK_IP || '192.168.1.201',
+      ip: process.env.ZK_IP || '192.168.15.50',
       port: parseInt(process.env.ZK_PORT || '4370'),
-      timeout: parseInt(process.env.ZK_TIMEOUT || '5000'),
+      timeout: parseInt(process.env.ZK_TIMEOUT || '10000'),
       pollInterval: parseInt(process.env.ZK_POLL_INTERVAL || '30000')
     };
+    if (!process.env.ZK_IP) {
+      logger.warn('ZK_IP غير معرّف، استخدام الافتراضي 192.168.15.50');
+    }
     return this.config;
   }
 
@@ -120,7 +123,11 @@ class ZKTecoService {
     try {
       if (!(await this.connect())) return [];
 
-      const records = await this.device.getAttendances();
+      const timeoutMs = (this.config?.timeout || 10000);
+      const records = await Promise.race([
+        this.device.getAttendances(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs))
+      ]);
       if (!records || !records.data || records.data.length === 0) {
         logger.info('لا توجد سجلات جديدة في الجهاز');
         return [];
@@ -173,6 +180,12 @@ class ZKTecoService {
     try {
       if (!(await this.connect())) return;
 
+      if (this._rtlActive) {
+        logger.warn('استقبال السجلات اللحظية نشط بالفعل');
+        return;
+      }
+      this._rtlActive = true;
+
       await this.device.getRealTimeLogs((data) => {
         if (callback && typeof callback === 'function') {
           callback(data);
@@ -180,7 +193,20 @@ class ZKTecoService {
       });
       logger.info('بدء استقبال السجلات اللحظية من الجهاز');
     } catch (err) {
+      this._rtlActive = false;
       logger.error(`فشل في استقبال السجلات اللحظية: ${err.message}`);
+    }
+  }
+
+  async stopRealTimeLogs() {
+    try {
+      if (this.device && this._rtlActive) {
+        await this.device.disconnect();
+        this._rtlActive = false;
+        logger.info('تم إيقاف استقبال السجلات اللحظية');
+      }
+    } catch (err) {
+      logger.error(`فشل إيقاف السجلات اللحظية: ${err.message}`);
     }
   }
 
@@ -310,8 +336,9 @@ class ZKTecoService {
         client.destroy();
         resolve(null);
       }, 5000);
+      const bridgeKey = process.env.BRIDGE_SECRET_KEY || 'dev-bridge-key';
       client.connect(3457, '127.0.0.1', () => {
-        client.write(JSON.stringify({ cmd: 'get-firmware' }));
+        client.write(JSON.stringify({ cmd: 'get-firmware', key: bridgeKey }));
       });
       let data = '';
       client.on('data', (chunk) => { data += chunk.toString(); });

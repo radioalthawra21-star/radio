@@ -44,9 +44,13 @@ const evaluationPeriodSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Individual evaluation response (no employee identifier)
+// Individual evaluation response (employee identifier is hashed for anonymity)
 const evaluationResponseSchema = new mongoose.Schema({
   period: {
+    type: String,
+    required: true
+  },
+  employeeHash: {
     type: String,
     required: true
   },
@@ -66,12 +70,20 @@ const evaluationResponseSchema = new mongoose.Schema({
 
 // Indexes for efficient queries
 evaluationResponseSchema.index({ period: 1, manager: 1 });
-evaluationResponseSchema.index({ period: 1 });
+evaluationResponseSchema.index({ period: 1, employeeHash: 1 });
 
 // Check if employee already submitted evaluation for this period
-evaluationResponseSchema.statics.hasSubmitted = async function(period, managerId) {
-  const existing = await this.findOne({ period, manager: managerId });
+evaluationResponseSchema.statics.hasSubmitted = async function(period, employeeId) {
+  const crypto = require('crypto');
+  const hash = crypto.createHash('sha256').update(`${period}:${employeeId}`).digest('hex');
+  const existing = await this.findOne({ period, employeeHash: hash });
   return !!existing;
+};
+
+// Generate employee hash
+evaluationResponseSchema.statics.hashEmployee = function(period, employeeId) {
+  const crypto = require('crypto');
+  return crypto.createHash('sha256').update(`${period}:${employeeId}`).digest('hex');
 };
 
 // Get aggregated results for a manager in a period

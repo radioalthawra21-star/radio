@@ -264,9 +264,11 @@ payrollSchema.virtual('payslipNumber').get(function() {
   return `PAY-${this._id.toString().slice(-8).toUpperCase()}`;
 });
 
-// Pre-save hook to calculate totals
+// Pre-save hook to calculate totals (only when financial fields change)
 payrollSchema.pre('save', function(next) {
-  this.calculateTotals();
+  if (this.isModified('baseSalary') || this.isModified('components') || this.isModified('deductions') || this.isNew) {
+    this.calculateTotals();
+  }
   next();
 });
 
