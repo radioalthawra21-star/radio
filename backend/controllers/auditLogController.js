@@ -342,7 +342,7 @@ const exportAuditLogs = async (req, res) => {
       ].join(',');
       
       const csvRows = auditLogs.map(log => {
-        const date = new log.createdAt.toLocaleString('ar-SA');
+        const date = log.createdAt.toLocaleString('ar-SA');
         const user = log.user ? `${log.user.name} (${log.user.username})` : 'نظام';
         const role = log.userRole || '';
         const action = log.action || '';

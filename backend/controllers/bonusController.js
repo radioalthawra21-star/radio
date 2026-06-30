@@ -45,6 +45,13 @@ const createBonus = async (req, res) => {
   try {
     const { employeeId, points, reason, type } = req.body;
     
+    if (!employeeId || !points || !reason) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'يرجى ملء جميع الحقول المطلوبة' 
+      });
+    }
+    
     const bonus = await Bonus.create({
       employee: employeeId,
       givenBy: req.user._id,
@@ -69,7 +76,7 @@ const createBonus = async (req, res) => {
     await Notification.createNotification(
       employeeId,
       NotificationType.REWARD,
-      '🎁 مكافأة جديدة',
+      'مكافأة جديدة',
       `لقد حصلت على ${points} نقاط - ${reason}`,
       null
     );
@@ -80,13 +87,13 @@ const createBonus = async (req, res) => {
       await Notification.createNotification(
         adminUser._id,
         NotificationType.REWARD,
-        '✅ تم منح مكافأة',
-        `تم منح ${employee.name} مكافأة worth ${points} points - ${reason}`,
+        'مكافأة جديدة',
+        `تم منح ${points} نقاط للموظف ${employee.name} - ${reason}`,
         null
       );
     }
     
-    res.json({ success: true, message: 'تم إنشاء المكافأة بنجاح', data: { bonus } });
+    res.json({ success: true, data: { bonus } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error creating bonus' });
   }

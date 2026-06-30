@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+const { protect, adminOnly } = require('../middleware/authMiddleware');
 const {
   getQuestions,
   submitEvaluation,
@@ -29,7 +29,7 @@ router.get('/managers', protect, getManagers);
 router.post('/submit', protect, submitEvaluation);
 
 // GET /api/manager-evaluation/results - Get all results (admin only)
-router.get('/results', protect, getResults);
+router.get('/results', protect, adminOnly, getResults);
 
 // GET /api/manager-evaluation/manager/:id - Get specific manager results
 router.get('/manager/:id', protect, getManagerResults);

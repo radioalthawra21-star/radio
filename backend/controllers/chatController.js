@@ -10,8 +10,9 @@ const { User } = require('../models/User');
 const { AuditLog, AuditAction } = require('../models/AuditLog');
 
 const ensureDepartmentChat = async (user) => {
+  const escapedDept = user.department.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const dept = await Department.findOne({
-    name: { $regex: new RegExp(`^${user.department}$`, 'i') }
+    name: { $regex: new RegExp(`^${escapedDept}$`, 'i') }
   }).lean();
   if (!dept) return null;
 
@@ -27,7 +28,7 @@ const ensureDepartmentChat = async (user) => {
 
   const deptUsers = await User.find({
     $or: [
-      { department: { $regex: new RegExp(`^${user.department}$`, 'i') } },
+      { department: { $regex: new RegExp(`^${escapedDept}$`, 'i') } },
       { role: { $in: ['admin', 'hr'] } }
     ],
     isActive: true

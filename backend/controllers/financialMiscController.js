@@ -3,6 +3,8 @@ const FinancialMisc = require('../models/FinancialMisc');
 exports.getAll = async (req, res) => {
   try {
     const { page = 1, limit = 500, sort = '-date', startDate, endDate, type, archived } = req.query;
+    const pageNum = Math.max(1, Number(page));
+    const limitNum = Math.max(1, Math.min(500, Number(limit)));
     const filter = { isActive: true };
     if (type && ['income', 'expense'].includes(type)) filter.type = type;
     if (archived === 'true') filter.archived = true;
@@ -15,8 +17,8 @@ exports.getAll = async (req, res) => {
     }
     const items = await FinancialMisc.find(filter)
       .sort(sort)
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
       .populate('createdBy', 'name username')
       .populate('updatedBy', 'name username');
     const total = await FinancialMisc.countDocuments(filter);
