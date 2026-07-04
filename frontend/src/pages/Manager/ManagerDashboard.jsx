@@ -208,7 +208,7 @@ const ManagerDashboard = () => {
                       <p className="font-semibold text-dark text-sm">{req.employee?.name}</p>
                       <p className="text-xs text-gray-500">
                         {req.type === 'annual' ? 'سنوية' : req.type === 'sick' ? 'مرضية' : req.type === 'exceptional' ? 'استثنائية' : req.type === 'death' ? 'وفاة' : req.type === 'hourly' ? 'ساعية' : req.type} · {req.days} يوم
-                        {req.days > 3 && <span className="mr-1 text-orange-600">(أكثر من 3)</span>}
+                        {req.days >= 3 && <span className="mr-1 text-orange-600">(٣ فأكثر)</span>}
                       </p>
                     </div>
                   </div>

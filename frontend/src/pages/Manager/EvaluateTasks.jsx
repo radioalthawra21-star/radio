@@ -89,7 +89,7 @@ const EvaluateTasks = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">تقييم المهام</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">تقييم المهام</h1>
 
       {error && (
         <div className="bg-error/10 border border-error text-error p-3 rounded-lg mb-4">
@@ -115,14 +115,14 @@ const EvaluateTasks = () => {
           {tasks.map((task) => (
             <Card key={task._id} className="hover:shadow-xl transition-shadow">
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <div className="flex items-start gap-3 min-w-0 max-w-full">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                     📝
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-dark text-lg break-words">{task.title}</h3>
-                    <p className="text-sm text-gray-600">{task.description}</p>
-                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+                  <div className="min-w-0 flex-1 max-w-full">
+                    <h3 className="font-semibold text-dark text-base md:text-lg break-words">{task.title}</h3>
+                    <p className="text-sm text-gray-600 break-words">{task.description}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs md:text-sm text-gray-500">
                       <span>👤 {task.assignedTo?.map(u => u.name).join(', ')}</span>
                       <span>⏱️ {task.duration} ساعة</span>
                       <span>📅 <span className="en-num">{formatDateArabic(task.taskDate)}</span></span>
@@ -134,7 +134,7 @@ const EvaluateTasks = () => {
                 </div>
 
                 {/* Evaluation Form */}
-                <div className="bg-gray-50 p-4 rounded-lg w-full md:w-64">
+                <div className="bg-gray-50 p-4 rounded-lg w-full md:w-72 shrink-0">
                   <h4 className="font-semibold text-dark mb-3">تقييم المهمة</h4>
                   <div className="mb-3">
                     <label className="label">التقييم (0-100)</label>
@@ -145,7 +145,7 @@ const EvaluateTasks = () => {
                       max="100"
                       value={evalForm.score}
                       onChange={(e) => setEvalForm({ ...evalForm, score: e.target.value })}
-                      className="input"
+                      className="input min-h-[48px]"
                       placeholder="أدخل التقييم"
                     />
                   </div>
@@ -161,7 +161,7 @@ const EvaluateTasks = () => {
                   <button
                     onClick={() => handleEvaluate(task._id)}
                     disabled={evaluating === task._id}
-                    className="btn btn-interactive w-full min-h-[44px] flex items-center justify-center"
+                    className="btn btn-interactive w-full min-h-[48px] flex items-center justify-center"
                   >
                     {evaluating === task._id ? 'جاري التقييم...' : 'تقييم'}
                   </button>

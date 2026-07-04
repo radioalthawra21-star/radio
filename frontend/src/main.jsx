@@ -4,7 +4,7 @@
  */
 
 // المسار الفعّال: main.jsx → App.jsx
-// ملاحظة: يوجد App.tsx كمرجع للمستقبل (يتطلب lazy loading ومسارات مختلفة)
+// ملاحظة: للترقية إلى TypeScript في المستقبل يمكن إنشاء App.tsx
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

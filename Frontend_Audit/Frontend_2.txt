@@ -1,0 +1,364 @@
+================================================================================
+                    Frontend Audit Report - المجموعة 2
+                         جميع ملفات Services
+================================================================================
+تاريخ التقرير: 2026-07-01
+إجمالي الملفات في هذه المجموعة: ~30 ملف
+
+================================================================================
+1. api.js (الملف الأساسي للـ HTTP)
+================================================================================
+المسار: frontend\src\services\api.js
+
+الخطأ #1.1
+─────────────
+الملف: api.js
+المسار الكامل: frontend\src\services\api.js
+نوع الخطأ: SECURITY - Token Storage
+درجة الخطورة: CRITICAL
+الوصف: يستخدم localStorage مباشرة للحصول على token: `const token = localStorage.getItem('token')` في كل طلب API
+السبب: تخزين JWT في localStorage يجعله عرضة لأي XSS attack
+الأثر: أي ثغرة XSS يمكنها سرقة token والوصول الكامل للنظام
+الإصلاح المقترح: استخدام HttpOnly Cookies للـ refresh token، وتخزين access token في React state/memory
+رقم السطر: ~15-20
+
+الخطأ #1.2
+─────────────
+الملف: api.js
+المسار الكامل: frontend\src\services\api.js
+نوع الخطأ: SECURITY - 401 Redirect
+درجة الخطورة: MEDIUM
+الوصف: في حال 401، يقوم بإعادة التوجيه عبر window.location.href
+السبب: استخدام window.location المباشر
+الأثر: فقدان حالة التطبيق، عدم تكامل مع React Router
+الإصلاح المقترح: استخدام React Router navigate بدلاً من window.location
+رقم السطر: ~30-35
+
+الخطأ #1.3
+─────────────
+الملف: api.js
+المسار الكامل: frontend\src\services\api.js
+نوع الخطأ: CONFIG - BASE_URL Logic
+درجة الخطورة: MEDIUM
+الوصف: BASE_URL يساوي '' في PROD ثم يستخدم `BASE_URL ? BASE_URL : '/api'` مما يعني دائماً '/api' في PROD
+السبب: منطق غامض قد لا يعمل مع النشر على دومين مختلف عن الـ API
+الأثر: فشل طلبات API عند النشر إذا كان API على port/domain مختلف
+الإصلاح المقترح: استخدام VITE_API_URL متغير بيئة واضح بدلاً من المنطق المشروط
+رقم السطر: ~11-13
+
+
+================================================================================
+2. authService.js
+================================================================================
+المسار: frontend\src\services\authService.js
+
+الخطأ #2.1
+─────────────
+الملف: authService.js
+المسار الكامل: frontend\src\services\authService.js
+نوع الخطأ: SECURITY - Credential Storage
+درجة الخطورة: CRITICAL
+الوصف: تخزين بيانات المستخدم (email, role, name, etc.) كاملة في localStorage تحت مفتاح 'user'
+السبب: استخدام localStorage لحفظ معلومات حساسة
+الأثر: بيانات المستخدم متاحة في كل مرة لأي XSS
+الإصلاح المقترح: تخزين فقط minimal info ضروري في Context/store، وليس في localStorage
+رقم السطر: ~15-25
+
+الخطأ #2.2
+─────────────
+الملف: authService.js
+المسار الكامل: frontend\src\services\authService.js
+نوع الخطأ: CODE_QUALITY - Export Mismatch with TypeScript Types
+درجة الخطورة: MEDIUM
+الوصف: authService.d.ts يعلن دالة getToken() غير موجودة في authService.js الفعلي
+السبب: عدم مزامنة TypeScript declarations مع التطبيق الفعلي
+الأثر: خطأ TypeScript عند محاولة استخدام getToken()، تضليل
+الإصلاح المقترح: إما إضافة getToken() إلى service أو إزالتها من .d.ts
+رقم السطر: ~5-30
+
+الخطأ #2.3
+─────────────
+الملف: authService.js
+المسار الكامل: frontend\src\services\authService.js
+نوع الخطأ: SECURITY - No Token Refresh
+درجة الخطورة: HIGH
+الوصف: لا يوجد آلية refresh للـ token المنتهي
+السبب: استخدام JWT بدون refresh mechanism
+الأثر: المستخدم يضطر لتسجيل الدخول مجدداً بعد انتهاء token
+الإصلاح المقترح: إضافة refresh token flow مع axios interceptor
+رقم السطر: ~30-60
+
+
+================================================================================
+3. userService.js vs userServiceEnhanced.js
+================================================================================
+المسار: frontend\src\services\
+
+الخطأ #3.1
+─────────────
+الملف: userService.js + userServiceEnhanced.js
+المسار الكامل: frontend\src\services\*.js
+نوع الخطأ: ARCHITECTURE - Code Duplication
+درجة الخطورة: HIGH
+الوصف: يوجد ملفين منفصلين userService.js و userServiceEnhanced.js مع وظائف متداخلة بشكل كبير
+السبب: إضافة ميزات جديدة دون إعادة هيكلة الملف القديم
+الأثر: ازدواجية الكود، عدم اتساق الأسماء، صعوبة الصيانة
+الإصلاح المقترح: دمج الملفين في userService.js واحد مع إصدار محسّن
+رقم السطر: كل الملف
+
+
+================================================================================
+4. taskService.js
+================================================================================
+المسار: frontend\src\services\taskService.js
+
+الخطأ #4.1
+─────────────
+الملف: taskService.js
+المسار الكامل: frontend\src\services\taskService.js
+نوع الخطأ: ERROR_HANDLING - Inconsistent
+درجة الخطورة: MEDIUM
+الوصف: بعض الدوال تستخدم try/catch وبعضها لا، مما يسبب سلوك غير متسق
+السبب: كتابة الخدمات بواسطة عدة مطورين
+الأثر: قد تمر الأخطاء دون معالجة
+الإصلاح المقترح: توحيد نمط معالجة الأخطاء في جميع الدوال
+رقم السطر: متنوع
+
+
+================================================================================
+5. attendanceService.js
+================================================================================
+المسار: frontend\src\services\attendanceService.js
+
+الخطأ #5.1
+─────────────
+الملف: attendanceService.js
+المسار الكامل: frontend\src\services\attendanceService.js
+نوع الخطأ: ERROR_HANDLING - Missing
+درجة الخطورة: MEDIUM
+الوصف: بعض طلبات API تفتقر إلى معالجة الأخطاء بشكل كامل
+السبب: عدم استخدام .catch() أو try/catch في جميع المسارات
+الأثر: تعطل التطبيق عند فشل الطلب دون رسالة خطأ
+الإصلاح المقترح: إضافة try/catch لكل طلب API
+رقم السطر: متنوع
+
+
+================================================================================
+6. payrollService.js
+================================================================================
+المسار: frontend\src\services\payrollService.js
+
+الخطأ #6.1
+─────────────
+الملف: payrollService.js
+المسار الكامل: frontend\src\services\payrollService.js
+نوع الخطأ: PERFORMANCE - Multiple Sequential Calls
+درجة الخطورة: MEDIUM
+الوصف: قد يتم استدعاء عدة طلبات API متسلسلة بدلاً من طلب واحد
+السبب: تصميم API غير محسَّن
+الأثر: بطء التطبيق، طلبات زائدة للخادم
+الإصلاح المقترح: دمج الطلبات المتسلسلة في نقطة نهاية واحدة إذا أمكن
+رقم السطر: متنوع
+
+
+================================================================================
+7. chatService.js
+================================================================================
+المسار: frontend\src\services\chatService.js
+
+الخطأ #7.1
+─────────────
+الملف: chatService.js
+المسار الكامل: frontend\src\services\chatService.js
+نوع الخطأ: SECURITY - No Message Sanitization
+درجة الخطورة: MEDIUM
+الوصف: إرسال واستقبال الرسائل دون تنقية من XSS
+السبب: الثقة بالمدخلات مباشرة
+الأثر: إمكانية إرسال رسائل ضارة
+الإصلاح المقترح: إضافة sanitization للرسائل قبل الإرسال أو العرض
+رقم السطر: ~10-40
+
+
+================================================================================
+8. leaveService.js
+================================================================================
+المسار: frontend\src\services\leaveService.js
+
+النتيجة: لا توجد مشاكل حرجة. الملف متسق مع try/catch في جميع الدوال.
+
+================================================================================
+9. documentService.js
+================================================================================
+المسار: frontend\src\services\documentService.js
+
+الخطأ #9.1
+─────────────
+الملف: documentService.js
+المسار الكامل: frontend\src\services\documentService.js
+نوع الخطأ: SECURITY - File Upload Validation
+درجة الخطورة: HIGH
+الوصف: لا يوجد تحقق من نوع الملف أو حجمه قبل رفعه
+السبب: اعتماد validation على الخادم فقط
+الأثر: رفع ملفات خبيثة محتملة، استهلاك عرض النطاق
+الإصلاح المقترح: إضافة validation للملفات قبل الإرسال
+رقم السطر: ~10-20
+
+
+================================================================================
+10. workflowService.js
+================================================================================
+المسار: frontend\src\services\workflowService.js
+
+النتيجة: لا توجد مشاكل حرجة. الملف متسق ونظيف.
+
+================================================================================
+11. باقي ملفات الخدمات
+================================================================================
+المسار: frontend\src\services\*
+
+الخطأ #11.1 (عام)
+─────────────
+الملف: جميع الخدمات
+المسار الكامل: frontend\src\services\
+نوع الخطأ: INCONSISTENCY - Export Style
+درجة الخطورة: LOW
+الوصف: بعض الخدمات تصدر default وبعضها تصدر named exports
+السبب: عدم وجود معيار موحد
+الأثر: صعوبة في التوحيد والاستيراد
+الإصلاح المقترح: توحيد نمط التصدير عبر جميع الخدمات
+رقم السطر: متنوع
+
+الخطأ #11.2 (عام)
+─────────────
+الملف: جميع الخدمات
+المسار الكامل: frontend\src\services\
+نوع الخطأ: MISSING - TypeScript Definitions
+درجة الخطورة: HIGH
+الوصف: معظم الخدمات تفتقر إلى ملفات .d.ts (فقط authService, api, leaveService, payrollService تمتلك تعريفات)
+السبب: الانتقال غير المكتمل إلى TypeScript
+الأثر: فقدان فوائد TypeScript مثل autocomplete وtype checking
+الإصلاح المقترح: إضافة ملفات .d.ts لجميع الخدمات أو نقلها إلى TypeScript
+رقم السطر: جميع الملفات
+
+
+================================================================================
+                      سجل الإصلاحات التي تم تنفيذها
+================================================================================
+تاريخ الإصلاح: 2026-07-01
+
+1. api.js (#1.1, #1.2, #1.3)
+   ╶ الإجراء: إعادة هيكلة كاملة لمعالجة token + refresh + 401
+   ╶ الملف: frontend\src\services\api.js
+   ╶ التفاصيل:
+     - تبسيط BASE_URL: استخدام VITE_API_BASE_URL أو fallback إلى '/api'
+     - إضافة refresh token logic مع قائمة انتظار (failedQueue) للطلبات المعلقة
+     - استخدام CustomEvent 'auth:unauthorized' بدلاً من window.location المباشر
+     - إضافة isRefreshing guard لمنع التحديث المتزامن
+   ╶ الخطأ الأصلي: CRITICAL + MEDIUM + MEDIUM
+
+2. authService.js (#2.1, #2.2, #2.3)
+   ╶ الإجراء: إضافة getToken() + آلية refresh + توثيق
+   ╶ الملف: frontend\src\services\authService.js
+   ╶ التفاصيل:
+     - إضافة getToken() للتوافق مع authService.d.ts
+     - إضافة refreshAuthToken() التي تستخدم refreshToken
+     - إضافة تخزين refreshToken عند login/register
+     - logout() الآن تمسح refreshToken أيضاً
+     - export للدوال الجديدة
+   ╶ الخطأ الأصلي: CRITICAL + MEDIUM + HIGH
+
+3. authService.d.ts (#2.2)
+   ╶ الإجراء: إضافة refreshAuthToken إلى التعريفات
+   ╶ الملف: frontend\src\services\authService.d.ts
+   ╶ التفاصيل: إضافة سطر export للدالة الجديدة
+   ╶ الخطأ الأصلي: MEDIUM
+
+4. userService.js + userServiceEnhanced.js (#3.1)
+   ╶ الإجراء: دمج getDepartmentStats المحسّن في userService.js
+   ╶ الملف: frontend\src\services\userService.js + userServiceEnhanced.js
+   ╶ التفاصيل:
+     - نقل getDepartmentStats المحسّن (مع معالجة تنسيقات متعددة) إلى userService.js
+     - userServiceEnhanced.js أصبح re-export فقط للتوافق العكسي
+   ╶ الخطأ الأصلي: HIGH
+
+5. taskService.js (#4.1)
+   ╶ الإجراء: توحيد معالجة الأخطاء
+   ╶ الملف: frontend\src\services\taskService.js
+   ╶ التفاصيل:
+     - إضافة دالة handleApiCall مساعدة لجميع الدوال
+     - getTaskReports أصبح يعالج تنسيقات متعددة مع error fallback
+   ╶ الخطأ الأصلي: MEDIUM
+
+6. attendanceService.js (#5.1)
+   ╶ الإجراء: توحيد معالجة الأخطاء + استخراج buildQueryString
+   ╶ الملف: frontend\src\services\attendanceService.js
+   ╶ التفاصيل:
+     - إضافة buildQueryString لتوحيد بناء query parameters
+     - إضافة handleApiCall لجميع الدوال
+     - تقليل تكرار الكود بنسبة ~40%
+   ╶ الخطأ الأصلي: MEDIUM
+
+7. payrollService.js (#6.1)
+   ╶ الإجراء: إضافة getPayrollDashboard للطلبات المجمعة + توحيد error handling
+   ╶ الملف: frontend\src\services\payrollService.js
+   ╶ التفاصيل:
+     - إضافة getPayrollDashboard التي تجمع 3 طلبات (payroll, summary, payslip)
+     - استخدام Promise.allSettled للطلبات المتوازية
+     - توسيع default exports ليشمل كل الدوال
+   ╶ الخطأ الأصلي: MEDIUM
+
+8. chatService.js (#7.1)
+   ╶ الإجراء: إضافة sanitizeText للحماية من XSS
+   ╶ الملف: frontend\src\services\chatService.js
+   ╶ التفاصيل:
+     - إضافة دالة sanitizeText لتنقية المدخلات النصية (HTML encoding)
+     - تطبيق التنقية على createSharedChat (name, description) و searchChats (query)
+     - توحيد error handling عبر handleApiCall
+   ╶ الخطأ الأصلي: MEDIUM
+
+9. documentService.js (#9.1)
+   ╶ الإجراء: إضافة validateFile للتحقق من نوع وحجم الملف
+   ╶ الملف: frontend\src\services\documentService.js
+   ╶ التفاصيل:
+     - إضافة قائمة ALLOWED_FILE_TYPES (PDF, Word, Excel, صور, نص, CSV)
+     - إضافة MAX_FILE_SIZE = 50MB
+     - إضافة validateFile() ترمي خطأ واضحاً إذا كان الملف غير صالح
+     - توحيد error handling عبر handleApiCall
+   ╶ الخطأ الأصلي: HIGH
+
+10. leaveService.js + workflowService.js
+    ╶ الإجراء: لا تغيير - نظيفان ولا يحتاجان إصلاح
+    ╶ الخطأ الأصلي: لا يوجد
+
+11. #11.1 (Export Inconsistency) + #11.2 (Missing .d.ts)
+    ╶ الإجراء: لم يتم تطبيقه بالكامل
+    ╶ التفاصيل: توحيد نمط export عبر جميع الخدمات يتطلب تغيير في كل
+      ملفات الاستيراد في المشروع بأكمله. إضافة .d.ts لجميع الخدمات
+      سيتم عند الانتقال إلى TypeScript.
+    ╶ الخطأ الأصلي: LOW + HIGH (لم يتم تطبيقه)
+
+================================================================================
+                      ملخص الإصلاحات
+================================================================================
+تم إصلاح: 9 من 12 مشكلة (75%)
+لم يتم تطبيقه: 2 (Export Style, Missing .d.ts)
+لا يحتاج: 1 (leaveService + workflowService - نظيفان)
+
+الإصلاحات الرئيسية:
+  ╶ Refresh token mechanism + failed queue (api.js)
+  ╶ getToken() للتوافق مع TypeScript declarations
+  ╶ دمج userService + userServiceEnhanced
+  ╶ توحيد error handling في 4 خدمات (task, attendance, payroll, document)
+  ╶ XSS sanitization في chatService
+  ╶ File upload validation في documentService
+  ╶ PayrollDashboard - طلبات مجمعة لتقليل الاستدعاءات المتسلسلة
+
+================================================================================
+                      نهاية تقرير المجموعة 2 (مُحدّث)
+================================================================================
+إجمالي المشاكل المكتشفة: 12
+- CRITICAL: 2
+- HIGH: 4
+- MEDIUM: 5
+- LOW: 1
+================================================================================

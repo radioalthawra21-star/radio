@@ -1,75 +1,70 @@
 import api from './api';
 
+async function handleApiCall(apiCall) {
+  try {
+    const response = await apiCall();
+    return response.data;
+  } catch (error) {
+    console.error('Payroll Service Error:', error?.response?.data || error.message);
+    throw error;
+  }
+}
+
 export const getEmployeePayroll = async (employeeId, params = {}) => {
-  const response = await api.get(`/payroll/employee/${employeeId}`, { params });
-  return response.data;
+  return handleApiCall(() => api.get(`/payroll/employee/${employeeId}`, { params }));
 };
 
 export const getAllPayrolls = async (params = {}) => {
-  const response = await api.get('/payroll/all', { params });
-  return response.data;
+  return handleApiCall(() => api.get('/payroll/all', { params }));
 };
 
 export const generatePayroll = async (payrollData) => {
-  const response = await api.post('/payroll/generate', payrollData);
-  return response.data;
+  return handleApiCall(() => api.post('/payroll/generate', payrollData));
 };
 
 export const updatePayroll = async (payrollId, payrollData) => {
-  const response = await api.put(`/payroll/${payrollId}`, payrollData);
-  return response.data;
+  return handleApiCall(() => api.put(`/payroll/${payrollId}`, payrollData));
 };
 
 export const approvePayroll = async (payrollId) => {
-  const response = await api.put(`/payroll/${payrollId}/approve`);
-  return response.data;
+  return handleApiCall(() => api.put(`/payroll/${payrollId}/approve`));
 };
 
 export const markPayrollAsPaid = async (payrollId, paymentData) => {
-  const response = await api.put(`/payroll/${payrollId}/pay`, paymentData);
-  return response.data;
+  return handleApiCall(() => api.put(`/payroll/${payrollId}/pay`, paymentData));
 };
 
 export const deletePayroll = async (payrollId) => {
-  const response = await api.delete(`/payroll/${payrollId}`);
-  return response.data;
+  return handleApiCall(() => api.delete(`/payroll/${payrollId}`));
 };
 
 export const getPayrollSummary = async (params = {}) => {
-  const response = await api.get('/payroll/summary', { params });
-  return response.data;
+  return handleApiCall(() => api.get('/payroll/summary', { params }));
 };
 
 export const generatePayslip = async (payrollId) => {
-  const response = await api.get(`/payroll/${payrollId}/payslip`);
-  return response.data;
+  return handleApiCall(() => api.get(`/payroll/${payrollId}/payslip`));
 };
 
 export const getPendingPayrollAssignments = async (params = {}) => {
-  const { page = 1, limit = 20 } = params;
-  const response = await api.get(`/payroll/pending-assignments?page=${page}&limit=${limit}`);
-  return response.data;
+  return handleApiCall(() => api.get('/payroll/pending-assignments', { params }));
 };
 
 export const getRecentPayments = async () => {
-  const response = await api.get('/payroll/recent');
-  return response.data;
+  return handleApiCall(() => api.get('/payroll/recent'));
 };
 
 export const assignSalaryToPendingPayroll = async (payrollId, salaryData) => {
-  const response = await api.put(`/payroll/${payrollId}/assign-salary`, salaryData);
-  return response.data;
+  return handleApiCall(() => api.put(`/payroll/${payrollId}/assign-salary`, salaryData));
 };
 
 export const getCurrentPayslip = async (period) => {
   const params = period ? { period } : {};
-  const response = await api.get('/payroll/payslip/current', { params });
-  return response.data;
+  return handleApiCall(() => api.get('/payroll/payslip/current', { params }));
 };
 
 export const exportPayslipPDF = async (payrollId) => {
-  const response = await api.get(`/payroll/${payrollId}/payslip/export`);
-  return response.data;
+  return handleApiCall(() => api.get(`/payroll/${payrollId}/payslip/export`));
 };
 
 function downloadBlob(blob, filename) {
@@ -93,8 +88,44 @@ export const downloadPayslipPDF = async (payrollId, payslipData) => {
   throw new Error('معرف المرتب غير صالح');
 };
 
+// Combined fetch for payroll dashboard (reduces multiple sequential calls)
+export const getPayrollDashboard = async (employeeId, period) => {
+  try {
+    const [payrollRes, summaryRes, payslipRes] = await Promise.allSettled([
+      employeeId ? api.get(`/payroll/employee/${employeeId}`, { params: { period } }) : Promise.resolve(null),
+      api.get('/payroll/summary', { params: period ? { period } : {} }),
+      api.get('/payroll/payslip/current', { params: period ? { period } : {} })
+    ]);
+
+    return {
+      success: true,
+      data: {
+        payroll: payrollRes.status === 'fulfilled' ? payrollRes.value?.data : null,
+        summary: summaryRes.status === 'fulfilled' ? summaryRes.value?.data : null,
+        payslip: payslipRes.status === 'fulfilled' ? payslipRes.value?.data : null
+      }
+    };
+  } catch (error) {
+    console.error('getPayrollDashboard error:', error);
+    return { success: false, error: error.userMessage || 'Failed to load payroll dashboard', data: null };
+  }
+};
+
 export default {
   getCurrentPayslip,
   exportPayslipPDF,
   downloadPayslipPDF,
+  getPayrollDashboard,
+  getAllPayrolls,
+  getEmployeePayroll,
+  generatePayroll,
+  updatePayroll,
+  approvePayroll,
+  markPayrollAsPaid,
+  deletePayroll,
+  getPayrollSummary,
+  generatePayslip,
+  getPendingPayrollAssignments,
+  getRecentPayments,
+  assignSalaryToPendingPayroll
 };

@@ -182,11 +182,32 @@ const ManagerEvaluation = () => {
           <div className="border-t pt-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">التقييم</h3>
             
-            <div className="overflow-x-auto">
+            {/* Mobile: dropdown per question */}
+            <div className="md:hidden space-y-3">
+              {questions.map(q => (
+                <div key={q.id} className="border rounded-lg p-3 bg-gray-50">
+                  <p className="text-sm text-gray-700 mb-2">{q.questionAr}</p>
+                  <select
+                    value={responses[q.id] || ''}
+                    onChange={(e) => handleRatingChange(q.id, parseInt(e.target.value))}
+                    className="w-full p-2 border rounded-lg bg-white text-sm"
+                    required
+                  >
+                    <option value="">-- اختر التقييم --</option>
+                    {SCALES.map(s => (
+                      <option key={s.value} value={s.value}>{s.value} - {s.label}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table with radio buttons */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="text-center text-sm text-gray-600">
-                    <th className="text-right p-2 min-w-[200px]">السؤال</th>
+                    <th className="text-right p-2 min-w-[200px]" style={{ whiteSpace: 'normal' }}>السؤال</th>
                     {SCALE_LABELS.map(n => (
                       <th key={n} className="p-2 w-12">{n}</th>
                     ))}
@@ -195,7 +216,7 @@ const ManagerEvaluation = () => {
                 <tbody>
                   {questions.map(q => (
                     <tr key={q.id} className="border-t">
-                      <td className="p-3 text-gray-700">{q.questionAr}</td>
+                      <td className="p-3 text-gray-700" style={{ whiteSpace: 'normal' }}>{q.questionAr}</td>
                       {SCALES.map(s => (
                         <td key={s.value} className="p-2 text-center">
                           <label className="cursor-pointer flex justify-center">
@@ -214,12 +235,11 @@ const ManagerEvaluation = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-
-            <div className="flex justify-center gap-2 mt-2">
-              {SCALES.map(s => (
-                <span key={s.value} className="text-xs text-gray-500 w-12 text-center">{s.label}</span>
-              ))}
+              <div className="flex justify-center gap-2 mt-2">
+                {SCALES.map(s => (
+                  <span key={s.value} className="text-xs text-gray-500 w-12 text-center">{s.label}</span>
+                ))}
+              </div>
             </div>
           </div>
 

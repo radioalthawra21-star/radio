@@ -25,6 +25,11 @@ export const deleteLeaveRequestPermanent = async (id) => {
   return res.data;
 };
 
+export const requestStopLeave = async (id) => {
+  const res = await api.post(`/leave/${id}/request-stop`);
+  return res.data;
+};
+
 export const getLeaveBalance = async () => {
   const res = await api.get('/leave/balance');
   return res.data;
@@ -49,5 +54,5 @@ export const validateLeaveRequest = async (data) => {
 export default {
   createLeaveRequest, getLeaveRequests, getLeaveRequestById,
   cancelLeaveRequest, deleteLeaveRequestPermanent, getLeaveBalance, updateLeaveStatus,
-  getPendingLeaveRequests, validateLeaveRequest,
+  getPendingLeaveRequests, validateLeaveRequest, requestStopLeave,
 };

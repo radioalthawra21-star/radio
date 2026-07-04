@@ -1,4 +1,5 @@
-import React from 'react';
+import { formatNumber, formatCurrency } from './numberUtils';
+export { formatNumber, formatCurrency };
 
 /**
  * Calculate trend percentage between two values
@@ -47,29 +48,6 @@ export const calculateGrowthRate = (values) => {
   if (first === 0) return last > 0 ? 100 : 0;
   
   return Math.pow(last / first, 1 / periods) - 1;
-};
-
-/**
- * Format number with thousand separators and decimal places
- * @param {number} num - Number to format
- * @param {number} decimals - Number of decimal places (default: 0)
- * @returns {string} - Formatted number string
- */
-export const formatNumber = (num, decimals = 0) => {
-  if (isNaN(num)) return '0';
-  return Number(num).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
-
-/**
- * Format currency with symbol
- * @param {number} amount - Amount to format
- * @param {string} symbol - Currency symbol (default: '$')
- * @param {number} decimals - Decimal places (default: 2)
- * @returns {string} - Formatted currency string
- */
-export const formatCurrency = (amount, symbol = '$', decimals = 2) => {
-  if (isNaN(amount)) return `${symbol}0.00`;
-  return `${symbol}${Number(Math.abs(amount)).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${amount < 0 ? '-' : ''}`;
 };
 
 export default {

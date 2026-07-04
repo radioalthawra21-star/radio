@@ -45,7 +45,7 @@ const StageApproval = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">الموافقات</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">الموافقات</h1>
 
       {loading ? (
         <div className="flex justify-center py-12">
@@ -74,26 +74,26 @@ const StageApproval = () => {
                     {task.workflowId && <span>📋 {task.workflowId.name}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex flex-col items-end gap-1">
+                <div className="w-full lg:w-auto shrink-0">
+                  <div className="flex flex-col gap-2">
                     <textarea
                       placeholder="ملاحظات (اختياري)"
-                      className="input text-sm min-h-[44px] w-full md:w-40"
+                      className="input text-sm min-h-[44px] w-full"
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                     />
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full">
                       <button
                         onClick={() => handleAction(task._id, 'approve')}
                         disabled={actionId === task._id}
-                        className="btn btn-success text-sm"
+                        className="btn btn-success text-sm flex-1 md:flex-none min-h-[44px]"
                       >
                         {actionId === task._id ? '...' : '✅ موافقة'}
                       </button>
                       <button
                         onClick={() => handleAction(task._id, 'reject')}
                         disabled={actionId === task._id}
-                        className="btn btn-error text-sm"
+                        className="btn btn-error text-sm flex-1 md:flex-none min-h-[44px]"
                       >
                         {actionId === task._id ? '...' : '❌ رفض'}
                       </button>

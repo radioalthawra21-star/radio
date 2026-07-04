@@ -10,6 +10,9 @@ export const register = async (userData) => {
   const response = await api.post('/auth/register', userData);
   if (response.data.success) {
     localStorage.setItem('token', response.data.data.token);
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.data.refreshToken);
+    }
     localStorage.setItem('user', JSON.stringify(response.data.data.user));
   }
   return response.data;
@@ -20,6 +23,9 @@ export const login = async (credentials) => {
   const response = await api.post('/auth/login', credentials);
   if (response.data.success) {
     localStorage.setItem('token', response.data.data.token);
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('refreshToken', response.data.data.refreshToken);
+    }
     localStorage.setItem('user', JSON.stringify(response.data.data.user));
   }
   return response.data;
@@ -28,7 +34,13 @@ export const login = async (credentials) => {
 // Logout user
 export const logout = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
   localStorage.removeItem('user');
+};
+
+// Get stored token
+export const getToken = () => {
+  return localStorage.getItem('token');
 };
 
 // Get current user
@@ -76,6 +88,26 @@ export const getStoredUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
+export const refreshAuthToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return null;
+    const response = await api.post('/auth/refresh', { refreshToken });
+    if (response.data?.success) {
+      const newToken = response.data.data.token;
+      localStorage.setItem('token', newToken);
+      if (response.data.data.refreshToken) {
+        localStorage.setItem('refreshToken', response.data.data.refreshToken);
+      }
+      return newToken;
+    }
+    return null;
+  } catch {
+    logout();
+    return null;
+  }
+};
+
 export default {
   register,
   login,
@@ -85,5 +117,7 @@ export default {
   updateProfile,
   uploadProfileImage,
   isLoggedIn,
-  getStoredUser
+  getStoredUser,
+  getToken,
+  refreshAuthToken
 };

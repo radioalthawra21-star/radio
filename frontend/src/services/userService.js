@@ -65,10 +65,38 @@ export const getRankings = async () => {
   return response.data;
 };
 
-// Get department statistics
+// Get department statistics (enhanced, handles multiple response formats)
 export const getDepartmentStats = async () => {
-  const response = await api.get('/users/department-stats');
-  return response.data;
+  try {
+    const response = await api.get('/users/department-stats');
+    let stats = [];
+    if (response.data?.success) {
+      if (Array.isArray(response.data.data?.stats)) {
+        stats = response.data.data.stats;
+      } else if (Array.isArray(response.data.data?.departments)) {
+        stats = response.data.data.departments;
+      } else if (Array.isArray(response.data.data)) {
+        stats = response.data.data;
+      }
+    } else if (Array.isArray(response.data)) {
+      stats = response.data;
+    }
+    return {
+      success: true,
+      data: {
+        stats: stats.map(dept => ({
+          department: dept.department || dept._id || '',
+          employeeCount: dept.employeeCount || 0,
+          averagePerformanceScore: dept.averagePerformanceScore || 0,
+          totalTasks: dept.totalTasks || 0,
+          completedTasks: dept.completedTasks || 0
+        }))
+      }
+    };
+  } catch (error) {
+    console.error('getDepartmentStats error:', error);
+    return { success: false, error: error.userMessage || 'Failed to fetch department stats', data: { stats: [] } };
+  }
 };
 
 // Get pending users (not activated)

@@ -1266,11 +1266,12 @@ export default function TempSupervisorPage() {
                     const compensated = r._compensatedByLeave;
                     const holiday = r._isHoliday;
                     const leaveTypeLabel = compensated?.type ? {
-                      annual: 'سنوية', sick: 'مرضية', emergency: 'طارئة',
+                      annual: 'سنوية', sick: 'مرضية',
                       exceptional: 'استثنائية', death: 'وفاة', unpaid: 'بدون راتب',
-                      maternity: 'وضع', paternity: 'أبوة', compensatory: 'تعويضية',
+                      maternity: 'وضع', compensatory: 'تعويضية',
                       hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
-                      attendance_correction: 'تصحيح بصمة', fingerprint_forgotten: 'نسيان بصمة'
+                      attendance_correction: 'تصحيح بصمة', fingerprint_forgotten: 'نسيان بصمة',
+                      hajj: 'حج', development: 'تطوير'
                     }[compensated.type] || compensated.type : null;
                     if (r._isWeeklyHoliday) {
                       notes = '📅 عطلة أسبوعية - الجمعة';

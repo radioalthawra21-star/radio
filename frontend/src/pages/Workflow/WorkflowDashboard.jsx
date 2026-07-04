@@ -53,13 +53,13 @@ const WorkflowDashboard = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">لوحة إحصائيات سير العمل</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">لوحة إحصائيات سير العمل</h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
         {statCards.map((card, i) => (
-          <div key={i} className="bg-white rounded-xl shadow-lg p-4 border-r-4" style={{ borderRightColor: 'var(--tw-' + card.color.replace('bg-', '') + ', #182E4E)' }}>
-            <p className="text-sm text-gray-500">{card.label}</p>
-            <p className="text-3xl font-bold text-dark mt-1 en-num">{card.value}</p>
+          <div key={i} className={`bg-white rounded-xl shadow-lg p-3 md:p-4 ${card.color === 'bg-primary' ? 'border-r-4 border-[#CD6F13]' : card.color === 'bg-warning' ? 'border-r-4 border-[#CD6F13]' : card.color === 'bg-success' ? 'border-r-4 border-[#16A34A]' : card.color === 'bg-error' ? 'border-r-4 border-[#DC2626]' : card.color === 'bg-info' ? 'border-r-4 border-[#1C95A4]' : card.color === 'bg-gray-500' ? 'border-r-4 border-[#6B7280]' : card.color === 'bg-dark' ? 'border-r-4 border-[#182E4E]' : card.color === 'bg-secondary' ? 'border-r-4 border-[#1C95A4]' : 'border-r-4 border-primary'}`}>
+            <p className="text-xs md:text-sm text-gray-500">{card.label}</p>
+            <p className="text-xl md:text-3xl font-bold text-dark mt-1 en-num">{card.value}</p>
           </div>
         ))}
       </div>

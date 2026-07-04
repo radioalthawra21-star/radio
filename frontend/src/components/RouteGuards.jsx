@@ -1,10 +1,23 @@
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { isLoggedIn, getStoredUser } from '../services/authService';
 
 export const ProtectedRoute = ({ children, allowedRoles }) => {
+  const [checking, setChecking] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setAuthenticated(isLoggedIn());
+    setChecking(false);
+  }, []);
+
+  if (checking) {
+    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
+  }
+
   const user = getStoredUser();
 
-  if (!isLoggedIn()) {
+  if (!authenticated) {
     return <Navigate to="/login" replace />;
   }
 

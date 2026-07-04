@@ -16,6 +16,7 @@ const deviceLogSchema = new mongoose.Schema({
 deviceLogSchema.index({ timestamp: -1 });
 deviceLogSchema.index({ employee: 1, timestamp: -1 });
 deviceLogSchema.index({ deviceUserId: 1, timestamp: -1 });
+deviceLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 365 * 24 * 60 * 60 }); // TTL: 1 year
 
 const DeviceLog = mongoose.model('DeviceLog', deviceLogSchema);
 

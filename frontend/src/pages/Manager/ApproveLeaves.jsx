@@ -3,15 +3,17 @@ import { getPendingLeaveRequests, updateLeaveStatus } from '../../services/leave
 
 const LEAVE_TYPE_LABELS = {
   annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
-  death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
-  maternity: 'إجازة وضع', paternity: 'إجازة أبوة', unpaid: 'إجازة بدون راتب',
+  death: 'إجازة وفاة', hourly: 'إجازة ساعية',
+  maternity: 'إجازة وضع', unpaid: 'إجازة بدون راتب',
   compensatory: 'إجازة تعويضية', fingerprint_forgotten: 'نسيان بصمة',
+  hajj: 'إجازة حج', development: 'إجازة تطوير',
 };
 
 const LEAVE_TYPE_ICONS = {
   annual: '🏖️', sick: '🩺', exceptional: '⭐', death: '🕊️', hourly: '⏰',
-  emergency: '🚨', maternity: '👶', paternity: '👨‍👧', unpaid: '💼', compensatory: '🔄',
+  maternity: '👶', unpaid: '💼', compensatory: '🔄',
   fingerprint_forgotten: '🖐️',
+  hajj: '🕋', development: '📚',
 };
 
 const ApproveLeaves = () => {
@@ -152,9 +154,9 @@ const ApproveLeaves = () => {
                         {formatDate(req.startDate)} → {formatDate(req.endDate)}
                         <span className="mx-1">·</span>
                         {req.days} يوم
-                        {req.days > 3 && (
+                        {req.days >= 3 && (
                           <span className="mr-2 text-orange-600 font-medium">
-                            (أكثر من 3 أيام - ستحتاج موافقة المدير العام بعدك)
+                            (٣ أيام فأكثر - ستحتاج موافقة المدير العام بعدك)
                           </span>
                         )}
                       </p>
@@ -170,7 +172,7 @@ const ApproveLeaves = () => {
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button
-                    onClick={() => req.days > 3 ? openApproveModal(req) : handleApproveFull(req._id)}
+                    onClick={() => req.days >= 3 ? openApproveModal(req) : handleApproveFull(req._id)}
                     className="flex-1 sm:flex-none px-4 py-2.5 min-h-[44px] bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
                   >
                     ✔ موافقة

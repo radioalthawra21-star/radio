@@ -9,18 +9,18 @@ const mongoose = require('mongoose');
 const LeaveType = {
   ANNUAL: 'annual',
   SICK: 'sick',
-  EMERGENCY: 'emergency',
   EXCEPTIONAL: 'exceptional',
   DEATH: 'death',
   UNPAID: 'unpaid',
   MATERNITY: 'maternity',
-  PATERNITY: 'paternity',
   COMPENSATORY: 'compensatory',
   HOURLY: 'hourly',
   MISSION: 'mission',
   OVERTIME: 'overtime',
   ATTENDANCE_CORRECTION: 'attendance_correction',
   FINGERPRINT_FORGOTTEN: 'fingerprint_forgotten',
+  HAJJ: 'hajj',
+  DEVELOPMENT: 'development',
 };
 
 const LeaveStatus = {
@@ -71,6 +71,12 @@ const leaveRequestSchema = new mongoose.Schema({
   overtimeMultiplier: { type: Number, default: null },
   estimatedAmount: { type: Number, default: null },
 
+  // Death leave degree (1=first degree: 3 days, 2=second degree: 2 days, 3=third degree: 1 day)
+  deathDegree: { type: Number, enum: [1, 2, 3, null], default: null },
+
+  // Medical report for sick leave
+  medicalReport: { type: String, default: null },
+
   // Fingerprint-forgotten specific fields
   fingerprintType: { type: String, enum: ['in', 'out', null], default: null },
   fingerprintDate: { type: Date, default: null },
@@ -79,6 +85,12 @@ const leaveRequestSchema = new mongoose.Schema({
   // Payroll sync
   payrollItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'PayrollItem', default: null },
   compensationResult: { type: mongoose.Schema.Types.Mixed, default: null },
+
+  // Leave stop-by-fingerprint feature
+  stopRequested: { type: Boolean, default: false },
+  stopRequestedAt: { type: Date, default: null },
+  checkInDetectedAt: { type: Date, default: null },
+  fingerprintStoppedAt: { type: Date, default: null },
 }, { timestamps: true });
 
 leaveRequestSchema.index({ employee: 1, startDate: -1 });
@@ -115,12 +127,85 @@ leaveRequestSchema.methods.calculateHours = function () {
   return this.hours;
 };
 
-leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leaveType) {
+leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leaveType, options = {}) {
   const currentYear = new Date().getFullYear();
 
-  // Hourly leave deducts from annual balance
   const effectiveType = leaveType === 'hourly' ? 'annual' : leaveType;
 
+  // Read balances from Settings, fall back to hardcoded defaults
+  let settings = {};
+  try {
+    const Settings = mongoose.model('Settings');
+    const allSettings = await Settings.find();
+    allSettings.forEach(s => { settings[s.key] = s.value; });
+  } catch (e) { /* ignore */ }
+
+  const defaultBalances = {
+    annual: settings.leaveAnnualDays || 30,
+    sick: Infinity,
+    exceptional: Infinity,
+    death: Infinity,
+    maternity: settings.leaveMaternityDays || 90,
+    compensatory: 0,
+    unpaid: Infinity,
+    hourly: settings.leaveAnnualDays || 30,
+    mission: Infinity,
+    overtime: Infinity,
+    attendance_correction: Infinity,
+    fingerprint_forgotten: Infinity,
+    hajj: settings.leaveHajjDays || 30,
+    development: settings.leaveDevelopmentHoursPerWeek || 6,
+  };
+
+  // Development leave: check current ISO week usage, not yearly
+  if (leaveType === 'development') {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now); monday.setDate(now.getDate() + diffToMonday); monday.setHours(0, 0, 0, 0);
+    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23, 59, 59, 999);
+
+    const weekLeaves = await this.find({
+      employee: employeeId,
+      type: 'development',
+      status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.SYNCED_TO_PAYROLL, LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER] },
+      startDate: { '$gte': monday, '$lte': sunday },
+    });
+
+    const weekUsedHours = weekLeaves.reduce((sum, l) => sum + (l.hours || 0), 0);
+    const maxWeeklyHours = defaultBalances.development;
+    const remainingWeeklyHours = Math.max(0, maxWeeklyHours - weekUsedHours);
+    return {
+      totalBalance: maxWeeklyHours, usedDays: 0, usedHours: Math.round(weekUsedHours * 10) / 10,
+      remainingBalance: 0, remainingHours: Math.round(remainingWeeklyHours * 10) / 10,
+      hasSufficientBalance: remainingWeeklyHours > 0,
+      maxWeeklyHours, weekUsedHours: Math.round(weekUsedHours * 10) / 10,
+    };
+  }
+
+  // For annual/hourly: combine both types, convert to hours
+  if (effectiveType === 'annual') {
+    const approvedLeaves = await this.find({
+      employee: employeeId,
+      type: { $in: ['annual', 'hourly'] },
+      status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.SYNCED_TO_PAYROLL] },
+      startDate: { '$gte': new Date(currentYear, 0, 1) },
+    });
+    const usedDays = approvedLeaves.reduce((sum, l) => sum + (l.days || 0), 0);
+    const usedHours = approvedLeaves.reduce((sum, l) => sum + (l.hours || 0), 0);
+    const totalDays = defaultBalances.annual || 0;
+    const totalHours = totalDays * 8;
+    const consumedHours = (usedDays * 8) + usedHours;
+    const remainingHours = Math.max(0, totalHours - consumedHours);
+    const remainingDays = Math.floor(remainingHours / 8);
+    return {
+      totalBalance: totalDays, usedDays, usedHours,
+      remainingBalance: remainingDays, remainingHours,
+      hasSufficientBalance: leaveType === 'hourly' ? remainingHours > 0 : remainingDays > 0,
+    };
+  }
+
+  // Other leave types
   const approvedLeaves = await this.find({
     employee: employeeId,
     type: effectiveType,
@@ -129,14 +214,10 @@ leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leave
   });
   const usedDays = approvedLeaves.reduce((sum, l) => sum + (l.days || 0), 0);
   const usedHours = approvedLeaves.reduce((sum, l) => sum + (l.hours || 0), 0);
-  const defaultBalances = {
-    annual: 30, sick: 15, emergency: 5, exceptional: 10, death: 7, maternity: 90, paternity: 15,
-    compensatory: 0, unpaid: Infinity, hourly: 30, mission: Infinity, overtime: Infinity, attendance_correction: Infinity, fingerprint_forgotten: Infinity,
-  };
   const totalBalance = defaultBalances[effectiveType] || 0;
   const remainingBalance = totalBalance - usedDays;
   const remainingHours = (totalBalance * 8) - usedHours;
-  const hasSufficientBalance = leaveType === 'hourly' ? remainingHours > 0 : remainingBalance > 0;
+  const hasSufficientBalance = remainingBalance > 0;
   return { totalBalance, usedDays, usedHours, remainingBalance, remainingHours, hasSufficientBalance };
 };
 

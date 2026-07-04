@@ -3,15 +3,17 @@ import { getPendingLeaveRequests, updateLeaveStatus } from '../../services/leave
 
 const LEAVE_TYPE_LABELS = {
   annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
-  death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
-  maternity: 'إجازة وضع', paternity: 'إجازة أبوة', unpaid: 'إجازة بدون راتب',
+  death: 'إجازة وفاة', hourly: 'إجازة ساعية',
+  maternity: 'إجازة وضع', unpaid: 'إجازة بدون راتب',
   compensatory: 'إجازة تعويضية', fingerprint_forgotten: 'نسيان بصمة',
+  hajj: 'إجازة حج', development: 'إجازة تطوير',
 };
 
 const LEAVE_TYPE_ICONS = {
   annual: '🏖️', sick: '🩺', exceptional: '⭐', death: '🕊️', hourly: '⏰',
-  emergency: '🚨', maternity: '👶', paternity: '👨‍👧', unpaid: '💼', compensatory: '🔄',
+  maternity: '👶', unpaid: '💼', compensatory: '🔄',
   fingerprint_forgotten: '🖐️',
+  hajj: '🕋', development: '📚',
 };
 
 const GMApproveLeaves = () => {
@@ -86,7 +88,7 @@ const GMApproveLeaves = () => {
     <div className="p-6 max-w-6xl mx-auto" dir="rtl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">موافقة المدير العام</h1>
-        <p className="text-gray-500 text-sm mt-1">الموافقة النهائية على طلبات الإجازة التي تتجاوز 3 أيام</p>
+        <p className="text-gray-500 text-sm mt-1">الموافقة النهائية على طلبات الإجازة التي تبدأ من 3 أيام فأكثر</p>
       </div>
 
       {error && (
@@ -145,7 +147,7 @@ const GMApproveLeaves = () => {
                         {formatDate(req.startDate)} → {formatDate(req.endDate)}
                         <span className="mx-1">·</span>
                         {req.days} يوم
-                        <span className="mr-2 text-red-600 font-medium">(أكثر من 3 أيام)</span>
+                        <span className="mr-2 text-red-600 font-medium">(٣ أيام فأكثر)</span>
                       </p>
                     )}
                     {req.managerSuggestedDays ? (

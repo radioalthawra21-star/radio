@@ -21,6 +21,7 @@ biometricErrorLogSchema.index({ createdAt: -1 });
 biometricErrorLogSchema.index({ deviceUserId: 1 });
 biometricErrorLogSchema.index({ errorType: 1 });
 biometricErrorLogSchema.index({ resolved: 1 });
+biometricErrorLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 }); // TTL: 90 days
 
 const BiometricErrorLog = mongoose.model('BiometricErrorLog', biometricErrorLogSchema);
 

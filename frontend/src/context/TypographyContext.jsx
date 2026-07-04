@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const TypographyContext = createContext();
 
@@ -24,12 +24,13 @@ export const TypographyProvider = ({ children }) => {
   });
 
   const [loadedFonts, setLoadedFonts] = useState([]);
+  const loadedFontsRef = useRef([]);
 
   const loadFont = useCallback((fontConfig) => {
     if (!fontConfig || !fontConfig.url) return;
     
     const fontName = fontConfig.family;
-    if (loadedFonts.includes(fontName)) return;
+    if (loadedFontsRef.current.includes(fontName)) return;
 
     const existingLink = document.querySelector(`link[data-font="${fontName}"]`);
     if (existingLink) return;
@@ -40,8 +41,9 @@ export const TypographyProvider = ({ children }) => {
     link.setAttribute('data-font', fontName);
     document.head.appendChild(link);
     
-    setLoadedFonts(prev => [...prev, fontName]);
-  }, [loadedFonts]);
+    loadedFontsRef.current = [...loadedFontsRef.current, fontName];
+    setLoadedFonts(loadedFontsRef.current);
+  }, []);
 
   const applyFonts = useCallback((fontConfig) => {
     const root = document.documentElement;
@@ -53,7 +55,7 @@ export const TypographyProvider = ({ children }) => {
     loadFont(fonts.heading);
     loadFont(fonts.body);
     applyFonts(fonts);
-  }, [fonts]);
+  }, [fonts, loadFont, applyFonts]);
 
   const updateFonts = useCallback((newFonts) => {
     const updated = { ...fonts, ...newFonts };

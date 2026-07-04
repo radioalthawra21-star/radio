@@ -9,7 +9,7 @@ function App() {
 
   useEffect(() => {
     const storedUser = getStoredUser();
-    if (storedUser) {
+    if (storedUser && storedUser._id) {
       setUser(storedUser);
     }
 

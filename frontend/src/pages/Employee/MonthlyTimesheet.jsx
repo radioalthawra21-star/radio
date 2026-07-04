@@ -5,10 +5,11 @@ import { getMonthlyTimesheet, updateAttendanceRecord } from '../../services/atte
 import { getAllUsers } from '../../services/userService';
 
 const LEAVE_TYPE_LABELS = {
-  annual: 'سنوية', sick: 'مرضية', emergency: 'طارئة', exceptional: 'استثنائية',
-  death: 'وفاة', unpaid: 'بدون راتب', maternity: 'وضع', paternity: 'أبوة',
+  annual: 'سنوية', sick: 'مرضية', exceptional: 'استثنائية',
+  death: 'وفاة', unpaid: 'بدون راتب', maternity: 'وضع',
   compensatory: 'تعويضية', hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
   attendance_correction: 'تصحيح بصمة',
+  hajj: 'حج', development: 'تطوير',
 };
 
 const STATUS_MAP = {

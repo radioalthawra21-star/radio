@@ -65,7 +65,7 @@ const ProposalsList = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">الاقتراحات</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">الاقتراحات</h1>
 
       {error && (
         <div className="bg-error/10 border border-error text-error p-3 rounded-lg mb-4">
@@ -91,45 +91,45 @@ const ProposalsList = () => {
           {proposals.map((proposal) => (
             <Card key={proposal._id} className="border-r-4 border-r-primary">
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center">
+                <div className="flex items-start gap-3 min-w-0 max-w-full">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-warning/10 rounded-full flex items-center justify-center flex-shrink-0 text-lg">
                     💡
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-dark text-lg">{proposal.title}</h3>
-                    <p className="text-sm text-gray-600">{proposal.description}</p>
-                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
-                      <span>👤 {proposal.createdBy?.name}</span>
-                      <span>🏢 {proposal.createdBy?.department}</span>
-                      <span>⏱️ {proposal.duration} ساعة</span>
-                      <span>📅 <span className="en-num">{formatDateArabic(proposal.taskDate)}</span></span>
+                  <div className="min-w-0 flex-1 max-w-full">
+                    <h3 className="font-semibold text-dark text-base md:text-lg break-words">{proposal.title}</h3>
+                    <p className="text-sm text-gray-600 break-words">{proposal.description}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs md:text-sm text-gray-500">
+                      <span className="whitespace-nowrap">👤 {proposal.createdBy?.name}</span>
+                      <span className="whitespace-nowrap">🏢 {proposal.createdBy?.department}</span>
+                      <span className="whitespace-nowrap">⏱️ {proposal.duration} ساعة</span>
+                      <span className="whitespace-nowrap">📅 <span className="en-num">{formatDateArabic(proposal.taskDate)}</span></span>
                     </div>
                     {proposal.isUnusual && (
                       <span className="badge bg-warning text-white mt-2">غير عادية</span>
                     )}
                   </div>
                 </div>
-                <div className="w-full md:w-64 space-y-2">
+                <div className="w-full md:w-72 space-y-2 shrink-0">
                   <button
                     onClick={() => handleApprove(proposal._id)}
                     disabled={actionLoading === proposal._id}
-                    className="btn btn-success w-full"
+                    className="btn btn-success w-full min-h-[48px]"
                   >
                     {actionLoading === proposal._id ? 'جاري...' : '✓ موافقة'}
                   </button>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col md:flex-row gap-2">
                     <input
                       type="text"
                       dir="rtl"
                       placeholder="سبب الرفض (اختياري)"
                       value={rejectReason[proposal._id] || ''}
                       onChange={(e) => setRejectReason(r => ({ ...r, [proposal._id]: e.target.value }))}
-                      className="input text-sm flex-1"
+                      className="input text-sm flex-1 min-h-[48px]"
                     />
                     <button
                       onClick={() => handleReject(proposal._id)}
                       disabled={actionLoading === proposal._id}
-                      className="btn btn-error whitespace-nowrap"
+                      className="btn btn-error whitespace-nowrap min-h-[48px]"
                     >
                       {actionLoading === proposal._id ? '...' : '✕ رفض'}
                     </button>

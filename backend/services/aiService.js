@@ -19,19 +19,19 @@ const resolveConfig = (model) => {
   return PROVIDERS[0];
 };
 
-const AI_TIMEOUT = parseInt(process.env.AI_TIMEOUT) || 600000;
+const AI_TIMEOUT = parseInt(process.env.AI_TIMEOUT) || 120000;
 
 const executeWithFetch = async (systemPrompt, userText, model) => {
   const cfg = resolveConfig(model);
   const effectiveModel = model || cfg.model;
   const isGemini = cfg.baseUrl.includes('googleapis.com');
 
-  const url = isGemini
-    ? `${cfg.baseUrl}/chat/completions?key=${cfg.apiKey}`
-    : `${cfg.baseUrl}/chat/completions`;
+  const url = `${cfg.baseUrl}/chat/completions`;
 
   const headers = { 'Content-Type': 'application/json' };
-  if (!isGemini) {
+  if (isGemini) {
+    headers['x-goog-api-key'] = cfg.apiKey;
+  } else {
     headers['Authorization'] = `Bearer ${cfg.apiKey}`;
   }
 

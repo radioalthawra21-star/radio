@@ -18,12 +18,12 @@ export const ChatProvider = ({ children }) => {
   const typingTimeouts = useRef({});
   const isMounted = useRef(true);
 
-  const user = getStoredUser();
+  const userRef = useRef(getStoredUser());
 
   useEffect(() => {
     isMounted.current = true;
     const token = localStorage.getItem('token');
-    if (!token || !user) return;
+    if (!token || !userRef.current) return;
 
     const socketInstance = io(`${SOCKET_URL}/chat`, {
       auth: { token },
@@ -53,7 +53,7 @@ export const ChatProvider = ({ children }) => {
     });
 
     socketInstance.on('chat:typing', ({ chatId, userId: typingUserId, isTyping }) => {
-      if (!isMounted.current || typingUserId === user?._id) return;
+      if (!isMounted.current || typingUserId === userRef.current?._id) return;
       setTypingUsers(prev => {
         const key = `${chatId}:${typingUserId}`;
         if (isTyping) {

@@ -3,6 +3,7 @@ const { User } = require('../models/User');
 const BiometricErrorLog = require('../models/BiometricErrorLog');
 const DeviceLog = require('../models/DeviceLog');
 const zktecoService = require('../services/zktecoService');
+const { processStopByFingerprint } = require('./leaveController');
 
 const BRIDGE_KEY = process.env.BRIDGE_SECRET_KEY;
 if (!BRIDGE_KEY && process.env.NODE_ENV === 'production') {
@@ -50,6 +51,19 @@ function determineCheckInStatus(timestamp) {
     return CheckInStatus.VERY_LATE;
   }
   return CheckInStatus.LATE;
+}
+
+function calcDurationOvertime(checkInTime, checkOutTime) {
+  const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+  // Saudi work hours: 9:00-16:00 = 6:00-13:00 UTC
+  const workStartMin = 6 * 60;
+  const workEndMin = 13 * 60;
+  const checkInMin = checkInTime.getUTCHours() * 60 + checkInTime.getUTCMinutes();
+  const checkOutMin = checkOutTime.getUTCHours() * 60 + checkOutTime.getUTCMinutes();
+  const overtimeAfter = Math.max(0, checkOutMin - workEndMin);
+  const overtimeBefore = Math.max(0, workStartMin - checkInMin);
+  const overtime = Math.round((overtimeAfter + overtimeBefore) / 60 * 100) / 100;
+  return { duration, overtime };
 }
 
 async function receiveAttendance(req, res) {
@@ -172,8 +186,7 @@ async function receiveAttendance(req, res) {
             }}});
           }
           if (needsCheckOutUpdate) {
-            const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
-            const overtime = duration > (existing.expectedHours || 8) ? duration - (existing.expectedHours || 8) : 0;
+            const { duration, overtime } = calcDurationOvertime(checkInTime, checkOutTime);
             updateData['checkOut.time'] = checkOutTime;
             updateData['checkOut.location'] = 'جهاز بصمة';
             updateData['checkOut.notes'] = 'تسجيل بصمة';
@@ -201,7 +214,7 @@ async function receiveAttendance(req, res) {
       } else {
         const doc = {
           date: group.user ? group.dayStart : checkInTime,
-          expectedHours: 8,
+          expectedHours: 7,
           status: attendanceStatus,
           checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'تسجيل بصمة' },
           lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
@@ -214,10 +227,10 @@ async function receiveAttendance(req, res) {
           doc.deviceUserName = `مستخدم جهاز #${group.zkId}`;
         }
         if (checkOutTime) {
-          const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+          const { duration, overtime } = calcDurationOvertime(checkInTime, checkOutTime);
           doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'تسجيل بصمة' };
           doc.duration = duration;
-          doc.overtime = duration > 8 ? duration - 8 : 0;
+          doc.overtime = overtime;
         }
         bulkOps.push({ insertOne: { document: doc } });
         deviceLogBulk.push({ insertOne: { document: {
@@ -247,6 +260,15 @@ async function receiveAttendance(req, res) {
     }
     if (deviceLogBulk.length > 0) {
       await DeviceLog.bulkWrite(deviceLogBulk, { ordered: false });
+    }
+
+    // Check for stop-requested leaves for users who just fingerprinted
+    for (const [, group] of groups) {
+      if (group.user && group.timestamps.length > 0) {
+        processStopByFingerprint(group.user._id, group.dayStart).catch(e =>
+          console.error('[stop-by-fingerprint] Error:', e.message)
+        );
+      }
     }
 
     res.json({
@@ -405,8 +427,7 @@ async function syncDeviceAttendance(req, res) {
             }}});
           }
           if (needsCheckOutUpdate) {
-            const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
-            const overtime = duration > (existing.expectedHours || 8) ? duration - (existing.expectedHours || 8) : 0;
+            const { duration, overtime } = calcDurationOvertime(checkInTime, checkOutTime);
             updateData['checkOut.time'] = checkOutTime;
             updateData['checkOut.location'] = 'جهاز بصمة';
             updateData['checkOut.notes'] = 'تزامن مباشر';
@@ -445,7 +466,7 @@ async function syncDeviceAttendance(req, res) {
         }
         const doc = {
           date: group.dayStart,
-          expectedHours: 8,
+          expectedHours: 7,
           status: attendanceStatus,
           checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'تزامن مباشر' },
           lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null,
@@ -453,10 +474,10 @@ async function syncDeviceAttendance(req, res) {
           department: group.user.department || null
         };
         if (checkOutTime) {
-          const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+          const { duration, overtime } = calcDurationOvertime(checkInTime, checkOutTime);
           doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'تزامن مباشر' };
           doc.duration = duration;
-          doc.overtime = duration > 8 ? duration - 8 : 0;
+          doc.overtime = overtime;
         }
         bulkOps.push({ insertOne: { document: doc } });
         deviceLogBulk.push({ insertOne: { document: {
@@ -486,6 +507,15 @@ async function syncDeviceAttendance(req, res) {
     }
     if (deviceLogBulk.length > 0) {
       await DeviceLog.bulkWrite(deviceLogBulk, { ordered: false });
+    }
+
+    // Check for stop-requested leaves for users who just fingerprinted
+    for (const [, group] of groups) {
+      if (group.user && group.timestamps.length > 0) {
+        processStopByFingerprint(group.user._id, group.dayStart).catch(e =>
+          console.error('[stop-by-fingerprint] Error:', e.message)
+        );
+      }
     }
 
     res.json({
@@ -711,16 +741,16 @@ async function cleanSyncDeviceAttendance(req, res) {
         employee: group.user._id,
         department: group.user.department || null,
         date: group.dayStart,
-        expectedHours: 8,
+        expectedHours: 7,
         status: attendanceStatus,
         checkIn: { time: checkInTime, status: checkInStatus, location: 'جهاز بصمة', notes: 'مزامنة وتنظيف' },
         lateReason: attendanceStatus === AttendanceStatus.LATE ? 'تسجيل متأخر عبر جهاز البصمة' : null
       };
       if (checkOutTime) {
-        const duration = Math.round((checkOutTime - checkInTime) / (1000 * 60 * 60) * 100) / 100;
+        const { duration, overtime } = calcDurationOvertime(checkInTime, checkOutTime);
         doc.checkOut = { time: checkOutTime, location: 'جهاز بصمة', notes: 'مزامنة وتنظيف' };
         doc.duration = duration;
-        doc.overtime = duration > 8 ? duration - 8 : 0;
+        doc.overtime = overtime;
       }
       bulkOps.push({ insertOne: { document: doc } });
       created++;
@@ -728,6 +758,15 @@ async function cleanSyncDeviceAttendance(req, res) {
 
     if (bulkOps.length > 0) {
       await Attendance.bulkWrite(bulkOps, { ordered: false });
+    }
+
+    // Check for stop-requested leaves for users who just fingerprinted
+    for (const [, group] of groups) {
+      if (group.user && group.timestamps.length > 0) {
+        processStopByFingerprint(group.user._id, group.dayStart).catch(e =>
+          console.error('[stop-by-fingerprint] Error:', e.message)
+        );
+      }
     }
 
     res.json({

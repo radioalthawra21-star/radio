@@ -135,7 +135,7 @@ const AssignTasks = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">إسناد المهمة</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">إسناد المهمة</h1>
 
       <Card>
         <form onSubmit={handleSubmit}>

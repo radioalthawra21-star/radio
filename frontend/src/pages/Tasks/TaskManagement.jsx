@@ -86,8 +86,8 @@ const TaskManagement = () => {
     <div className="animate-fade-in">
       <h1 className="text-3xl font-bold text-dark mb-6">المهام</h1>
 
-      <div className="overflow-x-auto -mx-3 md:mx-0 mb-6">
-        <div className="flex gap-2 border-b border-gray-200 pb-2 px-3 md:px-0 min-w-max">
+      <div className="mb-6 md:overflow-x-auto md:-mx-3 md:px-3">
+        <div className="flex flex-wrap md:flex-nowrap gap-2 border-b border-gray-200 pb-2">
           {tabItems.map((tab) => (
             <button
               key={tab.key}

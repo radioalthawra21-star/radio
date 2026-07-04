@@ -1,197 +1,150 @@
 import api from './api';
 
-export const getAllAttendanceRecords = async (params = {}) => {
-  const { startDate, endDate, employeeId, department, page = 1, limit = 50 } = params;
+function buildQueryString(params) {
   const queryParams = new URLSearchParams();
-  if (startDate) queryParams.append('startDate', startDate);
-  if (endDate) queryParams.append('endDate', endDate);
-  if (employeeId) queryParams.append('employeeId', employeeId);
-  if (department) queryParams.append('department', department);
-  if (page) queryParams.append('page', page.toString());
-  if (limit) queryParams.append('limit', limit.toString());
-  const response = await api.get(`/attendance/history?${queryParams.toString()}`);
-  return response.data;
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      queryParams.append(key, String(value));
+    }
+  });
+  return queryParams.toString();
+}
+
+async function handleApiCall(apiCall) {
+  try {
+    const response = await apiCall();
+    return response.data;
+  } catch (error) {
+    console.error('Attendance Service Error:', error?.response?.data || error.message);
+    throw error;
+  }
+}
+
+export const getAllAttendanceRecords = async (params = {}) => {
+  const qs = buildQueryString(params);
+  return handleApiCall(() => api.get(`/attendance/history${qs ? `?${qs}` : ''}`));
 };
 
 export const getTodayAttendance = async () => {
-  const response = await api.get('/attendance/today');
-  return response.data;
+  return handleApiCall(() => api.get('/attendance/today'));
 };
 
 export const checkIn = async (data = {}) => {
-  const response = await api.post('/attendance/check-in', data);
-  return response.data;
+  return handleApiCall(() => api.post('/attendance/check-in', data));
 };
 
 export const checkOut = async (data = {}) => {
-  const response = await api.post('/attendance/check-out', data);
-  return response.data;
+  return handleApiCall(() => api.post('/attendance/check-out', data));
 };
 
 export const getDepartmentAttendance = async (department, params = {}) => {
-  const { startDate, endDate } = params;
-  const queryParams = new URLSearchParams();
-  if (startDate) queryParams.append('startDate', startDate);
-  if (endDate) queryParams.append('endDate', endDate);
-  const response = await api.get(`/attendance/department/${department}?${queryParams.toString()}`);
-  return response.data;
+  const qs = buildQueryString(params);
+  return handleApiCall(() => api.get(`/attendance/department/${department}${qs ? `?${qs}` : ''}`));
 };
 
 export const updateAttendanceRecord = async (id, data) => {
-  const response = await api.put(`/attendance/${id}`, data);
-  return response.data;
+  return handleApiCall(() => api.put(`/attendance/${id}`, data));
 };
 
 export const getLateReport = async (params = {}) => {
-  const { startDate, endDate, department, page = 1, limit = 50 } = params;
-  const queryParams = new URLSearchParams();
-  if (startDate) queryParams.append('startDate', startDate);
-  if (endDate) queryParams.append('endDate', endDate);
-  if (department) queryParams.append('department', department);
-  if (page) queryParams.append('page', page.toString());
-  if (limit) queryParams.append('limit', limit.toString());
-  const response = await api.get(`/attendance/reports/late?${queryParams.toString()}`);
-  return response.data;
+  const qs = buildQueryString(params);
+  return handleApiCall(() => api.get(`/attendance/reports/late${qs ? `?${qs}` : ''}`));
 };
 
 export const getWorkHoursReport = async (params = {}) => {
-  const { startDate, endDate, employeeId, department, page = 1, limit = 50 } = params;
-  const queryParams = new URLSearchParams();
-  if (startDate) queryParams.append('startDate', startDate);
-  if (endDate) queryParams.append('endDate', endDate);
-  if (employeeId) queryParams.append('employeeId', employeeId);
-  if (department) queryParams.append('department', department);
-  if (page) queryParams.append('page', page.toString());
-  if (limit) queryParams.append('limit', limit.toString());
-  const response = await api.get(`/attendance/reports/work-hours?${queryParams.toString()}`);
-  return response.data;
+  const qs = buildQueryString(params);
+  return handleApiCall(() => api.get(`/attendance/reports/work-hours${qs ? `?${qs}` : ''}`));
 };
 
 export const getEmployeeAttendanceReport = async (employeeId, params = {}) => {
-  const { startDate, endDate } = params;
-  const queryParams = new URLSearchParams();
-  if (startDate) queryParams.append('startDate', startDate);
-  if (endDate) queryParams.append('endDate', endDate);
-  const response = await api.get(`/attendance/reports/employee/${employeeId}?${queryParams.toString()}`);
-  return response.data;
+  const qs = buildQueryString(params);
+  return handleApiCall(() => api.get(`/attendance/reports/employee/${employeeId}${qs ? `?${qs}` : ''}`));
 };
 
 export const getWeeklyHours = async () => {
-  const response = await api.get('/attendance/weekly-hours');
-  return response.data;
+  return handleApiCall(() => api.get('/attendance/weekly-hours'));
 };
 
 export const getAttendanceDashboard = async () => {
-  const response = await api.get('/attendance/dashboard');
-  return response.data;
+  return handleApiCall(() => api.get('/attendance/dashboard'));
 };
 
 export const syncZKTecoDevice = async () => {
-  const response = await api.post('/zkteco/sync', {}, {
-    timeout: 180000
-  });
-  return response.data;
+  return handleApiCall(() => api.post('/zkteco/sync', {}, { timeout: 180000 }));
 };
 
 export const testZKTecoConnection = async () => {
-  const response = await api.get('/zkteco/test-connection');
-  return response.data;
+  return handleApiCall(() => api.get('/zkteco/test-connection'));
 };
 
 export const getZKTecoStatus = async () => {
-  const response = await api.get('/zkteco/status');
-  return response.data;
+  return handleApiCall(() => api.get('/zkteco/status'));
 };
 
 export const getDeviceUsersFromDevice = async () => {
-  const response = await api.get('/zkteco/device-users');
-  return response.data;
+  return handleApiCall(() => api.get('/zkteco/device-users'));
 };
 
 export const pullDeviceAttendance = async (startDate, endDate) => {
-  const params = new URLSearchParams();
-  if (startDate) params.append('startDate', startDate);
-  if (endDate) params.append('endDate', endDate);
-  const response = await api.get(`/zkteco/pull-attendance?${params.toString()}`);
-  return response.data;
+  const qs = buildQueryString({ startDate, endDate });
+  return handleApiCall(() => api.get(`/zkteco/pull-attendance${qs ? `?${qs}` : ''}`));
 };
 
 export const getDeviceStatusMonitor = async () => {
-  const response = await api.get('/zkteco/status-monitor');
-  return response.data;
+  return handleApiCall(() => api.get('/zkteco/status-monitor'));
 };
 
 export const getRecentBiometricActivity = async () => {
-  const response = await api.get('/zkteco/recent-activity');
-  return response.data;
+  return handleApiCall(() => api.get('/zkteco/recent-activity'));
 };
 
 export const getErrorLogs = async (params = {}) => {
-  const { page = 1, limit = 20, resolved, errorType } = params;
-  const queryParams = new URLSearchParams();
-  queryParams.append('page', page.toString());
-  queryParams.append('limit', limit.toString());
-  if (resolved !== undefined) queryParams.append('resolved', resolved);
-  if (errorType) queryParams.append('errorType', errorType);
-  const response = await api.get(`/zkteco/error-logs?${queryParams.toString()}`);
-  return response.data;
+  const qs = buildQueryString(params);
+  return handleApiCall(() => api.get(`/zkteco/error-logs${qs ? `?${qs}` : ''}`));
 };
 
 export const createErrorLog = async (data) => {
-  const response = await api.post('/zkteco/error-logs', data);
-  return response.data;
+  return handleApiCall(() => api.post('/zkteco/error-logs', data));
 };
 
 export const resolveErrorLog = async (id, resolutionNote) => {
-  const response = await api.put(`/zkteco/error-logs/${id}/resolve`, { resolutionNote });
-  return response.data;
+  return handleApiCall(() => api.put(`/zkteco/error-logs/${id}/resolve`, { resolutionNote }));
 };
 
 export const mapUserToDevice = async (userId, deviceUserId) => {
-  const response = await api.post('/zkteco/map-user', { userId, deviceUserId });
-  return response.data;
+  return handleApiCall(() => api.post('/zkteco/map-user', { userId, deviceUserId }));
 };
 
 export const unmapUserFromDevice = async (userId) => {
-  const response = await api.post('/zkteco/unmap-user', { userId });
-  return response.data;
+  return handleApiCall(() => api.post('/zkteco/unmap-user', { userId }));
 };
 
 export const getUnmappedDeviceUsers = async (showAll = false) => {
-  const response = await api.get(`/zkteco/unmapped-device-users?showAll=${showAll}`);
-  return response.data;
+  return handleApiCall(() => api.get(`/zkteco/unmapped-device-users?showAll=${showAll}`));
 };
 
 export const getSystemUsersForMapping = async (search = '') => {
-  const response = await api.get(`/zkteco/system-users?search=${encodeURIComponent(search)}`);
-  return response.data;
+  return handleApiCall(() => api.get(`/zkteco/system-users?search=${encodeURIComponent(search)}`));
 };
 
 export const getBiometricDashboardStats = async () => {
-  const response = await api.get('/zkteco/dashboard-stats');
-  return response.data;
+  return handleApiCall(() => api.get('/zkteco/dashboard-stats'));
 };
 
 export const getMappedUsersActivity = async (days = 7) => {
-  const response = await api.get(`/zkteco/mapped-activity?days=${days}`);
-  return response.data;
+  return handleApiCall(() => api.get(`/zkteco/mapped-activity?days=${days}`));
 };
 
 export const bulkMapUsers = async (mappings) => {
-  const response = await api.post('/zkteco/bulk-map-users', { mappings });
-  return response.data;
+  return handleApiCall(() => api.post('/zkteco/bulk-map-users', { mappings }));
 };
 
 export const cleanSyncDevice = async () => {
-  const response = await api.post('/zkteco/clean-sync', {}, {
-    timeout: 300000
-  });
-  return response.data;
+  return handleApiCall(() => api.post('/zkteco/clean-sync', {}, { timeout: 300000 }));
 };
 
 export const getMonthlyTimesheet = async (employeeId, month, year) => {
-  const response = await api.get(`/attendance/timesheet/monthly/${employeeId}?month=${month}&year=${year}`);
-  return response.data;
+  return handleApiCall(() => api.get(`/attendance/timesheet/monthly/${employeeId}?month=${month}&year=${year}`));
 };
 
 export default {

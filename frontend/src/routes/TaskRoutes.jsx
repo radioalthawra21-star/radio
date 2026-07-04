@@ -1,4 +1,4 @@
-import { Route, Navigate } from 'react-router-dom';
+import { Route, Navigate, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
 import MyTasks from '../pages/Employee/MyTasks';
 import AddTask from '../pages/Employee/AddTask';
@@ -9,6 +9,11 @@ import TaskDetail from '../pages/TaskDetail';
 import TaskManagement from '../pages/Tasks/TaskManagement';
 import WorkflowTaskDetail from '../pages/Workflow/WorkflowTaskDetail';
 import DepartmentTasks from '../pages/Manager/DepartmentTasks';
+
+const TaskDetailRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/task/${id}`} replace />;
+};
 
 export const taskRoutes = (
   <>
@@ -24,7 +29,7 @@ export const taskRoutes = (
     <Route path="/manager/department-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><DepartmentTasks /></ProtectedRoute>} />
     <Route path="/admin/assign-tasks" element={<ProtectedRoute allowedRoles={['admin']}><AssignTasks /></ProtectedRoute>} />
     <Route path="/task/:id" element={<ProtectedRoute><TaskDetail /></ProtectedRoute>} />
-    <Route path="/tasks/task/:id" element={<ProtectedRoute><TaskDetail /></ProtectedRoute>} />
+    <Route path="/tasks/task/:id" element={<ProtectedRoute><TaskDetailRedirect /></ProtectedRoute>} />
     <Route path="/tasks/workflow-task/:id" element={<ProtectedRoute><WorkflowTaskDetail /></ProtectedRoute>} />
   </>
 );

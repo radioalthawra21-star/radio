@@ -59,6 +59,7 @@ const menuItems = {
     { path: '/admin/settings', label: 'الإعدادات', icon: '⚙️' },
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
+    { path: '/admin/leave-settings', label: 'إعدادات الإجازات', icon: '⚙️' },
     { path: '/admin/supervisor', label: 'Temp-Supervisor', icon: '🔬' },
     { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
@@ -170,53 +171,6 @@ const Sidebar = ({ isOpen, setIsOpen, user, onToggleChat, isMobile }) => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, isMobile]);
 
-  // Diagnostic: visualViewport + parent elements + Sidebar rect
-  useEffect(() => {
-    const vv = window.visualViewport;
-    const logDiagnostics = () => {
-      if (!(process.env.NODE_ENV === 'development' || window.__SIDEBAR_DEBUG)) return;
-      console.group('%c🔍 Sidebar Zoom Diagnostics', 'font-size:16px; font-weight:bold; color:#CD6F13');
-      console.log(`layout viewport: ${window.innerWidth}x${window.innerHeight}`);
-      if (vv) {
-        console.log(`visualViewport: ${vv.width}x${vv.height}`);
-        console.log(`visualViewport.offsetLeft: ${vv.offsetLeft}`);
-        console.log(`visualViewport.offsetTop: ${vv.offsetTop}`);
-        console.log(`visualViewport.scale: ${vv.scale}`);
-      } else {
-        console.log('visualViewport API غير مدعوم');
-      }
-      const sidebar = sidebarRef.current;
-      if (sidebar) {
-        const rect = sidebar.getBoundingClientRect();
-        console.log('sidebar getBoundingClientRect:', rect);
-        console.log('sidebar offsetLeft:', sidebar.offsetLeft);
-        console.log('sidebar offsetTop:', sidebar.offsetTop);
-        console.log('sidebar style.right:', sidebar.style.right);
-        console.log('sidebar style.transform:', sidebar.style.transform);
-        console.log('sidebar computed right:', getComputedStyle(sidebar).right);
-      }
-      // فحص العناصر الأب
-      let el = sidebarRef.current?.parentElement;
-      let level = 0;
-      while (el && level < 5) {
-        const style = getComputedStyle(el);
-        const t = style.transform;
-        console.log(`[${level}] ${el.tagName}${el.id ? '#' + el.id : ''} transform:${t !== 'none' ? '⚠️'+t : '✓'} zoom:${style.zoom !== '1' && style.zoom ? '⚠️'+style.zoom : '✓'}`);
-        el = el.parentElement;
-        level++;
-      }
-      console.groupEnd();
-    };
-    logDiagnostics();
-    // مراقبة تغيرات visualViewport أثناء Zoom
-    if (vv) {
-      const onVvChange = () => { if (isOpen) logDiagnostics(); };
-      vv.addEventListener('resize', onVvChange);
-      vv.addEventListener('scroll', onVvChange);
-      return () => { vv.removeEventListener('resize', onVvChange); vv.removeEventListener('scroll', onVvChange); };
-    }
-  }, [isOpen]);
-
   const handleTouchStart = (e) => {
     touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   };
@@ -243,7 +197,7 @@ const Sidebar = ({ isOpen, setIsOpen, user, onToggleChat, isMobile }) => {
 
   const sidebarContent = (
     <>
-{isMobile && (
+      {isMobile && isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-[58] animate-fade-in touch-none"
           onClick={() => setIsOpen(false)}
@@ -252,13 +206,14 @@ const Sidebar = ({ isOpen, setIsOpen, user, onToggleChat, isMobile }) => {
       )}
       <aside
         ref={sidebarRef}
-        className={`fixed right-0 top-0 h-screen text-white z-[59] ${
+        className={`fixed right-0 top-0 h-screen text-white z-[59] overflow-hidden ${
           isOpen ? 'shadow-2xl' : ''
-        } ${isMobile ? 'w-72 animate-slideInLeft' : 'w-64'}`}
+        } ${isMobile ? 'w-72 transition-transform duration-300' : 'w-64'}`}
         style={{
           backgroundColor: '#182E4E',
           touchAction: isMobile ? 'manipulation' : 'auto',
-          ...(isMobile ? { right: '0px', transform: 'none', translate: 'none' } : {}),
+          transform: isMobile ? (isOpen ? 'translateX(0)' : 'translateX(100%)') : undefined,
+          visibility: isOpen ? 'visible' : 'hidden',
         }}
         role="navigation"
         aria-label="القائمة الجانبية"
@@ -410,7 +365,7 @@ const Sidebar = ({ isOpen, setIsOpen, user, onToggleChat, isMobile }) => {
     </>
   );
 
-  return isOpen ? createPortal(sidebarContent, document.body) : null;
+  return createPortal(sidebarContent, document.body);
 };
 
 export default Sidebar;

@@ -1030,6 +1030,23 @@
     width: 2.5rem !important;
     height: 2.5rem !important;
   }
+
+  /* Task cards: prevent overflow */
+  .card-task .task-content {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  .card-task .task-actions {
+    flex-wrap: wrap;
+  }
+
+  .card-task .task-actions > button,
+  .card-task .task-actions > a {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 
 /* ===== Medium screens (tablets) ===== */
@@ -1260,6 +1277,13 @@ html {
 /* ===== Improved modal backdrop for mobile ===== */
 .fixed {
   -webkit-overflow-scrolling: touch;
+}
+
+/* ===== Mobile overflow protection ===== */
+@media (max-width: 767px) {
+  .animate-fade-in {
+    max-width: 100%;
+  }
 }
 
 /* ===== Better snap scrolling for kanban on mobile ===== */

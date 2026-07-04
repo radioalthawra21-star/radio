@@ -5,124 +5,127 @@
 
 import api from './api';
 
+async function handleApiCall(apiCall) {
+  try {
+    const response = await apiCall();
+    return response.data;
+  } catch (error) {
+    console.error('Task Service Error:', error?.response?.data || error.message);
+    throw error;
+  }
+}
+
 // Create new task
 export const createTask = async (taskData) => {
-  const response = await api.post('/tasks', taskData);
-  return response.data;
+  return handleApiCall(() => api.post('/tasks', taskData));
 };
 
 // Get my tasks (tasks assigned to current user)
 export const getMyTasks = async (filters = {}) => {
-  const response = await api.get('/tasks/my-tasks', { params: filters });
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/my-tasks', { params: filters }));
 };
 
 // Get tasks I created
 export const getCreatedTasks = async (filters = {}) => {
-  const response = await api.get('/tasks/created', { params: filters });
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/created', { params: filters }));
 };
 
 // Get tasks to evaluate (manager only)
 export const getTasksToEvaluate = async () => {
-  const response = await api.get('/tasks/to-evaluate');
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/to-evaluate'));
 };
 
 // Get tasks to approve (admin only)
 export const getTasksToApprove = async () => {
-  const response = await api.get('/tasks/to-approve');
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/to-approve'));
 };
 
 // Get task by ID
 export const getTaskById = async (taskId) => {
-  const response = await api.get(`/tasks/${taskId}`);
-  return response.data;
+  return handleApiCall(() => api.get(`/tasks/${taskId}`));
 };
 
 // Update task
 export const updateTask = async (taskId, taskData) => {
-  const response = await api.put(`/tasks/${taskId}`, taskData);
-  return response.data;
+  return handleApiCall(() => api.put(`/tasks/${taskId}`, taskData));
 };
 
 // Update task status (with optional rejection reason)
 export const updateTaskStatus = async (taskId, status, extra = {}) => {
-  const response = await api.put(`/tasks/${taskId}/status`, { status, ...extra });
-  return response.data;
+  return handleApiCall(() => api.put(`/tasks/${taskId}/status`, { status, ...extra }));
 };
 
 // Add employee notes to a task
 export const addTaskNotes = async (taskId, notes) => {
-  const response = await api.put(`/tasks/${taskId}/notes`, { notes });
-  return response.data;
+  return handleApiCall(() => api.put(`/tasks/${taskId}/notes`, { notes }));
 };
 
 // Evaluate task (manager only)
 export const evaluateTask = async (taskId, { score, notes }) => {
-  const response = await api.post(`/tasks/${taskId}/evaluate`, { score, notes });
-  return response.data;
+  return handleApiCall(() => api.post(`/tasks/${taskId}/evaluate`, { score, notes }));
 };
 
 // Final approve task (admin only)
 export const finalApproveTask = async (taskId) => {
-  const response = await api.post(`/tasks/${taskId}/final-approve`);
-  return response.data;
+  return handleApiCall(() => api.post(`/tasks/${taskId}/final-approve`));
 };
 
 // Delete task
 export const deleteTask = async (taskId) => {
-  const response = await api.delete(`/tasks/${taskId}`);
-  return response.data;
+  return handleApiCall(() => api.delete(`/tasks/${taskId}`));
 };
 
 // Get daily summary
 export const getDailySummary = async (date) => {
-  const response = await api.get('/tasks/summary/daily', { params: { date } });
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/summary/daily', { params: { date } }));
 };
 
 // Get weekly summary
 export const getWeeklySummary = async (startDate) => {
-  const response = await api.get('/tasks/summary/weekly', { params: { startDate } });
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/summary/weekly', { params: { startDate } }));
 };
 
-// Get task reports
+// Get task reports (enhanced, handles multiple response formats)
 export const getTaskReports = async (filters = {}) => {
-  const response = await api.get('/tasks/reports', { params: filters });
-  return response.data;
+  try {
+    const response = await api.get('/tasks/reports', { params: filters });
+    return {
+      success: true,
+      data: { tasks: response.data?.tasks || [] }
+    };
+  } catch (error) {
+    console.error('getTaskReports error:', error);
+    return {
+      success: false,
+      error: error.userMessage || 'Failed to fetch task reports',
+      data: { tasks: [] }
+    };
+  }
 };
 
 // Get total tasks count (all time)
 export const getTotalTasks = async () => {
-  const response = await api.get('/tasks/total');
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/total'));
 };
 
 // Get pending proposals (manager)
 export const getProposals = async () => {
-  const response = await api.get('/tasks/proposals');
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/proposals'));
 };
 
 // Approve a proposal (manager)
 export const approveProposal = async (taskId) => {
-  const response = await api.post(`/tasks/${taskId}/approve-proposal`);
-  return response.data;
+  return handleApiCall(() => api.post(`/tasks/${taskId}/approve-proposal`));
 };
 
 // Reject a proposal (manager)
 export const rejectProposal = async (taskId, reason = '') => {
-  const response = await api.post(`/tasks/${taskId}/reject-proposal`, { reason });
-  return response.data;
+  return handleApiCall(() => api.post(`/tasks/${taskId}/reject-proposal`, { reason }));
 };
 
 // Get all tasks from department employees (manager)
 export const getDepartmentTasks = async (filters = {}) => {
-  const response = await api.get('/tasks/department', { params: filters });
-  return response.data;
+  return handleApiCall(() => api.get('/tasks/department', { params: filters }));
 };
 
 export default {

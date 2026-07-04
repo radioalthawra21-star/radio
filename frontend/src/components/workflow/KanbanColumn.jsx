@@ -12,7 +12,7 @@ const COLUMN_CONFIG = {
 const KanbanColumn = ({ status, tasks = [], onStatusChange, onCardClick }) => {
   const config = COLUMN_CONFIG[status] || { title: status, color: 'bg-gray-500', border: 'border-gray-300' };
   return (
-    <div className={`kanban-column bg-gray-50 rounded-xl p-3 min-w-[260px] border-t-4 ${config.border}`}>
+    <div className={`kanban-column bg-gray-50 rounded-xl p-3 border-t-4 ${config.border}`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-bold text-dark flex items-center gap-2">
           <span className={`w-3 h-3 rounded-full ${config.color}`}></span>

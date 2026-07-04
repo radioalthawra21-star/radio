@@ -75,7 +75,7 @@ const attendanceSchema = new mongoose.Schema({
   // Expected work hours for the day
   expectedHours: {
     type: Number,
-    default: 8
+    default: 7
   },
   
   // Overtime hours
@@ -215,7 +215,7 @@ attendanceSchema.methods.checkInEmployee = function(checkInTime, location, notes
 // Method to check out
 attendanceSchema.methods.checkOutEmployee = function(checkOutTime, location, notes, opts = {}) {
   const now = checkOutTime || new Date();
-  const workEndHour = opts.workEndHour ?? 17;
+  const workEndHour = opts.workEndHour ?? 16;
   const workEndMinute = opts.workEndMinute ?? 0;
   const earlyGrace = opts.earlyLeaveGracePeriodMinutes ?? 0;
 

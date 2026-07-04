@@ -37,8 +37,8 @@ export const ChatWidget = () => {
   const showMessages = isMobile ? !showList && activeChat : !!activeChat;
 
   return (
-    <div className="flex h-full bg-gray-50 rounded-xl shadow-sm border border-gray-200" dir="rtl">
-      <div className={`${isMobile ? (showList ? 'flex w-full' : 'hidden') : 'flex'} h-full`}>
+    <div className="flex h-full bg-gray-50 rounded-xl shadow-sm border border-gray-200 overflow-hidden" dir="rtl">
+      <div className={`${isMobile ? (showList ? 'flex w-full' : 'hidden') : 'flex'} h-full ${isMobile ? '' : 'flex-shrink-0'}`}>
         <ChatList
           onChatSelect={handleChatSelect}
           activeChatId={activeChat?._id}
@@ -46,7 +46,7 @@ export const ChatWidget = () => {
         />
       </div>
       {showMessages ? (
-        <div className={`${isMobile ? 'flex w-full' : 'flex flex-1'} h-full`}>
+        <div className={`${isMobile ? 'flex w-full' : 'flex flex-1'} h-full min-w-0`}>
           <ChatMessages
             chat={activeChat}
             onToggleDetails={() => setShowDetails(!showDetails)}
@@ -65,10 +65,10 @@ export const ChatWidget = () => {
           </div>
         </div>
       )}
-      {/* Chat Details Panel - full screen on mobile, side panel on desktop */}
+      {/* Chat Details Panel - full screen on mobile, overlay on desktop */}
       {showDetails && activeChat && (
-        <div className={`${isMobile ? 'fixed inset-0 z-50' : ''} overflow-hidden flex-shrink-0`}>
-          <div className={`${isMobile ? 'w-full h-full' : 'w-72'} h-full bg-white border-r border-gray-200`}>
+        <div className={`${isMobile ? 'fixed inset-0 z-50' : 'relative flex-shrink-0 max-w-xs lg:max-w-sm'} overflow-hidden`}>
+          <div className={`${isMobile ? 'w-full h-full' : 'w-72 max-w-full'} h-full bg-white border-r border-gray-200`}>
             {isMobile && (
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                 <h3 className="font-bold text-gray-800">تفاصيل المحادثة</h3>

@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { createLeaveRequest, getLeaveRequests, getLeaveBalance, cancelLeaveRequest, deleteLeaveRequestPermanent } from '../../services/leaveService';
+import { useState, useEffect, useRef } from 'react';
+import { createLeaveRequest, getLeaveRequests, getLeaveBalance, cancelLeaveRequest, deleteLeaveRequestPermanent, requestStopLeave } from '../../services/leaveService';
 
 const LEAVE_TYPES = [
   { value: 'annual', label: 'إجازة سنوية', icon: '🏖️', color: 'text-blue-600', bg: 'bg-blue-50' },
   { value: 'sick', label: 'إجازة مرضية', icon: '🩺', color: 'text-red-600', bg: 'bg-red-50' },
   { value: 'exceptional', label: 'إجازة استثنائية', icon: '⭐', color: 'text-purple-600', bg: 'bg-purple-50' },
   { value: 'death', label: 'إجازة وفاة', icon: '🕊️', color: 'text-gray-600', bg: 'bg-gray-100' },
+  { value: 'hajj', label: 'إجازة حج', icon: '🕋', color: 'text-emerald-600', bg: 'bg-emerald-50' },
   { value: 'hourly', label: 'إجازة ساعية', icon: '⏰', color: 'text-teal-600', bg: 'bg-teal-50' },
-  { value: 'emergency', label: 'إجازة طارئة', icon: '🚨', color: 'text-orange-600', bg: 'bg-orange-50' },
+  { value: 'development', label: 'إجازة تطوير', icon: '📚', color: 'text-cyan-600', bg: 'bg-cyan-50' },
   { value: 'maternity', label: 'إجازة وضع', icon: '👶', color: 'text-pink-600', bg: 'bg-pink-50' },
-  { value: 'paternity', label: 'إجازة أبوة', icon: '👨‍👧', color: 'text-purple-600', bg: 'bg-purple-50' },
   { value: 'unpaid', label: 'إجازة بدون راتب', icon: '💼', color: 'text-gray-600', bg: 'bg-gray-50' },
   { value: 'compensatory', label: 'إجازة تعويضية', icon: '🔄', color: 'text-teal-600', bg: 'bg-teal-50' },
   { value: 'fingerprint_forgotten', label: 'نسيان بصمة', icon: '🖐️', color: 'text-indigo-600', bg: 'bg-indigo-50' },
@@ -31,6 +31,9 @@ const LeaveRequest = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingMedical, setUploadingMedical] = useState(false);
+  const [medicalPreview, setMedicalPreview] = useState('');
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     type: 'annual',
@@ -42,6 +45,10 @@ const LeaveRequest = () => {
     fingerprintType: 'in',
     fingerprintDate: '',
     fingerprintTime: '',
+    deathDegree: 1,
+    startTime: '',
+    endTime: '',
+    medicalReport: null,
   });
 
   useEffect(() => {
@@ -76,6 +83,21 @@ const LeaveRequest = () => {
         setError('يرجى تحديد تاريخ البصمة');
         return;
       }
+    } else if (form.type === 'death') {
+      if (!form.startDate) {
+        setError('يرجى تحديد تاريخ البداية');
+        return;
+      }
+    } else if (form.type === 'development') {
+      if (!form.startDate || !form.startTime || !form.endTime) {
+        setError('يرجى تحديد التاريخ ووقت البداية والنهاية');
+        return;
+      }
+    } else if (form.type === 'hajj') {
+      if (!form.startDate) {
+        setError('يرجى تحديد تاريخ بداية إجازة الحج');
+        return;
+      }
     } else {
       if (!form.startDate || !form.endDate) {
         setError('يرجى تحديد تاريخ البداية والنهاية');
@@ -90,11 +112,19 @@ const LeaveRequest = () => {
     setError('');
     setSuccess('');
     try {
-      const res = await createLeaveRequest(form);
+      const submitData = { ...form };
+      if (form.medicalReport) {
+        submitData.documents = [{ url: form.medicalReport, description: 'تقرير طبي' }];
+      }
+      delete submitData.medicalReport;
+      if (form.type !== 'death') delete submitData.deathDegree;
+      if (form.type !== 'development') { delete submitData.startTime; delete submitData.endTime; }
+      const res = await createLeaveRequest(submitData);
       if (res.success) {
         setSuccess(res.message || 'تم تقديم طلب الإجازة بنجاح');
         setShowForm(false);
-        setForm({ type: 'annual', startDate: '', endDate: '', isHalfDay: false, reason: '', coveragePlan: '', fingerprintType: 'in', fingerprintDate: '', fingerprintTime: '' });
+        setMedicalPreview('');
+        setForm({ type: 'annual', startDate: '', endDate: '', isHalfDay: false, reason: '', coveragePlan: '', fingerprintType: 'in', fingerprintDate: '', fingerprintTime: '', deathDegree: 1, startTime: '', endTime: '', medicalReport: null });
         loadData();
       } else {
         setError(res.message || 'حدث خطأ في تقديم الطلب');
@@ -128,7 +158,7 @@ const LeaveRequest = () => {
 
   const getLeaveTypeInfo = (type) => LEAVE_TYPES.find(t => t.value === type) || { label: type, icon: '📋', color: 'text-gray-600', bg: 'bg-gray-50' };
 
-  const mainBalanceTypes = LEAVE_TYPES.filter(t => !['compensatory', 'fingerprint_forgotten'].includes(t.value));
+  const mainBalanceTypes = LEAVE_TYPES.filter(t => !['compensatory', 'fingerprint_forgotten', 'development'].includes(t.value));
 
   const handleDeletePermanent = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذه الإجازة نهائياً من السجل؟ لا يمكن التراجع عن هذا الإجراء.')) return;
@@ -143,7 +173,51 @@ const LeaveRequest = () => {
     }
   };
 
+  const uploadMedicalReport = async (file) => {
+    setUploadingMedical(true);
+    setError('');
+    try {
+      const token = JSON.parse(localStorage.getItem('user') || '{}').token;
+      const formData = new FormData();
+      formData.append('medicalReport', file);
+      const res = await fetch('/api/leave/upload-medical', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setForm({ ...form, medicalReport: data.data.url });
+        setMedicalPreview(data.data.url);
+      } else {
+        setError(data.message || 'فشل رفع الملف');
+      }
+    } catch (err) {
+      setError('خطأ في رفع التقرير الطبي');
+    } finally {
+      setUploadingMedical(false);
+    }
+  };
+
+  const handleStopLeave = async (id) => {
+    if (!window.confirm('هل تريد طلب إيقاف هذه الإجازة؟ بعد الطلب، قم بالبصم على جهاز البصمة لإيقاف الإجازة فعلياً.')) return;
+    try {
+      const res = await requestStopLeave(id);
+      if (res.success) {
+        setSuccess(res.message || 'تم تسجيل طلب إيقاف الإجازة');
+        loadData();
+      }
+    } catch (err) {
+      setError(err.userMessage || 'خطأ في طلب إيقاف الإجازة');
+    }
+  };
+
   const canCancel = (status) => ['pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(status);
+
+  const canStop = (req) => ['approved', 'synced_to_payroll'].includes(req.status) && !req.stopRequested;
+
+  const isStopPending = (req) => ['approved', 'synced_to_payroll'].includes(req.status) && req.stopRequested && !req.fingerprintStoppedAt;
+  const hasCheckInOnly = (req) => isStopPending(req) && req.checkInDetectedAt;
 
   const canDelete = (status) => ['rejected', 'cancelled'].includes(status);
 
@@ -241,6 +315,78 @@ const LeaveRequest = () => {
                   />
                 </div>
               </>
+            ) : form.type === 'death' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ البداية</label>
+                  <input
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">درجة القرابة</label>
+                  <select
+                    value={form.deathDegree}
+                    onChange={(e) => setForm({ ...form, deathDegree: parseInt(e.target.value) })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  >
+                    <option value={1}>الدرجة الأولى (3 أيام) - والد، والدة، زوج/ة، ولد</option>
+                    <option value={2}>الدرجة الثانية (يومان) - أخ، أخت، جد، جدة</option>
+                    <option value={3}>الدرجة الثالثة (يوم واحد) - خال، خالة، عم، عمة</option>
+                  </select>
+                </div>
+              </>
+            ) : form.type === 'development' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">التاريخ</label>
+                  <input
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">وقت البداية</label>
+                  <input
+                    type="time"
+                    value={form.startTime}
+                    onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">وقت النهاية</label>
+                  <input
+                    type="time"
+                    value={form.endTime}
+                    onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-3 text-sm text-cyan-800">
+                  ⏰ إجازة تطوير: 6 ساعات أسبوعياً - تنتهي بانتهاء الأسبوع ولا تتراكم
+                </div>
+              </>
+            ) : form.type === 'hajj' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ بداية إجازة الحج</label>
+                  <input
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm text-emerald-800">
+                  🕋 إجازة الحج مدتها شهر كامل (30 يوم) وتحتاج موافقة المدير العام
+                </div>
+              </>
             ) : (
               <>
                 <div>
@@ -275,17 +421,69 @@ const LeaveRequest = () => {
               </>
             )}
 
+            {form.type === 'sick' && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">صورة التقرير الطبي (مطلوب)</label>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) uploadMedicalReport(file);
+                      }}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingMedical}
+                      className="px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 transition-colors text-sm font-medium flex items-center gap-2"
+                    >
+                      {uploadingMedical ? (
+                        <span>جاري الرفع...</span>
+                      ) : (
+                        <><span>📎</span> اختيار صورة التقرير الطبي</>
+                      )}
+                    </button>
+                    {form.medicalReport && !uploadingMedical && (
+                      <button
+                        type="button"
+                        onClick={() => window.open(form.medicalReport, '_blank')}
+                        className="px-3 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                      >
+                        عرض الصورة 🔍
+                      </button>
+                    )}
+                  </div>
+                  {medicalPreview && (
+                    <div className="relative w-40 h-40 rounded-lg overflow-hidden border border-gray-200">
+                      <img
+                        src={medicalPreview}
+                        alt="التقرير الطبي"
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={() => window.open(medicalPreview, '_blank')}
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-red-500 mt-1">* يجب إرفاق صورة عن التقرير الطبي لإجازة مرضية</p>
+              </div>
+            )}
+
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">السبب</label>
               <textarea
                 value={form.reason}
                 onChange={(e) => setForm({ ...form, reason: e.target.value })}
                 rows={3}
-                placeholder={form.type === 'fingerprint_forgotten' ? 'اذكر سبب نسيان البصمة...' : 'اذكر سبب طلب الإجازة...'}
+                placeholder={form.type === 'fingerprint_forgotten' ? 'اذكر سبب نسيان البصمة...' : form.type === 'death' ? 'اذكر اسم المتوفي وصلة القرابة...' : 'اذكر سبب طلب الإجازة...'}
                 className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm resize-none"
               />
             </div>
-            {form.type !== 'fingerprint_forgotten' && (
+            {form.type !== 'fingerprint_forgotten' && form.type !== 'development' && (
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">خطة تغطية العمل (اختياري)</label>
                 <input
@@ -329,27 +527,60 @@ const LeaveRequest = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
             {mainBalanceTypes.slice(0, 5).map(({ value, label, icon, color, bg }) => {
               const bal = balances[value];
-              const isHourly = value === 'hourly';
-              const remaining = bal ? (isHourly ? Math.max(0, bal.remainingHours) : Math.max(0, bal.remainingBalance)) : '–';
-              const total = bal ? (isHourly ? `${Math.round(bal.totalBalance * 8)} ساعة` : `${bal.totalBalance} يوم`) : '';
-              const used = bal ? (isHourly ? `${Math.round(bal.usedHours)} س` : `${bal.usedDays} يوم`) : '';
+              const isShowBalance = value === 'annual' || value === 'hourly';
+              const remaining = bal ? (value === 'hourly' ? Math.max(0, bal.remainingHours) : Math.max(0, bal.remainingBalance)) : '–';
+              const used = bal ? (value === 'hourly' ? `${Math.round(bal.usedHours)} س` : `${bal.usedDays} يوم`) : '0';
               return (
                 <div key={value} className={`${bg} rounded-xl p-4 border border-gray-100`}>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     <span className="text-lg">{icon}</span>
                     <span className="text-xs text-gray-500">{label}</span>
                   </div>
-                  <div className={`text-2xl font-bold ${color}`}>
-                    {remaining}
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">
-                    {bal ? `من ${total}` : ''}
-                    {bal && (isHourly ? bal.usedHours > 0 : bal.usedDays > 0) ? ` | مستخدم ${used}` : ''}
-                  </div>
+                  {isShowBalance ? (
+                    <>
+                      <div className="flex items-baseline gap-1">
+                        <span className={`text-2xl font-bold ${color}`}>{remaining}</span>
+                        <span className="text-xs text-gray-400">المتبقي</span>
+                      </div>
+                      <div className="flex items-baseline gap-1 mt-1">
+                        <span className="text-sm font-medium text-gray-500">{used}</span>
+                        <span className="text-xs text-gray-400">المستخدم</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-xs text-gray-400 leading-relaxed">
+                      {value === 'sick' ? <><span>تحتاج تقرير طبي</span><br/><span>موافقة المدير العام</span></> : 
+                       value === 'exceptional' ? <><span>تحتاج موافقة</span><br/><span>المدير العام</span></> :
+                       value === 'hajj' ? <><span>شهر كامل - تحتاج</span><br/><span>موافقة المدير العام</span></> :
+                       value === 'death' ? <><span>حسب درجة القرابة</span><br/><span>موافقة المدير العام</span></> :
+                       'دون رصيد محدد'}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
+          {balances.development && (
+            <div className="mb-6">
+              <div className="bg-cyan-50 rounded-xl p-4 border border-cyan-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📚</span>
+                  <div>
+                    <span className="text-sm text-gray-600">إجازة تطوير (أسبوعياً)</span>
+                    <div className="text-xs text-gray-400 mt-0.5">6 ساعات أسبوع - تنتهي بانتهاء الأسبوع</div>
+                  </div>
+                </div>
+                <div className="text-left">
+                  <div className="text-2xl font-bold text-cyan-700">
+                    {Math.max(0, balances.development.remainingHours || 0)} <span className="text-sm">س</span>
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    مستخدم {Math.round(balances.development.usedHours || 0)} س هذا الأسبوع
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="px-4 md:px-6 py-4 border-b border-gray-100">
@@ -398,6 +629,25 @@ const LeaveRequest = () => {
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                             {statusInfo.label}
                           </span>
+                          {canStop(req) && (
+                            <button
+                              onClick={() => handleStopLeave(req._id)}
+                              className="text-xs text-amber-600 hover:text-amber-800 hover:bg-amber-50 px-2 py-1 rounded transition-colors"
+                              title="اطلب إيقاف الإجازة ثم بصم على الجهاز"
+                            >
+                              🔴 إيقاف
+                            </button>
+                          )}
+                          {isStopPending(req) && !hasCheckInOnly(req) && (
+                            <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full font-medium flex items-center gap-1">
+                              <span className="animate-pulse">⏳</span> بانتظار البصمة
+                            </span>
+                          )}
+                          {hasCheckInOnly(req) && (
+                            <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full font-medium flex items-center gap-1">
+                              <span className="animate-pulse">🔵</span> بانتظار بصمة الخروج
+                            </span>
+                          )}
                           {canCancel(req.status) && (
                             <button
                               onClick={() => handleCancel(req._id, req.status)}
@@ -417,6 +667,24 @@ const LeaveRequest = () => {
                           )}
                         </div>
                       </div>
+                      {isStopPending(req) && !hasCheckInOnly(req) && (
+                        <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 flex items-center gap-2">
+                          <span className="animate-pulse">⏳</span>
+                          <span>تم طلب إيقاف الإجازة. قم بالبصم (دخول وخروج) على جهاز البصمة لإيقافها فعلياً</span>
+                        </div>
+                      )}
+                      {hasCheckInOnly(req) && (
+                        <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700 flex items-center gap-2">
+                          <span className="animate-pulse">🔵</span>
+                          <span>تم تسجيل بصمة الدخول ✓ - قم ببصمة الخروج لإيقاف الإجازة. سيتم إيقاف الإجازة تلقائياً عند بصمة الخروج</span>
+                        </div>
+                      )}
+                      {req.fingerprintStoppedAt && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg text-xs text-green-700 flex items-center gap-2">
+                          <span>✅</span>
+                          <span>تم إيقاف الإجازة بعد البصم على الجهاز بتاريخ {formatDate(req.fingerprintStoppedAt)}</span>
+                        </div>
+                      )}
                       {req.status === 'rejected' && req.rejectionReason && (
                         <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-700">
                           سبب الرفض: {req.rejectionReason}

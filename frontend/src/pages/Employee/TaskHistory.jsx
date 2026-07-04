@@ -53,7 +53,7 @@ const TaskHistory = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">سجل المهام</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">سجل المهام</h1>
 
       <Card className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -99,16 +99,16 @@ const TaskHistory = () => {
                 {dateTasks.map((task) => (
                   <Card key={task._id} className="hover:shadow-lg transition-shadow">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <div className="flex items-start gap-3 min-w-0 max-w-full">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                           {task.status === 'rejected' ? '🚫' : task.isUnusual ? '⚠️' : '📝'}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1 max-w-full">
                           <h4 className="font-semibold text-dark break-words">{task.title}</h4>
-                          <p className="text-sm text-gray-600">{task.description}</p>
-                          <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-500">
-                            <span>⏱️ {task.duration} ساعة</span>
-                            {task.startTime && <span>🕐 {task.startTime} - {task.endTime}</span>}
+                          <p className="text-sm text-gray-600 break-words">{task.description}</p>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs md:text-sm text-gray-500">
+                            <span className="whitespace-nowrap">⏱️ {task.duration} ساعة</span>
+                            {task.startTime && <span className="whitespace-nowrap">🕐 {task.startTime} - {task.endTime}</span>}
                           </div>
                           {task.rejectionReason && (
                             <p className="text-xs text-red-500 mt-1">🚫 {task.rejectionReason}</p>

@@ -5,6 +5,7 @@ export const ARABIC_FONT = 'Montserrat-Arabic';
 const ARABIC_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
 
 let fontCache = null;
+let fontLoadPromise = null;
 
 function arrayBufferToBase64(buffer) {
   let binary = '';
@@ -17,25 +18,35 @@ function arrayBufferToBase64(buffer) {
 
 export async function loadArabicFonts() {
   if (fontCache) return fontCache;
-  try {
-    const resp = await fetch('/fonts/MONTSERRAT-ARABIC-REGULAR.TTF');
-    if (!resp.ok) throw new Error('Regular font not found');
-    const buffer = await resp.arrayBuffer();
-    fontCache = { regular: arrayBufferToBase64(buffer) };
-    const resp2 = await fetch('/fonts/MONTSERRAT-ARABIC-LIGHT.TTF');
-    if (resp2.ok) {
-      const buffer2 = await resp2.arrayBuffer();
-      fontCache.light = arrayBufferToBase64(buffer2);
+  if (fontLoadPromise) return fontLoadPromise;
+
+  fontLoadPromise = (async () => {
+    try {
+      const resp = await fetch('/fonts/MONTSERRAT-ARABIC-REGULAR.TTF');
+      if (!resp.ok) throw new Error('Regular font not found');
+      const buffer = await resp.arrayBuffer();
+      fontCache = { regular: arrayBufferToBase64(buffer) };
+      const resp2 = await fetch('/fonts/MONTSERRAT-ARABIC-LIGHT.TTF');
+      if (resp2.ok) {
+        const buffer2 = await resp2.arrayBuffer();
+        fontCache.light = arrayBufferToBase64(buffer2);
+      }
+      return fontCache;
+    } catch (e) {
+      console.warn('Could not load Arabic font for PDF:', e.message);
+      return null;
     }
-    return fontCache;
-  } catch (e) {
-    console.warn('Could not load Arabic font for PDF:', e.message);
-    return null;
-  }
+  })();
+
+  return fontLoadPromise;
 }
 
-function ensureFontOnDoc(doc) {
-  if (!fontCache || doc._arabicFontLoaded) return doc._arabicFontLoaded;
+export function ensureFontOnDoc(doc) {
+  if (doc._arabicFontLoaded) return true;
+  if (!fontCache) {
+    loadArabicFonts();
+    return false;
+  }
   try {
     doc.addFileToVFS('Montserrat-Arabic-Regular.ttf', fontCache.regular);
     doc.addFont('Montserrat-Arabic-Regular.ttf', ARABIC_FONT, 'normal');
@@ -50,6 +61,7 @@ function ensureFontOnDoc(doc) {
   }
 }
 
+// Start loading fonts early (non-blocking)
 loadArabicFonts();
 
 jsPDF.API.setRtl = function (enabled) {
@@ -71,16 +83,15 @@ function hasArabic(text) {
   return false;
 }
 
-var _arabicParser = jsPDF.API.__arabicParser__;
-var _shapeArabic = _arabicParser && _arabicParser.processArabic;
+const _arabicParser = jsPDF.API.__arabicParser__;
+const _shapeArabic = _arabicParser && _arabicParser.processArabic;
 
 if (jsPDF.API.events && _shapeArabic) {
-  var processArabicHandler = null;
-  var otherPreTextHandlers = [];
-  for (var _i = 0; _i < jsPDF.API.events.length; _i++) {
-    var entry = jsPDF.API.events[_i];
+  const otherPreTextHandlers = [];
+  for (let _i = 0; _i < jsPDF.API.events.length; _i++) {
+    const entry = jsPDF.API.events[_i];
     if (entry[0] === 'preProcessText' && entry[1] === jsPDF.API.processArabic) {
-      processArabicHandler = entry[1];
+      /* keep reference but don't add to handlers */
     } else {
       otherPreTextHandlers.push(entry);
     }
@@ -97,18 +108,18 @@ if (jsPDF.API.events && _shapeArabic) {
     if (!args || !args.text) return;
     if (!hasArabic(args.text)) return;
     if (typeof args.text === 'string') {
-      var reversed = args.text.split('').reverse().join('');
+      const reversed = args.text.split('').reverse().join('');
       args.text = _shapeArabic(reversed);
     } else if (Array.isArray(args.text)) {
-      for (var _j = 0; _j < args.text.length; _j++) {
-        var line = args.text[_j];
+      for (let _j = 0; _j < args.text.length; _j++) {
+        const line = args.text[_j];
         if (typeof line === 'string' && ARABIC_RE.test(line)) {
-          var _rev = line.split('').reverse().join('');
+          const _rev = line.split('').reverse().join('');
           args.text[_j] = _shapeArabic(_rev);
         } else if (Array.isArray(line)) {
-          var txt = line[0];
+          const txt = line[0];
           if (typeof txt === 'string' && ARABIC_RE.test(txt)) {
-            var _rev2 = txt.split('').reverse().join('');
+            const _rev2 = txt.split('').reverse().join('');
             line[0] = _shapeArabic(_rev2);
           }
         }

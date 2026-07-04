@@ -57,9 +57,10 @@ const KanbanBoard = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto -mx-3 md:mx-0 mb-4 md:mb-6">
-        <div className="flex items-center gap-2 px-3 md:px-0 min-w-max">
-          <span className="text-sm text-gray-500 flex-shrink-0">المجموع: <span className="font-bold text-dark en-num">{totalTasks}</span></span>
+      {/* Filter pills: wrap on mobile, horizontal scroll on desktop */}
+      <div className="mb-4 md:mb-6">
+        <div className="flex flex-wrap md:flex-nowrap md:overflow-x-auto gap-2 py-1 md:-mx-3 md:px-3">
+          <span className="text-sm text-gray-500 flex-shrink-0 self-center ml-2">المجموع: <span className="font-bold text-dark en-num">{totalTasks}</span></span>
           {STATUS_FLOW.map(status => (
             <button
               key={status}
@@ -74,11 +75,12 @@ const KanbanBoard = () => {
         </div>
       </div>
 
-      <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 -mx-3 md:mx-0 px-3 md:px-0 snap-x snap-mandatory">
+      {/* Columns: vertical stack on mobile, horizontal scroll on desktop */}
+      <div className="flex flex-col md:flex-row gap-4 md:gap-4 md:overflow-x-auto md:pb-4 md:-mx-3 md:px-3 md:snap-x md:snap-mandatory">
         {STATUS_FLOW.map(status => {
           if (statusFilter && statusFilter !== status) return null;
           return (
-            <div key={status} className="snap-start shrink-0 min-w-[75vw] md:min-w-[260px]">
+            <div key={status} className="md:snap-start md:shrink-0 md:min-w-[260px]">
               <KanbanColumn
                 status={status}
                 tasks={columns[status]}

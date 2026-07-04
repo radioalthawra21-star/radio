@@ -93,7 +93,7 @@ const DepartmentTasks = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">مهام القسم</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">مهام القسم</h1>
 
       <Card className="mb-6 p-4">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -124,12 +124,12 @@ const DepartmentTasks = () => {
             <Card key={task._id} className="hover:shadow-xl transition-shadow p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2 mb-2">
-                    <h3 className="font-semibold text-dark text-base md:text-lg break-words flex-1">{task.title}</h3>
+                  <div className="flex items-start gap-2 mb-2 w-full max-w-full">
+                    <h3 className="font-semibold text-dark text-base md:text-lg break-words flex-1 min-w-0">{task.title}</h3>
                     <div className="flex-shrink-0">{getStatusBadge(task.status)}</div>
                   </div>
                   {task.description && (
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{task.description}</p>
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2 break-words">{task.description}</p>
                   )}
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs md:text-sm text-gray-500">
                     <span>👤 {task.assignedTo?.map(u => u.name).join(', ')}</span>

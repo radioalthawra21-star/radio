@@ -58,7 +58,7 @@ const checkIn = async (req, res) => {
     const [workStartHour, workStartMinute, dailyWorkHours, lateGracePeriod, veryLateThreshold] = await Promise.all([
       Settings.getValue('workStartHour', 9),
       Settings.getValue('workStartMinute', 0),
-      Settings.getValue('dailyWorkHours', 8),
+      Settings.getValue('dailyWorkHours', 7),
       Settings.getValue('lateGracePeriodMinutes', 0),
       Settings.getValue('veryLateThresholdMinutes', 120),
     ]);
@@ -161,7 +161,7 @@ const checkOut = async (req, res) => {
     
     // Fetch attendance settings
     const [workEndHour, workEndMinute, earlyLeaveGrace] = await Promise.all([
-      Settings.getValue('workEndHour', 17),
+      Settings.getValue('workEndHour', 16),
       Settings.getValue('workEndMinute', 0),
       Settings.getValue('earlyLeaveGracePeriodMinutes', 0),
     ]);
@@ -792,9 +792,9 @@ const getDashboardStats = async (req, res) => {
     const [workStartHour, workStartMinute, workEndHour, workEndMinute, dailyWorkHours, lateGracePeriod, earlyLeaveGrace, veryLateThreshold] = await Promise.all([
       Settings.getValue('workStartHour', 9),
       Settings.getValue('workStartMinute', 0),
-      Settings.getValue('workEndHour', 17),
+      Settings.getValue('workEndHour', 16),
       Settings.getValue('workEndMinute', 0),
-      Settings.getValue('dailyWorkHours', 8),
+      Settings.getValue('dailyWorkHours', 7),
       Settings.getValue('lateGracePeriodMinutes', 0),
       Settings.getValue('earlyLeaveGracePeriodMinutes', 0),
       Settings.getValue('veryLateThresholdMinutes', 120),

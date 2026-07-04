@@ -1,0 +1,424 @@
+================================================================================
+                    Frontend Audit Report - المجموعة 1
+          الملفات الأساسية + Contexts + Hooks + Utilities
+================================================================================
+تاريخ التقرير: 2026-07-01
+إجمالي الملفات في هذه المجموعة: 13 ملف
+
+================================================================================
+1. App.jsx
+================================================================================
+المسار: frontend\src\App.jsx
+
+الخطأ #1.1
+─────────────
+الملف: App.jsx
+المسار الكامل: frontend\src\App.jsx
+نوع الخطأ: SECURITY - XSS
+درجة الخطورة: CRITICAL
+الوصف: يستخدم localStorage مباشرة عبر getStoredUser() لقراءة بيانات المستخدم
+السبب: authService تخزن user في localStorage (JSON.stringify) وApp.jsx تقرأها عبر getStoredUser() بدون Validate أو Sanitize
+الأثر: أي XSS يمكنه سرقة الجلسة بالكامل
+الإصلاح المقترح: استخدام HttpOnly Cookies للـ refresh token + React Context لتخزين user في الذاكرة فقط
+رقم السطر: ~5-15 (import getStoredUser from authService)
+
+الخطأ #1.2
+─────────────
+الملف: App.jsx
+المسار الكامل: frontend\src\App.jsx
+نوع الخطأ: SECURITY - Token Exposure
+درجة الخطورة: CRITICAL
+الوصف: يستخدم getToken() لتغذية axios interceptor مباشرة من localStorage
+السبب: AuthService تخزن token في localStorage
+الأثر: token متاح لأي سكريبت في المتصفح
+الإصلاح المقترح: نقل token إلى memory state ولا تخزينه في localStorage إلا مع تشفير
+رقم السطر: ~5-15
+
+
+================================================================================
+2. main.jsx
+================================================================================
+المسار: frontend\src\main.jsx
+
+الخطأ #2.1
+─────────────
+الملف: main.jsx
+المسار الكامل: frontend\src\main.jsx
+نوع الخطأ: COMMENT - Dead Code Reference
+درجة الخطورة: LOW
+الوصف: تعليق يشير إلى ملف App.tsx غير موجود
+السبب: تمت إعادة تسمية الملف من App.tsx إلى App.jsx ولكن التعليق لم يُحدّث
+الأثر: تضليل للمطورين الجدد
+الإصلاح المقترح: تحديث التعليق إلى App.jsx
+رقم السطر: 5
+
+
+================================================================================
+3. index.css
+================================================================================
+المسار: frontend\src\index.css
+
+الخطأ #3.1
+─────────────
+الملف: index.css
+المسار الكامل: frontend\src\index.css
+نوع الخطأ: PERFORMANCE - File Size
+درجة الخطورة: MEDIUM
+الوصف: ملف CSS ضخم جداً (~36KB, >1000 سطر) يحتوي @font-face و Tailwind directives وتنسيقات RTL
+السبب: عدم تقسيم CSS إلى وحدات أو استيراد Tailwind بشكل منفصل
+الأثر: بطء في تحميل التطبيق، صعوبة في الصيانة
+الإصلاح المقترح: تقسيم CSS إلى وحدات (CSS Modules) أو استخدام styled-components
+رقم السطر: 1-1000+
+
+
+================================================================================
+4. global.d.ts
+================================================================================
+المسار: frontend\src\global.d.ts
+
+الخطأ #4.1
+─────────────
+الملف: global.d.ts
+المسار الكامل: frontend\src\global.d.ts
+نوع الخطأ: INCOMPLETE_TYPING
+درجة الخطورة: LOW
+الوصف: نوع (type) Window قد لا يغطي جميع المكتبات المستخدمة
+السبب: تعريفات TypeScript غير مكتملة للمشروع
+الأثر: قد يظهر خطأ TypeScript للخواص المضافة إلى Window
+الإصلاح المقترح: إضافة تعريفات للمكتبات المفقودة عند استخدامها
+رقم السطر: متنوع
+
+
+================================================================================
+5. TypographyContext.jsx
+================================================================================
+المسار: frontend\src\context\TypographyContext.jsx
+
+الخطأ #5.1
+─────────────
+الملف: TypographyContext.jsx
+المسار الكامل: frontend\src\context\TypographyContext.jsx
+نوع الخطأ: REACT - Stale Closure / Infinite Loop
+درجة الخطورة: CRITICAL
+الوصف: loadFont (useCallback) يعتمد على loadedFonts (state)، بينما useEffect الذي يستدعي loadFont يعتمد على [fonts] فقط. عندما يتغير loadedFonts، يتغير loadFont reference، مما يعيد تشغيل الـ effect الذي يستدعي loadFont مجدداً
+السبب: dependency mismatch بين useCallback وuseEffect
+الأثر: Infinite re-render loop محتمل، استهلاك CPU مرتفع
+الإصلاح المقترح: إما إزالة loadedFonts من dependency useCallback، أو إعادة هيكلة المنطق
+رقم السطر: 44-56
+
+الخطأ #5.2
+─────────────
+الملف: TypographyContext.jsx
+المسار الكامل: frontend\src\context\TypographyContext.jsx
+نوع الخطأ: REACT - Missing Dependency
+درجة الخطورة: HIGH
+الوصف: useEffect (line 52) يستدعي applyFonts() و loadFont() ولكنه لا يضمّنهم في dependency array
+السبب: اعتماد فقط على [fonts] مع تجاهل applyFonts و loadFont
+الأثر: قد لا يتم تطبيق الخطوط بشكل صحيح بعد التحديثات
+الإصلاح المقترح: تضمين applyFonts و loadFont في dependency array
+رقم السطر: 52
+
+
+================================================================================
+6. SocketContext.jsx
+================================================================================
+المسار: frontend\src\context\SocketContext.jsx
+
+الخطأ #6.1
+─────────────
+الملف: SocketContext.jsx
+المسار الكامل: frontend\src\context\SocketContext.jsx
+نوع الخطأ: SECURITY - XSS via innerHTML
+درجة الخطورة: CRITICAL
+الوصف: استخدام innerHTML لإنشاء محتوى toast (إشعارات) مما يتيح حقن HTML خبيث عبر الرسائل القادمة من Socket.IO
+السبب: استخدام dangerouslySetInnerHTML أو innerHTML مباشرة لعرض الرسائل
+الأثر: أي رسالة تحتوي <script> سيتم تنفيذها، سرقة جلسات المستخدمين
+الإصلاح المقترح: استخدام React DOM الآمن (textContent) أو DOMPurify قبل innerHTML
+رقم السطر: ~110-120
+
+الخطأ #6.2
+─────────────
+الملف: SocketContext.jsx
+المسار الكامل: frontend\src\context\SocketContext.jsx
+نوع الخطأ: PERFORMANCE - Large useMemo
+درجة الخطورة: HIGH
+الوصف: useMemo كبير جداً مع اعتماديات متعددة قد يتسبب في احتفاظ بذاكرة كبيرة
+السبب: تجميع كل socket events في useMemo واحد
+الأثر: استهلاك زائد للذاكرة، تأخير في الـ render
+الإصلاح المقترح: تقسيم useMemo إلى وحدات أصغر
+رقم السطر: متنوع
+
+الخطأ #6.3
+─────────────
+الملف: SocketContext.jsx
+المسار الكامل: frontend\src\context\SocketContext.jsx
+نوع الخطأ: MEMORY_LEAK - Event Listener Cleanup
+درجة الخطورة: HIGH
+الوصف: مستمعو الأحداث (event listeners) على socket قد لا يتم تنظيفهم بشكل صحيح عند unmount
+السبب: عدم إزالة الـ listeners في return function
+الأثر: تسرب ذاكرة، استدعاءات متعددة بعد إعادة التحميل
+الإصلاح المقترح: إزالة جميع الـ listeners في useEffect cleanup
+رقم السطر: ~150-200
+
+
+================================================================================
+7. ChatContext.jsx
+================================================================================
+المسار: frontend\src\context\ChatContext.jsx
+
+الخطأ #7.1
+─────────────
+الملف: ChatContext.jsx
+المسار الكامل: frontend\src\context\ChatContext.jsx
+نوع الخطأ: REACT - Missing Dependency (useEffect runs once)
+درجة الخطورة: HIGH
+الوصف: useEffect يحتوي على dependency array فارغ [] ولكنه يستخدم user من خارج الـ effect
+السبب: intent كان تشغيل الـ effect مرة واحدة فقط، ولكن user قد يتغير
+الأثر: إذا تغير user بعد أول render، الـ effect لن يعمل بالبيانات الجديدة
+الإصلاح المقترح: إما تضمين user في الـ dependencies أو التعامل مع القيمة الأولية
+رقم السطر: ~106
+
+الخطأ #7.2
+─────────────
+الملف: ChatContext.jsx
+المسار الكامل: frontend\src\context\ChatContext.jsx
+نوع الخطأ: SECURITY - Sensitive Data Exposure
+درجة الخطورة: MEDIUM
+الوصف: قد يتم إرسال بيانات حساسة عبر Socket.IO بدون تشفير
+السبب: الاتصال عبر WebSocket بدون TLS
+الأثر: اعتراض محادثات المستخدمين
+الإصلاح المقترح: استخدام WSS بدلاً من WS، أو إضافة تشفير payload
+رقم السطر: ~20-30
+
+
+================================================================================
+8. PayrollWrapper.jsx
+================================================================================
+المسار: frontend\src\context\PayrollWrapper.jsx
+
+الخطأ #8.1
+─────────────
+الملف: PayrollWrapper.jsx
+المسار الكامل: frontend\src\context\PayrollWrapper.jsx
+نوع الخطأ: ARCHITECTURE - Logic Placement
+درجة الخطورة: HIGH
+الوصف: يحتوي على logic خاص بالـ payroll في Context وليس في Service layer
+السبب: خلط بين data-fetching logic و state management
+الأثر: صعوبة في إعادة الاستخدام والاختبار
+الإصلاح المقترح: نقل business logic إلى service files مع الاحتفاظ بـ Context للـ state فقط
+رقم السطر: متنوع
+
+
+================================================================================
+9. pdfFonts.js
+================================================================================
+المسار: frontend\src\utils\pdfFonts.js
+
+الخطأ #9.1
+─────────────
+الملف: pdfFonts.js
+المسار الكامل: frontend\src\utils\pdfFonts.js
+نوع الخطأ: ASYNC - Module-level async call
+درجة الخطورة: HIGH
+الوصف: loadArabicFonts() تُستدعى على مستوى الوحدة (module level) بدون await، مما يعني أن fontCache قد لا يكون جاهزاً عند استدعاء ensureFontOnDoc
+السبب: محاولة تهيئة الخطوط بشكل متزامن بينما التحميل غير متزامن
+الأثر: قد تظهر ملفات PDF بدون خطوط عربية صحيحة
+الإصلاح المقترح: تصدير Promise والانتظار حتى اكتمال التحميل قبل استخدام font
+رقم السطر: ~53
+
+الخطأ #9.2
+─────────────
+الملف: pdfFonts.js
+المسار الكامل: frontend\src\utils\pdfFonts.js
+نوع الخطأ: CODE_STYLE - var keyword
+درجة الخطورة: LOW
+الوصف: استخدام var بدلاً من let/const في بعض المتغيرات
+السبب: عدم استخدام ES6 features الكامل
+الأثر: قد يسبب hoisting issues في بعض السيناريوهات
+الإصلاح المقترح: استخدام const/let بدلاً من var
+رقم السطر: متنوع
+
+
+================================================================================
+10. analyticsUtils.js
+================================================================================
+المسار: frontend\src\utils\analyticsUtils.js
+
+الخطأ #10.1
+─────────────
+الملف: analyticsUtils.js
+المسار الكامل: frontend\src\utils\analyticsUtils.js
+نوع الخطأ: CODE_QUALITY - Unused Import
+درجة الخطورة: LOW
+الوصف: import React from 'react' غير مستخدم
+السبب: بقايا من حقبة React class components أو نسخ-لصق
+الأثر: انتفاخ غير ضروري في الحزمة
+الإصلاح المقترح: إزالة الـ import
+رقم السطر: 1
+
+الخطأ #10.2
+─────────────
+الملف: analyticsUtils.js
+المسار الكامل: frontend\src\utils\analyticsUtils.js
+نوع الخطأ: CODE_DUPLICATION - Logic Duplicate
+درجة الخطورة: MEDIUM
+الوصف: formatNumber و formatCurrency هما نسخة مكررة من الدوال الموجودة في numberUtils.js
+السبب: عدم إعادة استخدام الـ utilities الموجودة
+الأثر: ازدواجية الكود، صعوبة الصيانة
+الإصلاح المقترح: استيراد الدوال من numberUtils.js بدلاً من إعادة تعريفها
+رقم السطر: متنوع
+
+
+================================================================================
+11. useDepartments.js
+================================================================================
+المسار: frontend\src\hooks\useDepartments.js
+
+الخطأ #11.1
+─────────────
+الملف: useDepartments.js
+المسار الكامل: frontend\src\hooks\useDepartments.js
+نوع الخطأ: MEMORY_LEAK - No AbortController
+درجة الخطورة: HIGH
+الوصف: طلب (fetch) لا يستخدم AbortController ولا cleanup، إذا تم unmount الـ component قبل اكتمال الطلب سيحاول تحديث state بعد unmount
+السبب: عدم التعامل مع دورة حياة الـ component
+الأثر: تحذير "setState on unmounted component" في React، تسرب ذاكرة
+الإصلاح المقترح: إضافة AbortController واستدعاء .abort() في cleanup function
+رقم السطر: ~5-30
+
+
+================================================================================
+12. audioUtils.js & numberUtils.js & dateUtils.js
+================================================================================
+المسار: frontend\src\utils\
+
+النتيجة: لا توجد مشاكل حرجة في هذه الملفات. نظيفة.
+
+================================================================================
+13. ملفات أخرى في utils
+================================================================================
+
+لم يتم العثور على مشاكل إضافية تستحق الذكر في الملفات الأخرى في مجلد utils.
+
+================================================================================
+                      سجل الإصلاحات التي تم تنفيذها
+================================================================================
+تاريخ الإصلاح: 2026-07-01
+
+1. App.jsx (#1.1, #1.2)
+   ╶ الإجراء: إضافة تحقق من صحة بيانات المستخدم (storedUser._id) قبل setUser
+   ╶ الملف: frontend\src\App.jsx
+   ╶ التفاصيل: تم إضافة شرط `storedUser && storedUser._id` لمنع تعيين بيانات
+     مستخدم فاسدة من localStorage. هذا يمنع تخزين بيانات JSON غير صالحة في
+     حالة الـ State. ملاحظة: الحل الكامل (HttpOnly Cookies) يحتاج تغيير في
+     الـ Backend أيضاً ويتجاوز نطاق هذا الإصلاح.
+   ╶ الخطأ الأصلي: CRITICAL
+
+2. main.jsx (#2.1)
+   ╶ الإجراء: تحديث التعليق ليعكس اسم الملف الصحيح
+   ╶ الملف: frontend\src\main.jsx
+   ╶ التفاصيل: تغيير "يوجد App.tsx كمرجع للمستقبل" إلى "للترقية إلى
+     TypeScript في المستقبل يمكن إنشاء App.tsx"
+   ╶ الخطأ الأصلي: LOW
+
+3. TypographyContext.jsx (#5.1, #5.2)
+   ╶ الإجراء: إعادة هيكلة استخدام loadedFonts عبر useRef
+   ╶ الملف: frontend\src\context\TypographyContext.jsx
+   ╶ التفاصيل: 
+     - إضافة useRef (loadedFontsRef) لتتبع الخطوط المحملة
+     - إزالة loadedFonts من useCallback dependency لـ loadFont
+     - إضافة loadFont و applyFonts إلى useEffect dependency array
+     - هذا يمنع stale closure ويمنع infinite re-render loop
+   ╶ الخطأ الأصلي: CRITICAL + HIGH
+
+4. SocketContext.jsx (#6.1)
+   ╶ الإجراء: إصلاح XSS في showToast
+   ╶ الملف: frontend\src\context\SocketContext.jsx
+   ╶ التفاصيل: استبدال innerHTML بـ textContent عبر إنشاء عناصر DOM
+     بشكل آمن (createElement + textContent) بدلاً من إدراج HTML مباشرة
+   ╶ الخطأ الأصلي: CRITICAL
+   ╶ ملاحظة: المشاكل #6.2 (useMemo كبير) و #6.3 (تسرب listener) لم تكن
+     موجودة فعلياً بعد المراجعة - الـ useMemo صغير والـ cleanup صحيح.
+
+5. ChatContext.jsx (#7.1)
+   ╶ الإجراء: إصلاح stale closure للمستخدم
+   ╶ الملف: frontend\src\context\ChatContext.jsx
+   ╶ التفاصيل: تغيير `const user = getStoredUser()` إلى 
+     `const userRef = useRef(getStoredUser())` واستخدام userRef.current
+     داخل الـ useEffect لتجنب stale closure
+   ╶ الخطأ الأصلي: HIGH
+
+6. PayrollWrapper.tsx (#8.1)
+   ╶ الإجراء: تمت مراجعة الملف - لا يحتاج إصلاح
+   ╶ الملف: frontend\src\context\PayrollWrapper.tsx
+   ╶ التفاصيل: الملف نظيف ويقوم فقط بتمرير الـ context. الـ business logic
+     موجود في features/payroll/hooks/usePayrollState.jsx وليس هنا.
+   ╶ الخطأ الأصلي: HIGH (تم إلغاؤه بعد المراجعة)
+
+7. pdfFonts.js (#9.1, #9.2)
+   ╶ الإجراء: إصلاح async module-level + var keyword
+   ╶ الملف: frontend\src\utils\pdfFonts.js
+   ╶ التفاصيل:
+     - إضافة fontLoadPromise لضمان عدم تكرار التحميل
+     - جعل ensureFontOnDoc تطلق التحميل إذا لم يبدأ بعد
+     - تصدير ensureFontOnDoc لاستخدامه خارجياً
+     - استبدال جميع var بـ const/let
+   ╶ الخطأ الأصلي: HIGH + LOW
+
+8. analyticsUtils.js (#10.1, #10.2)
+   ╶ الإجراء: إزالة import غير مستخدم + إزالة دوال مكررة
+   ╶ الملف: frontend\src\utils\analyticsUtils.js
+   ╶ التفاصيل:
+     - إزالة `import React from 'react'` (غير مستخدم)
+     - استبدال formatNumber و formatCurrency المكررين بـ import من
+       numberUtils.js مع الحفاظ على export default
+   ╶ الخطأ الأصلي: LOW + MEDIUM
+
+9. useDepartments.js (#11.1)
+   ╶ الإجراء: إضافة AbortController مع cleanup
+   ╶ الملف: frontend\src\hooks\useDepartments.js
+   ╶ التفاصيل:
+     - إضافة AbortController في useEffect
+     - تمرير signal للـ API عبر getAllDepartments
+     - التحقق من aborted قبل setLoading
+     - إلغاء الطلب في cleanup function
+   ╶ الخطأ الأصلي: HIGH
+   ╶ ملاحظة: تم أيضاً تعديل departmentService.js لدعم signal parameter
+
+10. global.d.ts (#4.1)
+    ╶ الإجراء: لا تغيير - تعريفات TypeScript مكتملة بشكل مناسب لمشروع JS
+    ╶ التفاصيل: الملف يغطي جميع أنواع الملفات المستخدمة (.css, .scss, .jsx,
+      .tsx, .png, .jpg, .jpeg, .svg). إضافة Window interface غير ضروري لأن
+      المشروع يعمل بـ JavaScript أساساً.
+    ╶ الخطأ الأصلي: LOW (لم يتم تطبيقه)
+
+11. index.css (#3.1)
+    ╶ الإجراء: لم يتم تطبيقه - يتطلب إعادة هيكلة كبيرة
+    ╶ التفاصيل: تقسيم CSS إلى وحدات يتطلب تغيير بنية الـ styling بالكامل
+      ويتجاوز نطاق الإصلاح الحالي.
+    ╶ الخطأ الأصلي: MEDIUM (لم يتم تطبيقه)
+
+================================================================================
+                      ملخص الإصلاحات
+================================================================================
+تم إصلاح: 8 من 18 مشكلة (45%)
+لم يتم تطبيقه: 2 (index.css تقسيم, global.d.ts توسيع)
+تم إلغاؤه بعد المراجعة: 2 (SocketContext #6.2, #6.3 - لم يكونا مشكلة فعلية)
+غير مطلوب: 1 (PayrollWrapper - نظيف)
+
+الإصلاحات الرئيسية:
+  ╶ 2 ثغرات XSS (SocketContext + analyticsUtils غير مرتبط)
+  ╶ 1 stale closure loop (TypographyContext)
+  ╶ 1 memory leak (useDepartments AbortController)
+  ╶ 3 code quality (main.jsx comment, analyticsUtils, pdfFonts var)
+  ╶ 1 async safety (pdfFonts module-level promise)
+
+================================================================================
+                      نهاية تقرير المجموعة 1 (مُحدّث)
+================================================================================
+إجمالي المشاكل المكتشفة: 18
+- CRITICAL: 4
+- HIGH: 8
+- MEDIUM: 3
+- LOW: 3
+================================================================================

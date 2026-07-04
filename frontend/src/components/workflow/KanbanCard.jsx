@@ -17,7 +17,7 @@ const KanbanCard = ({ task, onStatusChange, onClick }) => {
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-2">
-        <h4 className="font-semibold text-dark text-sm leading-tight">{task.title}</h4>
+        <h4 className="font-semibold text-dark text-sm leading-tight break-words">{task.title}</h4>
         <span className={`text-xs px-1.5 py-0.5 rounded ${priority.class}`}>{priority.label}</span>
       </div>
       {task.description && (

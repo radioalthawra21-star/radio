@@ -1,7 +1,7 @@
 import api from './api';
 
-export const getAllDepartments = async () => {
-  const response = await api.get('/departments');
+export const getAllDepartments = async (options = {}) => {
+  const response = await api.get('/departments', { signal: options.signal });
   return response.data;
 };
 

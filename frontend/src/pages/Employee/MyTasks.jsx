@@ -72,7 +72,7 @@ const MyTasks = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-8">مهماتي</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-6 md:mb-8">مهماتي</h1>
 
       <Card className="mb-6 overflow-x-hidden">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -106,34 +106,38 @@ const MyTasks = () => {
           {tasks.map((task) => (
             <Card key={task._id} className="hover:shadow-xl transition-shadow p-4 md:p-6">
               <div className="flex flex-col gap-3">
-                <div className="flex items-start gap-3 min-h-[48px]">
+                <div className="flex items-start gap-3 min-h-[48px] w-full max-w-full">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-lg md:text-xl">
                     {isProposal(task) ? '💡' : task.isUnusual ? '⚠️' : task.status === 'rejected' ? '🚫' : '📝'}
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 max-w-full">
                     <h3 className="font-semibold text-dark text-base md:text-lg break-words">{task.title}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs md:text-sm text-gray-500">
-                      <span data-label="المدة">🕐 {task.duration} ساعة</span>
-                      <span data-label="التاريخ">📅 <span className="en-num">{formatDateArabic(task.taskDate)}</span></span>
-                      {task.managerScore && <span data-label="التقييم">⭐ التقييم: {task.managerScore}/100</span>}
+                    <p className="text-sm text-gray-600 line-clamp-2 break-words">{task.description}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs md:text-sm text-gray-500">
+                      <span className="whitespace-nowrap">🕐 {task.duration} ساعة</span>
+                      <span className="whitespace-nowrap">📅 <span className="en-num">{formatDateArabic(task.taskDate)}</span></span>
+                      {task.managerScore && <span className="whitespace-nowrap">⭐ التقييم: {task.managerScore}/100</span>}
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 min-h-[48px]">
-                  {task.isUnusual && <span className="badge bg-warning text-white">غير عادية</span>}
-                  {getStatusBadge(task)}
-                  <div className="flex-1"></div>
-                  {task.status === 'in_progress' && (
-                    <button onClick={() => handleStatusChange(task._id, 'completed')} className="btn btn-interactive text-xs md:text-sm px-3 py-1.5">إكمال</button>
-                  )}
-                  {task.status === 'pending' && !isProposal(task) && (
-                    <button onClick={() => handleStatusChange(task._id, 'in_progress')} className="btn btn-primary text-xs md:text-sm px-3 py-1.5">بدء</button>
-                  )}
-                  {canReject(task) && (
-                    <button onClick={() => { setRejectModal(task); setRejectReason(''); }} className="btn btn-outline border-error text-error hover:bg-error/10 text-xs md:text-sm px-3 py-1.5">رفض</button>
-                  )}
-                  <button onClick={() => handleDelete(task._id)} className="btn btn-outline border-gray-300 text-gray-500 hover:bg-gray-100 text-xs md:text-sm px-2 py-1.5" aria-label="حذف">🗑️</button>
+                <div className="flex flex-wrap items-center gap-2 min-h-[44px]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {task.isUnusual && <span className="badge bg-warning text-white">غير عادية</span>}
+                    {getStatusBadge(task)}
+                  </div>
+                  <div className="flex-1 min-w-[8px]"></div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {task.status === 'in_progress' && (
+                      <button onClick={() => handleStatusChange(task._id, 'completed')} className="btn btn-interactive text-xs md:text-sm px-3 py-1.5 min-h-[40px]">إكمال</button>
+                    )}
+                    {task.status === 'pending' && !isProposal(task) && (
+                      <button onClick={() => handleStatusChange(task._id, 'in_progress')} className="btn btn-primary text-xs md:text-sm px-3 py-1.5 min-h-[40px]">بدء</button>
+                    )}
+                    {canReject(task) && (
+                      <button onClick={() => { setRejectModal(task); setRejectReason(''); }} className="btn btn-outline border-error text-error hover:bg-error/10 text-xs md:text-sm px-3 py-1.5 min-h-[40px]">رفض</button>
+                    )}
+                    <button onClick={() => handleDelete(task._id)} className="btn btn-outline border-gray-300 text-gray-500 hover:bg-gray-100 text-xs md:text-sm px-2 py-1.5 min-h-[40px]" aria-label="حذف">🗑️</button>
+                  </div>
                 </div>
               </div>
 

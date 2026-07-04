@@ -51,7 +51,7 @@ const getEmployeePerformance = async (req, res) => {
         _id: '$assignedTo',
         total: { $sum: 1 },
         completed: { $sum: { $cond: [{ $in: ['$status', [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED]] }, 1, 0] } },
-        overdue: { $sum: { $cond: [{ $and: [{ $lt: ['$dueDate', new Date()] }, { $nin: ['$status', [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED]] }] }, 1, 0] } },
+        overdue: { $sum: { $cond: [{ $and: [{ $lt: ['$dueDate', new Date()] }, { $not: { $in: ['$status', [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED]] } }] }, 1, 0] } },
         inProgress: { $sum: { $cond: [{ $eq: ['$status', TaskStatus.IN_PROGRESS] }, 1, 0] } }
       } }
     ]);

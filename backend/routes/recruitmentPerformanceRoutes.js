@@ -6,6 +6,25 @@
 const express = require('express');
 const router = express.Router();
 
+// Simple in-memory rate limiter for public endpoints
+const applicationRateLimiter = (() => {
+  const requests = new Map();
+  const windowMs = 60 * 60 * 1000; // 1 hour
+  const maxRequests = 10; // 10 applications per hour per IP
+  return (req, res, next) => {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    const userRequests = requests.get(ip) || [];
+    const recentRequests = userRequests.filter(t => now - t < windowMs);
+    if (recentRequests.length >= maxRequests) {
+      return res.status(429).json({ success: false, message: 'تم تجاوز حد الطلبات المسموح. يرجى المحاولة لاحقاً.' });
+    }
+    recentRequests.push(now);
+    requests.set(ip, recentRequests);
+    next();
+  };
+})();
+
 const {
   createJobPosting,
   getJobPostings,
@@ -95,7 +114,7 @@ router.put('/jobs/:id/status', protect, managerOrAdmin, updateJobStatus);
  * @desc    Create a new candidate application
  * @access  Public (no auth required)
  */
-router.post('/applications', createApplication);
+router.post('/applications', applicationRateLimiter, createApplication);
 
 /**
  * @route   GET /api/recruitment/applications

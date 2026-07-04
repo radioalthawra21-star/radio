@@ -16,8 +16,9 @@ const leaveTypes = [
   { value: 'sick', label: 'إجازة مرضية' },
   { value: 'exceptional', label: 'إجازة استثنائية' },
   { value: 'death', label: 'إجازة وفاة' },
+  { value: 'hajj', label: 'إجازة حج' },
   { value: 'hourly', label: 'إجازة ساعية' },
-  { value: 'emergency', label: 'إجازة طارئة' },
+  { value: 'development', label: 'إجازة تطوير' },
   { value: 'unpaid', label: 'إجازة بدون راتب' },
   { value: 'mission', label: 'مأمورية' },
   { value: 'overtime', label: 'أجر إضافي' },
@@ -26,16 +27,18 @@ const leaveTypes = [
 
 const LEAVE_TYPE_LABELS = {
   annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
-  death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
-  maternity: 'إجازة وضع', paternity: 'إجازة أبوة', unpaid: 'إجازة بدون راتب',
+  death: 'إجازة وفاة', hourly: 'إجازة ساعية',
+  maternity: 'إجازة وضع', unpaid: 'إجازة بدون راتب',
   compensatory: 'إجازة تعويضية', mission: 'مأمورية', overtime: 'أجر إضافي',
   fingerprint_forgotten: 'نسيان بصمة',
+  hajj: 'إجازة حج', development: 'إجازة تطوير',
 };
 
 const LEAVE_TYPE_ICONS = {
   annual: '🏖️', sick: '🩺', exceptional: '⭐', death: '🕊️', hourly: '⏰',
-  emergency: '🚨', maternity: '👶', paternity: '👨‍👧', unpaid: '💼', compensatory: '🔄',
+  maternity: '👶', unpaid: '💼', compensatory: '🔄',
   mission: '📋', overtime: '💰', fingerprint_forgotten: '🖐️',
+  hajj: '🕋', development: '📚',
 };
 
 const STATUS_LABELS = {
@@ -86,7 +89,7 @@ const LeaveManagement = () => {
   }, []);
 
   const prepareChartData = (records) => {
-    const leaveTypeCounts = { annual: 0, sick: 0, emergency: 0, exceptional: 0, death: 0, hourly: 0, unpaid: 0, mission: 0, overtime: 0, fingerprint_forgotten: 0, other: 0 };
+    const leaveTypeCounts = { annual: 0, sick: 0, exceptional: 0, death: 0, hourly: 0, unpaid: 0, mission: 0, overtime: 0, fingerprint_forgotten: 0, hajj: 0, development: 0, other: 0 };
     records.forEach(record => {
       const type = record.type || 'other';
       if (leaveTypeCounts[type] !== undefined) {
@@ -500,7 +503,7 @@ const LeaveManagement = () => {
 
         {activeTab !== 'approval' && activeTab !== 'reports' && (
           <div className="text-xs text-gray-400 mb-2">
-            ملاحظة: المدير يوافق على طلبات الإجازة للأيام 3 فأقل، أما أكثر من 3 أيام فتحتاج موافقة المدير العام بعد موافقة المدير المباشر
+            ملاحظة: الإجازات التي تبدأ من 3 أيام فأكثر تحتاج موافقة المدير العام بعد موافقة المدير المباشر
           </div>
         )}
       </Card>
@@ -609,22 +612,23 @@ const LeaveManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white rounded-lg shadow p-4">
                   <h3 className="text-lg font-bold mb-4">توزيع أنواع الإجازات</h3>
-                  <PieChart
-                    data={{
-                      labels: ['سنوية', 'مرضية', 'طارئة', 'استثنائية', 'وفاة', 'ساعية', 'بدون راتب', 'مأمورية', 'نسيان بصمة', 'أخرى'],
-                      data: [
-                        chartData.leaveTypeCounts.annual,
-                        chartData.leaveTypeCounts.sick,
-                        chartData.leaveTypeCounts.emergency,
-                        chartData.leaveTypeCounts.exceptional,
-                        chartData.leaveTypeCounts.death,
-                        chartData.leaveTypeCounts.hourly,
-                        chartData.leaveTypeCounts.unpaid,
-                        chartData.leaveTypeCounts.mission,
-                        chartData.leaveTypeCounts.fingerprint_forgotten,
-                        chartData.leaveTypeCounts.other,
-                      ]
-                    }}
+                    <PieChart
+                      data={{
+                        labels: ['سنوية', 'مرضية', 'استثنائية', 'وفاة', 'حج', 'ساعية', 'تطوير', 'بدون راتب', 'مأمورية', 'نسيان بصمة', 'أخرى'],
+                        data: [
+                          chartData.leaveTypeCounts.annual,
+                          chartData.leaveTypeCounts.sick,
+                          chartData.leaveTypeCounts.exceptional,
+                          chartData.leaveTypeCounts.death,
+                          chartData.leaveTypeCounts.hajj,
+                          chartData.leaveTypeCounts.hourly,
+                          chartData.leaveTypeCounts.development,
+                          chartData.leaveTypeCounts.unpaid,
+                          chartData.leaveTypeCounts.mission,
+                          chartData.leaveTypeCounts.fingerprint_forgotten,
+                          chartData.leaveTypeCounts.other,
+                        ]
+                      }}
                     width={400}
                     height={300}
                   />

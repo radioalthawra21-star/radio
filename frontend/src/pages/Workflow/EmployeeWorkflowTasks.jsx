@@ -53,7 +53,7 @@ const EmployeeWorkflowTasks = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-dark mb-6">مهامي</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-dark mb-4 md:mb-6">مهامي (سير العمل)</h1>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {TABS.map(tab => (
@@ -81,13 +81,13 @@ const EmployeeWorkflowTasks = () => {
         <div className="grid grid-cols-1 gap-4">
           {filtered.map(task => (
             <div key={task._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 cursor-pointer" onClick={() => navigate(`/workflow/task/${task._id}`)}>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div className="flex-1 min-w-0 cursor-pointer max-w-full" onClick={() => navigate(`/workflow/task/${task._id}`)}>
                   <h3 className="font-bold text-dark break-words">{task.title}</h3>
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{task.description}</p>
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2 break-words">{task.description}</p>
                 </div>
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${PRIORITY_CLASSES[task.priority] || 'bg-gray-100 text-gray-600'}`}>
+                <div className="flex items-center gap-2 shrink-0 self-start">
+                  <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${PRIORITY_CLASSES[task.priority] || 'bg-gray-100 text-gray-600'}`}>
                     {task.priority === 'urgent' ? 'عاجل' : task.priority === 'high' ? 'عالية' : task.priority === 'low' ? 'منخفضة' : 'متوسطة'}
                   </span>
                   <select

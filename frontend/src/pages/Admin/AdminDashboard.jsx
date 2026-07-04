@@ -15,7 +15,7 @@ import Card from '../../components/common/Card';
 
 const LEAVE_LABELS = {
   annual: 'سنوية', sick: 'مرضية', exceptional: 'استثنائية',
-  death: 'وفاة', hourly: 'ساعية', emergency: 'طارئة',
+  death: 'وفاة', hourly: 'ساعية',
 };
 
 const AdminDashboard = () => {

@@ -12,11 +12,13 @@ const crypto = require('crypto');
 
 const LEAVE_LABELS = {
   annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
-  death: 'إجازة وفاة', hourly: 'إجازة ساعية', emergency: 'إجازة طارئة',
-  unpaid: 'إجازة بدون راتب', maternity: 'إجازة وضع', paternity: 'إجازة أبوة',
+  death: 'إجازة وفاة', hourly: 'إجازة ساعية',
+  unpaid: 'إجازة بدون راتب', maternity: 'إجازة وضع',
   compensatory: 'إجازة تعويضية', mission: 'مأمورية', overtime: 'أجر إضافي',
   attendance_correction: 'تصحيح بصمة',
   fingerprint_forgotten: 'نسيان بصمة',
+  hajj: 'إجازة حج',
+  development: 'إجازة تطوير',
 };
 const leaveLabel = (type) => LEAVE_LABELS[type] || type;
 
@@ -214,7 +216,7 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
           date: new Date(dayStart),
           department: leaveRequest.employee.department,
           status: 'present',
-          expectedHours: 8, duration: 0,
+          expectedHours: 7, duration: 0,
           leave: leaveRequest._id,
         };
         if (leaveRequest.fingerprintType === 'in') {
@@ -230,7 +232,7 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
 
       try { await injectFingerprintToDevice(leaveRequest, timeDate); } catch (zkErr) { console.error('[fingerprint_forgotten] Device injection failed:', zkErr.message); }
 
-    } else if (leaveRequest.startDate && leaveRequest.endDate && ['annual', 'sick', 'emergency', 'exceptional', 'death', 'maternity', 'paternity', 'unpaid'].includes(leaveRequest.type)) {
+    } else if (leaveRequest.startDate && leaveRequest.endDate && ['annual', 'sick', 'exceptional', 'death', 'maternity', 'unpaid', 'hajj'].includes(leaveRequest.type)) {
       const current = new Date(leaveRequest.startDate);
       const end = new Date(leaveRequest.endDate);
       while (current <= end) {
@@ -246,7 +248,7 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
               employee: leaveRequest.employee._id, date: new Date(current),
               department: leaveRequest.employee.department,
               status: 'on_leave', leave: leaveRequest._id,
-              expectedHours: 8, duration: leaveRequest.isHalfDay ? 4 : 8,
+              expectedHours: 7, duration: leaveRequest.isHalfDay ? 4 : 8,
             }], { session });
           }
         }
@@ -266,7 +268,7 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
 
 const createLeaveRequest = async (req, res) => {
   try {
-    const { type, startDate, endDate, startTime, endTime, isHalfDay, reason, documents, coveragePlan, fingerprintType, fingerprintDate, fingerprintTime } = req.body;
+    const { type, startDate, endDate, startTime, endTime, isHalfDay, reason, documents, coveragePlan, fingerprintType, fingerprintDate, fingerprintTime, deathDegree } = req.body;
     const employeeId = req.user._id;
 
     if (!type || !reason) return res.status(400).json({ success: false, message: 'يرجى ملء جميع الحقول المطلوبة' });
@@ -279,42 +281,120 @@ const createLeaveRequest = async (req, res) => {
         return res.status(400).json({ success: false, message: 'يرجى تحديد نوع البصمة والتاريخ' });
     }
 
+    if (type === 'death' && !deathDegree) {
+      return res.status(400).json({ success: false, message: 'يرجى تحديد درجة القرابة (الدرجة الأولى/الثانية/الثالثة)' });
+    }
+
+    if (type === 'sick' && (!documents || documents.length === 0)) {
+      return res.status(400).json({ success: false, message: 'يرجى إرفاق صورة التقرير الطبي مع طلب الإجازة المرضية' });
+    }
+
+    let computedStartDate = startDate ? new Date(startDate) : null;
+    let computedEndDate = endDate ? new Date(endDate) : null;
+    let computedDays = 0;
+    let computedHours = 0;
+
+    // Death leave: auto-calculate days based on degree
+    if (type === 'death' && deathDegree && computedStartDate) {
+      const Settings = mongoose.model('Settings');
+      const dayMap = {
+        1: parseInt((await Settings.getValue('leaveDeathFirstDegreeDays', 3)).toString()),
+        2: parseInt((await Settings.getValue('leaveDeathSecondDegreeDays', 2)).toString()),
+        3: parseInt((await Settings.getValue('leaveDeathThirdDegreeDays', 1)).toString()),
+      };
+      computedDays = dayMap[deathDegree] || 3;
+      computedEndDate = new Date(computedStartDate);
+      let remaining = computedDays - 1;
+      while (remaining > 0) {
+        computedEndDate.setDate(computedEndDate.getDate() + 1);
+        if (computedEndDate.getDay() >= 1 && computedEndDate.getDay() <= 5) remaining--;
+      }
+    }
+
+    // Hajj leave: auto-set to 30 days, starts from selected date
+    if (type === 'hajj' && computedStartDate) {
+      const hajjDays = parseInt((await mongoose.model('Settings').getValue('leaveHajjDays', 30)).toString());
+      computedDays = hajjDays;
+      computedEndDate = new Date(computedStartDate);
+      let remaining = computedDays - 1;
+      while (remaining > 0) {
+        computedEndDate.setDate(computedEndDate.getDate() + 1);
+        if (computedEndDate.getDay() >= 1 && computedEndDate.getDay() <= 5) remaining--;
+      }
+    }
+
+    // Development leave: validate weekly hours
+    if (type === 'development') {
+      if (!startTime || !endTime) {
+        return res.status(400).json({ success: false, message: 'يرجى تحديد وقت البداية والنهاية لإجازة التطوير' });
+      }
+      const [sh, sm] = startTime.split(':').map(Number);
+      const [eh, em] = endTime.split(':').map(Number);
+      computedHours = Math.max(0, (eh + em / 60) - (sh + sm / 60));
+      if (computedHours <= 0) {
+        return res.status(400).json({ success: false, message: 'وقت غير صحيح' });
+      }
+
+      const bal = await LeaveRequest.checkLeaveBalance(employeeId, 'development');
+      if (computedHours > bal.remainingHours) {
+        return res.status(400).json({
+          success: false,
+          message: `لا يمكن تجاوز 6 ساعات أسبوعياً. المتبقي هذا الأسبوع: ${bal.remainingHours} ساعة. طلبت: ${computedHours} ساعة`,
+        });
+      }
+      computedDays = 0;
+    }
+
     const leaveRequest = new LeaveRequest({
       employee: employeeId, type, reason, documents: documents || [], department: employee.department,
       coveragePlan,
-      startDate: startDate ? new Date(startDate) : null,
-      endDate: endDate ? new Date(endDate) : null,
+      startDate: computedStartDate,
+      endDate: computedEndDate,
       startTime, endTime, isHalfDay: isHalfDay || false,
+      deathDegree: type === 'death' ? deathDegree : null,
       fingerprintType: type === 'fingerprint_forgotten' ? fingerprintType : null,
       fingerprintDate: type === 'fingerprint_forgotten' ? new Date(fingerprintDate) : null,
       fingerprintTime: type === 'fingerprint_forgotten' ? (fingerprintTime || null) : null,
       idempotencyKey: crypto.randomUUID(),
     });
 
-    if (startDate && endDate) leaveRequest.calculateDays();
-    if (startTime && endTime) leaveRequest.calculateHours();
+    if (computedStartDate && computedEndDate && computedDays > 0) {
+      leaveRequest.days = computedDays;
+    } else if (computedStartDate && computedEndDate && type !== 'development') {
+      leaveRequest.calculateDays();
+    }
+    if (computedHours > 0) leaveRequest.hours = computedHours;
 
     if (['annual', 'hourly'].includes(type)) {
       const bal = await LeaveRequest.checkLeaveBalance(employeeId, type);
       if (type === 'annual' && leaveRequest.days > bal.remainingBalance)
         return res.status(400).json({ success: false, message: 'رصيد الإجازات غير كافٍ. المتاح: ' + bal.remainingBalance + ' أيام' });
+      if (type === 'hourly' && leaveRequest.hours > bal.remainingHours)
+        return res.status(400).json({ success: false, message: 'لا يمكن تجاوز ساعات الرصيد السنوي. المتبقي: ' + bal.remainingHours + ' ساعة' });
     }
 
-    if (startDate && type !== 'fingerprint_forgotten') {
-      const end = endDate || startDate;
-      const overlap = await checkFinancialOverlap(employeeId, startDate, end, null, { requestType: type });
+    if (startDate && type !== 'fingerprint_forgotten' && type !== 'development') {
+      const end = computedEndDate || computedStartDate;
+      const overlap = await checkFinancialOverlap(employeeId, computedStartDate, end, null, { requestType: type });
       if (overlap.hasOverlap)
         return res.status(400).json({ success: false, message: overlap.conflicts.map(c => c.reason).join('; ') });
     }
 
-    leaveRequest.status = LeaveStatus.PENDING_MANAGER;
-    await leaveRequest.save();
-
-    const managerNotified = await notifyManager(employeeId, leaveRequest);
-    if (!managerNotified) {
+    // Hajj and leaves >= 3 days go directly to GM
+    if (type === 'hajj') {
       leaveRequest.status = LeaveStatus.PENDING_GENERAL_MANAGER;
       await leaveRequest.save();
       await notifyAdmin(leaveRequest);
+    } else {
+      leaveRequest.status = LeaveStatus.PENDING_MANAGER;
+      await leaveRequest.save();
+
+      const managerNotified = await notifyManager(employeeId, leaveRequest);
+      if (!managerNotified) {
+        leaveRequest.status = LeaveStatus.PENDING_GENERAL_MANAGER;
+        await leaveRequest.save();
+        await notifyAdmin(leaveRequest);
+      }
     }
 
     res.status(201).json({ success: true, message: 'تم تقديم طلب الإجازة بنجاح', data: { leaveRequest } });
@@ -391,7 +471,7 @@ const updateLeaveRequestStatus = async (req, res) => {
         const calendarDays = leaveRequest.startDate && leaveRequest.endDate
           ? Math.round(Math.abs(new Date(leaveRequest.endDate) - new Date(leaveRequest.startDate)) / (1000 * 60 * 60 * 24)) + 1
           : 1;
-        if (calendarDays > 3) {
+        if (calendarDays >= 3) {
           if (approvedDays && approvedDays < leaveRequest.days) {
             leaveRequest.managerSuggestedDays = approvedDays;
           } else {
@@ -672,7 +752,7 @@ const validateLeaveRequest = async (req, res) => {
     const errors = [];
     if (!type) errors.push('نوع الإجازة مطلوب');
     if (!startDate) errors.push('تاريخ البداية مطلوب');
-    if (['annual', 'sick', 'emergency', 'exceptional', 'death', 'maternity', 'unpaid'].includes(type) && !endDate)
+    if (['annual', 'sick', 'exceptional', 'death', 'maternity', 'unpaid'].includes(type) && !endDate)
       errors.push('تاريخ النهاية مطلوب');
     if (errors.length > 0) return res.status(400).json({ success: false, message: errors.join('; '), errors });
     const balance = await LeaveRequest.checkLeaveBalance(req.user._id, type);
@@ -682,6 +762,159 @@ const validateLeaveRequest = async (req, res) => {
     res.status(500).json({ success: false, message: 'حدث خطأ في التحقق' });
   }
 };
+
+const requestStopLeave = async (req, res) => {
+  try {
+    const leaveRequest = await LeaveRequest.findById(req.params.id).populate('employee', 'name email department');
+    if (!leaveRequest) return res.status(404).json({ success: false, message: 'الطلب غير موجود' });
+
+    const isOwner = leaveRequest.employee._id.toString() === req.user._id.toString();
+    if (!isOwner) return res.status(403).json({ success: false, message: 'غير مصرح لك - فقط مالك الطلب يمكنه طلب إيقاف الإجازة' });
+
+    if (!['approved', 'synced_to_payroll'].includes(leaveRequest.status))
+      return res.status(400).json({ success: false, message: 'يمكن إيقاف الإجازات الموافق عليها فقط' });
+
+    if (leaveRequest.stopRequested)
+      return res.status(400).json({ success: false, message: 'تم طلب إيقاف هذه الإجازة مسبقاً. قم بالبصم على جهاز البصمة لإيقافها' });
+
+    leaveRequest.stopRequested = true;
+    leaveRequest.stopRequestedAt = new Date();
+    await leaveRequest.save();
+
+    // Notify manager
+    try {
+      const deptDoc = await Department.findById(leaveRequest.employee.department).catch(() => null)
+        || await Department.findOne({ name: leaveRequest.employee.department }).catch(() => null);
+      const deptValues = [leaveRequest.employee.department];
+      if (deptDoc) {
+        deptValues.push(deptDoc._id.toString());
+        deptValues.push(deptDoc.name);
+      }
+      const manager = await User.findOne({ role: 'manager', department: { $in: deptValues }, isActive: true });
+      if (manager && manager._id.toString() !== req.user._id.toString()) {
+        const notif = await Notification.createNotification(
+          manager._id, NotificationType.LEAVE_CANCELLED,
+          'طلب إيقاف إجازة - بانتظار البصمة',
+          `طلب ${leaveRequest.employee.name} إيقاف إجازته (${leaveLabel(leaveRequest.type)}). سيتم الإيقاف تلقائياً عند البصم على جهاز البصمة`,
+          leaveRequest._id
+        );
+        emitSocket(manager._id, notif);
+      }
+    } catch (e) { console.error('notifyManagerOnStopRequest error:', e.message); }
+
+    res.json({
+      success: true,
+      message: 'تم تسجيل طلب إيقاف الإجازة. قم بالبصم على جهاز البصمة لإيقاف الإجازة فعلياً',
+      data: { leaveRequest }
+    });
+  } catch (error) {
+    console.error('Error requesting stop leave:', error);
+    res.status(500).json({ success: false, message: 'حدث خطأ في طلب إيقاف الإجازة' });
+  }
+};
+
+async function processStopByFingerprint(employeeId, fingerprintDate) {
+  try {
+    if (!employeeId || !fingerprintDate) return;
+
+    const dayStart = new Date(fingerprintDate);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    // Check attendance for this day
+    const attendance = await Attendance.findOne({
+      employee: employeeId,
+      date: { $gte: dayStart, $lt: dayEnd },
+    });
+    if (!attendance) return;
+
+    // If only check-in exists, record it but don't stop leave yet
+    if (attendance.checkIn?.time && !attendance.checkOut?.time) {
+      await LeaveRequest.updateMany(
+        {
+          employee: employeeId,
+          stopRequested: true,
+          fingerprintStoppedAt: null,
+          status: { $in: [LeaveStatus.APPROVED, 'synced_to_payroll'] },
+          startDate: { $lte: dayEnd },
+          endDate: { $gte: dayStart },
+        },
+        { $set: { checkInDetectedAt: attendance.checkIn.time } }
+      );
+      return;
+    }
+
+    // Must have BOTH check-in AND check-out to stop leave
+    if (!attendance.checkIn?.time || !attendance.checkOut?.time) return;
+
+    // Find stop-requested leaves covering this date
+    const leaves = await LeaveRequest.find({
+      employee: employeeId,
+      stopRequested: true,
+      fingerprintStoppedAt: null,
+      status: { $in: [LeaveStatus.APPROVED, 'synced_to_payroll'] },
+      startDate: { $lte: dayEnd },
+      endDate: { $gte: dayStart },
+    });
+
+    for (const leave of leaves) {
+      // Shorten leave: endDate = day before fingerprintDate
+      const newEnd = new Date(dayStart);
+      newEnd.setDate(newEnd.getDate() - 1);
+
+      if (newEnd < leave.startDate) {
+        // Fingerprinted before or on start date → cancel entirely
+        leave.status = LeaveStatus.CANCELLED;
+        leave.fingerprintStoppedAt = dayStart;
+        leave.days = 0;
+      } else {
+        leave.endDate = newEnd;
+        leave.calculateDays();
+        leave.fingerprintStoppedAt = dayStart;
+      }
+
+      await leave.save();
+
+      // Delete on_leave attendance records for dates >= fingerprint date
+      const deleteResult = await Attendance.deleteMany({
+        employee: employeeId,
+        leave: leave._id,
+        status: 'on_leave',
+        date: { $gte: dayStart },
+      });
+
+      console.log(`[processStopByFingerprint] Leave ${leave._id}: ${deleteResult.deletedCount} on_leave records deleted`);
+
+      // Notify manager
+      try {
+        const employee = await User.findById(employeeId);
+        const deptDoc = await Department.findById(employee.department).catch(() => null)
+          || await Department.findOne({ name: employee.department }).catch(() => null);
+        const deptValues = [employee.department];
+        if (deptDoc) {
+          deptValues.push(deptDoc._id.toString());
+          deptValues.push(deptDoc.name);
+        }
+        const manager = await User.findOne({ role: 'manager', department: { $in: deptValues }, isActive: true });
+        if (manager && manager._id.toString() !== employeeId.toString()) {
+          const isCancelled = leave.status === LeaveStatus.CANCELLED;
+          const notif = await Notification.createNotification(
+            manager._id, NotificationType.LEAVE_CANCELLED,
+            isCancelled ? 'تم إيقاف الإجازة بعد البصم' : 'تم تقصير الإجازة بعد البصم',
+            isCancelled
+              ? `تم إيقاف إجازة ${employee.name} (${leaveLabel(leave.type)}) بعد البصم على الجهاز`
+              : `تم تقصير إجازة ${employee.name} (${leaveLabel(leave.type)}) إلى ${leave.days} أيام بعد البصم على الجهاز`,
+            leave._id
+          );
+          emitSocket(manager._id, notif);
+        }
+      } catch (e) { console.error('notifyManagerOnStop error:', e.message); }
+    }
+  } catch (error) {
+    console.error('[processStopByFingerprint] Error:', error.message);
+  }
+}
 
 const deleteLeaveRequestPermanent = async (req, res) => {
   try {
@@ -722,4 +955,5 @@ module.exports = {
   updateLeaveStatus: updateLeaveRequestStatus, cancelLeaveRequest,
   getLeaveBalance, getPendingLeaveRequests, getDepartmentLeaveCalendar,
   deleteLeaveRequestPermanent,
+  requestStopLeave, processStopByFingerprint,
 };

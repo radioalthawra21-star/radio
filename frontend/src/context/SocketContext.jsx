@@ -26,10 +26,15 @@ const showToast = (title, message) => {
     animation: ntFadeIn 0.3s ease;
     border: 1px solid rgba(255,255,255,0.1);
   `;
-  toast.innerHTML = `
-    <div style="font-weight:600;margin-bottom:4px">${title}</div>
-    <div style="opacity:0.8;font-size:13px">${message}</div>
-  `;
+  const titleEl = document.createElement('div');
+  titleEl.style.cssText = 'font-weight:600;margin-bottom:4px';
+  titleEl.textContent = title;
+  toast.appendChild(titleEl);
+
+  const messageEl = document.createElement('div');
+  messageEl.style.cssText = 'opacity:0.8;font-size:13px';
+  messageEl.textContent = message;
+  toast.appendChild(messageEl);
 
   const style = document.getElementById('nt-style');
   if (!style) {

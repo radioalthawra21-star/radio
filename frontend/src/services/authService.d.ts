@@ -8,3 +8,4 @@ export const uploadProfileImage: (formData: FormData) => Promise<any>;
 export const isLoggedIn: () => boolean;
 export const getStoredUser: () => any;
 export const getToken: () => string | null;
+export const refreshAuthToken: () => Promise<string | null>;

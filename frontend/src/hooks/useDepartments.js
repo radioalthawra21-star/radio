@@ -6,19 +6,28 @@ export const useDepartments = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchDepartments = async () => {
       try {
-        const response = await getAllDepartments();
+        const response = await getAllDepartments({ signal: abortController.signal });
         if (response.success) {
           setDepartments(response.data.departments || []);
         }
       } catch (error) {
+        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
         console.error('Error fetching departments:', error);
       } finally {
-        setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
     fetchDepartments();
+
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
   const getDepartmentName = (deptId) => {

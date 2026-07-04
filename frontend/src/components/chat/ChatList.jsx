@@ -211,7 +211,7 @@ const ChatList = ({ onChatSelect, activeChatId, refreshKey }) => {
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
+    <div className="w-full md:w-80 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
       <div className="p-3 border-b border-gray-200">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-bold text-gray-800">المحادثات</h2>
