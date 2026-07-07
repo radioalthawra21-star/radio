@@ -11,7 +11,7 @@ const { calculateCompensation, checkFinancialOverlap, syncCompensationToPayroll 
 const crypto = require('crypto');
 
 const LEAVE_LABELS = {
-  annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
+  annual: 'إجازة إدارية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
   death: 'إجازة وفاة', hourly: 'إجازة ساعية',
   unpaid: 'إجازة بدون راتب', maternity: 'إجازة وضع',
   compensatory: 'إجازة تعويضية', mission: 'مأمورية', overtime: 'أجر إضافي',

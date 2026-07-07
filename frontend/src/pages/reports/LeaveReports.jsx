@@ -156,7 +156,7 @@ const LeaveReports = () => {
         `إجمالي أيام الإجازة: ${formatNumber(leaveStats.totalLeaveDays || 0)}`,
         `متوسط أيام الإجازة لكل موظف: ${formatNumber(leaveStats.averageLeavePerEmployee || 0)}`,
         `نسبة الإجازات المدفوعة: ${formatNumber(leaveStats.paidLeavePercentage || 0)}%`,
-        `إجمالي الإجازات السنوية: ${formatNumber(leaveStats.totalAnnualLeave || 0)}`,
+        `إجمالي الإجازات الإدارية: ${formatNumber(leaveStats.totalAnnualLeave || 0)}`,
         `إجمالي الإجازات المرضية: ${formatNumber(leaveStats.totalSickLeave || 0)}`,
         `إجمالي الإجازات الطارئة: ${formatNumber(leaveStats.totalEmergencyLeave || 0)}`
       ];
@@ -272,7 +272,7 @@ const LeaveReports = () => {
               onChange={(e) => setFilter({ ...filter, leaveType: e.target.value })}
             >
               <option value="">الكل</option>
-              <option value="annual">سنوية</option>
+              <option value="annual">إدارية</option>
               <option value="sick">مرضية</option>
               <option value="emergency">طارئة</option>
               <option value="unpaid">غير مدفوعة</option>
@@ -304,7 +304,7 @@ const LeaveReports = () => {
             color="orange"
           />
           <StatCard
-            title="الإجازات السنوية"
+            title="الإجازات الإدارية"
             value={formatNumber(leaveStats.totalAnnualLeave || 0)}
             icon="🏖️"
             color="purple"
@@ -333,7 +333,7 @@ const LeaveReports = () => {
               <h3 className="text-lg font-bold text-dark mb-4">توزيع أنواع الإجازات</h3>
               <PieChart
                 data={{
-                  labels: ['سنوية', 'مرضية', 'طارئة', 'غير مدفوعة', 'أخرى'],
+                  labels: ['إدارية', 'مرضية', 'طارئة', 'غير مدفوعة', 'أخرى'],
                   data: [
                     chartData.leaveTypeCounts.annual,
                     chartData.leaveTypeCounts.sick,

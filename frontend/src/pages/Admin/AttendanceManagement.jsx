@@ -21,7 +21,6 @@ const ATTENDANCE_STATUS_MAP = {
   present: { label: 'حاضر', class: 'bg-green-100 text-green-800 border border-green-200' },
   absent: { label: 'غائب', class: 'bg-red-100 text-red-800 border border-red-200' },
   late: { label: 'متأخر', class: 'bg-yellow-100 text-yellow-800 border border-yellow-200' },
-  half_day: { label: 'نصف يوم', class: 'bg-orange-100 text-orange-800 border border-orange-200' },
   on_leave: { label: 'في إجازة', class: 'bg-blue-100 text-blue-800 border border-blue-200' },
   work_from_home: { label: 'عمل عن بعد', class: 'bg-purple-100 text-purple-800 border border-purple-200' }
 };
@@ -117,12 +116,11 @@ const AttendanceManagement = () => {
     const present = records.filter(r => r.status === 'present').length;
     const absent = records.filter(r => r.status === 'absent').length;
     const late = records.filter(r => r.status === 'late').length;
-    const halfDay = records.filter(r => r.status === 'half_day').length;
     const onLeave = records.filter(r => r.status === 'on_leave').length;
     const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
     const avgHours = totalHours / total;
-    const attendanceRate = ((present + halfDay) / total * 100).toFixed(1);
-    return { total, present, absent, late, halfDay, onLeave, totalHours, avgHours, attendanceRate };
+    const attendanceRate = ((present + late) / total * 100).toFixed(1);
+    return { total, present, absent, late, onLeave, totalHours, avgHours, attendanceRate };
   };
 
   const exportToPDF = () => {
@@ -476,7 +474,7 @@ const AttendanceManagement = () => {
               <StatCard title="حاضر" value={formatNumber(reportStats.present)} icon="✅" color="green" />
               <StatCard title="غائب" value={formatNumber(reportStats.absent)} icon="❌" color="red" />
               <StatCard title="متأخر" value={formatNumber(reportStats.late)} icon="⏳" color="orange" />
-              <StatCard title="نصف يوم" value={formatNumber(reportStats.halfDay)} icon="🕐" color="purple" />
+              
               <StatCard title="إجمالي الساعات" value={formatNumber(reportStats.totalHours.toFixed(1))} icon="⏰" color="teal" />
               <StatCard title="نسبة الحضور" value={`${reportStats.attendanceRate}%`} icon="👥" color="yellow" />
             </div>
@@ -499,7 +497,7 @@ const AttendanceManagement = () => {
                   <h3 className="text-lg font-bold mb-4">نسبة الحضور</h3>
                   <PieChart
                     data={{
-                      labels: ['حاضر', 'غائب', 'متأخر', 'نصف يوم'],
+                       labels: ['حاضر', 'غائب', 'متأخر'],
                       data: [reportStats?.present || 0, reportStats?.absent || 0, reportStats?.late || 0, reportStats?.halfDay || 0]
                     }}
                     width={400}

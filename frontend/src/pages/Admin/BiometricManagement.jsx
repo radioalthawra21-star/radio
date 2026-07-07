@@ -292,11 +292,10 @@ const BiometricManagement = () => {
       present: 'bg-green-100 text-green-700',
       absent: 'bg-red-100 text-red-700',
       late: 'bg-yellow-100 text-yellow-700',
-      half_day: 'bg-orange-100 text-orange-700',
       on_leave: 'bg-blue-100 text-blue-700'
     };
     const labels = {
-      present: 'حاضر', absent: 'غائب', late: 'متأخر', half_day: 'نصف يوم', on_leave: 'إجازة'
+      present: 'حاضر', absent: 'غائب', late: 'متأخر', on_leave: 'إجازة'
     };
     return { cls: map[status] || 'bg-gray-100 text-gray-600', label: labels[status] || status };
   };

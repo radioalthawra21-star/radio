@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createLeaveRequest, getLeaveRequests, getLeaveBalance, cancelLeaveRequest, deleteLeaveRequestPermanent, requestStopLeave } from '../../services/leaveService';
 
 const LEAVE_TYPES = [
-  { value: 'annual', label: 'إجازة سنوية', icon: '🏖️', color: 'text-blue-600', bg: 'bg-blue-50' },
+  { value: 'annual', label: 'إجازة إدارية', icon: '🏖️', color: 'text-blue-600', bg: 'bg-blue-50' },
   { value: 'sick', label: 'إجازة مرضية', icon: '🩺', color: 'text-red-600', bg: 'bg-red-50' },
   { value: 'exceptional', label: 'إجازة استثنائية', icon: '⭐', color: 'text-purple-600', bg: 'bg-purple-50' },
   { value: 'death', label: 'إجازة وفاة', icon: '🕊️', color: 'text-gray-600', bg: 'bg-gray-100' },

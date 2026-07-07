@@ -14,7 +14,7 @@ import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 
 const LEAVE_LABELS = {
-  annual: 'سنوية', sick: 'مرضية', exceptional: 'استثنائية',
+  annual: 'إدارية', sick: 'مرضية', exceptional: 'استثنائية',
   death: 'وفاة', hourly: 'ساعية',
 };
 

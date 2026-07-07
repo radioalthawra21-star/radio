@@ -11,7 +11,8 @@ const UserRole = {
   EMPLOYEE: 'employee',
   MANAGER: 'manager',
   HR: 'hr',
-  ADMIN: 'admin'
+  ADMIN: 'admin',
+  DEVELOPER: 'developer'
 };
 
 // Define departments

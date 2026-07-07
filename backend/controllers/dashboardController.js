@@ -3,25 +3,38 @@ const Workflow = require('../models/Workflow');
 const TaskTimeline = require('../models/TaskTimeline');
 const { User } = require('../models/User');
 
+async function getDeptFilter(user) {
+  if (user.role !== 'manager' || !user.department) return {};
+  const Dept = require('../models/Department');
+  const dept = await Dept.findOne({ name: user.department });
+  if (!dept) return {};
+  return { currentDepartment: dept._id };
+}
+
 const getDashboardStats = async (req, res) => {
   try {
-    const totalTasks = await Task.countDocuments();
+    const taskFilter = await getDeptFilter(req.user);
+
+    const totalTasks = await Task.countDocuments(taskFilter);
     const openTasks = await Task.countDocuments({
+      ...taskFilter,
       status: { $nin: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
     });
     const completedTasks = await Task.countDocuments({
+      ...taskFilter,
       status: { $in: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
     });
     const overdueTasks = await Task.countDocuments({
+      ...taskFilter,
       dueDate: { $lt: new Date() },
       status: { $nin: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
     });
-    const workflowTasks = await Task.countDocuments({ workflowId: { $ne: null } });
-    const rejectedTasks = await Task.countDocuments({ workflowStatus: WorkflowStatus.REJECTED });
+    const workflowTasks = await Task.countDocuments({ ...taskFilter, workflowId: { $ne: null } });
+    const rejectedTasks = await Task.countDocuments({ ...taskFilter, workflowStatus: WorkflowStatus.REJECTED });
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const todayEnd = new Date(todayStart.getTime() + 86400000);
-    const todayCreated = await Task.countDocuments({ createdAt: { $gte: todayStart, $lt: todayEnd } });
+    const todayCreated = await Task.countDocuments({ ...taskFilter, createdAt: { $gte: todayStart, $lt: todayEnd } });
     res.json({
       success: true, data: {
         totalTasks, openTasks, completedTasks, overdueTasks,
@@ -75,22 +88,28 @@ const getEmployeePerformance = async (req, res) => {
 
 const getDepartmentPerformance = async (req, res) => {
   try {
-    const departments = await require('../models/Department').find();
+    let departments;
+    if (req.user.role === 'manager' && req.user.department) {
+      const Dept = require('../models/Department');
+      departments = await Dept.find({ name: req.user.department });
+    } else {
+      departments = await require('../models/Department').find();
+    }
     const departmentData = await Promise.all(departments.map(async (dept) => {
+      const deptFilter = { currentDepartment: dept._id };
       const usersInDept = await User.find({ department: dept.name }).select('_id');
-      const userIds = usersInDept.map(u => u._id);
-      const total = await Task.countDocuments({ assignedTo: { $in: userIds } });
+      const total = await Task.countDocuments(deptFilter);
       const completed = await Task.countDocuments({
-        assignedTo: { $in: userIds },
+        ...deptFilter,
         status: { $in: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
       });
       const overdue = await Task.countDocuments({
-        assignedTo: { $in: userIds }, dueDate: { $lt: new Date() },
+        ...deptFilter, dueDate: { $lt: new Date() },
         status: { $nin: [TaskStatus.COMPLETED, TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
       });
       return {
         department: dept.name, color: dept.color,
-        employeeCount: userIds.length,
+        employeeCount: usersInDept.length,
         total, completed, overdue,
         completionRate: total > 0 ? Math.round((completed / total) * 100) : 0
       };
@@ -104,7 +123,9 @@ const getDepartmentPerformance = async (req, res) => {
 
 const getBottleneckStages = async (req, res) => {
   try {
-    const workflowTasks = await Task.find({ workflowId: { $ne: null } }).populate('workflowId', 'name stages');
+    const taskFilter = await getDeptFilter(req.user);
+    taskFilter.workflowId = { $ne: null };
+    const workflowTasks = await Task.find(taskFilter).populate('workflowId', 'name stages');
     const stageStats = {};
     workflowTasks.forEach(task => {
       if (!task.workflowId) return;
@@ -137,8 +158,10 @@ const getBottleneckStages = async (req, res) => {
 
 const getAvgCompletionTime = async (req, res) => {
   try {
+    const deptFilter = await getDeptFilter(req.user);
+    const matchFilter = { completedAt: { $ne: null }, createdAt: { $ne: null }, ...deptFilter };
     const pipeline = [
-      { $match: { completedAt: { $ne: null }, createdAt: { $ne: null } } },
+      { $match: matchFilter },
       { $project: {
           completionTime: { $subtract: ['$completedAt', '$createdAt'] }
       } },

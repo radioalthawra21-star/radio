@@ -3,9 +3,12 @@ import {
   getDashboardStats, getEmployeePerformance, getDepartmentPerformance,
   getBottleneckStages, getAvgCompletionTime
 } from '../../services/dashboardService';
+import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
 const WorkflowDashboard = () => {
+  const currentUser = getStoredUser();
+  const isGeneralManager = currentUser?.role === 'admin' || currentUser?.role === 'developer';
   const [stats, setStats] = useState(null);
   const [employeePerf, setEmployeePerf] = useState([]);
   const [departmentPerf, setDepartmentPerf] = useState([]);
@@ -96,36 +99,38 @@ const WorkflowDashboard = () => {
           </div>
         </Card>
 
-        <Card>
-          <h3 className="font-bold text-dark mb-4">أداء الأقسام</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm table-responsive-cards">
-              <thead>
-                <tr className="border-b text-gray-500">
-                  <th className="text-right py-2">القسم</th>
-                  <th className="text-center py-2">الموظفون</th>
-                  <th className="text-center py-2">المهام</th>
-                  <th className="text-center py-2">مكتمل</th>
-                  <th className="text-center py-2">معدل الإنجاز</th>
-                </tr>
-              </thead>
-              <tbody>
-                {departmentPerf.map((dept, i) => (
-                  <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 font-medium text-dark" data-label="القسم">{dept.department}</td>
-                    <td className="text-center en-num" data-label="الموظفون">{dept.employeeCount}</td>
-                    <td className="text-center en-num" data-label="المهام">{dept.total}</td>
-                    <td className="text-center en-num text-success" data-label="مكتمل">{dept.completed}</td>
-                    <td className="text-center en-num" data-label="معدل الإنجاز">{dept.completionRate}%</td>
+        {isGeneralManager && (
+          <Card>
+            <h3 className="font-bold text-dark mb-4">أداء الأقسام</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm table-responsive-cards">
+                <thead>
+                  <tr className="border-b text-gray-500">
+                    <th className="text-right py-2">القسم</th>
+                    <th className="text-center py-2">الموظفون</th>
+                    <th className="text-center py-2">المهام</th>
+                    <th className="text-center py-2">مكتمل</th>
+                    <th className="text-center py-2">معدل الإنجاز</th>
                   </tr>
-                ))}
-                {departmentPerf.length === 0 && (
-                  <tr><td colSpan="5" className="text-center text-gray-400 py-4">لا توجد بيانات</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                </thead>
+                <tbody>
+                  {departmentPerf.map((dept, i) => (
+                    <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="py-2 font-medium text-dark" data-label="القسم">{dept.department}</td>
+                      <td className="text-center en-num" data-label="الموظفون">{dept.employeeCount}</td>
+                      <td className="text-center en-num" data-label="المهام">{dept.total}</td>
+                      <td className="text-center en-num text-success" data-label="مكتمل">{dept.completed}</td>
+                      <td className="text-center en-num" data-label="معدل الإنجاز">{dept.completionRate}%</td>
+                    </tr>
+                  ))}
+                  {departmentPerf.length === 0 && (
+                    <tr><td colSpan="5" className="text-center text-gray-400 py-4">لا توجد بيانات</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

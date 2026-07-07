@@ -17,7 +17,6 @@ const ATTENDANCE_STATUS_MAP = {
   present: { label: 'حاضر', color: 'text-green-600', bg: 'bg-green-50', dot: 'bg-green-500' },
   absent: { label: 'غائب', color: 'text-red-600', bg: 'bg-red-50', dot: 'bg-red-500' },
   late: { label: 'متأخر', color: 'text-yellow-600', bg: 'bg-yellow-50', dot: 'bg-yellow-500' },
-  half_day: { label: 'نصف يوم', color: 'text-orange-600', bg: 'bg-orange-50', dot: 'bg-orange-500' },
   on_leave: { label: 'في إجازة', color: 'text-blue-600', bg: 'bg-blue-50', dot: 'bg-blue-500' }
 };
 
@@ -66,7 +65,7 @@ const EmployeeAttendanceReport = () => {
     if (!data?.summary) return null;
     const s = data.summary;
     return {
-      labels: ['حاضر', 'غائب', 'متأخر', 'نصف يوم', 'في إجازة'],
+      labels: ['حاضر', 'غائب', 'متأخر', 'في إجازة'],
       data: [s.present, s.absent, s.late, s.halfDay, s.onLeave]
     };
   }, [data]);

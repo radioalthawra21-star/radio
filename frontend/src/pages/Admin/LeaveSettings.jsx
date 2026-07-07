@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const LEAVE_SETTINGS = [
-  { key: 'leaveAnnualDays', label: 'الإجازة السنوية', unit: 'يوم', icon: '🏖️', default: 30 },
+  { key: 'leaveAnnualDays', label: 'الإجازة الإدارية', unit: 'يوم', icon: '🏖️', default: 30 },
   { key: 'leaveDeathDays', label: 'إجازة الوفاة (عام)', unit: 'يوم', icon: '🕊️', default: 7 },
   { key: 'leaveDeathFirstDegreeDays', label: 'الوفاة - الدرجة الأولى', unit: 'يوم', icon: '🕊️', default: 3 },
   { key: 'leaveDeathSecondDegreeDays', label: 'الوفاة - الدرجة الثانية', unit: 'يوم', icon: '🕊️', default: 2 },

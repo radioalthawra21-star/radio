@@ -8,6 +8,7 @@ const {
   getChatMessages,
   getUnreadCount,
   createSharedChat,
+  createPrivateChat,
   addMember,
   removeMember,
   archiveChat,
@@ -27,7 +28,8 @@ router.get('/:id', protect, getChatById);
 router.get('/:id/messages', protect, getChatMessages);
 router.get('/:id/members', protect, getChatMembers);
 
-router.post('/shared', protect, adminOrHR, createSharedChat);
+router.post('/shared', protect, createSharedChat);
+router.post('/private', protect, createPrivateChat);
 router.post('/upload', protect, chatUpload.single('file'), uploadAttachment);
 router.post('/add-member', protect, addMember);
 router.post('/remove-member', protect, removeMember);

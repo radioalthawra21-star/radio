@@ -8,6 +8,8 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import { getStoredUser, isLoggedIn } from '../../services/authService';
 import { ChatWidget } from '../../pages/Chat/ChatPage';
+import { useChat } from '../../context/ChatContext';
+import { getChatById } from '../../services/chatService';
 import api from '../../services/api';
 import DailyReportReminder from './DailyReportReminder';
 import { useLocation } from 'react-router-dom';
@@ -174,6 +176,35 @@ const Layout = ({ children, user: propUser, onLogout }) => {
   }, []);
   const chatDragState = useRef({ startX: 0, startY: 0, x: 0, y: 0, dragging: false, moved: false });
   const [isChatDragging, setIsChatDragging] = useState(false);
+  const [chatMuted, setChatMuted] = useState(() => {
+    return localStorage.getItem('chatMuted') === 'true';
+  });
+
+  const { setActiveChat } = useChat();
+
+  useEffect(() => {
+    const handleNewMessage = (e) => {
+      if (chatMuted) return;
+      setChatOpen(true);
+      const chatId = e.detail?.chatId;
+      if (chatId) {
+        getChatById(chatId).then(res => {
+          if (res.success && res.data) setActiveChat(res.data);
+        });
+      }
+    };
+    window.addEventListener('chat-new-message', handleNewMessage);
+    return () => window.removeEventListener('chat-new-message', handleNewMessage);
+  }, [chatMuted, setActiveChat]);
+
+  const toggleMute = useCallback(() => {
+    setChatMuted(prev => {
+      const next = !prev;
+      localStorage.setItem('chatMuted', String(next));
+      return next;
+    });
+  }, []);
+
   const [panelWidth, setPanelWidth] = useState(() => {
     const saved = localStorage.getItem('chatPanelWidth');
     return saved ? Math.min(parseInt(saved, 10), window.innerWidth - 80) : 672;
@@ -322,10 +353,10 @@ const Layout = ({ children, user: propUser, onLogout }) => {
           <div
             ref={chatPanelRef}
             onPointerDown={onChatPanelPointerDown}
-            className="relative w-full md:h-full bg-white shadow-2xl overflow-hidden animate-slideUp md:animate-slideInLeft rounded-t-2xl md:rounded-none cursor-move touch-none select-none"
+            className="relative w-full md:h-full bg-white shadow-2xl overflow-hidden animate-slideUp md:animate-slideInLeft rounded-t-2xl md:rounded-none flex flex-col"
             dir="rtl"
             style={{
-              maxHeight: isMobile ? '85vh' : undefined,
+              height: isMobile ? '85vh' : undefined,
               maxWidth: isMobile ? undefined : panelWidth + 'px',
             }}
           >
@@ -337,15 +368,34 @@ const Layout = ({ children, user: propUser, onLogout }) => {
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-gray-300 group-hover:bg-[#182E4E] transition-colors"></div>
               </div>
             )}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10 cursor-move select-none" onPointerDown={onChatPanelPointerDown}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white cursor-move select-none flex-shrink-0" onPointerDown={onChatPanelPointerDown}>
               <h3 className="font-bold text-gray-800">المحادثات</h3>
-              <button onClick={() => setChatOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="إغلاق">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={toggleMute}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  title={chatMuted ? 'تفعيل الإشعارات المنبثقة' : 'كتم المحادثة المنبثقة'}
+                  aria-label={chatMuted ? 'تفعيل الإشعارات المنبثقة' : 'كتم المحادثة المنبثقة'}
+                >
+                  {chatMuted ? (
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                  )}
+                </button>
+                <button onClick={() => setChatOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="إغلاق">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div className="h-full" style={{ height: isMobile ? 'calc(85vh - 56px)' : undefined }}>
+            <div className="flex-1 min-h-0">
               <ChatWidget />
             </div>
           </div>

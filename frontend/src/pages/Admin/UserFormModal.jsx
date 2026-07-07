@@ -53,6 +53,13 @@ export default function UserFormModal({
             </div>
           )}
 
+          {formData.role !== 'manager' && (
+            <div className="mb-4">
+              <label className="label">المسمى الوظيفي</label>
+              <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} className="input min-h-[48px]" placeholder="أدخل المسمى الوظيفي" />
+            </div>
+          )}
+
           <div className="mb-4">
             <label className="label">القسم</label>
             <select name="department" value={formData.department} onChange={handleChange} className="input min-h-[48px]">

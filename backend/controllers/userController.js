@@ -145,7 +145,7 @@ const getUserById = async (req, res) => {
  */
 const createUser = async (req, res) => {
   try {
-    const { username, email, password, name, role, department, baseSalary, hoursShortfall } = req.body;
+    const { username, email, password, name, role, department, baseSalary, hoursShortfall, jobTitle } = req.body;
 
     // Validate required fields
     if (!username || !email || !password || !name) {
@@ -201,6 +201,7 @@ const createUser = async (req, res) => {
       name,
       role: role || UserRole.EMPLOYEE,
       department,
+      jobTitle: jobTitle || '',
       baseSalary: baseSalary || 0,
       isActive: true
     });
@@ -227,7 +228,7 @@ const createUser = async (req, res) => {
  */
 const updateUser = async (req, res) => {
   try {
-    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username } = req.body;
+    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username, jobTitle } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -235,6 +236,17 @@ const updateUser = async (req, res) => {
         success: false,
         message: 'المستخدم غير موجود'
       });
+    }
+
+    // Managers can only update users in their own department
+    const currentRole = req.user?.role?.toLowerCase() || '';
+    if (currentRole === 'manager') {
+      if (user.department !== req.user.department) {
+        return res.status(403).json({
+          success: false,
+          message: 'غير مصرح لك - يمكنك تعديل موظفي قسمك فقط'
+        });
+      }
     }
 
     const previousRole = user.role;
@@ -276,6 +288,7 @@ const updateUser = async (req, res) => {
     }
     if (phone) user.phone = phone;
     if (department !== undefined) user.department = department || null;
+    if (jobTitle !== undefined) user.jobTitle = jobTitle;
     if (baseSalary !== undefined) user.baseSalary = Number(baseSalary);
     if (housingAllowance !== undefined) user.housingAllowance = Number(housingAllowance);
     if (transportAllowance !== undefined) user.transportAllowance = Number(transportAllowance);

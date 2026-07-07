@@ -18,7 +18,8 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     department: '',
-    role: 'employee'
+    role: 'employee',
+    jobTitle: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -111,7 +112,8 @@ const Register = () => {
         password,
         confirmPassword: confirmPassword,
         department,
-        role
+        role,
+        jobTitle: formData.jobTitle
       });
 
       if (response?.success || response?.data?.success) {
@@ -124,7 +126,8 @@ const Register = () => {
           password: '',
           confirmPassword: '',
           department: '',
-          role: 'employee'
+          role: 'employee',
+          jobTitle: ''
         });
       } else {
         setError(response?.message || 'فشل التسجيل');
@@ -242,6 +245,20 @@ const Register = () => {
                 required
               />
             </div>
+
+            {formData.role !== 'manager' && (
+              <div className='mb-4'>
+                <label className='label'>المسمى الوظيفي</label>
+                <input
+                  type='text'
+                  name='jobTitle'
+                  value={formData.jobTitle}
+                  onChange={handleChange}
+                  className='input'
+                  placeholder='أدخل المسمى الوظيفي'
+                />
+              </div>
+            )}
 
             <div className='mb-4'>
               <label className='label'>القسم</label>

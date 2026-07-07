@@ -73,8 +73,8 @@ router.post('/', protect, managerOrAdmin, createUser);
 // PUT /api/users/change-password - Change password (authenticated user)
 router.put('/change-password', protect, changePassword);
 
-// PUT /api/users/:id - Update user (admin or HR)
-router.put('/:id', protect, adminOrHR, updateUser);
+// PUT /api/users/:id - Update user (admin, HR, or department manager)
+router.put('/:id', protect, managerOrAdmin, updateUser);
 
 // DELETE /api/users/:id - Delete user (admin or HR)
 router.delete('/:id', protect, adminOrHR, deleteUser);

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const chatSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['department', 'shared', 'task'],
+    enum: ['department', 'shared', 'task', 'private'],
     required: true
   },
   name: {
@@ -14,6 +14,10 @@ const chatSchema = new mongoose.Schema({
   departments: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department'
+  }],
+  participants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }],
   taskId: {
     type: mongoose.Schema.Types.ObjectId,

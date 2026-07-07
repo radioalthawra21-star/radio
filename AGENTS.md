@@ -118,3 +118,37 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## Chat System — New Features
+
+### Auto-popup on new message
+- When `chat:message` socket event fires, `ChatContext.jsx` dispatches `chat-new-message` custom DOM event
+- `Layout.jsx` listens for this event and calls `setChatOpen(true)` to auto-open the chat panel
+- Only triggers when the user is NOT currently sending the message (the event fires on incoming messages)
+
+### Mute/Silent toggle
+- A speaker/muted icon button in the chat panel header toggles auto-popup behavior
+- When muted (🔇 icon), incoming messages do NOT open the chat panel automatically
+- When unmuted (🔊 icon), incoming messages auto-open the panel
+- Preference is persisted in `localStorage` key `chatMuted` (default: unmuted)
+- Located in `Layout.jsx`: `chatMuted` state, `toggleMute()` callback, mute button with volume/muted SVG icons
+
+### Private 1-on-1 Chats
+- New chat type `private` in `Chat.js` model with `participants` (2 users) + `isPrivate: true`
+- `POST /api/chat/private` — creates private chat between two users (no duplicates allowed)
+- Only the two participants + `developer` role can access private chat messages
+- `canAccessPrivateChat(chat, user)` check in `chatController.js`
+- Frontend UI: "خاصة" tab in Create Chat modal with user search/select
+- `getChatById` populates `participants` for private chat display
+- Chat list shows other user's name + 👤 icon for private chats
+
+### Delete Chat Permissions
+- `canManageChat` allows: admin, developer, chat creator, chat admin member, manager, hr
+- Creator (`createdBy`) is now included — previously only admin/member-admin/manager/hr could delete
+- Route: `DELETE /api/chat/:id` (protected)
+
+### Developer Role
+- New role `developer` added to `UserRole` enum in `User.js`
+- Has full access: passes `adminOnly`, `adminOrHR`, `generalManagerOnly` middleware checks
+- Only role that can access private chats without being a participant
+- Set user's role to `developer` in MongoDB to grant this access

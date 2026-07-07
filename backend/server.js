@@ -182,7 +182,7 @@ const initializeData = async () => {
     const mustafaUser = await User.findOne({ username: 'mostafa' });
     if (mustafaUser) {
       mustafaUser.role = 'hr';
-      mustafaUser.department = 'ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط©';
+      mustafaUser.department = 'الموارد البشرية';
       mustafaUser.isActive = true;
       await mustafaUser.save();
       console.log('âœ… طھظ… ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© (mostafa)');

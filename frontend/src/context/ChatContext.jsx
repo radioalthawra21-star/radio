@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, useMemo, useCal
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../services/api';
 import { getStoredUser } from '../services/authService';
+import { getUnreadCount } from '../services/chatService';
 import { playMessageSound } from '../utils/audioUtils';
 
 const ChatContext = createContext(null);
@@ -15,15 +16,27 @@ export const ChatProvider = ({ children }) => {
   const [activeChat, setActiveChat] = useState(null);
   const [presenceMap, setPresenceMap] = useState({});
   const [typingUsers, setTypingUsers] = useState({});
+  const [unreadTotal, setUnreadTotal] = useState(0);
   const typingTimeouts = useRef({});
   const isMounted = useRef(true);
 
   const userRef = useRef(getStoredUser());
 
+  const fetchUnread = useCallback(async () => {
+    try {
+      const res = await getUnreadCount();
+      if (res.success) setUnreadTotal(res.data.total);
+    } catch (err) {
+      // silent
+    }
+  }, []);
+
   useEffect(() => {
     isMounted.current = true;
     const token = localStorage.getItem('token');
     if (!token || !userRef.current) return;
+
+    fetchUnread();
 
     const socketInstance = io(`${SOCKET_URL}/chat`, {
       auth: { token },
@@ -81,8 +94,16 @@ export const ChatProvider = ({ children }) => {
 
     socketInstance.on('notification', (notification) => {
       if (!isMounted.current) return;
+      fetchUnread();
       if (notification?.type === 'CHAT_MESSAGE' || notification?.type === 'CHAT_MENTION') {
         playMessageSound();
+      }
+    });
+
+    socketInstance.on('chat:message', (message) => {
+      if (isMounted.current) {
+        fetchUnread();
+        window.dispatchEvent(new CustomEvent('chat-new-message', { detail: { chatId: message?.chatId } }));
       }
     });
 
@@ -103,7 +124,7 @@ export const ChatProvider = ({ children }) => {
       }
       socketRef.current = null;
     };
-  }, []);
+  }, [fetchUnread]);
 
   const joinChat = useCallback((chatId) => {
     socketRef.current?.emit('chat:join', chatId);
@@ -141,8 +162,9 @@ export const ChatProvider = ({ children }) => {
     emitTyping,
     markAsRead,
     editMessage,
-    deleteMessage
-  }), [socket, connected, activeChat, presenceMap, typingUsers]);
+    deleteMessage,
+    unreadTotal
+  }), [socket, connected, activeChat, presenceMap, typingUsers, unreadTotal]);
 
   return (
     <ChatContext.Provider value={contextValue}>
@@ -158,7 +180,7 @@ export const useChat = () => {
       socket: null, connected: false, activeChat: null, setActiveChat: () => {},
       presenceMap: {}, typingUsers: {}, joinChat: () => {},
       sendMessage: () => {}, emitTyping: () => {}, markAsRead: () => {},
-      editMessage: () => {}, deleteMessage: () => {}
+      editMessage: () => {}, deleteMessage: () => {}, unreadTotal: 0
     };
   }
   return context;

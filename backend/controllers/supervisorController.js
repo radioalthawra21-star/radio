@@ -16,6 +16,25 @@ function getDayRange(date) {
   return { dayStart, dayEnd };
 }
 
+function normalizeAttendanceStatus(records) {
+  const WORK_START_MIN = 6 * 60; // 06:00 UTC = 09:00 Saudi
+  for (const rec of records) {
+    if (rec.checkIn && rec.checkIn.time) {
+      const d = new Date(rec.checkIn.time);
+      const checkInMin = d.getUTCHours() * 60 + d.getUTCMinutes();
+      const diffMin = checkInMin - WORK_START_MIN;
+      if (diffMin > 10) {
+        rec.status = 'late';
+        if (rec.checkIn) rec.checkIn.status = 'late';
+      } else {
+        rec.status = 'present';
+        if (rec.checkIn) rec.checkIn.status = 'on_time';
+      }
+    }
+  }
+  return records;
+}
+
 async function getSupervisorDashboard(req, res) {
   try {
     const { date, startDate, endDate, employeeId, action } = req.query;
@@ -58,7 +77,7 @@ async function getSupervisorDashboard(req, res) {
       data: {
         rawLogs: deviceLogs,
         manualOverrides: checkExacts,
-        finalAttendance,
+        finalAttendance: normalizeAttendanceStatus(finalAttendance),
         users,
         dateRange: { dayStart, dayEnd }
       }
@@ -152,7 +171,7 @@ async function getFinalAttendance(req, res) {
       .limit(parseInt(limit))
       .lean();
 
-    return res.json({ success: true, data: records, count: records.length });
+    return res.json({ success: true, data: normalizeAttendanceStatus(records), count: records.length });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -309,7 +328,7 @@ async function downloadAttendancePDF(req, res) {
       checkIn: r.checkIn?.time ? new Date(r.checkIn.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---',
       checkOut: r.checkOut?.time ? new Date(r.checkOut.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---',
       duration: r.duration ? `${r.duration.toFixed(1)} س` : '-',
-      status: r.status === 'present' ? 'حاضر' : r.status === 'absent' ? 'غائب' : r.status === 'late' ? 'متأخر' : r.status === 'half_day' ? 'نصف يوم' : r.status === 'on_leave' ? 'إجازة' : r.status === 'work_from_home' ? 'عمل عن بعد' : r.status || '-'
+      status: r.status === 'present' || r.status === 'half_day' ? 'حاضر' : r.status === 'absent' ? 'غائب' : r.status === 'late' ? 'متأخر' : r.status === 'on_leave' ? 'إجازة' : r.status === 'work_from_home' ? 'عمل عن بعد' : r.status || '-'
     }));
 
     const data = {
@@ -359,7 +378,7 @@ async function downloadAttendanceExcel(req, res) {
         .lean();
     }
 
-    const fmtStatus = s => s === 'present' ? 'حاضر' : s === 'absent' ? 'غائب' : s === 'late' ? 'متأخر' : s === 'half_day' ? 'نصف يوم' : s === 'on_leave' ? 'إجازة' : s === 'work_from_home' ? 'عمل عن بعد' : s || '-';
+    const fmtStatus = s => s === 'present' || s === 'half_day' ? 'حاضر' : s === 'absent' ? 'غائب' : s === 'late' ? 'متأخر' : s === 'on_leave' ? 'إجازة' : s === 'work_from_home' ? 'عمل عن بعد' : s || '-';
     const fmtDate = d => d ? new Date(d).toLocaleDateString('en-CA') : '-';
     const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
 
@@ -536,7 +555,7 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt, h
     recordMap.set(key, r);
   });
 
-  let presentCount = 0, absentCount = 0, lateCount = 0, holidayCount = 0, halfDayCount = 0, leaveCount = 0, wfhCount = 0;
+  let presentCount = 0, absentCount = 0, lateCount = 0, holidayCount = 0, leaveCount = 0, wfhCount = 0;
   let totalDuration = 0, totalOvertime = 0;
   let missingCheckInCount = 0, missingCheckOutCount = 0, missingBothCount = 0;
 
@@ -546,7 +565,7 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt, h
     if (status === 'present') presentCount++;
     else if (status === 'absent') absentCount++;
     else if (status === 'late') lateCount++;
-    else if (status === 'half_day') halfDayCount++;
+    // half_day is treated as present
     else if (status === 'on_leave') leaveCount++;
     else if (status === 'work_from_home') wfhCount++;
     totalDuration += r.duration || 0;
@@ -566,7 +585,7 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt, h
   totalDuration += holidayCount * 7;
 
   const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-  const statusLabels = { present: 'حاضر', absent: 'غائب', late: 'متأخر', half_day: 'نصف يوم', on_leave: 'إجازة', work_from_home: 'عمل عن بعد' };
+  const statusLabels = { present: 'حاضر', absent: 'غائب', late: 'متأخر', on_leave: 'إجازة', work_from_home: 'عمل عن بعد' };
   const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '---';
 
   const tableRows = [];
@@ -593,7 +612,7 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt, h
       } else {
         if (status === 'absent') { bg = 'FFEBEE'; statusColor = 'D32F2F'; }
         else if (status === 'late') { bg = 'FFF8E1'; statusColor = 'F57C00'; }
-        else if (status === 'half_day') { bg = 'E8F5E9'; }
+        else if (status === 'half_day') { bg = rowIdx % 2 === 0 ? 'F7FAFC' : 'FFFFFF'; }
         else if (isFriday) { bg = '5A5A5A'; textColor = 'FFFFFF'; }
         else { bg = rowIdx % 2 === 0 ? 'F7FAFC' : 'FFFFFF'; }
 
@@ -769,7 +788,7 @@ async function _createEmployeeActivitySheet(wb, user, records, startDt, endDt, h
     ['8B5CF6', C.dark, C.dark, 'E53E3E']
   );
   kpiRow(
-    [{label:'نقص خروج',value:missingCheckOutCount},{label:'بدون بصمة',value:missingBothCount},{label:'نصف يوم',value:halfDayCount},{label:'إجازة',value:leaveCount}],
+    [{label:'نقص خروج',value:missingCheckOutCount},{label:'بدون بصمة',value:missingBothCount},{label:'إجازة',value:leaveCount}],
     ['E53E3E', 'E53E3E', C.dark, C.dark]
   );
   kpiRow(
@@ -946,7 +965,7 @@ async function getEmployeeActivity(req, res) {
     return res.json({
       success: true,
       data: {
-        attendance: attendanceRecords,
+        attendance: normalizeAttendanceStatus(attendanceRecords),
         approvedLeaves,
         holidays
       }

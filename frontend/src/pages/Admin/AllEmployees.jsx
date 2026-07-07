@@ -45,7 +45,7 @@ const AllEmployees = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '', role: 'employee', department: '' });
+  const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '', role: 'employee', department: '', jobTitle: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [customDepartments, setCustomDepartments] = useState([]);
@@ -277,7 +277,7 @@ const AllEmployees = () => {
       if (response.success) {
         setSuccess(editingUser ? 'تم تحديث المستخدم بنجاح' : 'تم إنشاء المستخدم بنجاح');
         setShowModal(false); setEditingUser(null);
-        setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: '' });
+        setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: '', jobTitle: '' });
         fetchData();
         window.dispatchEvent(new Event('usersUpdated'));
       } else { setError(response.message); }
@@ -289,7 +289,7 @@ const AllEmployees = () => {
 
   const handleEdit = (user) => {
     setEditingUser(user);
-    setFormData({ name: user.name, username: user.username || '', email: user.email, password: '', role: user.role, department: user.department || '' });
+    setFormData({ name: user.name, username: user.username || '', email: user.email, password: '', role: user.role, department: user.department || '', jobTitle: user.jobTitle || '' });
     setShowModal(true);
   };
 
@@ -310,7 +310,7 @@ const AllEmployees = () => {
 
   const openCreateModal = () => {
     setEditingUser(null);
-    setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: isManager ? userDepartment : '' });
+    setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: isManager ? userDepartment : '', jobTitle: '' });
     setShowModal(true);
   };
 
@@ -633,7 +633,7 @@ const AllEmployees = () => {
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
-                  <th className="p-3">القسم</th><th className="p-3">المنصب</th><th className="p-3">إجراءات</th>
+                  <th className="p-3">القسم</th><th className="p-3">المسمى الوظيفي</th><th className="p-3">المنصب</th><th className="p-3">إجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -643,6 +643,7 @@ const AllEmployees = () => {
                     <td className="p-3 text-gray-600" data-label="اسم المستخدم">{user.username}</td>
                     <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{user.email}</td>
                     <td className="p-3" data-label="القسم">{allDepartments[user.department] || '-'}</td>
+                    <td className="p-3" data-label="المسمى الوظيفي">{user.jobTitle || '-'}</td>
                     <td className="p-3" data-label="المنصب">{roleNames[user.role] || user.role}</td>
                     <td className="p-3" data-label="إجراءات"><button onClick={() => handleActivate(user._id)} className="btn btn-primary text-sm w-full md:w-auto text-center">✅ تفعيل</button></td>
                   </tr>
@@ -703,7 +704,7 @@ const AllEmployees = () => {
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
-                  <th className="p-3">القسم</th><th className="p-3">نقاط الأداء</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th>
+                  <th className="p-3">القسم</th><th className="p-3">المسمى الوظيفي</th><th className="p-3">نقاط الأداء</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -713,6 +714,7 @@ const AllEmployees = () => {
                     <td className="p-3 text-gray-600" data-label="اسم المستخدم">{emp.username}</td>
                     <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{emp.email}</td>
                     <td className="p-3" data-label="القسم">{getDepartmentName(emp.department)}</td>
+                    <td className="p-3" data-label="المسمى الوظيفي">{emp.jobTitle || '-'}</td>
                     <td className="p-3" data-label="نقاط الأداء"><span className={`badge ${emp.performanceScore >= 70 ? 'bg-secondary text-white' : emp.performanceScore >= 40 ? 'bg-primary text-white' : 'bg-dark text-white'}`}>{emp.performanceScore || 0}</span></td>
                     <td className="p-3" data-label="الحالة"><span className={`badge ${emp.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>{emp.isActive ? 'نشط' : 'غير نشط'}</span></td>
                     <td className="p-3" data-label="إجراءات">

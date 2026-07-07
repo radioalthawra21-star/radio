@@ -5,7 +5,7 @@ import { getMonthlyTimesheet, updateAttendanceRecord } from '../../services/atte
 import { getAllUsers } from '../../services/userService';
 
 const LEAVE_TYPE_LABELS = {
-  annual: 'سنوية', sick: 'مرضية', exceptional: 'استثنائية',
+  annual: 'إدارية', sick: 'مرضية', exceptional: 'استثنائية',
   death: 'وفاة', unpaid: 'بدون راتب', maternity: 'وضع',
   compensatory: 'تعويضية', hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
   attendance_correction: 'تصحيح بصمة',
@@ -16,7 +16,6 @@ const STATUS_MAP = {
   present: { label: 'حاضر', color: 'text-green-700', bg: 'bg-green-50', dot: 'bg-green-500' },
   late: { label: 'متأخر', color: 'text-yellow-700', bg: 'bg-yellow-50', dot: 'bg-yellow-500' },
   absent: { label: 'غائب', color: 'text-red-700', bg: 'bg-red-50', dot: 'bg-red-500' },
-  half_day: { label: 'نصف يوم', color: 'text-orange-700', bg: 'bg-orange-50', dot: 'bg-orange-500' },
   on_leave: { label: 'في إجازة', color: 'text-orange-700', bg: 'bg-orange-50', dot: 'bg-orange-500' },
   work_from_home: { label: 'عمل عن بعد', color: 'text-purple-700', bg: 'bg-purple-50', dot: 'bg-purple-500' },
   holiday: { label: 'عطلة', color: 'text-white', bg: 'bg-red-600', dot: 'bg-white' },

@@ -12,7 +12,7 @@ import 'jspdf-autotable';
 import { ARABIC_FONT } from '../../utils/pdfFonts';
 
 const leaveTypes = [
-  { value: 'annual', label: 'إجازة سنوية' },
+  { value: 'annual', label: 'إجازة إدارية' },
   { value: 'sick', label: 'إجازة مرضية' },
   { value: 'exceptional', label: 'إجازة استثنائية' },
   { value: 'death', label: 'إجازة وفاة' },
@@ -26,7 +26,7 @@ const leaveTypes = [
 ];
 
 const LEAVE_TYPE_LABELS = {
-  annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
+  annual: 'إجازة إدارية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
   death: 'إجازة وفاة', hourly: 'إجازة ساعية',
   maternity: 'إجازة وضع', unpaid: 'إجازة بدون راتب',
   compensatory: 'إجازة تعويضية', mission: 'مأمورية', overtime: 'أجر إضافي',

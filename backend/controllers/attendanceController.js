@@ -846,7 +846,7 @@ const getWeeklyHours = async (req, res) => {
     const records = await Attendance.find({
       employee: employeeId,
       date: { $gte: sunday, $lte: saturday },
-      status: { $in: ['present', 'late', 'half_day', 'work_from_home'] },
+      status: { $in: ['present', 'late', 'work_from_home'] },
     });
 
     const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
@@ -1033,7 +1033,7 @@ const getMonthlyTimesheet = async (req, res) => {
           const checkInMin = checkInDate.getUTCHours() * 60 + checkInDate.getUTCMinutes();
           const workStartMin = 6 * 60; // 06:00 UTC = 09:00 Saudi
           const diffMin = checkInMin - workStartMin;
-          if (diffMin > 0) {
+          if (diffMin > 10) {
             entry.lateHours = Math.round(diffMin / 60 * 100) / 100;
             entry.isLate = true;
             if (entry.attendanceStatus !== 'holiday' && entry.attendanceStatus !== 'on_leave') {
@@ -1073,7 +1073,7 @@ const getMonthlyTimesheet = async (req, res) => {
     const earlyDepartureMinutesSum = earlyDepartureDays.reduce((sum, d) => sum + (d.earlyDepartureMinutes || 0), 0);
     const overtimeDays = daily.filter(d => d.overtimeMinutes > 0);
     const overtimeMinutesSum = overtimeDays.reduce((sum, d) => sum + (d.overtimeMinutes || 0), 0);
-    const halfDays = daily.filter(d => d.attendanceStatus === 'half_day');
+    const halfDays = [];
     const absentDays = daily.filter(d => d.attendanceStatus === 'absent');
     const onLeaveDays = daily.filter(d => d.attendanceStatus === 'on_leave');
     const holidayDays = daily.filter(d => d.attendanceStatus === 'holiday');

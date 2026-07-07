@@ -62,7 +62,7 @@ settingsSchema.statics.initializeDefaults = async function() {
     { key: 'tasksWeight', value: 0.3, description: 'وزن المهام المكتملة' },
     { key: 'requiredHoursPerWeek', value: 40, description: 'الساعات المطلوبة أسبوعياً' },
     { key: 'minimumTasksForRanking', value: 5, description: 'الحد الأدنى من المهام للترتيب' },
-    { key: 'leaveAnnualDays', value: 30, description: 'عدد أيام الإجازة السنوية' },
+    { key: 'leaveAnnualDays', value: 30, description: 'عدد أيام الإجازة الإدارية' },
     { key: 'leaveMaternityDays', value: 90, description: 'عدد أيام إجازة الوضع' },
     { key: 'leaveDeathDays', value: 7, description: 'عدد أيام إجازة الوفاة' },
     { key: 'leaveDeathFirstDegreeDays', value: 3, description: 'أيام الوفاة - الدرجة الأولى' },

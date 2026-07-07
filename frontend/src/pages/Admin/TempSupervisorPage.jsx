@@ -95,19 +95,19 @@ function fmtMin(min) {
 }
 
 function StatusBadge({ status }) {
+  const normalized = status === 'half_day' ? 'present' : status;
   const map = {
     present: 'bg-green-900/40 text-green-400',
     absent: 'bg-red-900/40 text-red-400',
     late: 'bg-yellow-900/40 text-yellow-400',
-    half_day: 'bg-blue-900/40 text-blue-400',
     on_leave: 'bg-purple-900/40 text-purple-400',
     work_from_home: 'bg-teal-900/40 text-teal-400'
   };
   const labels = {
     present: '✅ حاضر', absent: '❌ غائب', late: '⚠️ متأخر',
-    half_day: '🌗 نصف يوم', on_leave: '🏖 إجازة', work_from_home: '🏠 عمل عن بعد'
+    on_leave: '🏖 إجازة', work_from_home: '🏠 عمل عن بعد'
   };
-  return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${map[status] || 'bg-gray-700 text-gray-300'}`}>{labels[status] || status}</span>;
+  return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${map[normalized] || 'bg-gray-700 text-gray-300'}`}>{labels[normalized] || normalized}</span>;
 }
 
 function ActionBadge({ action }) {
@@ -983,7 +983,6 @@ export default function TempSupervisorPage() {
                 <option value="present">حاضر</option>
                 <option value="absent">غائب</option>
                 <option value="late">متأخر</option>
-                <option value="half_day">نصف يوم</option>
                 <option value="on_leave">في إجازة</option>
                 <option value="work_from_home">عمل عن بعد</option>
               </FilterSelect>
@@ -1239,8 +1238,7 @@ export default function TempSupervisorPage() {
             <Table title={`📊 تقرير نشاط الموظف`} count={filteredData.length} legend={[
               { color: 'bg-green-500', label: 'حاضر' },
               { color: 'bg-red-500', label: 'غائب' },
-              { color: 'bg-yellow-500', label: 'متأخر' },
-              { color: 'bg-blue-500', label: 'نصف يوم' }
+              { color: 'bg-yellow-500', label: 'متأخر' }
             ]}>
               {activityLoading ? <Loading /> : !filteredData.length
                 ? <EmptyState icon="📊" text="اختر موظفاً واضغط بحث لعرض نشاطه" />
@@ -1266,7 +1264,7 @@ export default function TempSupervisorPage() {
                     const compensated = r._compensatedByLeave;
                     const holiday = r._isHoliday;
                     const leaveTypeLabel = compensated?.type ? {
-                      annual: 'سنوية', sick: 'مرضية',
+                      annual: 'إدارية', sick: 'مرضية',
                       exceptional: 'استثنائية', death: 'وفاة', unpaid: 'بدون راتب',
                       maternity: 'وضع', compensatory: 'تعويضية',
                       hourly: 'ساعية', mission: 'مأمورية', overtime: 'أجر إضافي',
@@ -1298,7 +1296,6 @@ export default function TempSupervisorPage() {
                       else if (notes) rowBg = 'bg-orange-900/10';
                       else if (r.status === 'absent' || r.status === 'late') rowBg = 'bg-red-900/10';
                       else if (r.status === 'present') rowBg = 'bg-green-900/10';
-                      else if (r.status === 'half_day') rowBg = 'bg-yellow-900/10';
                     }
                     const isFri = isFriday(r.date) && !r._isWeeklyHoliday;
                     const rawLate = hasCheckIn ? calcMinutesDiff(r.checkIn.time, 9, 0) : null;

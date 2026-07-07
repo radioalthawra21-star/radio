@@ -43,6 +43,13 @@ const dailyReportSchema = new mongoose.Schema({
 
   suggestions: {
     performanceVision: { type: String, default: '' }
+  },
+
+  bestWork: {
+    items: [{
+      title: { type: String, default: '' },
+      publishLink: { type: String, default: '' }
+    }]
   }
 }, { timestamps: true });
 

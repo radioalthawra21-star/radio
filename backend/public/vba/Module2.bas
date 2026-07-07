@@ -358,7 +358,7 @@ Private Sub InitSearchSheet(ByVal ws As Worksheet)
     With ws.Range("C" & ROW_STATUS_INPUT).Validation
         .Delete
         .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, _
-             Formula1:="الكل,حاضر,غائب,متأخر,نصف يوم,إجازة,عمل عن بعد"
+             Formula1:="الكل,حاضر,غائب,متأخر,إجازة,عمل عن بعد"
         .InCellDropdown = True
     End With
     

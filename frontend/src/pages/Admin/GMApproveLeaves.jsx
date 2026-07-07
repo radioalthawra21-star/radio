@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getPendingLeaveRequests, updateLeaveStatus } from '../../services/leaveService';
 
 const LEAVE_TYPE_LABELS = {
-  annual: 'إجازة سنوية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
+  annual: 'إجازة إدارية', sick: 'إجازة مرضية', exceptional: 'إجازة استثنائية',
   death: 'إجازة وفاة', hourly: 'إجازة ساعية',
   maternity: 'إجازة وضع', unpaid: 'إجازة بدون راتب',
   compensatory: 'إجازة تعويضية', fingerprint_forgotten: 'نسيان بصمة',

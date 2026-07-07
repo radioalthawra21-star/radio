@@ -32,7 +32,7 @@ const departmentNames = {
  */
 const register = async (req, res) => {
   try {
-    const { username, email, password, confirmPassword, name, department, role } = req.body;
+    const { username, email, password, confirmPassword, name, department, role, jobTitle } = req.body;
 
     // Validate required fields
     if (!username || !email || !password || !confirmPassword || !name || !department) {
@@ -92,7 +92,8 @@ const register = async (req, res) => {
       password,
       name,
       department,
-      role: role || UserRole.EMPLOYEE
+      role: role || UserRole.EMPLOYEE,
+      jobTitle: jobTitle || ''
     });
 
     // Notify admin about new user registration

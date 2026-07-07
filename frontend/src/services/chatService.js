@@ -50,6 +50,10 @@ export const createSharedChat = async (data) => {
   return handleApiCall(() => api.post('/chat/shared', safeData));
 };
 
+export const createPrivateChat = async (userId) => {
+  return handleApiCall(() => api.post('/chat/private', { userId }));
+};
+
 export const uploadAttachment = async (file) => {
   const formData = new FormData();
   formData.append('file', file);

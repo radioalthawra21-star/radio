@@ -39,14 +39,13 @@ async function findUserByZkId(zkUserId) {
 }
 
 function determineCheckInStatus(timestamp) {
-  const checkInTime = new Date(timestamp);
-  const workStart = new Date(checkInTime);
-  workStart.setHours(9, 0, 0, 0);
-
-  if (checkInTime <= workStart) {
+  const d = new Date(timestamp);
+  const checkInMin = d.getUTCHours() * 60 + d.getUTCMinutes();
+  const WORK_START_MIN = 6 * 60; // 06:00 UTC = 09:00 Saudi
+  const diffMinutes = checkInMin - WORK_START_MIN;
+  if (diffMinutes <= 10) {
     return CheckInStatus.ON_TIME;
   }
-  const diffMinutes = (checkInTime - workStart) / (1000 * 60);
   if (diffMinutes > 120) {
     return CheckInStatus.VERY_LATE;
   }
@@ -159,9 +158,7 @@ async function receiveAttendance(req, res) {
 
       const checkInStatus = determineCheckInStatus(checkInTime);
       const hasCheckOut = checkOutTime !== null;
-      const attendanceStatus = hasCheckOut
-        ? (checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT)
-        : AttendanceStatus.HALF_DAY;
+      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
 
       if (existing) {
         const currentCheckIn = existing.checkIn && existing.checkIn.time ? new Date(existing.checkIn.time).getTime() : null;
@@ -398,9 +395,7 @@ async function syncDeviceAttendance(req, res) {
 
       const checkInStatus = determineCheckInStatus(checkInTime);
       const hasCheckOut = checkOutTime !== null;
-      const attendanceStatus = hasCheckOut
-        ? (checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT)
-        : AttendanceStatus.HALF_DAY;
+      const attendanceStatus = checkInStatus !== CheckInStatus.ON_TIME ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
 
       const deviceName = `ZKTeco_${process.env.ZK_IP || '192.168.15.50'}`;
 

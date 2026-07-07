@@ -255,7 +255,6 @@ Private Sub DisplayResults(ByVal records As Object, ByVal empName As String)
             Case "present": ws.Cells(rowNum, 9).Value = "حاضر"
             Case "absent":  ws.Cells(rowNum, 9).Value = "غائب"
             Case "late":    ws.Cells(rowNum, 9).Value = "متأخر"
-            Case "half_day": ws.Cells(rowNum, 9).Value = "نصف يوم"
             Case "on_leave": ws.Cells(rowNum, 9).Value = "إجازة"
             Case "work_from_home": ws.Cells(rowNum, 9).Value = "عمل عن بعد"
             Case Else:      ws.Cells(rowNum, 9).Value = status

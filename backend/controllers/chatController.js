@@ -72,6 +72,7 @@ const getMyChats = async (req, res) => {
 
     const chats = await Chat.find({ _id: { $in: chatIds }, isActive: true })
       .populate('departments', 'name color')
+      .populate('participants', 'name email profileImage role department')
       .populate('lastMessage.sender', 'name')
       .populate('taskId', 'title status')
       .sort({ 'lastMessage.createdAt': -1, createdAt: -1 })
@@ -93,6 +94,7 @@ const getChatById = async (req, res) => {
   try {
     const chat = await Chat.findById(req.params.id)
       .populate('departments', 'name color')
+      .populate('participants', 'name email profileImage role department')
       .populate('taskId', 'title status description')
       .populate('createdBy', 'name')
       .lean();
@@ -101,8 +103,7 @@ const getChatById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'المحادثة غير موجودة' });
     }
 
-    const isMember = await ChatMember.findOne({ chat: chat._id, user: req.user._id });
-    if (!isMember && req.user.role !== 'admin' && req.user.role !== 'hr') {
+    if (!canAccessPrivateChat(chat, req.user)) {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذه المحادثة' });
     }
 
@@ -142,9 +143,10 @@ const getChatMessages = async (req, res) => {
     const { id } = req.params;
     const { limit = 50, before } = req.query;
 
-    const isMember = await ChatMember.findOne({ chat: id, user: req.user._id });
-    if (!isMember && req.user.role !== 'admin' && req.user.role !== 'hr') {
-      return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول' });
+    const chat = await Chat.findById(id).select('type participants').lean();
+    if (!chat) return res.status(404).json({ success: false, message: 'المحادثة غير موجودة' });
+    if (!canAccessPrivateChat(chat, req.user)) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذه المحادثة' });
     }
 
     const result = await ChatMessage.getMessages(id, {
@@ -174,8 +176,8 @@ const createSharedChat = async (req, res) => {
   try {
     const { name, departmentIds } = req.body;
 
-    if (!departmentIds || departmentIds.length < 2) {
-      return res.status(400).json({ success: false, message: 'يجب اختيار قسمين على الأقل' });
+    if (!departmentIds || departmentIds.length < 1) {
+      return res.status(400).json({ success: false, message: 'يجب اختيار قسم واحد على الأقل' });
     }
 
     const chat = await Chat.create({
@@ -212,6 +214,54 @@ const createSharedChat = async (req, res) => {
   } catch (error) {
     console.error('Error creating shared chat:', error);
     res.status(500).json({ success: false, message: 'خطأ في إنشاء المحادثة المشتركة' });
+  }
+};
+
+const createPrivateChat = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'يجب تحديد المستخدم الآخر' });
+    }
+
+    const otherUser = await User.findById(userId);
+    if (!otherUser) {
+      return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
+    }
+
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'لا يمكن إنشاء محادثة خاصة مع نفسك' });
+    }
+
+    const existing = await Chat.findOne({
+      type: 'private',
+      participants: { $all: [req.user._id, userId], $size: 2 },
+      isActive: true
+    });
+    if (existing) {
+      return res.json({ success: true, data: { chat: existing } });
+    }
+
+    const chat = await Chat.create({
+      type: 'private',
+      name: null,
+      participants: [req.user._id, userId],
+      createdBy: req.user._id
+    });
+
+    await Promise.all([
+      ChatMember.addMember(chat._id, req.user._id, 'admin'),
+      ChatMember.addMember(chat._id, userId, 'member')
+    ]);
+
+    const populated = await Chat.findById(chat._id)
+      .populate('participants', 'name email profileImage role department')
+      .lean();
+
+    res.status(201).json({ success: true, data: { chat: populated } });
+  } catch (error) {
+    console.error('Error creating private chat:', error);
+    res.status(500).json({ success: false, message: 'خطأ في إنشاء المحادثة الخاصة' });
   }
 };
 
@@ -415,8 +465,17 @@ const toggleMute = async (req, res) => {
   }
 };
 
+const canAccessPrivateChat = (chat, user) => {
+  if (user.role === 'developer') return true;
+  if (chat.type !== 'private') return true;
+  const pids = (chat.participants || []).map(p => p.toString ? p.toString() : p);
+  return pids.includes(user._id.toString());
+};
+
 const canManageChat = async (chatId, user) => {
-  if (user.role === 'admin') return true;
+  if (user.role === 'admin' || user.role === 'developer') return true;
+  const chat = await Chat.findById(chatId).select('createdBy').lean();
+  if (chat && chat.createdBy.toString() === user._id.toString()) return true;
   const member = await ChatMember.findOne({ chat: chatId, user: user._id });
   if (!member) return false;
   if (member.role === 'admin') return true;
@@ -499,6 +558,7 @@ module.exports = {
   getChatMessages,
   getUnreadCount,
   createSharedChat,
+  createPrivateChat,
   addMember,
   removeMember,
   archiveChat,

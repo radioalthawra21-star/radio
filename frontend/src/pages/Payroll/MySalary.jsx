@@ -206,7 +206,7 @@ const MySalary = () => {
                 <div className="bg-blue-50 p-4 rounded-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <FaUmbrellaBeach className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm text-gray-600">إجازة سنوية</span>
+                    <span className="text-sm text-gray-600">إجازة إدارية</span>
                   </div>
                   <p className="text-lg font-bold text-gray-900">{payslip.leaveBalances?.remainingBalance ?? '--'}</p>
                   <p className="text-xs text-gray-500">يوم متبقي</p>

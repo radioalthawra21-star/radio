@@ -26,6 +26,8 @@ import DepartmentReports from '../pages/Manager/DepartmentReports';
 import RecruitmentPerformanceManagement from '../pages/RecruitmentPerformanceManagement';
 import EmployeeProfilePage from '../pages/Admin/EmployeeProfilePage';
 import TempSupervisorPage from '../pages/Admin/TempSupervisorPage';
+import DailyReportsDashboard from '../pages/Admin/DailyReportsDashboard';
+import DailyReportDetail from '../pages/Admin/DailyReportDetail';
 
 export const adminRoutes = (
   <>
@@ -54,6 +56,8 @@ export const adminRoutes = (
     <Route path="/admin/employee-profile/:id" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><EmployeeProfilePage /></ProtectedRoute>} />
     <Route path="/admin/holidays" element={<HrDeptRoute><HolidayManagement /></HrDeptRoute>} />
     <Route path="/admin/supervisor" element={<HrDeptRoute><TempSupervisorPage /></HrDeptRoute>} />
+    <Route path="/admin/daily-reports" element={<ProtectedRoute allowedRoles={['admin', 'developer', 'hr']}><DailyReportsDashboard /></ProtectedRoute>} />
+    <Route path="/admin/daily-report/:id" element={<ProtectedRoute allowedRoles={['admin', 'developer', 'hr']}><DailyReportDetail /></ProtectedRoute>} />
 
   </>
 );

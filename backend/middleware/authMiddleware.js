@@ -72,17 +72,19 @@ const protect = async (req, res, next) => {
   }
 };
 
+const isDev = (role) => role === 'developer';
+
 /**
- * Middleware to check if user is admin
+ * Middleware to check if user is admin (General Manager) only
  */
 const adminOnly = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'admin' || role === 'hr') {
+  if (role === 'admin' || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
     });
   }
 };
@@ -92,12 +94,12 @@ const adminOnly = (req, res, next) => {
  */
 const managerOrAdmin = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'manager' || role === 'hr' || role === 'admin') {
+  if (role === 'manager' || role === 'hr' || role === 'admin' || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
     });
   }
 };
@@ -112,7 +114,7 @@ const employeeOnly = (req, res, next) => {
   } else {
     return res.status(403).json({
       success: false,
-      message: 'ظ‡ط°ظ‡ ط§ظ„طµظپط­ط© ظ„ظ„ظ…ظˆط¸ظپظٹظ† ظپظ‚ط·'
+      message: 'هذه الصفحة للموظفين فقط'
     });
   }
 };
@@ -131,12 +133,12 @@ const generateToken = (userId) => {
  */
 const adminOrHR = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'admin' || role === 'hr') {
+  if (role === 'admin' || role === 'hr' || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
     });
   }
 };
@@ -147,13 +149,13 @@ const adminOrHR = (req, res, next) => {
 const adminOrHRorHrEmployee = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
   const dept = (req.user?.department || '').toString().toLowerCase().trim();
-  const isHrDept = dept === 'hr' || dept === 'ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط©' || dept.includes('ظ…ظˆط§ط±ط¯ ط¨ط´ط±ظٹط©');
+  const isHrDept = dept === 'hr' || dept === 'الموارد البشرية' || dept.includes('موارد بشرية');
   if (role === 'admin' || role === 'hr' || (role === 'employee' && isHrDept)) {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ ظ„ظ‡ط°ظ‡ ط§ظ„طµظپط­ط©'
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
     });
   }
 };
@@ -163,12 +165,12 @@ const adminOrHRorHrEmployee = (req, res, next) => {
  */
 const generalManagerOnly = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'admin') {
+  if (role === 'admin' || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
       success: false,
-      message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ط¨ط§ظ„ظˆطµظˆظ„ - ظ‡ط°ظ‡ ط§ظ„طµظپط­ط© ظ„ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… ظپظ‚ط·'
+      message: 'غير مصرح لك بالوصول - هذه الصفحة للمدير العام فقط'
     });
   }
 };

@@ -81,7 +81,7 @@ async function seed() {
       employee: emp1._id, type: 'annual',
       startDate: new Date(thisYear, thisMonth, 10),
       endDate: new Date(thisYear, thisMonth, 12),
-      days: 3, reason: 'إجازة سنوية', status: 'approved',
+      days: 3, reason: 'إجازة إدارية', status: 'approved',
       approvedBy: manager._id, approvedAt: new Date(),
       department: 'الموارد البشرية',
     },
