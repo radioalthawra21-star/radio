@@ -15,6 +15,7 @@ dotenv.config();
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const connectDB = require('./config/db');
+const mongoose = require('mongoose');
 const { User } = require('./models/User');
 const { Settings } = require('./models/Settings');
 const { Prompt } = require('./models/Prompt');
@@ -59,8 +60,8 @@ const setupChatSocket = require('./services/chatSocket');
 const app = express();
 const server = http.createServer(app);
 
-// === ط¥ط¹ط¯ط§ط¯ط§طھ CORS ظ„ظ„ط³ط­ط§ط¨ط© ===
-// âœ… Fixed: CORS configuration for Netlify domain and localhost development
+// === إعدادات CORS للاتصال ===
+// Fixed: CORS configuration for Netlify domain and localhost development
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
@@ -117,7 +118,10 @@ io.use((socket, next) => {
     if (!secret && process.env.NODE_ENV === 'production') {
       return next(new Error('JWT_SECRET not configured'));
     }
-    const decoded = jwt.verify(token, secret || 'dev-secret-key-2024');
+    if (!secret) {
+      return next(new Error('JWT_SECRET not configured'));
+    }
+    const decoded = jwt.verify(token, secret);
     socket.userId = decoded.id;
     next();
   } catch (err) {
@@ -166,28 +170,33 @@ const initializeData = async () => {
     // Create admin account if not exists
     let adminUser = await User.findOne({ role: 'admin' });
     if (!adminUser) {
-      adminUser = await User.create({
-        username: 'admin',
-        email: 'admin@radio.com',
-        password: process.env.ADMIN_PASSWORD || 'admin123',
-        name: 'ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…',
-        role: 'admin',
-        department: null,
-        isActive: true
-      });
-      console.log('âœ… طھظ… ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨ ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… (admin)');
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      if (!adminPassword || adminPassword === 'CHANGE_ME_STRONG_PASSWORD_HERE') {
+        console.error('❌ ADMIN_PASSWORD env var is required for initial admin creation. Skipping.');
+      } else {
+        adminUser = await User.create({
+          username: 'admin',
+          email: 'admin@radio.com',
+          password: adminPassword,
+          name: 'المدير العام',
+          role: 'admin',
+          department: null,
+          isActive: true
+        });
+        console.log('✅ تم إنشاء حساب المدير العام (admin)');
+      }
     }
-    console.log('âœ… ط­ط³ط§ط¨ ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ… ظ…ظˆط¬ظˆط¯');
-    // ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© ظƒط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…
+    console.log('✅ حساب المدير العام موجود');
+    // منح مصفف الخشن صلاحيات كمالة المدير العام
     const mustafaUser = await User.findOne({ username: 'mostafa' });
     if (mustafaUser) {
       mustafaUser.role = 'hr';
       mustafaUser.department = 'الموارد البشرية';
       mustafaUser.isActive = true;
       await mustafaUser.save();
-      console.log('âœ… طھظ… ظ…ظ†ط­ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† طµظ„ط§ط­ظٹط§طھ ظƒط§ظ…ظ„ط© (mostafa)');
+      console.log('✅ تم منح مصفف الخشن صلاحيات كمالة (mostafa)');
     } else {
-      console.log('âڑ ï¸ڈ ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط­ط³ط§ط¨ ظ…طµط·ظپظ‰ ط§ظ„ط®ط´ظ† (mostafa)');
+      console.log('⚠️ لم يتم العثور على حساب مصفف الخشن (mostafa)');
     }
 
     // Initialize default settings
@@ -199,7 +208,7 @@ const initializeData = async () => {
     // Seed default editorial prompts
     await Prompt.seedDefaults();
   } catch (error) {
-    console.error('ط®ط·ط£ ظپظٹ طھظ‡ظٹط¦ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ:', error.message);
+    console.error('خطأ في تهيئة البيانات:', error.message);
   }
 };
 
@@ -243,13 +252,14 @@ app.use('/supervisor', express.static(path.join(__dirname, 'public')));
 // Serve built frontend
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
-// Health check endpoint (ظ…ظ‡ظ… ظ„ظ€ Render)
+// Health check endpoint (مهم لـ Render)
 app.get('/api/health', (req, res) => {
   const mongoose = require('mongoose');
+  const isConnected = mongoose.connection?.readyState === 1;
   const dbName = mongoose.connection?.db?.databaseName || 'not connected';
   res.json({ 
-    status: 'success', 
-    message: 'ط§ظ„ط®ط§ط¯ظ… ظٹط¹ظ…ظ„ ط¨ط´ظƒظ„ طµط­ظٹط­',
+    status: isConnected ? 'success' : 'error', 
+    message: isConnected ? 'الخادم يعمل بشكل صحيح' : 'غير متصل بقاعدة البيانات',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     database: dbName
@@ -264,7 +274,7 @@ app.get('/api/docs', (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'ًںڑ€ Employee Task Management API is running',
+    message: '🏠 Employee Task Management API is running',
     version: '1.0.0',
     docs: '/api/health',
     swagger: '/api/docs'
@@ -273,16 +283,16 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…:', err.message || err);
+  console.error('خطأ في الخادم:', err.message || err);
   console.error(err);
   res.status(500).json({
     success: false,
-    message: 'ط­ط¯ط« ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…',
+    message: 'حدث خطأ في الخادم',
     error: err.message || 'Unknown error'
   });
 });
 
-// SPA fallback â€” serve index.html for non-API routes
+// SPA fallback — serve index.html for non-API routes
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) return next();
   res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
@@ -292,35 +302,35 @@ app.use((req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'ط§ظ„ظ…ط³ط§ط± ط؛ظٹط± ظ…ظˆط¬ظˆط¯'
+    message: 'المسار غير موجود'
   });
 });
 
-// === ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھط´ط؛ظٹظ„ ظ„ظ„ط³ط­ط§ط¨ط© ===
+// === إعدادات التشغيل للاتصال ===
 const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0'; // ظ…ظ‡ظ… ظ„ظٹط¹ظ…ظ„ ط¹ظ„ظ‰ Render
+const HOST = '0.0.0.0'; // مهم ليعمل على Render
 
-// ط¯ط§ظ„ط© ط¨ط¯ط، ط§ظ„طھط´ط؛ظٹظ„
+// دالة بدء التشغيل
 const startServer = () => {
   server.listen(PORT, HOST, () => {
-    console.log(`âœ… ط§ظ„ط®ط§ط¯ظ… ظٹط¹ظ…ظ„ ط¹ظ„ظ‰ ${HOST}:${PORT}`);
-    console.log(`ًںŒگ Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`✅ الخادم يعمل على ${HOST}:${PORT}`);
+    console.log(`📌 Environment: ${process.env.NODE_ENV || 'development'}`);
     initializeData();
   });
 };
 
-// ط§ظ„طھط¹ط§ظ…ظ„ ظ…ط¹ ط¥ط´ط§ط±ط§طھ ط§ظ„ط¥ط؛ظ„ط§ظ‚ ط§ظ„ط¢ظ…ظ†
+// التوافق مع إشارات الإغلاق الآمن
 const gracefulShutdown = (signal) => {
-  console.log(`ًں”„ ${signal} received, shutting down gracefully`);
+  console.log(`⚠️ ${signal} received, shutting down gracefully`);
   server.close(() => {
-    console.log('âœ… HTTP server closed');
+    console.log('✅ HTTP server closed');
     mongoose.connection.close(false).then(() => {
-      console.log('âœ… MongoDB connection closed');
+      console.log('✅ MongoDB connection closed');
       process.exit(0);
     });
   });
   setTimeout(() => {
-    console.error('â‌Œ Forced shutdown after timeout');
+    console.error('❌ Forced shutdown after timeout');
     process.exit(1);
   }, 10000);
 };
@@ -328,8 +338,8 @@ const gracefulShutdown = (signal) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-// ط¨ط¯ط، ط§ظ„ط³ظٹط±ظپط± (ط¨ط¹ط¯ ط§ظ„طھط£ظƒط¯ ظ…ظ† ط§طھطµط§ظ„ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ)
-dbReady.then(() => startServer()).catch(err => { console.error('â‌Œ ظپط´ظ„ ط¨ط¯ط، ط§ظ„ط®ط§ط¯ظ…:', err.message); process.exit(1); });
+// بدء السيرفر (بعد التأكد من اتصال قاعدة البيانات)
+dbReady.then(() => startServer()).catch(err => { console.error('❌ فشل بدء الخادم:', err.message); process.exit(1); });
 
-// طھطµط¯ظٹط± ط§ظ„طھط·ط¨ظٹظ‚ ظ„ظ„ط§ط³طھط®ط¯ط§ظ… ظپظٹ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ ط£ظˆ ط§ظ„ظ€ serverless
+// تصدير التطبيق للاستخدام في الاتصالات أو الـ serverless
 module.exports = app;

@@ -91,15 +91,17 @@ settingsSchema.statics.initializeDefaults = async function() {
   console.log('✅ تم تهيئة الإعدادات الافتراضية');
 };
 
-// Static method to get all evaluation weights
+// Static method to get all evaluation weights (single query instead of N+1)
 settingsSchema.statics.getEvaluationWeights = async function() {
-  const weights = {};
   const keys = ['managerScoreWeight', 'hoursWeight', 'tasksWeight', 'requiredHoursPerWeek', 'minimumTasksForRanking'];
-  
+  const settings = await this.find({ key: { $in: keys } }).lean();
+  const settingsMap = {};
+  settings.forEach(s => { settingsMap[s.key] = s.value; });
+
+  const weights = {};
   for (const key of keys) {
-    weights[key] = await this.getValue(key, DEFAULT_EVALUATION_WEIGHTS[key]);
+    weights[key] = settingsMap[key] !== undefined ? settingsMap[key] : DEFAULT_EVALUATION_WEIGHTS[key];
   }
-  
   return weights;
 };
 

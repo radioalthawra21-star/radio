@@ -1,15 +1,17 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
-import Messages from '../pages/Messages';
-import ChatPage from '../pages/Chat/ChatPage';
-import ManagerEvaluation from '../pages/ManagerEvaluation';
-import WellBeingCheckIn from '../pages/WellBeingCheckIn';
-import ChangePassword from '../pages/Employee/ChangePassword';
-import Attendance from '../pages/Employee/Attendance';
-import MonthlyTimesheet from '../pages/Employee/MonthlyTimesheet';
-import LeaveRequest from '../pages/Employee/LeaveRequest';
-import ApproveLeaves from '../pages/Manager/ApproveLeaves';
-import DailyReport from '../pages/DailyReport';
+import React from 'react';
+
+const Messages = React.lazy(() => import('../pages/Messages'));
+const ChatPage = React.lazy(() => import('../pages/Chat/ChatPage'));
+const ManagerEvaluation = React.lazy(() => import('../pages/ManagerEvaluation'));
+const WellBeingCheckIn = React.lazy(() => import('../pages/WellBeingCheckIn'));
+const ChangePassword = React.lazy(() => import('../pages/Employee/ChangePassword'));
+const Attendance = React.lazy(() => import('../pages/Employee/Attendance'));
+const MonthlyTimesheet = React.lazy(() => import('../pages/Employee/MonthlyTimesheet'));
+const LeaveRequest = React.lazy(() => import('../pages/Employee/LeaveRequest'));
+const ApproveLeaves = React.lazy(() => import('../pages/Manager/ApproveLeaves'));
+const DailyReport = React.lazy(() => import('../pages/DailyReport'));
 
 export const selfServiceRoutes = (
   <>

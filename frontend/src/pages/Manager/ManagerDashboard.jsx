@@ -56,8 +56,8 @@ const ManagerDashboard = () => {
         setTasksToEvaluate(evaluateResponse.data.tasks);
       }
 
-      // Fetch daily summary
-      const summaryResponse = await getDailySummary();
+      // Fetch daily summary (all department tasks)
+      const summaryResponse = await getDailySummary(null, 'all');
       if (summaryResponse.success) {
         setSummary(summaryResponse.data.summary);
       }
@@ -98,7 +98,7 @@ const ManagerDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Link to="/manager/evaluate-tasks">
+        <Link to="/manager/department-tasks">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
             <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">📊</span>
@@ -110,7 +110,7 @@ const ManagerDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/manager/evaluate-tasks">
+        <Link to="/manager/department-tasks?status=completed">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
             <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">✓</span>
@@ -122,7 +122,7 @@ const ManagerDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/manager/evaluate-tasks">
+        <Link to="/manager/department-tasks?status=in_progress">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
             <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">⏳</span>

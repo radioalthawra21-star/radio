@@ -88,6 +88,15 @@ const LeaveRequest = () => {
         setError('يرجى تحديد تاريخ البداية');
         return;
       }
+    } else if (form.type === 'hourly') {
+      if (!form.startTime || !form.endTime) {
+        setError('يرجى تحديد وقت البداية والنهاية');
+        return;
+      }
+      if (form.startTime >= form.endTime) {
+        setError('وقت النهاية يجب أن يكون بعد وقت البداية');
+        return;
+      }
     } else if (form.type === 'development') {
       if (!form.startDate || !form.startTime || !form.endTime) {
         setError('يرجى تحديد التاريخ ووقت البداية والنهاية');
@@ -113,12 +122,17 @@ const LeaveRequest = () => {
     setSuccess('');
     try {
       const submitData = { ...form };
+      if (form.type === 'hourly') {
+        const today = new Date().toISOString().split('T')[0];
+        submitData.startDate = today;
+        submitData.endDate = today;
+      }
       if (form.medicalReport) {
         submitData.documents = [{ url: form.medicalReport, description: 'تقرير طبي' }];
       }
       delete submitData.medicalReport;
       if (form.type !== 'death') delete submitData.deathDegree;
-      if (form.type !== 'development') { delete submitData.startTime; delete submitData.endTime; }
+      if (form.type !== 'development' && form.type !== 'hourly') { delete submitData.startTime; delete submitData.endTime; }
       const res = await createLeaveRequest(submitData);
       if (res.success) {
         setSuccess(res.message || 'تم تقديم طلب الإجازة بنجاح');
@@ -370,6 +384,30 @@ const LeaveRequest = () => {
                 </div>
                 <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-3 text-sm text-cyan-800">
                   ⏰ إجازة تطوير: 6 ساعات أسبوعياً - تنتهي بانتهاء الأسبوع ولا تتراكم
+                </div>
+              </>
+            ) : form.type === 'hourly' ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">من الساعة</label>
+                  <input
+                    type="time"
+                    value={form.startTime}
+                    onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">إلى الساعة</label>
+                  <input
+                    type="time"
+                    value={form.endTime}
+                    onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-800 md:col-span-2">
+                  ⏰ الإجازة الساعية for today — يتم احتسابها من اليوم الحالي فقط
                 </div>
               </>
             ) : form.type === 'hajj' ? (

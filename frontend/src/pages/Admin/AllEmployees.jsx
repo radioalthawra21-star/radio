@@ -22,6 +22,30 @@ const roleNames = {
   employee: 'موظف', manager: 'مدير قسم', hr: 'مسؤول الموارد البشرية', admin: 'المدير العام'
 };
 
+const deptDisplayNames = {
+  financial: 'المالي', المالي: 'المالي', المالية: 'المالي',
+  it: 'تقنية المعلومات', 'تقنية المعلومات': 'تقنية المعلومات', 'الIT': 'تقنية المعلومات',
+  marketing: 'التسويق', التسويق: 'التسويق',
+  news: 'الأخبار', الأخبار: 'الأخبار',
+  production: 'الإنتاج', الإنتاج: 'الإنتاج',
+  live_broadcast: 'البث المباشر', 'البث المباشر': 'البث المباشر',
+  hr: 'الموارد البشرية', 'الموارد البشرية': 'الموارد البشرية',
+  'human resources': 'الموارد البشرية', 'موارد بشرية': 'الموارد البشرية',
+  relations: 'العلاقات', العلاقات: 'العلاقات',
+  correspondents: 'المراسلين', المراسلين: 'المراسلين',
+  'التحرير': 'الأخبار', تحرير: 'الأخبار', إعلام: 'الأخبار',
+  'الخدمات': 'الخدمات',
+};
+const knownDeptValues = new Set(Object.keys(deptDisplayNames));
+const getDeptCanonical = (val) => deptDisplayNames[val] || val || '';
+const getDeptVariants = (canonical) => {
+  const variants = new Set([canonical]);
+  Object.entries(deptDisplayNames).forEach(([key, val]) => {
+    if (val === canonical) variants.add(key);
+  });
+  return variants;
+};
+
 const mainTabs = [
   { id: 'employees', label: 'الموظفين' },
   { id: 'recruitment', label: 'التوظيف والأداء' },
@@ -52,6 +76,8 @@ const AllEmployees = () => {
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [deptForm, setDeptForm] = useState({ name: '', color: '#3B82F6' });
   const [deptLoading, setDeptLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDepartment, setFilterDepartment] = useState('');
 
   const [recruitmentSubTab, setRecruitmentSubTab] = useState('jobs');
   const [performanceSubTab, setPerformanceSubTab] = useState('reviews');
@@ -694,6 +720,51 @@ const AllEmployees = () => {
 
       <Card>
         <h2 className="text-xl font-bold text-dark mb-4">الموظفين</h2>
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="🔍 بحث بالاسم..."
+              className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+            />
+          </div>
+          <div className="md:w-64">
+            <select
+              value={filterDepartment}
+              onChange={(e) => setFilterDepartment(e.target.value)}
+              className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+            >
+              <option value="">كل الأقسام</option>
+              {(() => {
+                const rawMap = new Map();
+                // Explicit mapping for البث المباشر canonical
+                rawMap.set('البث المباشر', 'live_broadcast');
+                // Process all deptDisplayNames entries
+                Object.entries(deptDisplayNames).forEach(([raw, canonical]) => {
+                  if (!rawMap.has(canonical)) rawMap.set(canonical, raw);
+                });
+                if (hookDepartments && hookDepartments.length) {
+                  hookDepartments.forEach(d => {
+                    const name = d.name || d;
+                    if (name && !rawMap.has(name)) rawMap.set(name, name);
+                  });
+                }
+                employees.forEach(emp => {
+                  if (emp.department) {
+                    const canonical = getDeptCanonical(emp.department);
+                    if (canonical && !rawMap.has(canonical)) rawMap.set(canonical, emp.department);
+                  }
+                });
+                const options = Array.from(rawMap.entries()).map(([canonical, raw]) => (
+                  <option key={canonical} value={raw}>{canonical}</option>
+                ));
+                return options;
+              })()}
+            </select>
+          </div>
+        </div>
         {loading ? (
           <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary"></div></div>
         ) : employees.length === 0 ? (
@@ -703,13 +774,25 @@ const AllEmployees = () => {
             <table className="w-full text-right table-responsive-cards">
               <thead>
                 <tr className="border-b-2 border-gray-300">
-                  <th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
+                  <th className="p-3">رقم</th><th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
                   <th className="p-3">القسم</th><th className="p-3">المسمى الوظيفي</th><th className="p-3">نقاط الأداء</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th>
                 </tr>
               </thead>
               <tbody>
-                {employees.map((emp) => (
+                {employees.filter(emp => {
+                  const matchesSearch = !searchTerm || emp.name?.toLowerCase().includes(searchTerm.toLowerCase());
+                  let matchesDept = true;
+                  if (filterDepartment) {
+                    if (filterDepartment === '__other') {
+                      matchesDept = !emp.department || !getDeptCanonical(emp.department);
+                    } else {
+                      matchesDept = getDeptCanonical(emp.department) === getDeptCanonical(filterDepartment) || (emp.department && emp.department === filterDepartment);
+                    }
+                  }
+                  return matchesSearch && matchesDept;
+                }).map((emp, index) => (
                   <tr key={emp._id} className="border-b hover:bg-gray-50">
+                    <td className="p-3 font-bold text-gray-500">{index + 1}</td>
                     <td className="p-3 font-semibold" data-label="الاسم">{emp.name}</td>
                     <td className="p-3 text-gray-600" data-label="اسم المستخدم">{emp.username}</td>
                     <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{emp.email}</td>

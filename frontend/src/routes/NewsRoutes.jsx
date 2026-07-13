@@ -1,10 +1,12 @@
 import { Route } from 'react-router-dom';
 import { NewsRoute } from '../components/RouteGuards';
-import NewsDashboard from '../pages/News/NewsDashboard';
-import EditorialPipeline from '../pages/News/EditorialPipeline';
-import CoupletPipeline from '../pages/News/CoupletPipeline';
-import PromptManagement from '../pages/News/PromptManagement';
-import CoupletPromptManagement from '../pages/News/CoupletPromptManagement';
+import React from 'react';
+
+const NewsDashboard = React.lazy(() => import('../pages/News/NewsDashboard'));
+const EditorialPipeline = React.lazy(() => import('../pages/News/EditorialPipeline'));
+const CoupletPipeline = React.lazy(() => import('../pages/News/CoupletPipeline'));
+const PromptManagement = React.lazy(() => import('../pages/News/PromptManagement'));
+const CoupletPromptManagement = React.lazy(() => import('../pages/News/CoupletPromptManagement'));
 
 export const newsRoutes = (
   <>

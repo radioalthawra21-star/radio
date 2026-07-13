@@ -18,7 +18,10 @@ const setupChatSocket = (io) => {
       if (!secret && process.env.NODE_ENV === 'production') {
         return next(new Error('JWT_SECRET not configured'));
       }
-      const decoded = jwt.verify(token, secret || 'dev-secret-key-2024');
+      if (!secret) {
+        return next(new Error('JWT_SECRET not configured'));
+      }
+      const decoded = jwt.verify(token, secret);
       socket.userId = decoded.id;
       next();
     } catch (err) {

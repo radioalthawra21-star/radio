@@ -9,10 +9,16 @@ services:
       - ./backend:/app
       - /app/node_modules
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     environment:
       - MONGO_URI=mongodb://mongo:27017/mydb
       - PORT=3000
+      - NODE_ENV=production
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
   frontend:
     build: ./frontend
@@ -21,13 +27,29 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
   mongo:
-    image: mongo
-    ports:
-      - "27017:27017"
+    image: mongo:7.0
+    # MongoDB port NOT exposed to host — only accessible via internal network
+    # ports: removed for security
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
 
 volumes:
   mongo-data:

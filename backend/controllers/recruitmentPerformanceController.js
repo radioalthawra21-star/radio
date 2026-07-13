@@ -10,6 +10,7 @@ const KPI = require('../models/RecruitmentPerformance').KPI;
 const { User } = require('../models/User');
 const { Notification, NotificationType } = require('../models/Notification');
 const Department = require('../models/Department');
+const mongoose = require('mongoose');
 
 /**
  * ======================
@@ -221,7 +222,7 @@ const updateJobPosting = async (req, res) => {
     }
 
     // Check permissions (hiring manager or admin)
-    if (jobPosting.hiringManager.toString() !== req.user._id.toString() && 
+    if (jobPosting.hiringManager.toString() !== req.user._id.toString() &&
         req.user.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
@@ -229,12 +230,18 @@ const updateJobPosting = async (req, res) => {
       });
     }
 
+    // Whitelist of allowed fields to prevent mass assignment
+    const ALLOWED_JOB_POSTING_FIELDS = [
+      'title', 'department', 'description', 'requirements', 'responsibilities',
+      'salaryRange', 'employmentType', 'location', 'closeDate', 'interviewStages',
+      'priority', 'status', 'notes'
+    ];
     const updates = req.body;
-    Object.keys(updates).forEach(key => {
-      if (key !== '_id') {
+    for (const key of ALLOWED_JOB_POSTING_FIELDS) {
+      if (updates[key] !== undefined) {
         jobPosting[key] = updates[key];
       }
-    });
+    }
 
     await jobPosting.save();
 
@@ -1179,12 +1186,18 @@ const updateKPI = async (req, res) => {
       });
     }
 
+    // Whitelist of allowed fields to prevent mass assignment
+    const ALLOWED_KPI_FIELDS = [
+      'name', 'department', 'description', 'targetValue', 'currentValue',
+      'unit', 'weight', 'category', 'assignedTo', 'startDate', 'endDate',
+      'status', 'notes'
+    ];
     const updates = req.body;
-    Object.keys(updates).forEach(key => {
-      if (key !== '_id') {
+    for (const key of ALLOWED_KPI_FIELDS) {
+      if (updates[key] !== undefined) {
         kpi[key] = updates[key];
       }
-    });
+    }
 
     await kpi.save();
 

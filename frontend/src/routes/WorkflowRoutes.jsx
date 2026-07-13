@@ -1,13 +1,15 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
-import WorkflowList from '../pages/Workflow/WorkflowList';
-import WorkflowForm from '../pages/Workflow/WorkflowForm';
-import WorkflowTaskCreate from '../pages/Workflow/WorkflowTaskCreate';
-import KanbanBoard from '../pages/Workflow/KanbanBoard';
-import EmployeeWorkflowTasks from '../pages/Workflow/EmployeeWorkflowTasks';
-import StageApproval from '../pages/Workflow/StageApproval';
-import WorkflowDashboard from '../pages/Workflow/WorkflowDashboard';
-import WorkflowTaskDetail from '../pages/Workflow/WorkflowTaskDetail';
+import React from 'react';
+
+const WorkflowList = React.lazy(() => import('../pages/Workflow/WorkflowList'));
+const WorkflowForm = React.lazy(() => import('../pages/Workflow/WorkflowForm'));
+const WorkflowTaskCreate = React.lazy(() => import('../pages/Workflow/WorkflowTaskCreate'));
+const KanbanBoard = React.lazy(() => import('../pages/Workflow/KanbanBoard'));
+const EmployeeWorkflowTasks = React.lazy(() => import('../pages/Workflow/EmployeeWorkflowTasks'));
+const StageApproval = React.lazy(() => import('../pages/Workflow/StageApproval'));
+const WorkflowDashboard = React.lazy(() => import('../pages/Workflow/WorkflowDashboard'));
+const WorkflowTaskDetail = React.lazy(() => import('../pages/Workflow/WorkflowTaskDetail'));
 
 export const workflowRoutes = (
   <>

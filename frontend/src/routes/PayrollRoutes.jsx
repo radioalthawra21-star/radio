@@ -1,17 +1,18 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
 import { PayrollRouteWrapper } from '../context/PayrollWrapper';
-import PayrollManagement from '../pages/Payroll/PayrollManagement';
-import PayrollPendingAssignments from '../pages/PayrollPendingAssignments';
-import PayrollDashboard from '../pages/PayrollDashboard';
-import PayrollProcessing from '../pages/PayrollProcessing';
-import PayrollAudit from '../pages/PayrollAudit';
-import PayrollWorkflow from '../pages/PayrollWorkflow';
-import PayrollIntegration from '../pages/PayrollIntegration';
-import PayslipView from '../pages/Payroll/PayslipView';
-import PayslipDetail from '../pages/Payroll/PayslipDetail';
-import ComprehensiveHRPayrollSystem from '../pages/Payroll/ComprehensiveHRPayrollSystem';
+import React from 'react';
 
+const PayrollManagement = React.lazy(() => import('../pages/Payroll/PayrollManagement'));
+const PayrollPendingAssignments = React.lazy(() => import('../pages/PayrollPendingAssignments'));
+const PayrollDashboard = React.lazy(() => import('../pages/PayrollDashboard'));
+const PayrollProcessing = React.lazy(() => import('../pages/PayrollProcessing'));
+const PayrollAudit = React.lazy(() => import('../pages/PayrollAudit'));
+const PayrollWorkflow = React.lazy(() => import('../pages/PayrollWorkflow'));
+const PayrollIntegration = React.lazy(() => import('../pages/PayrollIntegration'));
+const PayslipView = React.lazy(() => import('../pages/Payroll/PayslipView'));
+const PayslipDetail = React.lazy(() => import('../pages/Payroll/PayslipDetail'));
+const ComprehensiveHRPayrollSystem = React.lazy(() => import('../pages/Payroll/ComprehensiveHRPayrollSystem'));
 
 const PW = PayrollRouteWrapper;
 

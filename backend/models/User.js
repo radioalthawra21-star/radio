@@ -12,7 +12,9 @@ const UserRole = {
   MANAGER: 'manager',
   HR: 'hr',
   ADMIN: 'admin',
-  DEVELOPER: 'developer'
+  DEVELOPER: 'developer',
+  GENERAL_MANAGER: 'general_manager',
+  ADMINISTRATOR: 'administrator'
 };
 
 // Define departments
@@ -58,7 +60,7 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   
-  // User role: employee, manager, or admin
+  // User role: employee, manager, hr, general_manager, administrator, admin, developer
   role: {
     type: String,
     enum: Object.values(UserRole),
@@ -227,6 +229,11 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Performance indexes — frequently queried fields
+userSchema.index({ role: 1 });
+userSchema.index({ department: 1 });
+userSchema.index({ isActive: 1 });
+
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   // Only hash if password is modified
@@ -249,7 +256,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Get public profile (without password)
+  // Get public profile (without password or sensitive financial data)
 userSchema.methods.getPublicProfile = function() {
   return {
     id: this._id,
@@ -258,6 +265,29 @@ userSchema.methods.getPublicProfile = function() {
     name: this.name,
     role: this.role,
     department: this.department,
+    profileImage: this.profileImage,
+    phone: this.phone,
+    startDate: this.startDate,
+    performanceScore: this.performanceScore,
+    isActive: this.isActive,
+    createdAt: this.createdAt,
+    jobTitle: this.jobTitle,
+    gender: this.gender,
+    maritalStatus: this.maritalStatus,
+    address: this.address,
+    education: this.education,
+    specialization: this.specialization,
+    yearsOfExperience: this.yearsOfExperience,
+    cvUrl: this.cvUrl,
+    cvFileName: this.cvFileName,
+    cvUploadedAt: this.cvUploadedAt
+  };
+};
+
+// Get full profile (admin/HR only — includes salary and sensitive data)
+userSchema.methods.getFullProfile = function() {
+  return {
+    ...this.getPublicProfile(),
     baseSalary: this.baseSalary,
     housingAllowance: this.housingAllowance,
     transportAllowance: this.transportAllowance,
@@ -268,35 +298,19 @@ userSchema.methods.getPublicProfile = function() {
     tax: this.tax,
     otherDeductions: this.otherDeductions,
     hoursShortfall: this.hoursShortfall,
-    profileImage: this.profileImage,
-    phone: this.phone,
-    startDate: this.startDate,
-    performanceScore: this.performanceScore,
-    isActive: this.isActive,
-    createdAt: this.createdAt,
-    jobTitle: this.jobTitle,
     nationalId: this.nationalId,
     dateOfBirth: this.dateOfBirth,
     placeOfBirth: this.placeOfBirth,
     nationality: this.nationality,
-    gender: this.gender,
-    maritalStatus: this.maritalStatus,
-    address: this.address,
     emergencyContactName: this.emergencyContactName,
     emergencyContactPhone: this.emergencyContactPhone,
     emergencyContactRelation: this.emergencyContactRelation,
-    education: this.education,
-    specialization: this.specialization,
-    yearsOfExperience: this.yearsOfExperience,
     previousEmployer: this.previousEmployer,
     bankAccountNumber: this.bankAccountNumber,
     bankName: this.bankName,
     taxNumber: this.taxNumber,
     socialSecurityNumber: this.socialSecurityNumber,
-    notes: this.notes,
-    cvUrl: this.cvUrl,
-    cvFileName: this.cvFileName,
-    cvUploadedAt: this.cvUploadedAt
+    notes: this.notes
   };
 };
 
@@ -305,10 +319,15 @@ userSchema.statics.createAdmin = async function() {
   const adminExists = await this.findOne({ role: 'admin' });
   
   if (!adminExists) {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword || adminPassword === 'CHANGE_ME_STRONG_PASSWORD_HERE') {
+      console.warn('⚠️ Cannot create admin: ADMIN_PASSWORD env var not set');
+      return;
+    }
     await this.create({
-      email: 'admin@example.com',
+      email: 'admin@radio.com',
       username: 'admin',
-      password: 'admin',
+      password: adminPassword,
       name: 'المدير العام',
       role: 'admin',
       department: null,

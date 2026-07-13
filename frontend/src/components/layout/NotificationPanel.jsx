@@ -1,9 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyNotifications, markAsRead, markAllAsRead } from '../../services/notificationService';
 import { getUnreadCount } from '../../services/messageService';
 import { playTaskAssignedSound, playRoleChangeSound, playNotificationSound, playMessageSound } from '../../utils/audioUtils';
 import { formatDateTimeArabic } from '../../utils/dateUtils';
+
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
+  return isMobile;
+};
 
 const showToast = (title, msg, url) => {
   const existing = document.getElementById('nt-toast');
@@ -26,6 +36,7 @@ const showToast = (title, msg, url) => {
 
 const NotificationPanel = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -33,6 +44,8 @@ const NotificationPanel = () => {
   const notificationRef = useRef(null);
   const lastCountRef = useRef(null);
   const initialisedRef = useRef(false);
+
+  const closePanel = useCallback(() => setShowNotifications(false), []);
 
   useEffect(() => {
     fetchNotifications();
@@ -57,8 +70,17 @@ const NotificationPanel = () => {
         setShowNotifications(false);
       }
     };
+    const handleTouchOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleTouchOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleTouchOutside);
+    };
   }, []);
 
   const fetchNotifications = async () => {
@@ -209,33 +231,74 @@ const NotificationPanel = () => {
         </button>
 
         {showNotifications && (
-          <div className="absolute left-0 mt-2 w-72 md:w-80 bg-white rounded-lg shadow-xl z-50 animate-fade-in right-0 md:right-auto">
-            <div className="p-3 border-b flex justify-between items-center">
-              <h3 className="font-semibold text-dark">الإشعارات</h3>
-              {unreadCount > 0 && (
-                <button onClick={handleMarkAllAsRead} className="text-sm text-interactive hover:underline">
-                  تحديد الكل كمقروء
-                </button>
-              )}
-            </div>
-            <div className="max-h-80 overflow-y-auto custom-scrollbar">
-              {notifications.length === 0 ? (
-                <p className="p-4 text-center text-gray-500">لا توجد إشعارات</p>
-              ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification._id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${!notification.isRead ? 'bg-secondary/10' : ''}`}
-                  >
-                    <p className="font-semibold text-sm text-dark">{notification.title}</p>
-                    <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
-                    <p className="text-xs text-gray-400 mt-1 en-num">{formatDateTimeArabic(notification.createdAt)}</p>
+          <>
+            {/* Mobile: full-screen modal */}
+            {isMobile ? (
+              <div className="fixed inset-0 z-[200] flex flex-col bg-white" dir="rtl">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
+                  <h3 className="font-semibold text-dark text-lg">الإشعارات</h3>
+                  <div className="flex items-center gap-2">
+                    {unreadCount > 0 && (
+                      <button onClick={handleMarkAllAsRead} className="text-sm text-interactive hover:underline px-3 py-2">
+                        تحديد الكل كمقروء
+                      </button>
+                    )}
+                    <button onClick={closePanel} className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="إغلاق">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
+                </div>
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <p className="p-6 text-center text-gray-500 text-base">لا توجد إشعارات</p>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification._id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`px-4 py-4 border-b border-gray-100 active:bg-gray-50 cursor-pointer ${!notification.isRead ? 'bg-secondary/10' : ''}`}
+                      >
+                        <p className="font-semibold text-base text-dark leading-relaxed">{notification.title}</p>
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{notification.message}</p>
+                        <p className="text-xs text-gray-400 mt-2 en-num">{formatDateTimeArabic(notification.createdAt)}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Desktop: dropdown */
+              <div className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 animate-fade-in" dir="rtl">
+                <div className="p-3 border-b flex justify-between items-center">
+                  <h3 className="font-semibold text-dark">الإشعارات</h3>
+                  {unreadCount > 0 && (
+                    <button onClick={handleMarkAllAsRead} className="text-sm text-interactive hover:underline">
+                      تحديد الكل كمقروء
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto custom-scrollbar">
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-center text-gray-500">لا توجد إشعارات</p>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification._id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${!notification.isRead ? 'bg-secondary/10' : ''}`}
+                      >
+                        <p className="font-semibold text-sm text-dark">{notification.title}</p>
+                        <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
+                        <p className="text-xs text-gray-400 mt-1 en-num">{formatDateTimeArabic(notification.createdAt)}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>

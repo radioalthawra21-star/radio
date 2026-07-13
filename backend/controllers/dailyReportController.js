@@ -288,9 +288,17 @@ exports.getReportById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'التقرير غير موجود' });
     }
 
+    // Access control: admin/HR/developer can see all, employees only their own
+    const role = req.user.role?.toLowerCase();
+    const isOwner = report.userId?._id?.toString() === req.user._id.toString() || 
+                    report.userId?.toString() === req.user._id.toString();
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'manager' && !isOwner) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بعرض هذا التقرير' });
+    }
+
     res.json({ success: true, data: report });
   } catch (error) {
-    console.error('Error fetching report:', error);
+    console.error('Error fetching report:', error.message);
     res.status(500).json({ success: false, message: 'خطأ في جلب التقرير' });
   }
 };
@@ -299,17 +307,25 @@ exports.getEmployeeReports = async (req, res) => {
   try {
     const { userId } = req.params;
     const { page = 1, limit = 50 } = req.query;
+    
+    // Access control: admin/HR/developer can see all, employees only their own, managers their department
+    const role = req.user.role?.toLowerCase();
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'manager' && userId !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بعرض تقارير هذا الموظف' });
+    }
+    
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 50));
     const reports = await DailyReport.find({ userId })
       .sort({ date: -1 })
-      .skip((parseInt(page) - 1) * parseInt(limit))
-      .limit(parseInt(limit));
+      .skip((parseInt(page) - 1) * limitNum)
+      .limit(limitNum);
     const total = await DailyReport.countDocuments({ userId });
     res.json({
       success: true,
-      data: { reports, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) }
+      data: { reports, total, page: parseInt(page), pages: Math.ceil(total / limitNum) }
     });
   } catch (error) {
-    console.error('Error fetching employee reports:', error);
+    console.error('Error fetching employee reports:', error.message);
     res.status(500).json({ success: false, message: 'خطأ في جلب تقارير الموظف' });
   }
 };
@@ -391,13 +407,20 @@ exports.exportEmployeeReports = async (req, res) => {
 
 exports.deleteReport = async (req, res) => {
   try {
-    const report = await DailyReport.findByIdAndDelete(req.params.id);
+    const report = await DailyReport.findById(req.params.id);
     if (!report) {
       return res.status(404).json({ success: false, message: 'التقرير غير موجود' });
     }
+    // Only admin, HR, or the report owner can delete
+    const role = req.user.role?.toLowerCase();
+    const isOwner = report.userId?.toString() === req.user._id.toString();
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && !isOwner) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بحذف هذا التقرير' });
+    }
+    await DailyReport.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'تم حذف التقرير بنجاح' });
   } catch (error) {
-    console.error('Error deleting daily report:', error);
+    console.error('Error deleting daily report:', error.message);
     res.status(500).json({ success: false, message: 'خطأ في حذف التقرير' });
   }
 };

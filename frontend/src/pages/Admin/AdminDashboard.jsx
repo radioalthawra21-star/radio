@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getTasksToApprove } from '../../services/taskService';
+import { getTasksToApprove, getDepartmentTasks, getTotalTasks } from '../../services/taskService';
 import { getPendingLeaveRequests } from '../../services/leaveService';
 import { getDepartmentStats, getRankings, getUserCounts } from '../../services/userService';
 import { getAllDepartments } from '../../services/departmentService';
@@ -29,6 +29,10 @@ const AdminDashboard = () => {
   const [userCounts, setUserCounts] = useState({ employees: 0, managers: 0 });
   const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
   const [gmPendingLeaves, setGmPendingLeaves] = useState([]);
+  const [selectedDept, setSelectedDept] = useState('all');
+  const [deptTasks, setDeptTasks] = useState([]);
+  const [deptEmployees, setDeptEmployees] = useState([]);
+  const [deptLoading, setDeptLoading] = useState(false);
 
   const { getDepartmentName } = useDepartments();
 
@@ -51,13 +55,14 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
-      const [approveRes, deptRes, rankRes, countsRes, pendingLeavesRes] = await Promise.all([
+       
+      const [approveRes, deptRes, rankRes, countsRes, pendingLeavesRes, totalTasksRes] = await Promise.all([
         getTasksToApprove(),
         getDepartmentStats(),
         getRankings(),
         getUserCounts(),
-        getPendingLeaveRequests()
+        getPendingLeaveRequests(),
+        getTotalTasks()
       ]);
 
       if (approveRes.success) {
@@ -66,9 +71,13 @@ const AdminDashboard = () => {
 
       if (deptRes.success) {
         setDeptStats(deptRes.data.stats);
-        const totalFromDepts = deptRes.data.stats.reduce((sum, d) => sum + d.totalTasks, 0);
-        const completedFromDepts = deptRes.data.stats.reduce((sum, d) => sum + d.completedTasks, 0);
-        setSummary({ total: totalFromDepts, completed: completedFromDepts });
+      }
+
+      if (totalTasksRes?.success) {
+        setSummary({
+          total: totalTasksRes.data.total || 0,
+          completed: totalTasksRes.data.completed || 0
+        });
       }
 
       if (rankRes.success) {
@@ -90,6 +99,27 @@ const AdminDashboard = () => {
     }
   };
 
+  // Load tasks for the selected department (GM monitoring)
+  const loadDepartmentTasks = async (dept) => {
+    try {
+      setDeptLoading(true);
+      const params = dept && dept !== 'all' ? { department: dept } : {};
+      const res = await getDepartmentTasks(params);
+      if (res.success) {
+        setDeptTasks(res.data.tasks || []);
+        setDeptEmployees(res.data.employees || []);
+      }
+    } catch (error) {
+      console.error('Error fetching department tasks:', error);
+    } finally {
+      setDeptLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDepartmentTasks(selectedDept);
+  }, [selectedDept]);
+
   return (
     <div className="animate-fade-in">
       {/* Welcome Header */}
@@ -102,7 +132,7 @@ const AdminDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Link to="/admin/reports">
+        <Link to="/tasks">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
             <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">📊</span>
@@ -114,7 +144,7 @@ const AdminDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/admin/reports">
+        <Link to="/tasks">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
             <div className="w-12 h-12 bg-success/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">✓</span>
@@ -138,7 +168,7 @@ const AdminDashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/admin/reports">
+        <Link to="/admin/employees">
           <Card className="flex items-center gap-4 hover:shadow-xl transition-shadow cursor-pointer">
             <div className="w-12 h-12 bg-interactive/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">✓</span>
@@ -236,6 +266,133 @@ const AdminDashboard = () => {
             <p className="text-sm text-gray-600">إعدادات النظام</p>
           </Card>
         </Link>
+      </div>
+
+      {/* Department Task Monitoring (GM filter) */}
+      <div className="mb-8">
+        <Card>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h2 className="text-xl font-bold text-dark">📋 متابعة مهام الأقسام</h2>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">القسم:</label>
+              <select
+                value={selectedDept}
+                onChange={(e) => setSelectedDept(e.target.value)}
+                className="input w-56"
+              >
+                <option value="all">جميع الأقسام</option>
+                {departments.map((d) => (
+                  <option key={d._id} value={d.name}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {deptLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary"></div>
+            </div>
+          ) : (
+            (() => {
+              // Compute per-employee task stats from deptTasks
+              const empMap = {};
+              deptEmployees.forEach((e) => {
+                empMap[e._id] = {
+                  _id: e._id,
+                  name: e.name,
+                  department: e.department,
+                  total: 0, completed: 0, inProgress: 0, pending: 0, rejected: 0
+                };
+              });
+              let sumTotal = 0, sumCompleted = 0, sumInProgress = 0, sumPending = 0;
+              deptTasks.forEach((t) => {
+                const st = t.status;
+                const isCompleted = st === 'completed' || st === 'approved' || st === 'final_approved';
+                const isInProgress = st === 'in_progress';
+                const isPending = st === 'pending';
+                const isRejected = st === 'rejected';
+                (t.assignedTo || []).forEach((a) => {
+                  const id = a._id ? a._id.toString() : a.toString();
+                  if (!empMap[id]) {
+                    empMap[id] = {
+                      _id: id,
+                      name: a.name || '—',
+                      department: a.department || '',
+                      total: 0, completed: 0, inProgress: 0, pending: 0, rejected: 0
+                    };
+                  }
+                  empMap[id].total += 1;
+                  if (isCompleted) empMap[id].completed += 1;
+                  else if (isInProgress) empMap[id].inProgress += 1;
+                  else if (isPending) empMap[id].pending += 1;
+                  else if (isRejected) empMap[id].rejected += 1;
+                });
+                sumTotal += 1;
+                if (isCompleted) sumCompleted += 1;
+                else if (isInProgress) sumInProgress += 1;
+                else if (isPending) sumPending += 1;
+              });
+
+              const rows = Object.values(empMap).sort((a, b) => b.total - a.total);
+
+              return (
+                <>
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <p className="text-gray-500 text-sm">إجمالي المهام</p>
+                      <p className="text-2xl font-bold text-dark">{sumTotal}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <p className="text-gray-500 text-sm">مكتملة</p>
+                      <p className="text-2xl font-bold text-success">{sumCompleted}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <p className="text-gray-500 text-sm">في التنفيذ</p>
+                      <p className="text-2xl font-bold text-warning">{sumInProgress}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg text-center">
+                      <p className="text-gray-500 text-sm">قيد الانتظار</p>
+                      <p className="text-2xl font-bold text-interactive">{sumPending}</p>
+                    </div>
+                  </div>
+
+                  {/* Per-employee table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-right">
+                      <thead>
+                        <tr className="border-b-2 border-gray-300 text-sm text-gray-600">
+                          <th className="p-3">الموظف</th>
+                          <th className="p-3">القسم</th>
+                          <th className="p-3">الإجمالي</th>
+                          <th className="p-3">مكتملة</th>
+                          <th className="p-3">في التنفيذ</th>
+                          <th className="p-3">قيد الانتظار</th>
+                          <th className="p-3">مرفوضة</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.length === 0 ? (
+                          <tr><td colSpan={7} className="text-center text-gray-500 py-6">لا توجد مهام</td></tr>
+                        ) : rows.map((r) => (
+                          <tr key={r._id} className="border-b hover:bg-gray-50">
+                            <td className="p-3 font-semibold text-dark">{r.name}</td>
+                            <td className="p-3 text-gray-600">{r.department}</td>
+                            <td className="p-3 font-bold">{r.total}</td>
+                            <td className="p-3 text-success">{r.completed}</td>
+                            <td className="p-3 text-warning">{r.inProgress}</td>
+                            <td className="p-3 text-interactive">{r.pending}</td>
+                            <td className="p-3 text-danger">{r.rejected}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              );
+            })()
+          )}
+        </Card>
       </div>
 
       {gmPendingLeaves.length > 0 && (

@@ -23,6 +23,7 @@ const AddTask = () => {
   const isManager = currentUser?.role === 'manager';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [workflows, setWorkflows] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
@@ -65,7 +66,12 @@ const AddTask = () => {
     try {
       const response = await createTask(formData);
       if (response.success) {
-        navigate('/my-tasks');
+        if (formData.isProposal) {
+          navigate('/my-tasks');
+        } else {
+          setSuccessMsg('تم إنشاء المهمة بنجاح. بانتظار موافقة أو رفض مدير القسم.');
+          setTimeout(() => navigate('/my-tasks'), 3000);
+        }
       } else {
         setError(response.message);
       }
@@ -85,6 +91,12 @@ const AddTask = () => {
           {error && (
             <div className="bg-error/10 border border-error text-error p-3 rounded-lg mb-4">
               {error}
+            </div>
+          )}
+          {successMsg && (
+            <div className="bg-green-50 border border-green-300 text-green-800 p-4 rounded-lg mb-4 text-center">
+              <p className="font-bold text-lg mb-1">⏳ {successMsg}</p>
+              <p className="text-sm text-green-600">جاري التحويل إلى مهماتي...</p>
             </div>
           )}
 

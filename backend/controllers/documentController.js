@@ -49,10 +49,18 @@ const uploadDocument = async (req, res) => {
     // Parse boolean values
     const isPublicParsed = isPublic === 'true' || isPublic === true;
     
-    // Parse arrays
-    const allowedUsersArray = allowedUsers ? JSON.parse(allowedUsers) : [];
-    const allowedRolesArray = allowedRoles ? JSON.parse(allowedRoles) : [];
-    const allowedDepartmentsArray = allowedDepartments ? JSON.parse(allowedDepartments) : [];
+    // Parse arrays (with try/catch to prevent crashes from malformed JSON)
+    let allowedUsersArray = [];
+    let allowedRolesArray = [];
+    let allowedDepartmentsArray = [];
+    try {
+      allowedUsersArray = allowedUsers ? JSON.parse(allowedUsers) : [];
+      allowedRolesArray = allowedRoles ? JSON.parse(allowedRoles) : [];
+      allowedDepartmentsArray = allowedDepartments ? JSON.parse(allowedDepartments) : [];
+    } catch (parseError) {
+      console.error('Error parsing document access arrays:', parseError.message);
+      // Continue with empty arrays rather than crashing
+    }
     
     // Prepare document data
     const documentData = {
@@ -133,11 +141,12 @@ const getMyDocuments = async (req, res) => {
       query.tags = { $in: tagArray };
     }
     
-    // Search in title and description
-    if (search) {
+    // Search in title and description (escape regex to prevent ReDoS)
+    if (search && typeof search === 'string') {
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { title: { $regex: escapedSearch, $options: 'i' } },
+        { description: { $regex: escapedSearch, $options: 'i' } }
       ];
     }
     
@@ -269,15 +278,15 @@ const updateDocument = async (req, res) => {
     }
     
     if (allowedUsers !== undefined) {
-      document.allowedUsers = allowedUsers ? JSON.parse(allowedUsers) : [];
+      try { document.allowedUsers = allowedUsers ? JSON.parse(allowedUsers) : []; } catch (e) { /* skip invalid JSON */ }
     }
     
     if (allowedRoles !== undefined) {
-      document.allowedRoles = allowedRoles ? JSON.parse(allowedRoles) : [];
+      try { document.allowedRoles = allowedRoles ? JSON.parse(allowedRoles) : []; } catch (e) { /* skip invalid JSON */ }
     }
     
     if (allowedDepartments !== undefined) {
-      document.allowedDepartments = allowedDepartments ? JSON.parse(allowedDepartments) : [];
+      try { document.allowedDepartments = allowedDepartments ? JSON.parse(allowedDepartments) : []; } catch (e) { /* skip invalid JSON */ }
     }
     
     if (expiryDate !== undefined) {

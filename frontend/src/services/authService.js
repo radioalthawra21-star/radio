@@ -6,15 +6,10 @@
 import api from './api';
 
 // Register new user
+// NOTE: Do NOT store token here — new users are inactive until admin approval.
+// Storing token triggers PublicRoute redirect, making the registration page disappear.
 export const register = async (userData) => {
   const response = await api.post('/auth/register', userData);
-  if (response.data.success) {
-    localStorage.setItem('token', response.data.data.token);
-    if (response.data.data.refreshToken) {
-      localStorage.setItem('refreshToken', response.data.data.refreshToken);
-    }
-    localStorage.setItem('user', JSON.stringify(response.data.data.user));
-  }
   return response.data;
 };
 

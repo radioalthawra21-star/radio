@@ -13,6 +13,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src')
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-charts': ['chart.js', 'react-chartjs-2'],
+          'vendor-pdf': ['jspdf', 'jspdf-autotable'],
+          'vendor-icons': ['lucide-react', 'react-icons'],
+          'vendor-utils': ['axios', 'socket.io-client'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 600
+  },
   server: {
     port: 5173,
     host: '0.0.0.0',

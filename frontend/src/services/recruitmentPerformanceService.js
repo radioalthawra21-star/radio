@@ -115,7 +115,7 @@ export const addInterviewFeedback = async (id, feedbackData) => {
  * Create a performance review
  */
 export const createPerformanceReview = async (reviewData) => {
-  const response = await api.post('/performance/reviews', reviewData);
+  const response = await api.post('/recruitment/performance/reviews', reviewData);
   return response.data;
 };
 
@@ -123,7 +123,7 @@ export const createPerformanceReview = async (reviewData) => {
  * Get performance reviews with filters
  */
 export const getPerformanceReviews = async (params = {}) => {
-  const response = await api.get('/performance/reviews', { params });
+  const response = await api.get('/recruitment/performance/reviews', { params });
   return response.data;
 };
 
@@ -131,7 +131,7 @@ export const getPerformanceReviews = async (params = {}) => {
  * Submit self assessment
  */
 export const submitSelfAssessment = async (id, assessmentData) => {
-  const response = await api.put(`/performance/reviews/${id}/self-assessment`, assessmentData);
+  const response = await api.put(`/recruitment/performance/reviews/${id}/self-assessment`, assessmentData);
   return response.data;
 };
 
@@ -139,7 +139,7 @@ export const submitSelfAssessment = async (id, assessmentData) => {
  * Submit manager assessment
  */
 export const submitManagerAssessment = async (id, assessmentData) => {
-  const response = await api.put(`/performance/reviews/${id}/manager-assessment`, assessmentData);
+  const response = await api.put(`/recruitment/performance/reviews/${id}/manager-assessment`, assessmentData);
   return response.data;
 };
 
@@ -147,7 +147,7 @@ export const submitManagerAssessment = async (id, assessmentData) => {
  * Add peer feedback
  */
 export const addPeerFeedback = async (id, feedbackData) => {
-  const response = await api.post(`/performance/reviews/${id}/peer-feedback`, feedbackData);
+  const response = await api.post(`/recruitment/performance/reviews/${id}/peer-feedback`, feedbackData);
   return response.data;
 };
 
@@ -155,7 +155,7 @@ export const addPeerFeedback = async (id, feedbackData) => {
  * Submit promotion recommendation
  */
 export const submitPromotionRecommendation = async (id, recommendationData) => {
-  const response = await api.put(`/performance/reviews/${id}/promotion`, recommendationData);
+  const response = await api.put(`/recruitment/performance/reviews/${id}/promotion`, recommendationData);
   return response.data;
 };
 
@@ -163,7 +163,7 @@ export const submitPromotionRecommendation = async (id, recommendationData) => {
  * Approve performance review
  */
 export const approvePerformanceReview = async (id) => {
-  const response = await api.put(`/performance/reviews/${id}/approve`);
+  const response = await api.put(`/recruitment/performance/reviews/${id}/approve`);
   return response.data;
 };
 
@@ -175,7 +175,7 @@ export const approvePerformanceReview = async (id) => {
  * Create a KPI
  */
 export const createKPI = async (kpiData) => {
-  const response = await api.post('/performance/kpis', kpiData);
+  const response = await api.post('/recruitment/performance/kpis', kpiData);
   return response.data;
 };
 
@@ -183,7 +183,7 @@ export const createKPI = async (kpiData) => {
  * Get all KPIs
  */
 export const getKPIs = async (params = {}) => {
-  const response = await api.get('/performance/kpis', { params });
+  const response = await api.get('/recruitment/performance/kpis', { params });
   return response.data;
 };
 
@@ -191,7 +191,7 @@ export const getKPIs = async (params = {}) => {
  * Update KPI
  */
 export const updateKPI = async (id, kpiData) => {
-  const response = await api.put(`/performance/kpis/${id}`, kpiData);
+  const response = await api.put(`/recruitment/performance/kpis/${id}`, kpiData);
   return response.data;
 };
 
@@ -199,7 +199,7 @@ export const updateKPI = async (id, kpiData) => {
  * Delete KPI
  */
 export const deleteKPI = async (id) => {
-  const response = await api.delete(`/performance/kpis/${id}`);
+  const response = await api.delete(`/recruitment/performance/kpis/${id}`);
   return response.data;
 };
 

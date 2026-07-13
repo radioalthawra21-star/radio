@@ -243,11 +243,11 @@ const getAllPayrolls = async (req, res) => {
 
     const query = {};
 
-    if (status) {
+    if (status && typeof status === 'string') {
       query.status = status;
     }
 
-    if (department && !employeeId) {
+    if (department && !employeeId && typeof department === 'string') {
       const employees = await User.find({ department }).select('_id');
       if (employees.length === 0) {
         return res.json({

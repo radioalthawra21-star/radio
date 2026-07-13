@@ -214,7 +214,7 @@ const getTodayAttendance = async (req, res) => {
     const attendance = await Attendance.findOne({
       employee: employeeId,
       date: { $gte: today, $lt: tomorrow }
-    });
+    }).lean();
     
     if (!attendance) {
       return res.json({
@@ -257,9 +257,9 @@ const getAttendanceHistory = async (req, res) => {
     const isHrDept = dept === 'hr' || dept === 'human resources' || dept === 'الموارد البشرية';
     
     if (role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept)) {
-      if (employeeId) query.employee = employeeId;
+      if (employeeId && typeof employeeId === 'string' && /^[0-9a-fA-F]{24}$/.test(employeeId)) query.employee = employeeId;
     } else if (role === 'manager') {
-      if (employeeId) {
+      if (employeeId && typeof employeeId === 'string' && /^[0-9a-fA-F]{24}$/.test(employeeId)) {
         query.employee = employeeId;
       } else {
         query.department = req.user.department;
@@ -274,14 +274,19 @@ const getAttendanceHistory = async (req, res) => {
       if (endDate) query.date.$lte = new Date(endDate);
     }
     
-    if (status) query.status = status;
+    // Validate status is a string, not an object (NoSQL injection prevention)
+    const validStatuses = ['present', 'absent', 'late', 'half_day', 'on_leave', 'work_from_home'];
+    if (status && typeof status === 'string' && validStatuses.includes(status)) {
+      query.status = status;
+    }
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const attendances = await Attendance.find(query)
       .populate('employee', 'name email department')
       .sort({ date: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
     
     const total = await Attendance.countDocuments(query);
     
@@ -326,7 +331,7 @@ const getAttendanceStats = async (req, res) => {
     
     const totalRecords = await Attendance.countDocuments(query);
     const skip = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
-    const attendances = await Attendance.find(query).sort({ date: -1 }).skip(skip).limit(Math.min(parseInt(limit), 365));
+    const attendances = await Attendance.find(query).sort({ date: -1 }).skip(skip).limit(Math.min(parseInt(limit), 365)).lean();
     
     const Holiday = require('../models/Holiday');
     const holidays = await Holiday.find({
@@ -403,7 +408,8 @@ const getDepartmentAttendance = async (req, res) => {
     
     const attendances = await Attendance.find(query)
       .populate('employee', 'name email')
-      .sort({ date: -1 });
+      .sort({ date: -1 })
+      .lean();
     
     const stats = await Attendance.getDepartmentStats(department, startDate, endDate);
     
@@ -505,7 +511,8 @@ const getLateReport = async (req, res) => {
       .populate('employee', 'name email department jobTitle')
       .sort({ date: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
 
     const total = await Attendance.countDocuments(query);
     const lateMinutes = records.reduce((sum, r) => {
@@ -579,7 +586,8 @@ const getWorkHoursReport = async (req, res) => {
       .populate('employee', 'name email department jobTitle')
       .sort({ date: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
 
     const total = await Attendance.countDocuments(query);
     const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
@@ -650,7 +658,7 @@ const getEmployeeAttendanceReport = async (req, res) => {
       if (endDate) query.date.$lte = new Date(endDate);
     }
 
-    const records = await Attendance.find(query).sort({ date: -1 });
+    const records = await Attendance.find(query).sort({ date: -1 }).lean();
     const totalDays = records.length;
     const present = records.filter(r => r.status === AttendanceStatus.PRESENT).length;
     const absent = records.filter(r => r.status === AttendanceStatus.ABSENT).length;
@@ -847,7 +855,7 @@ const getWeeklyHours = async (req, res) => {
       employee: employeeId,
       date: { $gte: sunday, $lte: saturday },
       status: { $in: ['present', 'late', 'work_from_home'] },
-    });
+    }).lean();
 
     const totalHours = records.reduce((sum, r) => sum + (r.duration || 0), 0);
     const totalOvertime = records.reduce((sum, r) => sum + (r.overtime || 0), 0);

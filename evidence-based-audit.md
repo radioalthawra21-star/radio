@@ -58,7 +58,7 @@ let JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   if (process.env.NODE_ENV !== 'production') {
     JWT_SECRET = 'dev-secret-key-2024';
-    console.warn('âš ï¸ WARNING: Using default JWT_SECRET.');
+    console.warn('⚠️ WARNING: Using default JWT_SECRET.');
   }
 }
 ```
@@ -107,7 +107,7 @@ await adminUser.save();
 const mustafaUser = await User.findOne({ username: 'mostafa' });
 if (mustafaUser) {
   mustafaUser.role = 'hr';
-  mustafaUser.department = 'ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط©';
+  mustafaUser.department = 'الموارد البشرية';
   mustafaUser.isActive = true;
   mustafaUser.password = process.env.MOSTAFA_PASSWORD || '123456';
   await mustafaUser.save();
@@ -123,7 +123,7 @@ userSchema.statics.createAdmin = async function() {
       email: 'admin@example.com',
       username: 'admin',
       password: 'admin',
-      name: 'ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…',
+      name: 'المدير العام',
       role: 'admin',
     });
   }
@@ -219,7 +219,7 @@ router.get('/test-connection', protect, adminOnly, ...);   // سطر 31
 exports.update = async (req, res) => {
   try {
     const item = await FinancialMisc.findById(req.params.id);
-    if (!item) return res.status(404).json({ success: false, message: 'ط؛ظٹط± ظ…ظˆط¬ظˆط¯' });
+    if (!item) return res.status(404).json({ success: false, message: 'غير موجود' });
     Object.assign(item, req.body, { updatedBy: req.user._id });
     await item.save();
     ...
@@ -265,7 +265,7 @@ router.post('/login', login);
 if (password.length < 6) {
   return res.status(400).json({
     success: false,
-    message: 'ظٹط¬ط¨ ط£ظ† طھظƒظˆظ† ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± 6 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„'
+    message: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل'
   });
 }
 ```

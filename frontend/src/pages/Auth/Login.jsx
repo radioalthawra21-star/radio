@@ -86,14 +86,12 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+<div className="text-center mb-8">
           {appLogo ? (
-            <img src={appLogo} alt="Logo" className="w-20 h-20 mx-auto mb-4" />
+            <img src={appLogo} alt="Logo" className="h-24 mx-auto mb-4" />
           ) : (
-            <img src="/logo.png" alt="Logo" className="w-20 h-20 mx-auto mb-4" />
+            <img src="/logo.png" alt="Logo" className="h-24 mx-auto mb-4" />
           )}
-          <h1 className="text-3xl font-bold text-dark">{displayName}</h1>
-          <p className="text-gray-600 mt-2">تسجيل الدخول إلى حسابك</p>
         </div>
 
         <div className="card">

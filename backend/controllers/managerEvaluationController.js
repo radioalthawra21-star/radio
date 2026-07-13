@@ -160,19 +160,23 @@ exports.getResults = async (req, res) => {
       .select('_id name department');
     
     const results = [];
-    for (const manager of managers) {
+    // Parallel instead of sequential N+1
+    const aggregatedPromises = managers.map(async (manager) => {
       const aggregated = await EvaluationResponse.getAggregatedResults(targetPeriod, manager._id);
       if (aggregated) {
-        results.push({
+        return {
           manager: {
             id: manager._id,
             name: manager.name,
             department: manager.department
           },
           ...aggregated
-        });
+        };
       }
-    }
+      return null;
+    });
+    const allResults = await Promise.all(aggregatedPromises);
+    results.push(...allResults.filter(Boolean));
     
     results.sort((a, b) => parseFloat(b.overallAverage) - parseFloat(a.overallAverage));
     
@@ -248,18 +252,21 @@ exports.getTrends = async (req, res) => {
     }
     
     const periods = await EvaluationPeriod.find().sort({ startDate: 1 }).limit(8);
-    const trends = [];
     
-    for (const p of periods) {
+    // Parallel instead of sequential N+1
+    const trendPromises = periods.map(async (p) => {
       const aggregated = await EvaluationResponse.getAggregatedResults(p.period, managerId);
       if (aggregated) {
-        trends.push({
+        return {
           period: p.period,
           overallAverage: aggregated.overallAverage,
           responseCount: aggregated.responseCount
-        });
+        };
       }
-    }
+      return null;
+    });
+    const allTrends = await Promise.all(trendPromises);
+    const trends = allTrends.filter(Boolean);
     
     res.json({
       success: true,

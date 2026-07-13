@@ -638,34 +638,41 @@ const getRankings = async (req, res) => {
  */
 const getDepartmentStats = async (req, res) => {
   try {
-    const departments = await Department.find().sort({ createdAt: -1 });
+    const departments = await Department.find().sort({ createdAt: -1 }).lean();
+
+    // Fetch all employees and tasks once, then group by department
+    const allEmployees = await User.find({ role: UserRole.EMPLOYEE }).lean();
+    const allTasks = await Task.find({
+      status: { $in: [TaskStatus.APPROVED, TaskStatus.FINAL_APPROVED] }
+    }).lean();
+
+    // Build lookup maps
+    const employeesByDept = {};
+    allEmployees.forEach(emp => {
+      const dept = emp.department || 'غير محدد';
+      if (!employeesByDept[dept]) employeesByDept[dept] = [];
+      employeesByDept[dept].push(emp);
+    });
+
+    const employeeIdSet = new Set(allEmployees.map(e => e._id.toString()));
 
     const stats = [];
-
     for (const dept of departments) {
       const deptName = dept.name;
-      
-      const employees = await User.find({ 
-        role: UserRole.EMPLOYEE,
-        department: deptName
-      });
+      const employees = employeesByDept[deptName] || [];
 
       const totalScore = employees.reduce((sum, emp) => sum + (emp.performanceScore || 0), 0);
       const avgScore = employees.length > 0 ? totalScore / employees.length : 0;
 
-      const deptTasks = await Task.find({
-        assignedTo: { $in: employees.map(e => e._id) }
-      });
-
-      const completedTasks = deptTasks.filter(t => 
-        t.status === TaskStatus.APPROVED || t.status === TaskStatus.FINAL_APPROVED
-      ).length;
+      const deptTasks = allTasks.filter(t =>
+        t.assignedTo.some(a => employees.some(e => e._id.toString() === a.toString()))
+      );
 
       stats.push({
         department: deptName,
         employeeCount: employees.length,
         totalTasks: deptTasks.length,
-        completedTasks,
+        completedTasks: deptTasks.length,
         averagePerformanceScore: Math.round(avgScore * 10) / 10
       });
     }

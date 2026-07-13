@@ -96,6 +96,8 @@ const leaveRequestSchema = new mongoose.Schema({
 leaveRequestSchema.index({ employee: 1, startDate: -1 });
 leaveRequestSchema.index({ department: 1, status: 1 });
 leaveRequestSchema.index({ status: 1, createdAt: -1 });
+leaveRequestSchema.index({ type: 1, employee: 1, startDate: -1 });
+leaveRequestSchema.index({ stopRequested: 1 });
 // idempotencyKey has unique:true in field definition; no duplicate index needed
 
 leaveRequestSchema.virtual('isActive').get(function () {

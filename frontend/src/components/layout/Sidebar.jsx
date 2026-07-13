@@ -41,6 +41,7 @@ const menuItems = {
     { path: '/admin/supervisor', label: 'Temp-Supervisor', icon: '🔬' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
+    { path: '/daily-report', label: 'التقرير اليومي', icon: '📋' },
     { path: '/admin/daily-reports', label: 'تقارير الموظفين اليومية', icon: '📊' },
     { path: '/admin/reports/department', label: 'تقارير الأقسام', icon: '📊' },
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },

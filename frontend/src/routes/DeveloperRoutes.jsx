@@ -1,8 +1,10 @@
 import { Route } from 'react-router-dom';
-import DeveloperPanel from '../pages/Developer/DeveloperPanel';
-import AlertsPanel from '../pages/Developer/AlertsPanel';
-import ResourceMonitor from '../pages/Developer/ResourceMonitor';
-import VisitorMonitor from '../pages/Developer/VisitorMonitor';
+import React from 'react';
+
+const DeveloperPanel = React.lazy(() => import('../pages/Developer/DeveloperPanel'));
+const AlertsPanel = React.lazy(() => import('../pages/Developer/AlertsPanel'));
+const ResourceMonitor = React.lazy(() => import('../pages/Developer/ResourceMonitor'));
+const VisitorMonitor = React.lazy(() => import('../pages/Developer/VisitorMonitor'));
 
 export const developerRoutes = (
   <>

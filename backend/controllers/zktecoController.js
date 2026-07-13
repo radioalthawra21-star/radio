@@ -11,6 +11,9 @@ if (!BRIDGE_KEY && process.env.NODE_ENV === 'production') {
   process.exit(1);
 }
 const BRIDGE_SECRET = BRIDGE_KEY || 'dev-bridge-key';
+if (!BRIDGE_KEY) {
+  console.warn('⚠️ BRIDGE_SECRET_KEY not set, using fallback for development only');
+}
 
 function verifyBridge(req, res, next) {
   const key = req.headers['x-bridge-key'];
@@ -1046,11 +1049,13 @@ async function getSystemUsersForMapping(req, res) {
   try {
     const { search } = req.query;
     const query = { isActive: true };
-    if (search) {
+    if (search && typeof search === 'string') {
+      // Escape special regex characters to prevent ReDoS and injection
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { username: { $regex: search, $options: 'i' } }
+        { name: { $regex: escapedSearch, $options: 'i' } },
+        { email: { $regex: escapedSearch, $options: 'i' } },
+        { username: { $regex: escapedSearch, $options: 'i' } }
       ];
     }
     const users = await User.find(query)
@@ -1175,39 +1180,48 @@ async function bulkMapUsers(req, res) {
     }
 
     const seenDeviceIds = new Set();
-    let successCount = 0;
+    const validMappings = [];
     const results = [];
 
     for (const mapping of mappings) {
-      try {
-        if (!mapping.deviceUserId || String(mapping.deviceUserId).trim() === '') {
-          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'deviceUserId مطلوب' });
-          continue;
-        }
-        if (!mapping.userId) {
-          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'userId مطلوب' });
-          continue;
-        }
-        const deviceIdKey = String(mapping.deviceUserId).trim();
-        if (seenDeviceIds.has(deviceIdKey)) {
-          results.push({ userId: mapping.userId, deviceUserId: deviceIdKey, status: 'failed', error: 'deviceUserId مكرر في نفس الدفعة' });
-          continue;
-        }
-        seenDeviceIds.add(deviceIdKey);
-
-        const user = await User.findById(mapping.userId);
-        if (!user) {
-          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'مستخدم غير موجود' });
-          continue;
-        }
-        user.zkUserId = deviceIdKey;
-        await user.save();
-        successCount++;
-        results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'mapped', userName: user.name });
-      } catch (err) {
-        results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: err.message });
+      if (!mapping.deviceUserId || String(mapping.deviceUserId).trim() === '') {
+        results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'deviceUserId مطلوب' });
+        continue;
       }
+      if (!mapping.userId) {
+        results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'userId مطلوب' });
+        continue;
+      }
+      const deviceIdKey = String(mapping.deviceUserId).trim();
+      if (seenDeviceIds.has(deviceIdKey)) {
+        results.push({ userId: mapping.userId, deviceUserId: deviceIdKey, status: 'failed', error: 'deviceUserId مكرر في نفس الدفعة' });
+        continue;
+      }
+      seenDeviceIds.add(deviceIdKey);
+      validMappings.push({ ...mapping, deviceIdKey });
     }
+
+    // Use bulkWrite instead of sequential find + save
+    if (validMappings.length > 0) {
+      const bulkOps = validMappings.map(mapping => ({
+        updateOne: {
+          filter: { _id: mapping.userId },
+          update: { $set: { zkUserId: mapping.deviceIdKey } }
+        }
+      }));
+      const bulkResult = await User.bulkWrite(bulkOps);
+
+      validMappings.forEach((mapping, i) => {
+        const matchedCount = bulkResult.matchedCounts ? bulkResult.matchedCounts[i] : 1;
+        if (matchedCount > 0) {
+          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'mapped' });
+        } else {
+          results.push({ userId: mapping.userId, deviceUserId: mapping.deviceUserId, status: 'failed', error: 'مستخدم غير موجود' });
+        }
+      });
+    }
+
+    const successCount = results.filter(r => r.status === 'mapped').length;
 
     res.json({
       success: true,

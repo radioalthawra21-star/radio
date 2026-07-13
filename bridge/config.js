@@ -1,6 +1,11 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+const apiKey = process.env.API_KEY;
+if (!apiKey) {
+  console.error('⚠️ API_KEY not set in bridge .env');
+}
+
 module.exports = {
   zk: {
     ip: process.env.ZK_IP || '192.168.1.201',
@@ -9,7 +14,7 @@ module.exports = {
   },
   api: {
     baseUrl: process.env.API_BASE_URL || 'http://localhost:3000',
-    key: process.env.API_KEY || 'my-secret-key',
+    key: apiKey || '',
   },
   pollIntervalMs: parseInt(process.env.POLL_INTERVAL_MS || '30000'),
   syncOnStart: process.env.SYNC_ON_START !== 'false',

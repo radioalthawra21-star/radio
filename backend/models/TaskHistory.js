@@ -27,6 +27,8 @@ const TaskHistorySchema = new mongoose.Schema({
       'task_evaluated',
       'task_approved',
       'task_final_approved',
+      'department_approved',
+      'department_rejected',
       'returned',
       'archived'
     ],

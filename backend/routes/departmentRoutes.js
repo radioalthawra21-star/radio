@@ -10,7 +10,7 @@ const {
 } = require('../controllers/departmentController');
 const { protect, adminOnly, adminOrHR, managerOrAdmin } = require('../middleware/authMiddleware');
 
-router.get('/', protect, getAllDepartments);
+router.get('/', getAllDepartments);
 router.get('/stats', protect, managerOrAdmin, getDepartmentStats);
 router.get('/costs', protect, managerOrAdmin, getDepartmentCosts);
 router.post('/', protect, adminOrHR, createDepartment);

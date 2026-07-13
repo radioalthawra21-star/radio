@@ -60,6 +60,21 @@ export const addTaskNotes = async (taskId, notes) => {
   return handleApiCall(() => api.put(`/tasks/${taskId}/notes`, { notes }));
 };
 
+// Add manager note to a task
+export const addManagerNote = async (taskId, note) => {
+  return handleApiCall(() => api.put(`/tasks/${taskId}/manager-note`, { note }));
+};
+
+// Department manager approves a pending task
+export const approveDepartmentTask = async (taskId) => {
+  return handleApiCall(() => api.put(`/tasks/${taskId}/department-approve`));
+};
+
+// Department manager rejects a pending task
+export const rejectDepartmentTask = async (taskId, reason = '') => {
+  return handleApiCall(() => api.put(`/tasks/${taskId}/department-reject`, { reason }));
+};
+
 // Evaluate task (manager only)
 export const evaluateTask = async (taskId, { score, notes }) => {
   return handleApiCall(() => api.post(`/tasks/${taskId}/evaluate`, { score, notes }));
@@ -76,8 +91,8 @@ export const deleteTask = async (taskId) => {
 };
 
 // Get daily summary
-export const getDailySummary = async (date) => {
-  return handleApiCall(() => api.get('/tasks/summary/daily', { params: { date } }));
+export const getDailySummary = async (date, scope) => {
+  return handleApiCall(() => api.get('/tasks/summary/daily', { params: { date, scope } }));
 };
 
 // Get weekly summary
@@ -148,5 +163,8 @@ export default {
   approveProposal,
   rejectProposal,
   addTaskNotes,
+  addManagerNote,
+  approveDepartmentTask,
+  rejectDepartmentTask,
   getDepartmentTasks
 };

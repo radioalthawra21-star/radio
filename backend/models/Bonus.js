@@ -32,6 +32,10 @@ const bonusSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+// Add indexes for common query patterns
+bonusSchema.index({ employee: 1, createdAt: -1 });
+bonusSchema.index({ givenBy: 1 });
+
 const Bonus = mongoose.model('Bonus', bonusSchema);
 
 module.exports = Bonus;

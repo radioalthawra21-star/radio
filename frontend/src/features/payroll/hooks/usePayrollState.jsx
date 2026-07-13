@@ -1,6 +1,6 @@
 // frontend/src/features/payroll/hooks/usePayrollState.jsx
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, useCallback, useMemo } from 'react';
 
 const PayrollContext = createContext();
 
@@ -36,45 +36,49 @@ export const PayrollProvider = ({ children, userRole = 'employee' }) => {
   const canApprove = userPermissions.includes('payroll:approve');
   const canExport = userPermissions.includes('payroll:export') || userPermissions.includes('payroll:view');
 
-  const toggleEditMode = () => {
+  const toggleEditMode = useCallback(() => {
     if (canEdit) {
-      setIsEditMode(!isEditMode);
-      if (!isEditMode) setIsAddingNew(false);
+      setIsEditMode(prev => {
+        const next = !prev;
+        if (next) setIsAddingNew(false);
+        return next;
+      });
     }
-  };
+  }, [canEdit]);
 
-  const startAddingNew = () => {
+  const startAddingNew = useCallback(() => {
     if (canCreate) {
       setIsAddingNew(true);
       setIsEditMode(true);
     }
-  };
+  }, [canCreate]);
 
-  const cancelEditing = () => {
+  const cancelEditing = useCallback(() => {
     setIsEditMode(false);
     setIsAddingNew(false);
     setSelectedEmployee(null);
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    isEditMode,
+    isAddingNew,
+    selectedEmployee,
+    payrollData,
+    userPermissions,
+    canEdit,
+    canCreate,
+    canDelete,
+    canApprove,
+    canExport,
+    toggleEditMode,
+    startAddingNew,
+    cancelEditing,
+    setSelectedEmployee,
+    setPayrollData
+  }), [isEditMode, isAddingNew, selectedEmployee, payrollData, userPermissions, canEdit, canCreate, canDelete, canApprove, canExport, toggleEditMode, startAddingNew, cancelEditing]);
 
   return (
-    <PayrollContext.Provider value={{
-      isEditMode,
-      isAddingNew,
-      selectedEmployee,
-      payrollData,
-      userPermissions,
-      canEdit,
-      canCreate,
-      canDelete,
-      canApprove,
-      canExport,
-      toggleEditMode,
-      startAddingNew,
-      cancelEditing,
-      setSelectedEmployee,
-      setPayrollData
-    }}
-    >
+    <PayrollContext.Provider value={contextValue}>
       {children}
     </PayrollContext.Provider>
   );

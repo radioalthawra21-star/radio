@@ -46,6 +46,7 @@ const messageSchema = new mongoose.Schema({
 messageSchema.index({ sender: 1, createdAt: -1 });
 messageSchema.index({ receiver: 1, createdAt: -1 });
 messageSchema.index({ receiver: 1, isRead: 1 });
+messageSchema.index({ isArchived: 1 });
 
 // Mark message as read
 messageSchema.methods.markAsRead = async function() {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const TypographyContext = createContext();
 
@@ -106,14 +106,14 @@ export const TypographyProvider = ({ children }) => {
     setLoadedFonts(prev => prev.filter(f => f !== fontName));
   }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     fonts,
     updateFonts,
     addUploadedFont,
     deleteUploadedFont,
     GOOGLE_FONTS,
     loadedFonts
-  };
+  }), [fonts, updateFonts, addUploadedFont, deleteUploadedFont, loadedFonts]);
 
   return (
     <TypographyContext.Provider value={value}>

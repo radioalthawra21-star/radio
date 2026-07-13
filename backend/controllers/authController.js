@@ -68,7 +68,7 @@ const register = async (req, res) => {
     }
 
     // Check if email already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ email: email.toLowerCase() }).lean();
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -77,7 +77,7 @@ const register = async (req, res) => {
     }
 
     // Check if username already exists
-    const existingUsername = await User.findOne({ username });
+    const existingUsername = await User.findOne({ username }).lean();
     if (existingUsername) {
       return res.status(400).json({
         success: false,
@@ -97,7 +97,7 @@ const register = async (req, res) => {
     });
 
     // Notify admin about new user registration
-    const admin = await User.findOne({ role: 'admin' });
+    const admin = await User.findOne({ role: 'admin' }).lean();
     if (admin) {
       await Notification.createNotification(
         admin._id,

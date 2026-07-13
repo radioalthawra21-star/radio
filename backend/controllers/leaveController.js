@@ -626,9 +626,14 @@ const getLeaveBalance = async (req, res) => {
   try {
     const employeeId = req.user._id;
     const balances = {};
-    for (const key in LeaveType) {
-      balances[LeaveType[key]] = await LeaveRequest.checkLeaveBalance(employeeId, LeaveType[key]);
-    }
+    const leaveTypes = Object.values(LeaveType);
+    // Parallel execution instead of sequential N+1
+    const results = await Promise.all(
+      leaveTypes.map(type => LeaveRequest.checkLeaveBalance(employeeId, type))
+    );
+    leaveTypes.forEach((type, i) => {
+      balances[type] = results[i];
+    });
     res.json({ success: true, data: { balances } });
   } catch (error) {
     console.error('Error getting balance:', error);
@@ -651,11 +656,11 @@ const getPendingLeaveRequests = async (req, res) => {
         status: LeaveStatus.PENDING_MANAGER,
         department: { $in: deptValues },
         employee: { $ne: req.user._id },
-      }).populate('employee', 'name email department').sort({ createdAt: -1 });
+      }).populate('employee', 'name email department').sort({ createdAt: -1 }).lean();
     } else if (req.user.role === 'admin' || req.user.role === 'hr') {
       leaveRequests = await LeaveRequest.find({
         status: { $in: [LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER] },
-      }).populate('employee', 'name email department').sort({ createdAt: -1 });
+      }).populate('employee', 'name email department').sort({ createdAt: -1 }).lean();
     } else {
       return res.status(403).json({ success: false, message: 'غير مصرح' });
     }
@@ -719,7 +724,7 @@ const getLeaveRequests = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const leaveRequests = await LeaveRequest.find(query)
       .populate('employee', 'name email department')
-      .sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit));
+      .sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).lean();
     const total = await LeaveRequest.countDocuments(query);
     res.json({
       success: true, data: {

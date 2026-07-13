@@ -53,7 +53,8 @@ const getEmployeePerformance = async (req, res) => {
     const filter = { role: 'employee' };
     if (req.user.role === 'manager' && req.user.department) {
       filter.department = req.user.department;
-    } else if (req.query.department) {
+    } else if (req.query.department && typeof req.query.department === 'string') {
+      // Only accept string department values, reject objects (NoSQL injection)
       filter.department = req.query.department;
     }
     const employees = await User.find(filter).select('name department role position avatar');

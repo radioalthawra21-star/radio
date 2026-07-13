@@ -57,6 +57,7 @@ const chatSchema = new mongoose.Schema({
 chatSchema.index({ type: 1, isActive: 1 });
 chatSchema.index({ departments: 1 });
 chatSchema.index({ taskId: 1 }, { sparse: true });
+chatSchema.index({ participants: 1 });
 
 chatSchema.statics.findOrCreateDepartmentChat = async function(departmentId, createdBy) {
   let chat = await this.findOne({ type: 'department', departments: departmentId, isActive: true });

@@ -351,9 +351,11 @@ const markAsRead = async (req, res) => {
 const searchChats = async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q || q.length < 2) {
+    if (!q || q.length < 2 || typeof q !== 'string') {
       return res.json({ success: true, data: { chats: [], messages: [], users: [] } });
     }
+    // Escape special regex characters to prevent ReDoS
+    const escapedQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const memberships = await ChatMember.find({
       user: req.user._id,
@@ -363,12 +365,12 @@ const searchChats = async (req, res) => {
 
     const chats = await Chat.find({
       _id: { $in: chatIds },
-      name: { $regex: q, $options: 'i' }
+      name: { $regex: escapedQ, $options: 'i' }
     }).lean();
 
     const messages = await ChatMessage.find({
       chat: { $in: chatIds },
-      content: { $regex: q, $options: 'i' },
+      content: { $regex: escapedQ, $options: 'i' },
       isDeleted: false
     })
       .populate('sender', 'name')
@@ -377,7 +379,7 @@ const searchChats = async (req, res) => {
 
     const deptChatIds = chatIds;
     const deptUsers = await User.find({
-      name: { $regex: q, $options: 'i' },
+      name: { $regex: escapedQ, $options: 'i' },
       isActive: true
     })
       .select('name email department profileImage role')

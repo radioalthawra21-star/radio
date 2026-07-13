@@ -53,7 +53,9 @@ api.interceptors.response.use(
       const { status, data } = error.response;
       userMessage = data?.message || `خطأ في الخادم (${status})`;
 
-      if (status === 401 && !originalRequest?.url?.includes('/auth/login') && !originalRequest?._retry) {
+      const publicUrls = ['/auth/login', '/departments'];
+      const isPublicUrl = publicUrls.some(url => originalRequest?.url?.includes(url));
+      if (status === 401 && !isPublicUrl && !originalRequest?._retry) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getStoredUser } from '../../services/authService';
+import { getAllDepartments } from '../../services/departmentService';
 import MyTasks from '../Employee/MyTasks';
 import AddTask from '../Employee/AddTask';
 import TaskHistory from '../Employee/TaskHistory';
@@ -50,10 +51,24 @@ const TaskManagement = () => {
   const user = getStoredUser();
   const role = user?.role || 'employee';
   const [activeTab, setActiveTab] = useState(TABS[role]?.[0]?.key || 'my-tasks');
+  const [departments, setDepartments] = useState([]);
+  const [selectedDept, setSelectedDept] = useState('all');
 
   const tabItems = TABS[role] || TABS.employee;
+  const isAdmin = role === 'admin';
+
+  useEffect(() => {
+    if (isAdmin) {
+      getAllDepartments()
+        .then(res => {
+          if (res.success) setDepartments(res.data.departments || []);
+        })
+        .catch(() => {});
+    }
+  }, [isAdmin]);
 
   const renderContent = () => {
+    const deptFilter = selectedDept !== 'all' ? selectedDept : undefined;
     switch (activeTab) {
       case 'my-tasks':
         return <MyTasks />;
@@ -66,7 +81,7 @@ const TaskManagement = () => {
       case 'evaluate-tasks':
         return <EvaluateTasks />;
       case 'department-tasks':
-        return <DepartmentTasks />;
+        return <DepartmentTasks departmentFilter={deptFilter} />;
       case 'task-history':
         return <TaskHistory />;
       case 'kanban':
@@ -104,6 +119,22 @@ const TaskManagement = () => {
           ))}
         </div>
       </div>
+
+      {isAdmin && (
+        <div className="mb-4 flex items-center gap-3">
+          <label className="text-sm font-semibold text-dark">فلتر القسم:</label>
+          <select
+            value={selectedDept}
+            onChange={(e) => setSelectedDept(e.target.value)}
+            className="input w-56"
+          >
+            <option value="all">جميع الأقسام</option>
+            {departments.map((d) => (
+              <option key={d._id} value={d.name}>{d.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="mt-4">
         {renderContent()}

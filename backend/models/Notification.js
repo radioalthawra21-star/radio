@@ -101,6 +101,8 @@ const notificationSchema = new mongoose.Schema({
 // Index for queries
 notificationSchema.index({ user: 1, isRead: 1 });
 notificationSchema.index({ createdAt: -1 });
+notificationSchema.index({ relatedChat: 1 });
+notificationSchema.index({ relatedTask: 1 });
 
 // Static method to create notification
 notificationSchema.statics.createNotification = async function(userId, type, title, message, taskId = null) {

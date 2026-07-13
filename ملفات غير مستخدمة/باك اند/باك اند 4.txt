@@ -1,0 +1,125 @@
+=== مراجعة الباك اند - التقرير الرابع ===
+المجلدات: services/ + models/
+
+============================================
+🔴 أخطاء منطقية (Logic Bugs)
+============================================
+
+1. ManagerEvaluation.hasSubmitted يمنع الجميع بعد أول تقييم
+   الملف: ManagerEvaluation.js:72-75
+   التفاصيل: hasSubmitted يبحث فقط عن (period, manager) بدون userId
+   الأثر: بعد أن يقيم موظف واحد مديره، لا يستطيع أي موظف آخر التقييم
+   السبب: لا يوجد حقل employee في الـ Response Schema!
+   الحل: إما إضافة userId مع تعمية الهوية، أو إزالة hasSubmitted للسماح بتقييمات متعددة
+
+============================================
+🟡 مشاكل أداء (Performance)
+============================================
+
+2. WellBeingCheckIn.getAggregatedStats يحمل كل السجلات بالذاكرة
+   الملف: WellBeingCheckIn.js:91-151
+   التفاصيل: this.find(query) ثم معالجة يدوية في JavaScript
+   الأثر: مع 1000+ استجابة، تحمل كلها في الذاكرة
+   الحل: استخدام MongoDB Aggregation Pipeline ($group, $avg, $sum)
+
+3. Payroll.pre('save') يحسب totals في كل حفظ
+   الملف: Payroll.js:268-271
+   التفاصيل: calculateTotals() يستدعى في pre-save حتى عند تحديث status فقط
+   الأثر: حسابات غير ضرورية في كل تحديث
+   الحل: استدعاء calculateTotals فقط عند تغيير الحقول المالية
+
+============================================
+🔵 مشاكل استقرار (Stability)
+============================================
+
+4. AuditLog بدون TTL Index
+   الملف: AuditLog.js
+   التفاصيل: سجلات المراجعة تتراكم بلا حذف تلقائي
+   الأثر: growth غير محدود في قاعدة البيانات
+   الحل: إضافة TTL index على createdAt
+
+5. Document.js - Circular dependency محتمل
+   الملف: Document.js:139, 144
+   التفاصيل: require('./User') داخل allowedRoles و allowedDepartments
+   الأثر: قد يسبب مشاكل في الـ require order إذا User ref Document
+
+============================================
+🟢 إيجابيات (Good Patterns)
+============================================
+
+6. PayrollItem: Idempotency Key ممتاز
+   التفاصيل: idempotencyKey مع unique:true يمنع المعالجة المكررة
+
+7. compensationService: تصميم نظيف
+   التفاصيل: calculateCompensation + checkFinancialOverlap + syncCompensationToPayroll
+   مع دعم idempotency ومنع overlap
+
+8. Settings: static methods getValue/setValue مع upsert
+   التفاصيل: نمط جيد لـ key-value store في MongoDB
+
+9. AuditLog: تصميم متكامل
+   التفاصيل: riskLevel, ipAddress, userAgent, sessionId, previousValues, newValues
+
+10. Services/chatSocket.js: تصميم جيد مع JWT authentication للـ Socket.IO
+    والعزل عبر namespaces
+
+============================================
+🔴 استمرار مشاكل zktecoService
+============================================
+
+11. zktecoService.js: أكثر ملف يحتاج تحسين
+    - 41: IP افتراضي hardcoded (192.168.1.201)
+    - 123: getAttendances() بدون timeout
+    - 176: getRealTimeLogs(callback) قد يسبب memory leak
+     - 306-330: _getFirmwareFromSDKBridge يتصل بـ 127.0.0.1:3457 بدون auth
+
+============================================
+🟢 تقرير الإصلاح (Fixes Applied)
+============================================
+
+التاريخ: 2026-06-30
+الحالة: ✅ تم إصلاح 6 مشاكل (11 sub-issue)
+
+1. ManagerEvaluation.hasSubmitted يمنع الجميع
+   الحل: إضافة حقل employeeHash (SHA256(period + userId)) بدلاً من الفلترة بالـ manager
+   الملف: ManagerEvaluation.js:48-50 (حقل جديد) + 72-82 (إعادة hasSubmitted)
+   الملف: managerEvaluationController.js:96-100 (إزالة الشرط الخاطئ + إنشاء hash)
+   الأثر: كل موظف يستطيع التقييم مرة واحدة فقط، لكن عدة موظفين يقيمون نفس المدير
+
+2. WellBeingCheckIn.getAggregatedStats يحمل كل السجلات بالذاكرة
+   الحل: استخدام MongoDB Aggregation Pipeline ($group, $avg, $sum, $cond) بدلاً from loading all documents
+   الملف: WellBeingCheckIn.js:91-171
+   من: this.find(query) + 4 حلقات for في JavaScript
+   إلى: this.aggregate() مع stage وحيد + countDocuments منفصل
+   الأثر: تقليل استخدام الذاكرة من O(n) إلى O(1)
+
+3. Payroll.pre('save') يحسب totals في كل حفظ
+   الحل: إضافة this.isModified() check + this.isNew
+   الملف: Payroll.js:268-272
+   من: this.calculateTotals() في كل save
+   إلى: فقط عند تعديل baseSalary أو components أو deductions أو إنشاء جديد
+   الأثر: تحديث status فقط لا يستدعي calculateTotals
+
+4. AuditLog بدون TTL Index
+   الحل: إضافة expireAfterSeconds على index createdAt
+   الملف: AuditLog.js:125
+   التفاصيل: { createdAt: -1 } → { createdAt: -1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 }
+   الأثر: سجلات audit أقدم من 90 يوماً تُحذف تلقائياً
+
+5. Document.js Circular dependency
+   الحل: استبدال require('./User').UserRole/Department بقيم hardcoded
+   الملف: Document.js:139, 144
+   من: enum: Object.values(require('./User').UserRole)
+   إلى: enum: ['employee', 'manager', 'hr', 'admin']
+
+6. zktecoService.js - 4 مشاكل فرعية:
+   a. IP افتراضي: 192.168.1.201 → 192.168.15.50 (يطابق AGENTS.md)
+   b. getAttendances بدون timeout: إضافة Promise.race مع 10s timeout
+   c. getRealTimeLogs memory leak: إضافة this._rtlActive flag + stopRealTimeLogs()
+   d. _getFirmwareFromSDKBridge بدون auth: إضافة key: bridgeKey إلى الأمر JSON
+
+ملاحظات:
+- جميع التغييرات اجتازت فحص syntax (node -c)
+- جميع الموديولات تُحمل بنجاح
+- الملفات المعدلة: ManagerEvaluation.js, WellBeingCheckIn.js, Payroll.js, AuditLog.js, Document.js, zktecoService.js, managerEvaluationController.js
+- تم إنشاء نقطة استعادة: git tag bakend4-restore

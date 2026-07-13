@@ -1,36 +1,36 @@
 import { Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute, HrDeptRoute } from '../components/RouteGuards';
-import AllEmployees from '../pages/Admin/AllEmployees';
-import AllReports from '../pages/Admin/AllReports';
-import AttendanceReports from '../pages/reports/AttendanceReports';
-import LeaveReports from '../pages/reports/LeaveReports';
-import DepartmentReportView from '../pages/reports/DepartmentReports';
-import RecruitmentReportsPage from '../pages/reports/RecruitmentReports';
-import Settings from '../pages/Admin/Settings';
-import Rankings from '../pages/Admin/Rankings';
-import LeaveManagement from '../pages/Admin/LeaveManagement';
-import GMApproveLeaves from '../pages/Admin/GMApproveLeaves';
-import LeaveSettings from '../pages/Admin/LeaveSettings';
-import AttendanceManagement from '../pages/Admin/AttendanceManagement';
+import React from 'react';
 
-import EmployeeAttendanceReport from '../pages/Admin/EmployeeAttendanceReport';
-
-import BiometricManagement from '../pages/Admin/BiometricManagement';
-
-import AuditLogs from '../pages/Admin/AuditLogs';
-import BonusManagement from '../components/BonusManagement';
-import HolidayManagement from '../pages/Admin/HolidayManagement';
-import ManagerEvaluationDashboard from '../pages/ManagerEvaluationDashboard';
-import WellBeingDashboard from '../pages/WellBeingDashboard';
-import DepartmentReports from '../pages/Manager/DepartmentReports';
-import RecruitmentPerformanceManagement from '../pages/RecruitmentPerformanceManagement';
-import EmployeeProfilePage from '../pages/Admin/EmployeeProfilePage';
-import TempSupervisorPage from '../pages/Admin/TempSupervisorPage';
-import DailyReportsDashboard from '../pages/Admin/DailyReportsDashboard';
-import DailyReportDetail from '../pages/Admin/DailyReportDetail';
+const AllEmployees = React.lazy(() => import('../pages/Admin/AllEmployees'));
+const AllReports = React.lazy(() => import('../pages/Admin/AllReports'));
+const AttendanceReports = React.lazy(() => import('../pages/reports/AttendanceReports'));
+const LeaveReports = React.lazy(() => import('../pages/reports/LeaveReports'));
+const DepartmentReportView = React.lazy(() => import('../pages/reports/DepartmentReports'));
+const RecruitmentReportsPage = React.lazy(() => import('../pages/reports/RecruitmentReports'));
+const Settings = React.lazy(() => import('../pages/Admin/Settings'));
+const Rankings = React.lazy(() => import('../pages/Admin/Rankings'));
+const LeaveManagement = React.lazy(() => import('../pages/Admin/LeaveManagement'));
+const GMApproveLeaves = React.lazy(() => import('../pages/Admin/GMApproveLeaves'));
+const LeaveSettings = React.lazy(() => import('../pages/Admin/LeaveSettings'));
+const AttendanceManagement = React.lazy(() => import('../pages/Admin/AttendanceManagement'));
+const EmployeeAttendanceReport = React.lazy(() => import('../pages/Admin/EmployeeAttendanceReport'));
+const BiometricManagement = React.lazy(() => import('../pages/Admin/BiometricManagement'));
+const AuditLogs = React.lazy(() => import('../pages/Admin/AuditLogs'));
+const BonusManagement = React.lazy(() => import('../components/BonusManagement'));
+const HolidayManagement = React.lazy(() => import('../pages/Admin/HolidayManagement'));
+const ManagerEvaluationDashboard = React.lazy(() => import('../pages/ManagerEvaluationDashboard'));
+const WellBeingDashboard = React.lazy(() => import('../pages/WellBeingDashboard'));
+const DepartmentReports = React.lazy(() => import('../pages/Manager/DepartmentReports'));
+const RecruitmentPerformanceManagement = React.lazy(() => import('../pages/RecruitmentPerformanceManagement'));
+const EmployeeProfilePage = React.lazy(() => import('../pages/Admin/EmployeeProfilePage'));
+const TempSupervisorPage = React.lazy(() => import('../pages/Admin/TempSupervisorPage'));
+const DailyReportsDashboard = React.lazy(() => import('../pages/Admin/DailyReportsDashboard'));
+const DailyReportDetail = React.lazy(() => import('../pages/Admin/DailyReportDetail'));
 
 export const adminRoutes = (
   <>
+    
     <Route path="/admin/employees" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AllEmployees /></ProtectedRoute>} />
     <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={['admin']}><AllReports /></ProtectedRoute>} />
     <Route path="/admin/reports/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceReports /></ProtectedRoute>} />

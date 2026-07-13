@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { getMyTasks, updateTaskStatus, addTaskNotes, deleteTask } from '../../services/taskService';
 import Card from '../../components/common/Card';
 import { formatDateArabic } from '../../utils/dateUtils';
+import { getStoredUser } from '../../services/authService';
 
 const MyTasks = () => {
+  const currentUser = getStoredUser();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ status: '', startDate: '', endDate: '' });
@@ -53,8 +55,16 @@ const MyTasks = () => {
 
   const isProposal = (task) => task.isProposal && task.status === 'pending';
 
+  const isSelfCreated = (task) => {
+    if (!currentUser || !task.createdBy) return false;
+    return task.createdBy._id === currentUser._id || task.createdBy === currentUser._id;
+  };
+
   const getStatusBadge = (task) => {
     if (isProposal(task)) return <span className="badge bg-warning text-white">🕐 باقتراح</span>;
+    if (task.status === 'pending' && isSelfCreated(task)) {
+      return <span className="badge bg-orange-400 text-white">⏳ بانتظار موافقة المدير</span>;
+    }
     const status = task.status;
     const badges = {
       pending: 'bg-gray-500', in_progress: 'bg-warning', completed: 'bg-info',
@@ -62,13 +72,13 @@ const MyTasks = () => {
     };
     const labels = {
       pending: 'في الانتظار', in_progress: 'في التنفيذ', completed: 'مكتملة',
-      approved: 'موافقة', final_approved: 'موافقة نهائية', rejected: 'مرفوضة'
+      approved: '✅ تمت الموافقة', final_approved: 'موافقة نهائية', rejected: 'مرفوضة'
     };
     return <span className={`badge ${badges[status] || 'bg-gray-500'} text-white`}>{labels[status] || status}</span>;
   };
 
   const canReject = (task) =>
-    (task.status === 'pending' || task.status === 'in_progress') && !isProposal(task);
+    ((task.status === 'pending' && !isSelfCreated(task)) || task.status === 'in_progress') && !isProposal(task);
 
   return (
     <div className="animate-fade-in">
@@ -81,6 +91,7 @@ const MyTasks = () => {
             <select className="input min-h-[48px]" value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
               <option value="">الكل</option>
               <option value="pending">قيد الانتظار</option>
+              <option value="approved">تمت الموافقة</option>
               <option value="in_progress">في التنفيذ</option>
               <option value="completed">مكتملة</option>
               <option value="rejected">مرفوضة</option>
@@ -108,7 +119,7 @@ const MyTasks = () => {
               <div className="flex flex-col gap-3">
                 <div className="flex items-start gap-3 min-h-[48px] w-full max-w-full">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-lg md:text-xl">
-                    {isProposal(task) ? '💡' : task.isUnusual ? '⚠️' : task.status === 'rejected' ? '🚫' : '📝'}
+                    {isProposal(task) ? '💡' : task.isUnusual ? '⚠️' : task.status === 'rejected' ? '🚫' : task.status === 'approved' ? '✅' : '📝'}
                   </div>
                   <div className="min-w-0 flex-1 max-w-full">
                     <h3 className="font-semibold text-dark text-base md:text-lg break-words">{task.title}</h3>
@@ -127,11 +138,17 @@ const MyTasks = () => {
                   </div>
                   <div className="flex-1 min-w-[8px]"></div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {task.status === 'in_progress' && (
-                      <button onClick={() => handleStatusChange(task._id, 'completed')} className="btn btn-interactive text-xs md:text-sm px-3 py-1.5 min-h-[40px]">إكمال</button>
+                    {task.status === 'approved' && (
+                      <button onClick={() => handleStatusChange(task._id, 'in_progress')} className="btn btn-primary text-xs md:text-sm px-3 py-1.5 min-h-[40px]">🚀 ابدأ العمل</button>
                     )}
-                    {task.status === 'pending' && !isProposal(task) && (
+                    {task.status === 'in_progress' && (
+                      <button onClick={() => handleStatusChange(task._id, 'completed')} className="btn btn-interactive text-xs md:text-sm px-3 py-1.5 min-h-[40px]">✅ إكمال</button>
+                    )}
+                    {task.status === 'pending' && !isProposal(task) && !isSelfCreated(task) && (
                       <button onClick={() => handleStatusChange(task._id, 'in_progress')} className="btn btn-primary text-xs md:text-sm px-3 py-1.5 min-h-[40px]">بدء</button>
+                    )}
+                    {task.status === 'pending' && !isProposal(task) && isSelfCreated(task) && (
+                      <span className="text-xs text-orange-600 font-medium px-2">⏳ بانتظار الموافقة</span>
                     )}
                     {canReject(task) && (
                       <button onClick={() => { setRejectModal(task); setRejectReason(''); }} className="btn btn-outline border-error text-error hover:bg-error/10 text-xs md:text-sm px-3 py-1.5 min-h-[40px]">رفض</button>

@@ -82,6 +82,7 @@ const createWorkflowTask = async (req, res) => {
         );
       }
     }
+    // Note: notifications here are small (1-2 typically), keeping sequential for simplicity
     await AuditLog.logAction({
       user: req.user._id, userRole: req.user.role,
       userDepartment: req.user.department,
@@ -141,6 +142,7 @@ const transitionTask = async (req, res) => {
         task._id
       );
     }
+    // Note: notifications here are typically 1-2 users, keeping sequential
     res.json({ success: true, message: 'تم تحويل المهمة', data: { task } });
   } catch (error) {
     console.error('Error transitioning task:', error.message);
@@ -278,6 +280,27 @@ const addComment = async (req, res) => {
       task: task._id, action: 'commented', user: req.user._id,
       description: `أضاف تعليقاً: ${content.substring(0, 100)}`
     });
+
+    // Notify assigned employees when manager/admin adds a comment
+    const isManager = req.user.role === 'manager' || req.user.role === 'admin';
+    if (isManager) {
+      for (const userId of task.assignedTo) {
+        const uid = userId.toString();
+        if (uid !== req.user._id.toString()) {
+          const notif = await Notification.createNotification(
+            uid,
+            NotificationType.TASK_UPDATED,
+            'تعليق جديد على مهمتك',
+            `أضاف ${req.user.name} تعليقاً على المهمة "${task.title}"`,
+            task._id
+          );
+          if (global.io) {
+            global.io.to(uid).emit('notification', notif);
+          }
+        }
+      }
+    }
+
     res.status(201).json({ success: true, data: { comment } });
   } catch (error) {
     console.error('Error adding comment:', error.message);
@@ -396,7 +419,7 @@ const getKanbanBoard = async (req, res) => {
     res.json({ success: true, data: { columns } });
   } catch (error) {
     console.error('Error fetching kanban:', error);
-    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم', error: error.message, stack: error.stack });
+    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
   }
 };
 

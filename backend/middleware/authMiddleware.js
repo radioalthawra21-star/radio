@@ -6,6 +6,11 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
 
+// Simple in-memory user cache to avoid DB lookup on every request
+// TTL: 60 seconds — balances freshness vs performance
+const userCache = new Map();
+const CACHE_TTL_MS = 60 * 1000;
+
 // JWT secret key (should be in environment variables in production)
 let JWT_SECRET = process.env.JWT_SECRET;
 
@@ -13,7 +18,7 @@ let JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   if (process.env.NODE_ENV !== 'production') {
     JWT_SECRET = 'dev-secret-key-2024';
-    console.warn('âڑ ï¸ڈ WARNING: Using default JWT_SECRET. Set JWT_SECRET env var for production!');
+    console.warn('⚠️ WARNING: Using default JWT_SECRET. Set JWT_SECRET env var for production!');
   } else {
     throw new Error('FATAL: JWT_SECRET environment variable is required');
   }
@@ -35,20 +40,29 @@ const protect = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'ط؛ظٹط± ظ…طµط±ط­ ظ„ظƒ ظ„ظ„ظˆطµظˆظ„ - ظٹط±ط¬ظ‰ طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„'
+        message: 'غير مصرح لك للوصول - يرجى تسجيل الدخول'
       });
     }
     
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    // Get user from database
-    const user = await User.findById(decoded.id);
+    // Get user from database (with in-memory cache to avoid DB hit on every request)
+    let user;
+    const cached = userCache.get(decoded.id);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
+      user = cached.user;
+    } else {
+      user = await User.findById(decoded.id).lean();
+      if (user) {
+        userCache.set(decoded.id, { user, timestamp: Date.now() });
+      }
+    }
     
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'ط§ظ„ظ…ط³طھط®ط¯ظ… ط؛ظٹط± ظ…ظˆط¬ظˆط¯'
+        message: 'المستخدم غير موجود'
       });
     }
     
@@ -56,7 +70,7 @@ const protect = async (req, res, next) => {
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
-        message: 'ط­ط³ط§ط¨ظƒ ط؛ظٹط± ظ†ط´ط· - ظٹط±ط¬ظ‰ ط§ظ„طھظˆط§طµظ„ ظ…ط¹ ط§ظ„ط¥ط¯ط§ط±ط©'
+        message: 'حسابك غير نشط - يرجى التواصل مع الإدارة'
       });
     }
     
@@ -64,22 +78,26 @@ const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('ط®ط·ط£ ظپظٹ ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„طھظˆظƒظ†:', error.message);
+    console.error('خطأ في التحقق من التوكن:', error.message);
     return res.status(401).json({
       success: false,
-      message: 'طھظˆظƒظ† ط؛ظٹط± طµط§ظ„ط­'
+      message: 'توكن غير صالح'
     });
   }
 };
 
 const isDev = (role) => role === 'developer';
 
+const isAdminLike = (role) => role === 'admin' || role === 'general_manager' || role === 'administrator';
+
+const isManagerLike = (role) => role === 'manager' || role === 'hr';
+
 /**
  * Middleware to check if user is admin (General Manager) only
  */
 const adminOnly = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'admin' || isDev(role)) {
+  if (isAdminLike(role) || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
@@ -94,7 +112,7 @@ const adminOnly = (req, res, next) => {
  */
 const managerOrAdmin = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'manager' || role === 'hr' || role === 'admin' || isDev(role)) {
+  if (isManagerLike(role) || isAdminLike(role) || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
@@ -133,7 +151,7 @@ const generateToken = (userId) => {
  */
 const adminOrHR = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'admin' || role === 'hr' || isDev(role)) {
+  if (isAdminLike(role) || role === 'hr' || isDev(role)) {
     next();
   } else {
     return res.status(403).json({
@@ -150,7 +168,7 @@ const adminOrHRorHrEmployee = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
   const dept = (req.user?.department || '').toString().toLowerCase().trim();
   const isHrDept = dept === 'hr' || dept === 'الموارد البشرية' || dept.includes('موارد بشرية');
-  if (role === 'admin' || role === 'hr' || (role === 'employee' && isHrDept)) {
+  if (isAdminLike(role) || role === 'hr' || (role === 'employee' && isHrDept)) {
     next();
   } else {
     return res.status(403).json({
@@ -165,7 +183,7 @@ const adminOrHRorHrEmployee = (req, res, next) => {
  */
 const generalManagerOnly = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (role === 'admin' || isDev(role)) {
+  if (isAdminLike(role) || isDev(role)) {
     next();
   } else {
     return res.status(403).json({

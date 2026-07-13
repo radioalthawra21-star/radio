@@ -1,14 +1,16 @@
 import { Route, Navigate, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
-import MyTasks from '../pages/Employee/MyTasks';
-import AddTask from '../pages/Employee/AddTask';
-import TaskHistory from '../pages/Employee/TaskHistory';
-import AssignTasks from '../pages/Manager/AssignTasks';
-import EvaluateTasks from '../pages/Manager/EvaluateTasks';
-import TaskDetail from '../pages/TaskDetail';
-import TaskManagement from '../pages/Tasks/TaskManagement';
-import WorkflowTaskDetail from '../pages/Workflow/WorkflowTaskDetail';
-import DepartmentTasks from '../pages/Manager/DepartmentTasks';
+import React from 'react';
+
+const MyTasks = React.lazy(() => import('../pages/Employee/MyTasks'));
+const AddTask = React.lazy(() => import('../pages/Employee/AddTask'));
+const TaskHistory = React.lazy(() => import('../pages/Employee/TaskHistory'));
+const AssignTasks = React.lazy(() => import('../pages/Manager/AssignTasks'));
+const EvaluateTasks = React.lazy(() => import('../pages/Manager/EvaluateTasks'));
+const TaskDetail = React.lazy(() => import('../pages/TaskDetail'));
+const TaskManagement = React.lazy(() => import('../pages/Tasks/TaskManagement'));
+const WorkflowTaskDetail = React.lazy(() => import('../pages/Workflow/WorkflowTaskDetail'));
+const DepartmentTasks = React.lazy(() => import('../pages/Manager/DepartmentTasks'));
 
 const TaskDetailRedirect = () => {
   const { id } = useParams();
@@ -17,10 +19,7 @@ const TaskDetailRedirect = () => {
 
 export const taskRoutes = (
   <>
-    {/* Consolidated task management tab */}
     <Route path="/tasks" element={<ProtectedRoute><TaskManagement /></ProtectedRoute>} />
-
-    {/* Legacy routes - keep for backward compatibility */}
     <Route path="/my-tasks" element={<ProtectedRoute allowedRoles={['employee']}><MyTasks /></ProtectedRoute>} />
     <Route path="/add-task" element={<ProtectedRoute allowedRoles={['employee', 'manager']}><AddTask /></ProtectedRoute>} />
     <Route path="/task-history" element={<ProtectedRoute allowedRoles={['employee']}><TaskHistory /></ProtectedRoute>} />

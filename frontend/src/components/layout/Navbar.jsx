@@ -45,7 +45,6 @@ const Navbar = ({ user, onLogout, onToggleSidebar }) => {
             ) : (
               <img src="/logo.png" alt="Logo" className="h-8 md:h-10 w-auto flex-shrink-0" />
             )}
-            <h2 className="text-sm md:text-xl font-bold text-dark truncate">{displayName}</h2>
           </div>
         </div>
 

@@ -32,6 +32,11 @@ const KanbanCard = ({ task, onStatusChange, onClick }) => {
           📅 {formatDateArabic(task.dueDate)}
         </div>
       )}
+      {task.managerNotes && (
+        <div className="mt-1.5 text-xs text-yellow-600 bg-yellow-50 rounded px-1.5 py-0.5 line-clamp-1">
+          📝 {task.managerNotes}
+        </div>
+      )}
     </div>
   );
 };

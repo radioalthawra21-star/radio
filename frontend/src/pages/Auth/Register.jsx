@@ -6,6 +6,8 @@ import { getAllDepartments } from '../../services/departmentService';
 const APP_LOGO_KEY = 'appLogo';
 const APP_NAME_KEY = 'appName';
 
+const isEnglish = (str) => /^[a-zA-Z0-9]+$/.test(str);
+
 const Register = () => {
   const navigate = useNavigate();
   const [customDepartments, setCustomDepartments] = useState([]);
@@ -14,12 +16,10 @@ const Register = () => {
     name: '',
     username: '',
     email: '',
-    confirmEmail: '',
     password: '',
     confirmPassword: '',
     department: '',
-    role: 'employee',
-    jobTitle: ''
+    role: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,11 +63,26 @@ const Register = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError('');
+          if (e.target.name === 'name') {
+            const value = e.target.value;
+            if (!/^[\u0600-\u06FF\s]+$/.test(value)) {
+              setError('الاسم الكامل يجب أن يكون باللغة العربية فقط');
+              return;
+            }
+            setFormData(prev => ({ ...prev, name: value }));
+            setError('');
+          } else if (e.target.name === 'username') {
+            const value = e.target.value;
+            if (!isEnglish(value)) {
+              setError('اسم المستخدم يجب أن يكتب بأحرف إنجليزية فقط');
+              return;
+            }
+            setFormData(prev => ({ ...prev, username: value, email: value ? `${value}@radio.com` : '' }));
+            setError('');
+          } else {
+            setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+            setError('');
+          }
   };
 
   const handleSubmit = async (e) => {
@@ -75,7 +90,7 @@ const Register = () => {
     setLoading(true);
     setError('');
 
-    const { name, username, email, confirmEmail, password, confirmPassword, department, role } = formData;
+    const { name, username, email, password, confirmPassword, department, role } = formData;
 
     const cleanEmail = email.trim();
     const cleanUsername = username.trim();
@@ -86,11 +101,7 @@ const Register = () => {
       return;
     }
 
-    if (cleanEmail !== confirmEmail.trim()) {
-      setError('البريد الإلكتروني وتأكيده غير متطابقين');
-      setLoading(false);
-      return;
-    }
+
 
     if (password !== confirmPassword) {
       setError('كلمة المرور وتأكيدها غير متطابقتين');
@@ -122,7 +133,6 @@ const Register = () => {
           name: '',
           username: '',
           email: '',
-          confirmEmail: '',
           password: '',
           confirmPassword: '',
           department: '',
@@ -139,7 +149,7 @@ const Register = () => {
     }
   };
 
-  const displayName = appName || 'راديو Revolution';
+  const displayName = appName || '';
 
   return (
     <div className='min-h-screen bg-background flex items-center justify-center p-4'>
@@ -176,7 +186,7 @@ const Register = () => {
                 value={formData.name}
                 onChange={handleChange}
                 className='input'
-                placeholder='أدخل اسمك الكامل'
+                placeholder='أدخل اسمك الكامل (باللغة العربية)'
                 required
               />
             </div>
@@ -203,19 +213,6 @@ const Register = () => {
                 onChange={handleChange}
                 className='input'
                 placeholder='أدخل بريدك الإلكتروني'
-                required
-              />
-            </div>
-
-            <div className='mb-4'>
-              <label className='label'>تأكيد البريد الإلكتروني</label>
-              <input
-                type='email'
-                name='confirmEmail'
-                value={formData.confirmEmail}
-                onChange={handleChange}
-                className='input'
-                placeholder='أدخل بريدك الإلكتروني مرة أخرى'
                 required
               />
             </div>

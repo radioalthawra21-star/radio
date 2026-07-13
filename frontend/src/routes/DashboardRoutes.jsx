@@ -1,9 +1,11 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
-import AdminDashboard from '../pages/Admin/AdminDashboard';
-import EmployeeDashboard from '../pages/Employee/EmployeeDashboard';
-import ManagerDashboard from '../pages/Manager/ManagerDashboard';
+import React from 'react';
 import { getStoredUser } from '../services/authService';
+
+const AdminDashboard = React.lazy(() => import('../pages/Admin/AdminDashboard'));
+const EmployeeDashboard = React.lazy(() => import('../pages/Employee/EmployeeDashboard'));
+const ManagerDashboard = React.lazy(() => import('../pages/Manager/ManagerDashboard'));
 
 export const dashboardRoutes = ({ user }) => {
   const resolvedUser = user || getStoredUser();

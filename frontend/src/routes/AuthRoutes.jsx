@@ -1,8 +1,10 @@
 import { Route } from 'react-router-dom';
 import { PublicRoute, ProtectedRoute } from '../components/RouteGuards';
-import Login from '../pages/Auth/Login';
-import Register from '../pages/Auth/Register';
-import NotAuthorized from '../pages/Auth/NotAuthorized';
+import React from 'react';
+
+const Login = React.lazy(() => import('../pages/Auth/Login'));
+const Register = React.lazy(() => import('../pages/Auth/Register'));
+const NotAuthorized = React.lazy(() => import('../pages/Auth/NotAuthorized'));
 
 export const authRoutes = (
   <>

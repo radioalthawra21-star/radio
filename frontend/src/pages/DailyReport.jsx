@@ -35,9 +35,16 @@ const DailyReport = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
 
+  const departmentNames = {
+    financial: 'المالي', it: 'تقنية المعلومات', marketing: 'التسويق',
+    news: 'الأخبار', production: 'الإنتاج', live_broadcast: 'البث المباشر',
+    hr: 'الموارد البشرية', 'human resources': 'الموارد البشرية'
+  };
+  const getDeptLabel = (d) => departmentNames[d] || d || '';
+  const isManager = user?.role === 'manager';
   const [employeeName] = useState(user?.name || '');
   const [department] = useState(user?.department || '');
-  const [jobTitle] = useState(user?.jobTitle || '');
+  const [jobTitle] = useState(isManager ? `رئيس قسم ${getDeptLabel(user?.department)}` : (user?.jobTitle || ''));
   const [directManager, setDirectManager] = useState('');
 
   const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -139,6 +146,24 @@ const DailyReport = () => {
     return () => clearInterval(interval);
   }, [fetchTodayReport, resetForm]);
 
+  useEffect(() => {
+    if (!loading) {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('tbody textarea').forEach(ta => {
+          ta.style.height = 'auto';
+          ta.style.height = ta.scrollHeight + 'px';
+        });
+        document.querySelectorAll('tbody tr').forEach(row => {
+          const tas = row.querySelectorAll('textarea');
+          if (tas.length === 0) return;
+          let maxH = 0;
+          tas.forEach(t => { if (t.scrollHeight > maxH) maxH = t.scrollHeight; });
+          tas.forEach(t => { t.style.height = maxH + 'px'; });
+        });
+      });
+    }
+  }, [loading, achievements.length]);
+
   const addBestWorkItem = () => {
     if (bestWork.items.length >= BEST_WORK_MAX) return;
     setBestWork(prev => ({ items: [...prev.items, { title: '', publishLink: '' }] }));
@@ -163,9 +188,26 @@ const DailyReport = () => {
   };
 
   const updateAchievement = (tempId, field, value) => {
-    setAchievements(prev => prev.map(a =>
-      a._tempId === tempId ? { ...a, [field]: value } : a
-    ));
+    setAchievements(prev => prev.map(a => {
+      if (a._tempId !== tempId) return a;
+      const updated = { ...a, [field]: value };
+      if (field === 'status' && value === 'completed') updated.completionPercentage = 100;
+      if (field === 'status' && value !== 'completed') updated.completionPercentage = 0;
+      return updated;
+    }));
+  };
+
+  const handleAutoResize = (e) => {
+    const ta = e.target;
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    const row = ta.closest('tr');
+    if (row) {
+      const allTas = row.querySelectorAll('textarea');
+      let maxH = 0;
+      allTas.forEach(t => { if (t.scrollHeight > maxH) maxH = t.scrollHeight; });
+      allTas.forEach(t => { t.style.height = maxH + 'px'; });
+    }
   };
 
   const validate = () => {
@@ -316,23 +358,29 @@ const DailyReport = () => {
                 {achievements.map((a, idx) => (
                   <tr key={a._tempId} className="hover:bg-gray-50">
                     <td className="p-2 border text-sm text-gray-500 align-top pt-3">{idx + 1}</td>
-                    <td className="p-2 border">
-                      <input type="text" value={a.name}
+                    <td className="p-2 border align-top">
+                      <textarea value={a.name}
+                        onInput={handleAutoResize}
                         onChange={(e) => updateAchievement(a._tempId, 'name', e.target.value)}
                         placeholder="اسم الإنجاز"
-                        className="w-full p-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                        rows={1}
+                        className="w-full p-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none overflow-hidden" />
                     </td>
-                    <td className="p-2 border">
-                      <input type="text" value={a.description}
+                    <td className="p-2 border align-top">
+                      <textarea value={a.description}
+                        onInput={handleAutoResize}
                         onChange={(e) => updateAchievement(a._tempId, 'description', e.target.value)}
                         placeholder="وصف الإنجاز"
-                        className="w-full p-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                        rows={1}
+                        className="w-full p-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none overflow-hidden" />
                     </td>
-                    <td className="p-2 border">
-                      <input type="text" value={a.target}
+                    <td className="p-2 border align-top">
+                      <textarea value={a.target}
+                        onInput={handleAutoResize}
                         onChange={(e) => updateAchievement(a._tempId, 'target', e.target.value)}
                         placeholder="المستهدف"
-                        className="w-full p-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                        rows={1}
+                        className="w-full p-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none overflow-hidden" />
                     </td>
                     <td className="p-2 border">
                       <select value={a.status}
@@ -347,8 +395,8 @@ const DailyReport = () => {
                       <div className="flex items-center gap-2">
                         <input type="range" min="0" max="100" step="5" value={a.completionPercentage}
                           onChange={(e) => updateAchievement(a._tempId, 'completionPercentage', parseInt(e.target.value))}
-                          className="flex-1 h-2 accent-primary" />
-                        <span className="text-sm font-medium text-gray-700 min-w-[40px] text-center en-num ltr">{a.completionPercentage}%</span>
+                          className={`flex-1 h-2 ${a.status === 'completed' ? 'accent-green-500' : 'accent-primary'}`} />
+                        <span className={`text-sm font-medium min-w-[40px] text-center en-num ltr ${a.status === 'completed' ? 'text-green-600' : 'text-gray-700'}`}>{a.completionPercentage}%</span>
                       </div>
                     </td>
                     <td className="p-2 border text-center">
@@ -377,24 +425,24 @@ const DailyReport = () => {
               <label className="block text-sm font-medium text-gray-600 mb-1">الأولوية الأولى</label>
               <textarea value={priorities.first}
                 onChange={(e) => setPriorities(prev => ({ ...prev, first: e.target.value }))}
-                rows="2"
-                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                rows="3"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary resize-y min-h-[60px]"
                 placeholder="أكتب الأولوية الأولى..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">الأولوية الثانية</label>
               <textarea value={priorities.second}
                 onChange={(e) => setPriorities(prev => ({ ...prev, second: e.target.value }))}
-                rows="2"
-                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                rows="3"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary resize-y min-h-[60px]"
                 placeholder="أكتب الأولوية الثانية..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">الأولوية الثالثة</label>
               <textarea value={priorities.third}
                 onChange={(e) => setPriorities(prev => ({ ...prev, third: e.target.value }))}
-                rows="2"
-                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                rows="3"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary resize-y min-h-[60px]"
                 placeholder="أكتب الأولوية الثالثة..." />
             </div>
           </div>

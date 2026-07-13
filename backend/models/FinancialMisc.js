@@ -16,5 +16,8 @@ const financialMiscSchema = new mongoose.Schema({
 
 financialMiscSchema.index({ number: 1 });
 financialMiscSchema.index({ date: -1 });
+financialMiscSchema.index({ isActive: 1 });
+financialMiscSchema.index({ type: 1 });
+financialMiscSchema.index({ archived: 1 });
 
 module.exports = mongoose.model('FinancialMisc', financialMiscSchema);

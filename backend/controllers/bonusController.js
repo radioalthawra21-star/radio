@@ -14,7 +14,8 @@ const getBonusesByEmployee = async (req, res) => {
   try {
     const bonuses = await Bonus.find({ employee: req.params.employeeId })
       .populate('givenBy', 'name')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.json({ success: true, data: { bonuses } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching bonuses' });
@@ -30,7 +31,8 @@ const getAllBonuses = async (req, res) => {
     const bonuses = await Bonus.find()
       .populate('employee', 'name department')
       .populate('givenBy', 'name')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.json({ success: true, data: { bonuses } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching bonuses' });

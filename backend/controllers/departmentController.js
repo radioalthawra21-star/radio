@@ -29,7 +29,7 @@ exports.seedDefaultDepartments = async () => {
 
 exports.getAllDepartments = async (req, res) => {
   try {
-    const departments = await Department.find().sort({ createdAt: -1 });
+    const departments = await Department.find().sort({ createdAt: -1 }).lean();
     res.json({
       success: true,
       data: { departments, totalCount: departments.length }
@@ -168,7 +168,7 @@ exports.deleteDepartment = async (req, res) => {
 
 exports.getDepartmentStats = async (req, res) => {
   try {
-    const departments = await Department.find().sort({ createdAt: -1 });
+    const departments = await Department.find().sort({ createdAt: -1 }).lean();
     const totalDepartments = departments.length;
 
     const users = await User.find({ role: { $in: ['employee', 'manager', 'hr'] } });
@@ -266,7 +266,7 @@ exports.getDepartmentStats = async (req, res) => {
 
 exports.getDepartmentCosts = async (req, res) => {
   try {
-    const departments = await Department.find().sort({ createdAt: -1 });
+    const departments = await Department.find().sort({ createdAt: -1 }).lean();
 
     const costs = await Payroll.aggregate([
       { $match: { status: { $in: ['approved', 'paid'] } } },

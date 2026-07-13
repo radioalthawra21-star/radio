@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTaskById, updateTask } from '../services/taskService';
+import { getTaskById, updateTask, addManagerNote, approveDepartmentTask, rejectDepartmentTask } from '../services/taskService';
+import { addComment, getComments } from '../services/workflowTaskService';
 import { formatDateArabic } from '../utils/dateUtils';
 import { getStoredUser } from '../services/authService';
 
@@ -32,8 +33,17 @@ const TaskDetail = () => {
     duration: 1,
     startTime: '',
     endTime: '',
-    dueDate: ''
+    dueDate: '',
+    priority: 'medium'
   });
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [managerNote, setManagerNote] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
+  const [rejectModal, setRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   const isManager = user?.role === 'manager' || user?.role === 'admin';
 
@@ -43,6 +53,7 @@ const TaskDetail = () => {
         const response = await getTaskById(id);
         if (response.success) {
           setTask(response.data.task);
+          setManagerNote(response.data.task.managerNotes || '');
         } else {
           setError(response.message || 'Failed to fetch task');
         }
@@ -53,7 +64,15 @@ const TaskDetail = () => {
       }
     };
 
+    const fetchComments = async () => {
+      try {
+        const res = await getComments(id);
+        if (res.success) setComments(res.data.comments || []);
+      } catch (err) { /* comments may not exist */ }
+    };
+
     fetchTask();
+    fetchComments();
   }, [id]);
 
   const startEditing = () => {
@@ -64,7 +83,8 @@ const TaskDetail = () => {
       duration: task.duration || 1,
       startTime: task.startTime || '',
       endTime: task.endTime || '',
-      dueDate: task.dueDate ? task.dueDate.slice(0, 10) : ''
+      dueDate: task.dueDate ? task.dueDate.slice(0, 10) : '',
+      priority: task.priority || 'medium'
     });
     setEditing(true);
   };
@@ -91,6 +111,66 @@ const TaskDetail = () => {
 
   const cancelEditing = () => {
     setEditing(false);
+  };
+
+  const handleAddComment = async () => {
+    if (!commentText.trim()) return;
+    setCommentLoading(true);
+    try {
+      const res = await addComment(task._id, commentText.trim());
+      if (res.success) {
+        setComments(prev => [res.data.comment, ...prev]);
+        setCommentText('');
+      }
+    } catch (err) {
+      console.error('Error adding comment:', err);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleSaveManagerNote = async () => {
+    setSavingNote(true);
+    try {
+      const res = await addManagerNote(task._id, managerNote);
+      if (res.success) {
+        setTask(res.data.task);
+      }
+    } catch (err) {
+      console.error('Error saving manager note:', err);
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    setProcessing(true);
+    try {
+      const res = await approveDepartmentTask(task._id);
+      if (res.success) {
+        setTask(prev => ({ ...prev, status: 'approved' }));
+      }
+    } catch (err) {
+      console.error('Error approving task:', err);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleReject = async () => {
+    setProcessing(true);
+    try {
+      const res = await rejectDepartmentTask(task._id, rejectReason);
+      if (res.success) {
+        setTask(prev => ({ ...prev, status: 'rejected' }));
+        setRejectModal(false);
+        setRejectReason('');
+      }
+    } catch (err) {
+      console.error('Error rejecting task:', err);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   if (loading) {
@@ -123,11 +203,23 @@ const TaskDetail = () => {
     <div className="max-w-4xl mx-auto p-3 md:p-6 space-y-4 md:space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <h1 className="text-2xl md:text-3xl font-bold text-dark">تفاصيل المهمة</h1>
-        {isManager && !editing && (
-          <button onClick={startEditing} className="btn btn-interactive self-start md:self-auto">
-            ✏️ تعديل المهمة
-          </button>
-        )}
+        <div className="flex gap-2 flex-wrap self-start md:self-auto">
+          {isManager && task.status === 'pending' && (
+            <>
+              <button onClick={handleApprove} disabled={processing} className="btn bg-green-500 text-white hover:bg-green-600 whitespace-nowrap">
+                {processing ? '...' : '✅ موافقة'}
+              </button>
+              <button onClick={() => setRejectModal(true)} disabled={processing} className="btn bg-red-500 text-white hover:bg-red-600 whitespace-nowrap">
+                ❌ رفض
+              </button>
+            </>
+          )}
+          {isManager && !editing && (
+            <button onClick={startEditing} className="btn btn-interactive whitespace-nowrap">
+              ✏️ تعديل المهمة
+            </button>
+          )}
+        </div>
       </div>
       
       <div className="bg-white rounded-lg shadow p-4 md:p-6 space-y-4">
@@ -225,8 +317,21 @@ const TaskDetail = () => {
             )}
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-gray-600">الأولوية</p>
+            {editing ? (
+              <select name="priority" value={editForm.priority} onChange={handleChange} className="input">
+                <option value="low">منخفضة</option>
+                <option value="medium">متوسطة</option>
+                <option value="high">عالية</option>
+                <option value="urgent">عاجلة</option>
+              </select>
+            ) : (
+              <p className="text-dark">{PRIORITY_STYLES[task.priority]?.label || 'متوسطة'}</p>
+            )}
+          </div>
           <div>
             <p className="text-gray-600">تاريخ الاستحقاق</p>
             {editing ? (
@@ -234,10 +339,6 @@ const TaskDetail = () => {
             ) : (
               <p className="text-dark en-num">{task.dueDate ? formatDateArabic(task.dueDate) : 'غير محدد'}</p>
             )}
-          </div>
-          <div>
-            <p className="text-gray-600">تاريخ المهمة</p>
-            <p className="text-dark en-num">{task.taskDate ? formatDateArabic(task.taskDate) : 'غير محدد'}</p>
           </div>
         </div>
         
@@ -283,14 +384,92 @@ const TaskDetail = () => {
               <p className="text-dark en-num">{task.createdAt ? formatDateArabic(task.createdAt) : 'غير محدد'}</p>
             </div>
           </div>
-          {task.managerNotes && (
-            <div className="mt-2">
-              <p className="text-gray-600">ملاحظات المدير</p>
-              <p className="text-dark bg-gray-50 p-3 rounded-lg mt-1">{task.managerNotes}</p>
+        </div>
+
+        {/* Manager Note Section */}
+        {isManager && (
+          <div className="border-t pt-4">
+            <h3 className="font-semibold text-gray-700 mb-3">ملاحظة المدير</h3>
+            <textarea
+              value={managerNote}
+              onChange={(e) => setManagerNote(e.target.value)}
+              className="input min-h-[80px] mb-2"
+              placeholder="أضف ملاحظة على هذه المهمة..."
+            />
+            <button
+              onClick={handleSaveManagerNote}
+              disabled={savingNote}
+              className="btn btn-primary text-sm"
+            >
+              {savingNote ? 'جاري الحفظ...' : 'حفظ الملاحظة'}
+            </button>
+            {task.managerNotes && !managerNote && (
+              <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">{task.managerNotes}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Comments Section */}
+        <div className="border-t pt-4">
+          <h3 className="font-semibold text-gray-700 mb-3">التعليقات ({comments.length})</h3>
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+              className="input flex-1"
+              placeholder="أضف تعليقاً..."
+            />
+            <button
+              onClick={handleAddComment}
+              disabled={commentLoading || !commentText.trim()}
+              className="btn btn-primary text-sm whitespace-nowrap"
+            >
+              {commentLoading ? '...' : 'إرسال'}
+            </button>
+          </div>
+          {comments.length === 0 ? (
+            <p className="text-sm text-gray-400">لا توجد تعليقات بعد</p>
+          ) : (
+            <div className="space-y-3 max-h-80 overflow-y-auto">
+              {comments.map((c) => (
+                <div key={c._id} className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-sm text-dark">{c.user?.name || 'مستخدم'}</span>
+                    <span className="text-xs text-gray-400 en-num">{formatDateArabic(c.createdAt)}</span>
+                  </div>
+                  <p className="text-sm text-gray-700">{c.content}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Reject Reason Modal */}
+      {rejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3" onClick={() => setRejectModal(false)}>
+          <div className="bg-white rounded-2xl p-4 md:p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-dark mb-4">رفض المهمة</h2>
+            <p className="text-sm text-gray-600 mb-3">هل أنت متأكد من رفض مهمة: <strong>{task.title}</strong>؟</p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="input min-h-[80px] mb-4"
+              placeholder="سبب الرفض (اختياري)..."
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setRejectModal(false)} className="btn btn-ghost flex-1 py-3">إلغاء</button>
+              <button onClick={handleReject} disabled={processing} className="btn bg-red-500 text-white hover:bg-red-600 flex-1 py-3">
+                {processing ? 'جاري الرفض...' : 'رفض المهمة'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

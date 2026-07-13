@@ -238,6 +238,8 @@ taskSchema.index({ taskDate: 1 });
 taskSchema.index({ workflowId: 1 });
 taskSchema.index({ kanbanStatus: 1 });
 taskSchema.index({ priority: 1 });
+taskSchema.index({ dueDate: 1 });
+taskSchema.index({ workflowStatus: 1 });
 
 // Virtual for checking if task is overdue
 taskSchema.virtual('isOverdue').get(function() {

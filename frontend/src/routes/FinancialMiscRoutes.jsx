@@ -1,6 +1,8 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../components/RouteGuards';
-import FinancialMiscPage from '../pages/FinancialMisc/FinancialMiscPage';
+import React from 'react';
+
+const FinancialMiscPage = React.lazy(() => import('../pages/FinancialMisc/FinancialMiscPage'));
 
 export const financialMiscRoutes = (
   <>
