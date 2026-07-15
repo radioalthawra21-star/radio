@@ -411,7 +411,7 @@ const AdminDashboard = () => {
                     <span className="text-lg">{LEAVE_LABELS[req.type] || req.type}</span>
                     <div>
                       <p className="font-semibold text-dark text-sm">{req.employee?.name}</p>
-                      <p className="text-xs text-gray-500">{req.employee?.department} · {req.days} يوم</p>
+                      <p className="text-xs text-gray-500">{req.employee?.department} · {req.type === 'hourly' ? `${req.hours} ساعات` : `${req.days} يوم`}</p>
                     </div>
                   </div>
                   <Link

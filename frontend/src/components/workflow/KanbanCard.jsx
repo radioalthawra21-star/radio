@@ -23,8 +23,18 @@ const KanbanCard = ({ task, onStatusChange, onClick }) => {
       {task.description && (
         <p className="text-xs text-gray-500 mb-2 line-clamp-2">{task.description}</p>
       )}
+      {task.currentDepartment?.name && (
+        <div className="flex items-center gap-1 text-xs text-blue-600 mb-1.5">
+          <span>🏢</span>
+          <span className="font-medium">{task.currentDepartment.name}</span>
+        </div>
+      )}
+      <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+        <span className="text-gray-400">أسند بواسطة:</span>
+        <span className="font-medium">{task.createdBy?.name || '—'}</span>
+      </div>
       <div className="flex items-center justify-between text-xs text-gray-400">
-        <span>{task.assignedTo?.map(u => u.name).join(', ') || 'غير معين'}</span>
+        <span>المسندة إلى: {task.assignedTo?.map(u => u.name).join(', ') || 'غير معين'}</span>
         {isOverdue && <span className="text-error font-semibold">متأخرة!</span>}
       </div>
       {task.dueDate && (

@@ -1,0 +1,1210 @@
+{
+  "communities": {
+    "0": [
+      "ApplicationStatus",
+      "Attendance",
+      "AttendanceStatus",
+      "AuditAction",
+      "AuditLog",
+      "BiometricErrorLog",
+      "Bonus",
+      "CandidateApplication",
+      "CheckInStatus",
+      "CoupletPrompt",
+      "Department",
+      "DeviceLog",
+      "Document",
+      "DocumentCategory",
+      "DocumentType",
+      "FinancialMisc",
+      "JobPosting",
+      "JobStatus",
+      "KPI",
+      "LeaveRequest",
+      "LeaveStatus",
+      "LeaveType",
+      "Message",
+      "Notification",
+      "NotificationType",
+      "Payroll",
+      "PayrollFrequency",
+      "PayrollItem",
+      "PayrollItemDirection",
+      "PayrollItemType",
+      "PayrollStatus",
+      "PerformanceReview",
+      "Prompt",
+      "RecruitmentPerformance_CandidateApplication",
+      "RecruitmentPerformance_JobPosting",
+      "Task",
+      "TaskDifficulty",
+      "TaskStatus",
+      "User",
+      "WellBeingCheckIn",
+      "attendanceRoutes",
+      "auditLogController",
+      "auditLogRoutes",
+      "authMiddleware",
+      "bcryptjs",
+      "bonusController",
+      "bonusRoutes",
+      "cvUploadMiddleware_upload",
+      "documentUploadMiddleware_upload",
+      "domain_AttendanceStats",
+      "domain_AttendanceTracking",
+      "domain_LeaveTypes",
+      "domain_StatusMap",
+      "feature_Attendance",
+      "feature_LeaveManagement",
+      "jsonwebtoken",
+      "mongoose",
+      "service_attendanceService"
+    ],
+    "1": [
+      "AddTask",
+      "ApproveLeaves",
+      "AssignTasks",
+      "ChangePassword",
+      "DepartmentReports",
+      "EmployeeDashboard",
+      "EvaluateTasks",
+      "ManagerDashboard",
+      "MyTasks",
+      "TaskHistory",
+      "domain_DepartmentNames",
+      "domain_DepartmentReports",
+      "domain_DifficultyLevel",
+      "domain_EmployeeDashboard",
+      "domain_EmployeePerformance",
+      "domain_GMApprovalFlow",
+      "domain_LeaveApproval",
+      "domain_LeaveBalanceDisplay",
+      "domain_LeaveStatusFlow",
+      "domain_ManagerDashboard",
+      "domain_PayrollSummary",
+      "domain_TaskAssignment",
+      "domain_TaskCRUD",
+      "domain_TaskFilter",
+      "domain_TaskHistoryView",
+      "domain_TaskScoring",
+      "domain_TaskStatusFlow",
+      "domain_TaskSummary",
+      "domain_UnusualTask",
+      "domain_WeeklySummary",
+      "feature_EmployeeSelfService",
+      "feature_ManagerDashboardOverview",
+      "feature_TaskManagement",
+      "pattern_StatsCards",
+      "route_addTask",
+      "route_adminBonuses",
+      "route_approveLeaves",
+      "route_assignTasks",
+      "route_evaluateTasks",
+      "route_leaveManagement",
+      "route_managerReports",
+      "route_myTasks",
+      "route_payslip",
+      "route_taskHistory",
+      "service_authService",
+      "service_leaveService",
+      "service_payrollService",
+      "service_taskService",
+      "service_userService"
+    ],
+    "2": [
+      "BrandingTab",
+      "DesignTab",
+      "DeveloperConfig",
+      "DeveloperPanel",
+      "FinancialMiscPage",
+      "ManagerEvaluation",
+      "ManagerEvaluationDashboard",
+      "Messages",
+      "ResourceMonitor",
+      "TypographySettings",
+      "VisitorMonitor",
+      "context_TypographyContext",
+      "domain_Branding",
+      "domain_DesignSettings",
+      "domain_DevAuth",
+      "domain_EvaluationPeriod",
+      "domain_EvaluationResults",
+      "domain_EvaluationTrends",
+      "domain_ExchangeRate",
+      "domain_FinancialMisc",
+      "domain_FontPreview",
+      "domain_FontUpload",
+      "domain_GoogleFonts",
+      "domain_InternalMessaging",
+      "domain_ManagerEvaluationForm",
+      "domain_MessageCompose",
+      "domain_MonthArchiving",
+      "domain_PDFExportFinancial",
+      "domain_ResourceMonitoring",
+      "domain_Thresholds",
+      "domain_VisitorMonitoring",
+      "feature_DeveloperTools",
+      "feature_FinancialMisc",
+      "feature_InternalMessaging",
+      "feature_ManagerEvaluation",
+      "pattern_ArabicRTL",
+      "pattern_CRUDTable",
+      "pattern_ModalDialog",
+      "pattern_TabNavigation",
+      "service_financialMiscService",
+      "service_managerEvaluationService",
+      "service_messageService",
+      "ui_component_MetricBar",
+      "ui_component_StatCard"
+    ],
+    "3": [
+      "AGENTS.md",
+      "Attendance_Model",
+      "AuditLog_Model",
+      "Backend_Server",
+      "Bridge_Service",
+      "Critical_Vuln_AdminPW",
+      "Critical_Vuln_JWT",
+      "Critical_Vuln_MongoDB",
+      "Frontend_App",
+      "JWT_Auth",
+      "LeaveRequest_Model",
+      "MongoDB_Atlas",
+      "PROJECT_STRUCTURE.txt",
+      "PayrollItem_Model",
+      "Payroll_Model",
+      "SCHEMA.md",
+      "Security_Score_2_10",
+      "User_Model",
+      "ZKTeco_Device",
+      "attendance_system",
+      "backend_dockerfile",
+      "backend_package",
+      "bridge_package",
+      "docker-compose.yml",
+      "frontend_package",
+      "frontend_tsconfig",
+      "frontend_tsconfig_node",
+      "mogo.txt",
+      "multi_repo_strategy",
+      "node-zklib",
+      "root_tsconfig",
+      "security_audit",
+      "swagger_api",
+      "synced_ids",
+      "zkteco_bridge_guide",
+      "zkteco_integration",
+      "zkteco_setup_guide"
+    ],
+    "4": [
+      "backend/routes/coupletPipelineRoutes.js",
+      "backend/routes/coupletPromptRoutes.js",
+      "backend/routes/departmentRoutes.js",
+      "backend/routes/documentRoutes.js",
+      "backend/routes/editorialPipelineRoutes.js",
+      "backend/routes/financialMiscRoutes.js",
+      "backend/routes/leaveRoutes.js",
+      "backend/routes/managerEvaluationRoutes.js",
+      "backend/routes/messageRoutes.js",
+      "backend/routes/notificationRoutes.js",
+      "backend/routes/payrollRoutes.js",
+      "backend/routes/pdfRoutes.js",
+      "backend/routes/promptRoutes.js",
+      "backend/routes/recruitmentPerformanceRoutes.js",
+      "backend/routes/settingsRoutes.js",
+      "backend/routes/taskRoutes.js",
+      "backend/routes/userRoutes.js",
+      "backend/routes/wellBeingRoutes.js",
+      "backend/routes/zktecoRoutes.js",
+      "backend/server.js",
+      "backend/services/aiService.js",
+      "backend/services/compensationService.js",
+      "backend/services/pdfService.js",
+      "backend/services/zktecoService.js",
+      "backend/utils/pdfGenerator.js",
+      "bridge/config.js",
+      "bridge/index.js"
+    ],
+    "5": [
+      "api.js",
+      "attendanceService.js",
+      "auditLogService.js",
+      "authService.d.ts",
+      "authService.js",
+      "bonusService.js",
+      "coupletPipelineService.js",
+      "coupletPromptService.js",
+      "departmentService.js",
+      "documentService.js",
+      "editorialPipelineService.js",
+      "financialMiscService.js",
+      "leaveService.d.ts",
+      "leaveService.js",
+      "managerEvaluationService.js",
+      "messageService.js",
+      "notificationService.js",
+      "payrollService.d.ts",
+      "payrollService.js",
+      "pdfDownloadService.js",
+      "promptService.js",
+      "recruitmentPerformanceService.js",
+      "taskService.js",
+      "userService.js",
+      "userServiceEnhanced.js",
+      "wellBeingService.js"
+    ],
+    "6": [
+      "attendanceController",
+      "attendancetracking_system",
+      "authController",
+      "authRoutes",
+      "checkApi",
+      "checkApi2",
+      "checkAttendanceTemp",
+      "checkMongo",
+      "checkMongo2",
+      "checkMongo3",
+      "checkToday",
+      "configDb",
+      "cvUploadMiddleware",
+      "departmentController",
+      "documentUploadMiddleware",
+      "employeeProfileController",
+      "leaveController",
+      "multer",
+      "notification_system",
+      "payrollController",
+      "recruitmentPerformanceController",
+      "taskController",
+      "uploadMiddleware",
+      "userController",
+      "zktecoController"
+    ],
+    "7": [
+      "ColumnManager",
+      "ComprehensiveHRPayrollSystem",
+      "DeleteConfirm",
+      "EditModal",
+      "HRConfig",
+      "HRUtils",
+      "PayrollAudit",
+      "PayrollDashboard",
+      "PayrollIntegration",
+      "PayrollManagement",
+      "PayrollPendingAssignments",
+      "PayrollProcessing",
+      "PayrollWorkflow",
+      "PayslipDetail",
+      "PendingAssignmentModal",
+      "audioUtils",
+      "concept_Department",
+      "concept_PerformanceScore",
+      "concept_Task",
+      "concept_User",
+      "taskService",
+      "userService",
+      "userServiceEnhanced"
+    ],
+    "8": [
+      "AdminRoutes_route",
+      "AppRoutes_route",
+      "AttendanceReports_page",
+      "AuthRoutes_route",
+      "DashboardRoutes_route",
+      "DepartmentReports_page",
+      "DeveloperRoutes_route",
+      "FinancialMiscRoutes_route",
+      "LeaveReports_page",
+      "NewsRoutes_route",
+      "PayrollRoutes_route",
+      "PerformanceSection_page",
+      "RecruitmentComponents_StatCard",
+      "RecruitmentComponents_StatusBadge",
+      "RecruitmentPerformanceManagement_page",
+      "RecruitmentReports_page",
+      "RecruitmentSection_page",
+      "SelfServiceRoutes_route",
+      "TaskDetail_page",
+      "TaskRoutes_route",
+      "WellBeingCheckIn_page",
+      "WellBeingDashboard_page"
+    ],
+    "9": [
+      "frontend/src/pages/RecruitmentPerformanceManagement.jsx",
+      "frontend/src/pages/TaskDetail.jsx",
+      "frontend/src/pages/WellBeingCheckIn.jsx",
+      "frontend/src/pages/WellBeingDashboard.jsx",
+      "frontend/src/pages/recruitment/PerformanceSection.jsx",
+      "frontend/src/pages/recruitment/RecruitmentComponents.jsx",
+      "frontend/src/pages/recruitment/RecruitmentSection.jsx",
+      "frontend/src/pages/reports/AttendanceReports.jsx",
+      "frontend/src/pages/reports/DepartmentReports.jsx",
+      "frontend/src/pages/reports/LeaveReports.jsx",
+      "frontend/src/pages/reports/RecruitmentReports.jsx",
+      "frontend/src/routes/AdminRoutes.jsx",
+      "frontend/src/routes/AppRoutes.jsx",
+      "frontend/src/routes/AuthRoutes.jsx",
+      "frontend/src/routes/DashboardRoutes.jsx",
+      "frontend/src/routes/DeveloperRoutes.jsx",
+      "frontend/src/routes/FinancialMiscRoutes.jsx",
+      "frontend/src/routes/NewsRoutes.jsx"
+    ],
+    "10": [
+      "EmployeePerformance_BusinessRule",
+      "backend_package_json",
+      "backend_routes_attendanceRoutes_js",
+      "backend_routes_auditLogRoutes_js",
+      "backend_routes_authRoutes_js",
+      "backend_routes_bonusRoutes_js",
+      "backend_routes_departmentRoutes_js",
+      "backend_routes_documentRoutes_js",
+      "backend_routes_financialMiscRoutes_js",
+      "backend_routes_leaveRoutes_js",
+      "backend_routes_messageRoutes_js",
+      "backend_routes_notificationRoutes_js",
+      "backend_routes_payrollRoutes_js",
+      "backend_routes_pdfRoutes_js",
+      "backend_routes_recruitmentPerformanceRoutes_js",
+      "backend_routes_settingsRoutes_js",
+      "hrAndAdmin_middleware"
+    ],
+    "11": [
+      "config_db",
+      "controllers_attendance",
+      "controllers_auth",
+      "controllers_bonus",
+      "controllers_department",
+      "controllers_document",
+      "controllers_leave",
+      "controllers_managerevaluation",
+      "controllers_notification",
+      "controllers_payroll",
+      "controllers_recruitmentperformance",
+      "controllers_settings",
+      "controllers_task",
+      "controllers_user",
+      "controllers_wellbeing",
+      "middleware_auth",
+      "services_compensation"
+    ],
+    "12": [
+      "frontend_src_main",
+      "frontend_src_pages_Admin_AdminDashboard",
+      "frontend_src_pages_Admin_AllEmployees",
+      "frontend_src_pages_Admin_AllReports",
+      "frontend_src_pages_Admin_AttendanceManagement",
+      "frontend_src_pages_Admin_DeptFormModal",
+      "frontend_src_pages_Admin_EmployeeProfilePage",
+      "frontend_src_pages_Admin_GMApproveLeaves",
+      "frontend_src_pages_Admin_LeaveManagement",
+      "frontend_src_pages_Admin_Rankings",
+      "frontend_src_pages_Admin_Settings",
+      "frontend_src_pages_Admin_UserFormModal",
+      "frontend_src_pages_Auth_Login",
+      "frontend_src_pages_Auth_NotAuthorized",
+      "frontend_src_pages_Auth_Register",
+      "frontend_src_pages_Developer_AlertsPanel",
+      "frontend_src_pages_Developer_BrandingTab"
+    ],
+    "13": [
+      "SCHEMA_Attendance",
+      "SCHEMA_AuditLog",
+      "SCHEMA_HRMS_Database_Schema",
+      "SCHEMA_Indexes",
+      "SCHEMA_LeaveRequest",
+      "SCHEMA_LeaveRequest_StatusFlow",
+      "SCHEMA_LeaveTypes",
+      "SCHEMA_Payroll",
+      "SCHEMA_PayrollCodes",
+      "SCHEMA_PayrollItem",
+      "SCHEMA_PayslipEndpoint",
+      "SCHEMA_SyncFlow",
+      "SCHEMA_User"
+    ],
+    "14": [
+      "component_ColumnManagerModal",
+      "component_DeleteColumnModal",
+      "component_EditablePayrollTable",
+      "component_Layout",
+      "component_Navbar",
+      "component_NotificationPanel",
+      "component_Sidebar",
+      "component_UserMenu",
+      "component_WellBeingBanner",
+      "context_PayrollWrapper",
+      "context_SocketContext",
+      "hook_usePayrollState",
+      "utils_payrollTableUtils"
+    ],
+    "15": [
+      "COMPOSE_BackendService",
+      "COMPOSE_FrontendService",
+      "COMPOSE_MongoService",
+      "DOCKERFILE_Node18",
+      "FRONTEND_RadioAlthawra",
+      "WORKFLOW_BackendRepo",
+      "WORKFLOW_FrontendRepo",
+      "WORKFLOW_MultiRepoSubtree",
+      "WORKFLOW_NetlifyDeploy",
+      "WORKFLOW_RenderDeploy",
+      "WORKFLOW_SubtreePush"
+    ],
+    "16": [
+      "frontend/src/pages/Payroll/ComprehensiveHRPayrollSystem.jsx",
+      "frontend/src/pages/Payroll/MySalary.jsx",
+      "frontend/src/pages/Payroll/PayslipDetail.jsx",
+      "frontend/src/pages/Payroll/PayslipView.tsx",
+      "frontend/src/pages/Payroll/PendingAssignmentModal.jsx",
+      "frontend/src/pages/Payroll/comprehensive/ColumnManager.jsx",
+      "frontend/src/pages/Payroll/comprehensive/DeleteConfirm.jsx",
+      "frontend/src/pages/Payroll/comprehensive/EditModal.jsx",
+      "frontend/src/pages/Payroll/comprehensive/config.js",
+      "frontend/src/pages/Payroll/comprehensive/utils.js",
+      "frontend/src/pages/PayrollWorkflow.jsx"
+    ],
+    "17": [
+      "AdminDashboard",
+      "AllEmployees",
+      "AllReports",
+      "DeptFormModal",
+      "EmployeeProfilePage",
+      "Rankings",
+      "UserFormModal",
+      "useDepartments"
+    ],
+    "18": [
+      "Layout.jsx",
+      "Navbar.jsx",
+      "NotificationPanel.jsx",
+      "RouteGuards.jsx",
+      "Sidebar.jsx",
+      "SocketContext.jsx",
+      "UserMenu.jsx",
+      "WellBeingBanner.jsx"
+    ],
+    "19": [
+      "backend",
+      "concept_DesignSystem",
+      "frontendTsNodeConfig",
+      "frontendViteConfig",
+      "removeBom",
+      "rootViteConfig",
+      "tailwindConfig"
+    ],
+    "20": [
+      "logo.png_ApplicationLogo",
+      "logo.png_FaviconUse",
+      "logo.png_LoginLogoUse",
+      "logo.png_NavbarLogoUse",
+      "logo.png_NotificationIconUse",
+      "logo.png_RegisterLogoUse",
+      "logo.png_SidebarLogoUse"
+    ],
+    "21": [
+      "test_output_pdf_financial_report",
+      "test_output_pdf_headless_chrome",
+      "test_output_pdf_net",
+      "test_output_pdf_rent",
+      "test_output_pdf_sales",
+      "test_output_pdf_total_expenses",
+      "test_output_pdf_total_income"
+    ],
+    "22": [
+      "0ملون_png_branding_image",
+      "frontend_logo_png",
+      "frontend_public_logo_png",
+      "index_html",
+      "payroll_management_system_app",
+      "بدون_عنوان_png_screenshot"
+    ],
+    "23": [
+      "ColumnManagerModal.jsx",
+      "DeleteColumnModal.jsx",
+      "DynamicNumber.jsx",
+      "EditablePayrollTable.jsx",
+      "PayrollActions.jsx",
+      "PayrollWrapper.tsx"
+    ],
+    "24": [
+      "DEFAULT_EVALUATION_WEIGHTS",
+      "KPICategory",
+      "RecruitmentPerformance_KPI",
+      "RecruitmentPerformance_PerformanceReview",
+      "ReviewStatus",
+      "Settings"
+    ],
+    "25": [
+      "CoupletPipeline",
+      "CoupletPromptManagement",
+      "EditorialPipeline",
+      "NewsDashboard",
+      "PromptManagement"
+    ],
+    "26": [
+      "EnergyLevel_enum",
+      "MoodLevel_enum",
+      "SupportNeed_enum",
+      "WorkloadLevel_enum",
+      "backend_models_WellBeingCheckIn_js"
+    ],
+    "27": [
+      "controllers_coupletpipeline",
+      "controllers_coupletprompt",
+      "controllers_editorialpipeline",
+      "controllers_prompt",
+      "services_ai"
+    ],
+    "28": [
+      "coupletPipelineController",
+      "coupletPromptController",
+      "editorialPipelineController",
+      "promptController",
+      "textpipeline_6stage"
+    ],
+    "29": [
+      "BarChart.jsx",
+      "ChartsIndex.jsx",
+      "LineChart.jsx",
+      "PieChart.jsx"
+    ],
+    "30": [
+      "backend_routes_coupletPipelineRoutes_js",
+      "backend_routes_coupletPromptRoutes_js",
+      "backend_routes_editorialPipelineRoutes_js",
+      "backend_routes_promptRoutes_js"
+    ],
+    "31": [
+      "AttendanceDashboard",
+      "BiometricManagement",
+      "EmployeeAttendanceReport"
+    ],
+    "32": [
+      "AuditFilterBar",
+      "AuditLogs",
+      "auditLogUtils"
+    ],
+    "33": [
+      "BonusForm.jsx",
+      "BonusList.jsx",
+      "BonusManagement.jsx"
+    ],
+    "34": [
+      "Card.jsx",
+      "StatCard.jsx",
+      "WidgetsIndex.jsx"
+    ],
+    "35": [
+      "EVALUATION_QUESTIONS",
+      "ManagerEvaluation_EvaluationPeriod",
+      "ManagerEvaluation_EvaluationResponse"
+    ],
+    "36": [
+      "ROOTINDEX_PayrollSystem",
+      "ROOTINDEX_TailwindCSS",
+      "ROOTINDEX_Vite"
+    ],
+    "37": [
+      "analyticsUtils",
+      "dateUtils",
+      "numberUtils"
+    ],
+    "38": [
+      "authMiddleware_adminOnly",
+      "authMiddleware_adminOrHR",
+      "authMiddleware_managerOrAdmin"
+    ],
+    "39": [
+      "bonusForm_BonusForm",
+      "bonusList_BonusList",
+      "bonusManagement_BonusManagement"
+    ],
+    "40": [
+      "compensationService_compensation",
+      "taskRoutes_taskManagement",
+      "userRoutes_userManagement"
+    ],
+    "41": [
+      "frontend/postcss.config.js",
+      "frontend/prepare-fonts.js",
+      "frontend/remove-bom.js"
+    ],
+    "42": [
+      "frontend_src_pages_Admin_AuditFilterBar",
+      "frontend_src_pages_Admin_AuditLogs",
+      "frontend_src_pages_Admin_auditLogUtils"
+    ],
+    "43": [
+      "payrollService_PayrollService",
+      "payrollService_PayrollServiceTypeDefs",
+      "pdfDownloadService_PdfDownloadService"
+    ],
+    "44": [
+      "pdfGenerator_pdfGenerator",
+      "pdfService_pdfService",
+      "prepareFonts_fontSetup"
+    ],
+    "45": [
+      "App.jsx",
+      "TypographyContext.jsx"
+    ],
+    "46": [
+      "AttendanceNavBar.jsx",
+      "AttendanceTimeline.jsx"
+    ],
+    "47": [
+      "GMApproveLeaves",
+      "LeaveManagement"
+    ],
+    "48": [
+      "Login",
+      "Register"
+    ],
+    "49": [
+      "RecentPaymentsTable.jsx",
+      "StatusBadge.jsx"
+    ],
+    "50": [
+      "app_AppRoot",
+      "routeGuards_RouteGuards"
+    ],
+    "51": [
+      "authMiddleware_generateToken",
+      "authMiddleware_protect"
+    ],
+    "52": [
+      "authService_AuthService",
+      "authService_AuthServiceTypeDefs"
+    ],
+    "53": [
+      "concept_WellBeing",
+      "wellBeingService"
+    ],
+    "54": [
+      "controllers_employeeprofile",
+      "middleware_cvupload"
+    ],
+    "55": [
+      "dynamicNumber_DynamicNumber",
+      "recentPaymentsTable_RecentPayments"
+    ],
+    "56": [
+      "jsPDF",
+      "pdfFonts"
+    ],
+    "57": [
+      "kilo_agent_manager",
+      "kilo_package"
+    ],
+    "58": [
+      "leaveService_LeaveService",
+      "leaveService_LeaveServiceTypeDefs"
+    ],
+    "59": [
+      "managerEvaluationService_ManagerEvaluationService",
+      "notificationService_NotificationService"
+    ],
+    "60": [
+      "newsDepartment_newsDepartmentOnly",
+      "newsDepartment_newsManagerOrAdmin"
+    ],
+    "61": [
+      "packageJson_frontendConfig",
+      "postcssConfig_postcss"
+    ],
+    "62": [
+      "removeBomScript",
+      "rootPackageJson"
+    ],
+    "63": [
+      "AlertsPanel"
+    ],
+    "64": [
+      "AttendanceManagement"
+    ],
+    "65": [
+      "COMPOSE_Network"
+    ],
+    "66": [
+      "DOCKERFILE_Port3000"
+    ],
+    "67": [
+      "DashboardQuickMenu"
+    ],
+    "68": [
+      "FRONTEND_ArabicRTL"
+    ],
+    "69": [
+      "MOGO_Credentials"
+    ],
+    "70": [
+      "MySalary"
+    ],
+    "71": [
+      "NotAuthorized"
+    ],
+    "72": [
+      "PayrollRoutes.jsx"
+    ],
+    "73": [
+      "PayslipView"
+    ],
+    "74": [
+      "SelfServiceRoutes.jsx"
+    ],
+    "75": [
+      "TaskRoutes.jsx"
+    ],
+    "76": [
+      "aiService_aiIntegration"
+    ],
+    "77": [
+      "api.d.ts"
+    ],
+    "78": [
+      "api_ApiClient"
+    ],
+    "79": [
+      "api_ApiService"
+    ],
+    "80": [
+      "attendanceService_AttendanceService"
+    ],
+    "81": [
+      "auditLogService_AuditLogService"
+    ],
+    "82": [
+      "authMiddleware_employeeOnly"
+    ],
+    "83": [
+      "backend_routes_managerEvaluationRoutes_js"
+    ],
+    "84": [
+      "barChart_BarChart"
+    ],
+    "85": [
+      "bonusService_BonusService"
+    ],
+    "86": [
+      "component_Card"
+    ],
+    "87": [
+      "component_ChartsBarrel"
+    ],
+    "88": [
+      "component_PayrollActions"
+    ],
+    "89": [
+      "component_PieChart"
+    ],
+    "90": [
+      "component_StatCard"
+    ],
+    "91": [
+      "component_StatusBadge"
+    ],
+    "92": [
+      "component_WidgetsBarrel"
+    ],
+    "93": [
+      "controllers_financialmisc"
+    ],
+    "94": [
+      "coupletPipelineService_CoupletPipelineService"
+    ],
+    "95": [
+      "coupletPromptService_CoupletPromptService"
+    ],
+    "96": [
+      "departmentService_DepartmentService"
+    ],
+    "97": [
+      "documentController"
+    ],
+    "98": [
+      "documentService_DocumentService"
+    ],
+    "99": [
+      "editorialPipelineService_EditorialPipelineService"
+    ],
+    "100": [
+      "financialMiscController"
+    ],
+    "101": [
+      "financialMiscService_FinancialMiscService"
+    ],
+    "102": [
+      "frontend/src/pages/Payroll/PayrollManagement.jsx"
+    ],
+    "103": [
+      "frontendTsConfig"
+    ],
+    "104": [
+      "frontend_src_hooks_useDepartments"
+    ],
+    "105": [
+      "frontend_src_pages_DashboardQuickMenu"
+    ],
+    "106": [
+      "global.d.ts"
+    ],
+    "107": [
+      "img_0عطµغ"
+    ],
+    "108": [
+      "img_index"
+    ],
+    "109": [
+      "img_logo"
+    ],
+    "110": [
+      "img_╚╧µغ ┌غµ╟غ"
+    ],
+    "111": [
+      "lineChart_LineChart"
+    ],
+    "112": [
+      "main.jsx"
+    ],
+    "113": [
+      "managerEvaluationController"
+    ],
+    "114": [
+      "messageService_MessageService"
+    ],
+    "115": [
+      "newsDepartment"
+    ],
+    "116": [
+      "notificationController"
+    ],
+    "117": [
+      "payrollTableUtils"
+    ],
+    "118": [
+      "promptService_PromptService"
+    ],
+    "119": [
+      "recruitmentPerformanceService_RecruitmentPerformanceService"
+    ],
+    "120": [
+      "removeBom_bomRemover"
+    ],
+    "121": [
+      "rootTsConfig"
+    ],
+    "122": [
+      "root_package"
+    ],
+    "123": [
+      "settingsController"
+    ],
+    "124": [
+      "stderr.txt"
+    ],
+    "125": [
+      "stdout.txt"
+    ],
+    "126": [
+      "swagger_apiDocs"
+    ],
+    "127": [
+      "test_output.pdf"
+    ],
+    "128": [
+      "uploadMiddleware_upload"
+    ],
+    "129": [
+      "usePayrollState"
+    ],
+    "130": [
+      "wellBeingController"
+    ],
+    "131": [
+      "wellBeingRoutes_wellbeing"
+    ],
+    "132": [
+      "بدون_عنوان_png_UntitledImage"
+    ]
+  },
+  "cohesion": {
+    "0": 0.055051421657592255,
+    "1": 0.07653061224489796,
+    "2": 0.05919661733615222,
+    "3": 0.0945945945945946,
+    "4": 0.08262108262108261,
+    "5": 0.09230769230769231,
+    "6": 0.11666666666666667,
+    "7": 0.13043478260869565,
+    "8": 0.09523809523809523,
+    "9": 0.1437908496732026,
+    "10": 0.1323529411764706,
+    "11": 0.22058823529411764,
+    "12": 0.15441176470588236,
+    "13": 0.3076923076923077,
+    "14": 0.16666666666666666,
+    "15": 0.18181818181818182,
+    "16": 0.2727272727272727,
+    "17": 0.2857142857142857,
+    "18": 0.25,
+    "19": 0.3333333333333333,
+    "20": 0.2857142857142857,
+    "21": 0.38095238095238093,
+    "22": 0.4,
+    "23": 0.4,
+    "24": 0.3333333333333333,
+    "25": 0.8,
+    "26": 0.5,
+    "27": 0.6,
+    "28": 0.5,
+    "29": 0.8333333333333334,
+    "30": 0.6666666666666666,
+    "31": 0.6666666666666666,
+    "32": 0.6666666666666666,
+    "33": 0.6666666666666666,
+    "34": 0.6666666666666666,
+    "35": 0.6666666666666666,
+    "36": 0.6666666666666666,
+    "37": 0.6666666666666666,
+    "38": 1.0,
+    "39": 0.6666666666666666,
+    "40": 0.6666666666666666,
+    "41": 0.6666666666666666,
+    "42": 0.6666666666666666,
+    "43": 0.6666666666666666,
+    "44": 0.6666666666666666,
+    "45": 1.0,
+    "46": 1.0,
+    "47": 1.0,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0,
+    "58": 1.0,
+    "59": 1.0,
+    "60": 1.0,
+    "61": 1.0,
+    "62": 1.0,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 1.0,
+    "67": 1.0,
+    "68": 1.0,
+    "69": 1.0,
+    "70": 1.0,
+    "71": 1.0,
+    "72": 1.0,
+    "73": 1.0,
+    "74": 1.0,
+    "75": 1.0,
+    "76": 1.0,
+    "77": 1.0,
+    "78": 1.0,
+    "79": 1.0,
+    "80": 1.0,
+    "81": 1.0,
+    "82": 1.0,
+    "83": 1.0,
+    "84": 1.0,
+    "85": 1.0,
+    "86": 1.0,
+    "87": 1.0,
+    "88": 1.0,
+    "89": 1.0,
+    "90": 1.0,
+    "91": 1.0,
+    "92": 1.0,
+    "93": 1.0,
+    "94": 1.0,
+    "95": 1.0,
+    "96": 1.0,
+    "97": 1.0,
+    "98": 1.0,
+    "99": 1.0,
+    "100": 1.0,
+    "101": 1.0,
+    "102": 1.0,
+    "103": 1.0,
+    "104": 1.0,
+    "105": 1.0,
+    "106": 1.0,
+    "107": 1.0,
+    "108": 1.0,
+    "109": 1.0,
+    "110": 1.0,
+    "111": 1.0,
+    "112": 1.0,
+    "113": 1.0,
+    "114": 1.0,
+    "115": 1.0,
+    "116": 1.0,
+    "117": 1.0,
+    "118": 1.0,
+    "119": 1.0,
+    "120": 1.0,
+    "121": 1.0,
+    "122": 1.0,
+    "123": 1.0,
+    "124": 1.0,
+    "125": 1.0,
+    "126": 1.0,
+    "127": 1.0,
+    "128": 1.0,
+    "129": 1.0,
+    "130": 1.0,
+    "131": 1.0,
+    "132": 1.0
+  },
+  "gods": [
+    {
+      "id": "EmployeeDashboard",
+      "label": "Employee Dashboard",
+      "degree": 25
+    },
+    {
+      "id": "User",
+      "label": "User Model",
+      "degree": 23
+    },
+    {
+      "id": "api.js",
+      "label": "API Axios Instance",
+      "degree": 22
+    },
+    {
+      "id": "mongoose",
+      "label": "mongoose ODM",
+      "degree": 21
+    },
+    {
+      "id": "backend/server.js",
+      "label": "Express Server Entrypoint",
+      "degree": 19
+    },
+    {
+      "id": "ManagerDashboard",
+      "label": "Manager Dashboard",
+      "degree": 18
+    },
+    {
+      "id": "Attendance",
+      "label": "Attendance Model",
+      "degree": 15
+    },
+    {
+      "id": "LeaveRequest",
+      "label": "Leave Request Model",
+      "degree": 14
+    },
+    {
+      "id": "SCHEMA_HRMS_Database_Schema",
+      "label": "HRMS Database Schema",
+      "degree": 12
+    },
+    {
+      "id": "AssignTasks",
+      "label": "Assign Tasks",
+      "degree": 11
+    }
+  ],
+  "surprises": [
+    {
+      "source": "0 Colored Branding Image",
+      "target": "Payroll Management System (Radio Al-Thawra)",
+      "source_files": [
+        "0ملون.png",
+        "package.json"
+      ],
+      "confidence": "INFERRED",
+      "relation": "represents_branding_for",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (code ↔ image); connects across different repos/directories"
+    },
+    {
+      "source": "Untitled Screenshot",
+      "target": "Payroll Management System (Radio Al-Thawra)",
+      "source_files": [
+        "بدون عنوان.png",
+        "package.json"
+      ],
+      "confidence": "INFERRED",
+      "relation": "depicts_ui_of",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (code ↔ image); connects across different repos/directories"
+    },
+    {
+      "source": "ZKTeco Device Service",
+      "target": "ZKTeco Bridge Service",
+      "source_files": [
+        "backend/services/zktecoService.js",
+        "bridge/index.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "ZKTeco Bridge Service دليل التكامل",
+      "target": "ZKTeco Bridge Service",
+      "source_files": [
+        "ztk نصي.txt",
+        "bridge/package.json"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (doc ↔ code); connects across different repos/directories; peripheral node `ZKTeco Bridge Service دليل التكامل` unexpectedly reaches hub `ZKTeco Bridge Service`"
+    },
+    {
+      "source": "Multi-Repo Subtree Git Strategy",
+      "target": "Express.js Backend Server",
+      "source_files": [
+        "برومت المستودعين المنفصلين .txt",
+        "backend/package.json"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (doc ↔ code); connects across different repos/directories; peripheral node `Multi-Repo Subtree Git Strategy` unexpectedly reaches hub `Express.js Backend Server`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "ambiguous_edge",
+      "question": "What is the exact relationship between `RecentPaymentsTable (recent payments display)` and `StatusBadge (active/inactive badge)`?",
+      "why": "Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Arabic RTL UI Pattern` connect `Community 2` to `Community 0`, `Community 1`?",
+      "why": "High betweenness centrality (0.038) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `User Model` connect `Community 0` to `Community 2`?",
+      "why": "High betweenness centrality (0.027) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Financial Misc Page` connect `Community 2` to `Community 7`?",
+      "why": "High betweenness centrality (0.025) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 8 inferred relationships involving `Employee Dashboard` (e.g. with `Assign Tasks` and `Change Password`) actually correct?",
+      "why": "`Employee Dashboard` has 8 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `Document Controller`, `Employee Profile Controller`, `Financial Misc Controller` to the rest of the system?",
+      "why": "328 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.055051421657592255 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

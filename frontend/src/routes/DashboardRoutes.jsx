@@ -14,6 +14,7 @@ export const dashboardRoutes = ({ user }) => {
       <Route path="/" element={
         resolvedUser?.role === 'admin' || resolvedUser?.role === 'hr' ? <AdminDashboard /> :
         resolvedUser?.role === 'manager' ? <ManagerDashboard /> :
+        resolvedUser?.role === 'office_manager' ? <ManagerDashboard /> :
         <EmployeeDashboard />
       } />
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />

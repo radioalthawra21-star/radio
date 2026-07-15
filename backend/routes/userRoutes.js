@@ -19,9 +19,15 @@ const {
   getPendingUsers,
   activateUser,
   getUserCounts,
-  changePassword
+  changePassword,
+  getMyTeam,
+  getOfficeManagersInDepartment,
+  assignToOfficeManager,
+  unassignFromOfficeManager,
+  transferOfficeManager,
+  getTeamAssignments
 } = require('../controllers/userController');
-const { protect, adminOnly, adminOrHR, managerOrAdmin } = require('../middleware/authMiddleware');
+const { protect, adminOnly, adminOrHR, profileViewerAccess, managerOrAdmin, officeManagerOrAbove } = require('../middleware/authMiddleware');
 const { getEmployeeProfile, updateEmployeeProfile, uploadCV, deleteCV } = require('../controllers/employeeProfileController');
 const cvUploadMiddleware = require('../middleware/cvUploadMiddleware');
 const cvUpload = cvUploadMiddleware.upload;
@@ -44,7 +50,7 @@ router.get('/', protect, async (req, res) => {
 });
 
 // GET /api/users/department/:department - Get employees by department
-router.get('/department/:department', protect, managerOrAdmin, getEmployeesByDepartment);
+router.get('/department/:department', protect, officeManagerOrAbove, getEmployeesByDepartment);
 
 // GET /api/users/managers - Get all managers
 router.get('/managers', protect, managerOrAdmin, getAllManagers);
@@ -63,6 +69,25 @@ router.get('/counts', protect, adminOrHR, getUserCounts);
 
 // POST /api/users/:id/activate - Activate user (admin or HR)
 router.post('/:id/activate', protect, adminOrHR, activateUser);
+
+// Office Manager Routes (MUST be before /:id to avoid route shadowing)
+// GET /api/users/my-team - Get team members for current office manager
+router.get('/my-team', protect, officeManagerOrAbove, getMyTeam);
+
+// GET /api/users/office-managers - Get office managers in department
+router.get('/office-managers', protect, managerOrAdmin, getOfficeManagersInDepartment);
+
+// GET /api/users/team-assignments - Get team assignments summary
+router.get('/team-assignments', protect, managerOrAdmin, getTeamAssignments);
+
+// POST /api/users/assign-to-office-manager - Assign employees to office manager
+router.post('/assign-to-office-manager', protect, managerOrAdmin, assignToOfficeManager);
+
+// DELETE /api/users/unassign-from-office-manager - Unassign employees
+router.delete('/unassign-from-office-manager', protect, managerOrAdmin, unassignFromOfficeManager);
+
+// PUT /api/users/transfer-office-manager - Transfer employees between office managers
+router.put('/transfer-office-manager', protect, managerOrAdmin, transferOfficeManager);
 
 // GET /api/users/:id - Get user by ID (admin/HR/manager only)
 router.get('/:id', protect, managerOrAdmin, getUserById);
@@ -84,7 +109,7 @@ router.post('/:id/calculate-score', protect, managerOrAdmin, calculatePerformanc
 
 // Employee Profile Routes (Admin/HR only)
 // GET /api/users/profile/:id - Get full employee profile
-router.get('/profile/:id', protect, adminOrHR, getEmployeeProfile);
+router.get('/profile/:id', protect, profileViewerAccess, getEmployeeProfile);
 
 // PUT /api/users/profile/:id - Update employee profile
 router.put('/profile/:id', protect, adminOrHR, updateEmployeeProfile);

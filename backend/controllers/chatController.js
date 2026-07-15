@@ -475,13 +475,13 @@ const canAccessPrivateChat = (chat, user) => {
 };
 
 const canManageChat = async (chatId, user) => {
-  if (user.role === 'admin' || user.role === 'developer') return true;
+  if (user.role === 'admin' || user.role === 'developer' || user.role === 'office_manager') return true;
   const chat = await Chat.findById(chatId).select('createdBy').lean();
   if (chat && chat.createdBy.toString() === user._id.toString()) return true;
   const member = await ChatMember.findOne({ chat: chatId, user: user._id });
   if (!member) return false;
   if (member.role === 'admin') return true;
-  if (user.role === 'manager' || user.role === 'hr') return true;
+  if (user.role === 'manager' || user.role === 'hr' || user.role === 'office_manager') return true;
   return false;
 };
 

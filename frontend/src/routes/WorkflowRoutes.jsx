@@ -17,10 +17,10 @@ export const workflowRoutes = (
     <Route path="/workflows/new" element={<ProtectedRoute><WorkflowForm /></ProtectedRoute>} />
     <Route path="/workflows/:id" element={<ProtectedRoute><WorkflowForm /></ProtectedRoute>} />
     <Route path="/workflows/create-task/:workflowId" element={<ProtectedRoute><WorkflowTaskCreate /></ProtectedRoute>} />
-    <Route path="/kanban" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><KanbanBoard /></ProtectedRoute>} />
-    <Route path="/workflow/tasks/mine" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><EmployeeWorkflowTasks /></ProtectedRoute>} />
-    <Route path="/workflow/stage-approval" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><StageApproval /></ProtectedRoute>} />
-    <Route path="/workflow/dashboard" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><WorkflowDashboard /></ProtectedRoute>} />
+    <Route path="/kanban" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'hr', 'general_manager']}><KanbanBoard /></ProtectedRoute>} />
+    <Route path="/workflow/tasks/mine" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'hr', 'general_manager']}><EmployeeWorkflowTasks /></ProtectedRoute>} />
+    <Route path="/workflow/stage-approval" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'hr', 'general_manager']}><StageApproval /></ProtectedRoute>} />
+    <Route path="/workflow/dashboard" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'hr', 'general_manager']}><WorkflowDashboard /></ProtectedRoute>} />
     <Route path="/workflow/task/:id" element={<ProtectedRoute><WorkflowTaskDetail /></ProtectedRoute>} />
   </>
 );

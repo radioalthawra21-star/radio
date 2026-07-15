@@ -20,12 +20,12 @@ const TaskDetailRedirect = () => {
 export const taskRoutes = (
   <>
     <Route path="/tasks" element={<ProtectedRoute><TaskManagement /></ProtectedRoute>} />
-    <Route path="/my-tasks" element={<ProtectedRoute allowedRoles={['employee']}><MyTasks /></ProtectedRoute>} />
-    <Route path="/add-task" element={<ProtectedRoute allowedRoles={['employee', 'manager']}><AddTask /></ProtectedRoute>} />
-    <Route path="/task-history" element={<ProtectedRoute allowedRoles={['employee']}><TaskHistory /></ProtectedRoute>} />
-    <Route path="/manager/assign-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><AssignTasks /></ProtectedRoute>} />
-    <Route path="/manager/evaluate-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><EvaluateTasks /></ProtectedRoute>} />
-    <Route path="/manager/department-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><DepartmentTasks /></ProtectedRoute>} />
+    <Route path="/my-tasks" element={<ProtectedRoute allowedRoles={['employee', 'office_manager']}><MyTasks /></ProtectedRoute>} />
+    <Route path="/add-task" element={<ProtectedRoute allowedRoles={['employee', 'manager', 'office_manager']}><AddTask /></ProtectedRoute>} />
+    <Route path="/task-history" element={<ProtectedRoute allowedRoles={['employee', 'office_manager']}><TaskHistory /></ProtectedRoute>} />
+    <Route path="/manager/assign-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'office_manager']}><AssignTasks /></ProtectedRoute>} />
+    <Route path="/manager/evaluate-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'office_manager']}><EvaluateTasks /></ProtectedRoute>} />
+    <Route path="/manager/department-tasks" element={<ProtectedRoute allowedRoles={['manager', 'admin', 'office_manager']}><DepartmentTasks /></ProtectedRoute>} />
     <Route path="/admin/assign-tasks" element={<ProtectedRoute allowedRoles={['admin']}><AssignTasks /></ProtectedRoute>} />
     <Route path="/task/:id" element={<ProtectedRoute><TaskDetail /></ProtectedRoute>} />
     <Route path="/tasks/task/:id" element={<ProtectedRoute><TaskDetailRedirect /></ProtectedRoute>} />

@@ -264,6 +264,21 @@ const getAttendanceHistory = async (req, res) => {
       } else {
         query.department = req.user.department;
       }
+    } else if (role === 'office_manager') {
+      // Office manager sees only their team's attendance
+      const { User: UserModel } = require('../models/User');
+      const teamMembers = await UserModel.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      if (employeeId && typeof employeeId === 'string' && /^[0-9a-fA-F]{24}$/.test(employeeId)) {
+        // Verify the employee is in their team
+        if (teamIds.some(id => id.toString() === employeeId)) {
+          query.employee = employeeId;
+        } else {
+          query.employee = { $in: [] }; // empty result
+        }
+      } else {
+        query.employee = { $in: teamIds };
+      }
     } else {
       query.employee = req.user._id;
     }
@@ -496,6 +511,11 @@ const getLateReport = async (req, res) => {
       if (department) query.department = department;
     } else if (role === 'manager') {
       query.department = req.user.department;
+    } else if (role === 'office_manager') {
+      const { User: UserModel } = require('../models/User');
+      const teamMembers = await UserModel.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      query.employee = { $in: teamIds };
     } else {
       query.employee = req.user._id;
     }
@@ -571,6 +591,19 @@ const getWorkHoursReport = async (req, res) => {
       } else {
         query.department = req.user.department;
       }
+    } else if (role === 'office_manager') {
+      const { User: UserModel } = require('../models/User');
+      const teamMembers = await UserModel.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      if (employeeId) {
+        if (teamIds.some(id => id.toString() === employeeId)) {
+          query.employee = employeeId;
+        } else {
+          query.employee = { $in: [] };
+        }
+      } else {
+        query.employee = { $in: teamIds };
+      }
     } else {
       query.employee = req.user._id;
     }
@@ -638,12 +671,24 @@ const getEmployeeAttendanceReport = async (req, res) => {
     const isAdmin = role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept);
     const isSelf = req.user._id.toString() === employeeId;
     const isManagerOfDept = role === 'manager' && req.user.department;
+    const isOfficeManager = role === 'office_manager';
 
-    if (!isAdmin && !isSelf && !isManagerOfDept) {
+    if (!isAdmin && !isSelf && !isManagerOfDept && !isOfficeManager) {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بالوصول إلى هذا التقرير'
       });
+    }
+
+    // Office manager: verify employee is in their team
+    if (isOfficeManager) {
+      const teamMember = await User.findOne({ _id: employeeId, supervisedBy: req.user._id });
+      if (!teamMember) {
+        return res.status(403).json({
+          success: false,
+          message: 'غير مصرح لك بالوصول إلى هذا التقرير'
+        });
+      }
     }
 
     const employee = await User.findById(employeeId).select('-password');
@@ -761,9 +806,17 @@ const getDashboardStats = async (req, res) => {
     let weeklyQuery = { date: { $gte: startOfWeek, $lt: tomorrow } };
 
     if (!isAdminOrHr) {
-      todayQuery.employee = req.user._id;
-      monthlyQuery.employee = req.user._id;
-      weeklyQuery.employee = req.user._id;
+      if (role === 'office_manager') {
+        const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+        const teamIds = teamMembers.map(m => m._id);
+        todayQuery.employee = { $in: teamIds };
+        monthlyQuery.employee = { $in: teamIds };
+        weeklyQuery.employee = { $in: teamIds };
+      } else {
+        todayQuery.employee = req.user._id;
+        monthlyQuery.employee = req.user._id;
+        weeklyQuery.employee = req.user._id;
+      }
     } else if (role === 'manager') {
       todayQuery.department = req.user.department;
       monthlyQuery.department = req.user.department;
@@ -900,12 +953,24 @@ const getMonthlyTimesheet = async (req, res) => {
     const isAdmin = role === 'admin' || role === 'hr' || (role === 'manager' && isHrDept);
     const isSelf = req.user._id.toString() === employeeId;
     const isManagerOfDept = role === 'manager' && req.user.department;
+    const isOfficeManager = role === 'office_manager';
 
-    if (!isAdmin && !isSelf && !isManagerOfDept) {
+    if (!isAdmin && !isSelf && !isManagerOfDept && !isOfficeManager) {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بالوصول إلى هذا التقرير'
       });
+    }
+
+    // Office manager: verify employee is in their team
+    if (isOfficeManager) {
+      const teamMember = await User.findOne({ _id: employeeId, supervisedBy: req.user._id });
+      if (!teamMember) {
+        return res.status(403).json({
+          success: false,
+          message: 'غير مصرح لك بالوصول إلى هذا التقرير'
+        });
+      }
     }
 
     const employee = await User.findById(employeeId).select('name email department jobTitle');

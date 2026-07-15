@@ -9,12 +9,14 @@ const bcrypt = require('bcryptjs');
 // Define user roles enum
 const UserRole = {
   EMPLOYEE: 'employee',
+  OFFICE_MANAGER: 'office_manager',
   MANAGER: 'manager',
   HR: 'hr',
   ADMIN: 'admin',
   DEVELOPER: 'developer',
   GENERAL_MANAGER: 'general_manager',
-  ADMINISTRATOR: 'administrator'
+  ADMINISTRATOR: 'administrator',
+  DEPARTMENT_MANAGER: 'department_manager'
 };
 
 // Define departments
@@ -224,6 +226,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
     sparse: true
+  },
+
+  // Office Manager: the office_manager user who supervises this employee
+  supervisedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   }
 }, {
   timestamps: true
@@ -233,6 +242,7 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ role: 1 });
 userSchema.index({ department: 1 });
 userSchema.index({ isActive: 1 });
+userSchema.index({ supervisedBy: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
@@ -280,7 +290,8 @@ userSchema.methods.getPublicProfile = function() {
     yearsOfExperience: this.yearsOfExperience,
     cvUrl: this.cvUrl,
     cvFileName: this.cvFileName,
-    cvUploadedAt: this.cvUploadedAt
+    cvUploadedAt: this.cvUploadedAt,
+    supervisedBy: this.supervisedBy
   };
 };
 

@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllEmployees, getAllManagers, getPendingUsers, getEmployeesByDepartment, createUser, updateUser, deleteUser, activateUser } from '../../services/userService';
+import { getAllEmployees, getAllManagers, getPendingUsers, getEmployeesByDepartment, createUser, updateUser, deleteUser, activateUser, getOffices, createOffice, updateOffice, deleteOffice, getOfficeManagersInDepartment, assignToOfficeManager, unassignFromOfficeManager } from '../../services/userService';
 import { getAllDepartments, createDepartment, deleteDepartment } from '../../services/departmentService';
 import { getStoredUser } from '../../services/authService';
 import { useDepartments } from '../../hooks/useDepartments';
 import Card from '../../components/common/Card';
 import UserFormModal from './UserFormModal';
+import OfficeFormModal from './OfficeFormModal';
 import DeptFormModal from './DeptFormModal';
 import RecruitmentSection from '../recruitment/RecruitmentSection';
 import PerformanceSection from '../recruitment/PerformanceSection';
+import OfficeManagerAssignments from './OfficeManagerAssignments';
 import { getJobPostings, getJobStats, getApplications, getPerformanceReviews, getKPIs } from '../../services/recruitmentPerformanceService';
 import { BarChart, PieChart, LineChart } from '../../components/charts';
 import StatCard from '../../components/widgets/StatCard';
@@ -19,7 +21,7 @@ import 'jspdf-autotable';
 import { ARABIC_FONT } from '../../utils/pdfFonts';
 
 const roleNames = {
-  employee: 'موظف', manager: 'مدير قسم', hr: 'مسؤول الموارد البشرية', admin: 'المدير العام'
+  employee: 'موظف', office_manager: 'مدير مكتب', manager: 'مدير قسم', hr: 'مسؤول الموارد البشرية', admin: 'المدير العام'
 };
 
 const deptDisplayNames = {
@@ -46,8 +48,9 @@ const getDeptVariants = (canonical) => {
   return variants;
 };
 
-const mainTabs = [
+const baseMainTabs = [
   { id: 'employees', label: 'الموظفين' },
+  { id: 'office-manager-assignments', label: 'تعيينات مدراء المكاتب' },
   { id: 'recruitment', label: 'التوظيف والأداء' },
   { id: 'reports', label: 'التقارير' },
 ];
@@ -58,10 +61,22 @@ const AllEmployees = () => {
   const isAdmin = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const isHR = currentUser?.role === 'hr';
+  const isOfficeManagerRole = currentUser?.role === 'office_manager';
+  const isManagerOrAbove = isAdmin || isManager || isHR;
   const userDepartment = currentUser?.department;
+  const isHRDepartment = ['hr', 'الموارد البشرية', 'موارد بشرية']
+    .includes((userDepartment || '').toString().toLowerCase().trim());
+  const showDepartmentFilter = isAdmin || isHR || (isManager && isHRDepartment);
   const { departments: hookDepartments, getDepartmentName } = useDepartments();
 
   const [activeMainTab, setActiveMainTab] = useState('employees');
+
+  // Filter tabs based on role
+  const mainTabs = baseMainTabs.filter(tab => {
+    if (tab.id === 'office-manager-assignments' && !isManagerOrAbove) return false;
+    if ((tab.id === 'recruitment' || tab.id === 'reports') && (isManager || isOfficeManagerRole)) return false;
+    return true;
+  });
 
   const [employees, setEmployees] = useState([]);
   const [managers, setManagers] = useState([]);
@@ -79,6 +94,14 @@ const AllEmployees = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
 
+  const [offices, setOffices] = useState([]);
+  const [officeManagersList, setOfficeManagersList] = useState([]);
+  const [showOfficeModal, setShowOfficeModal] = useState(false);
+  const [editingOffice, setEditingOffice] = useState(null);
+  const [officeForm, setOfficeForm] = useState({ name: '', department: '', description: '', employees: [] });
+  const [officeLoading, setOfficeLoading] = useState(false);
+  const [officeError, setOfficeError] = useState('');
+
   const [recruitmentSubTab, setRecruitmentSubTab] = useState('jobs');
   const [performanceSubTab, setPerformanceSubTab] = useState('reviews');
   const [jobs, setJobs] = useState([]);
@@ -91,6 +114,13 @@ const AllEmployees = () => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => { fetchData(); }, []);
+
+  const loadOffices = async () => {
+    try {
+      const res = await getOffices();
+      if (res.success) setOffices(res.data.offices || []);
+    } catch (err) { console.error('Error loading offices:', err); }
+  };
 
   useEffect(() => {
     if (activeMainTab === 'recruitment') {
@@ -138,6 +168,7 @@ const AllEmployees = () => {
     try {
       setLoading(true);
       await loadDepartments();
+      await loadOffices();
       if (isAdmin || isHR) {
         const empResponse = await getAllEmployees();
         if (empResponse.success) setEmployees(empResponse.data.employees);
@@ -145,7 +176,16 @@ const AllEmployees = () => {
         if (mgrResponse.success) setManagers(mgrResponse.data.managers);
         const pendingResponse = await getPendingUsers();
         if (pendingResponse.success) setPendingUsers(pendingResponse.data.users);
+        const omRes = await getOfficeManagersInDepartment();
+        if (omRes.success) setOfficeManagersList(omRes.data.officeManagers || []);
       } else if (isManager) {
+        const empResponse = await getEmployeesByDepartment(userDepartment);
+        if (empResponse.success) setEmployees(empResponse.data.employees);
+        setManagers([]);
+        setPendingUsers([]);
+        const omRes = await getOfficeManagersInDepartment();
+        if (omRes.success) setOfficeManagersList(omRes.data.officeManagers || []);
+      } else if (isOfficeManagerRole) {
         const empResponse = await getEmployeesByDepartment(userDepartment);
         if (empResponse.success) setEmployees(empResponse.data.employees);
         setManagers([]);
@@ -337,6 +377,109 @@ const AllEmployees = () => {
   const openCreateModal = () => {
     setEditingUser(null);
     setFormData({ name: '', username: '', email: '', password: '', role: 'employee', department: isManager ? userDepartment : '', jobTitle: '' });
+    setShowModal(true);
+  };
+
+  const openCreateOffice = () => {
+    setEditingOffice(null);
+    setOfficeForm({ name: '', department: isManager ? userDepartment : '', description: '', employees: [] });
+    setOfficeError('');
+    setShowOfficeModal(true);
+  };
+
+  const openEditOffice = (office) => {
+    setEditingOffice(office);
+    setOfficeForm({
+      name: office.name,
+      department: office.department || '',
+      description: office.description || '',
+      employees: (office.employees || []).map(e => typeof e === 'string' ? e : e._id)
+    });
+    setOfficeError('');
+    setShowOfficeModal(true);
+  };
+
+  const handleOfficeSubmit = async (e) => {
+    e.preventDefault();
+    setOfficeLoading(true);
+    setOfficeError('');
+    try {
+      const payload = { ...officeForm, employeeIds: officeForm.employees || [] };
+      let res;
+      if (editingOffice) {
+        res = await updateOffice(editingOffice._id, payload);
+      } else {
+        res = await createOffice(payload);
+      }
+      if (res.success) {
+        setShowOfficeModal(false);
+        setEditingOffice(null);
+        setOfficeForm({ name: '', department: '', description: '', employees: [] });
+        await loadOffices();
+        setSuccess(editingOffice ? 'تم تحديث المكتب بنجاح' : 'تم إنشاء المكتب بنجاح');
+      } else {
+        setOfficeError(res.message || 'حدث خطأ');
+      }
+    } catch (err) {
+      setOfficeError(err.response?.data?.message || err.message || 'حدث خطأ');
+    } finally {
+      setOfficeLoading(false);
+    }
+  };
+
+  const handleDeleteOffice = async (id) => {
+    if (!confirm('هل أنت متأكد من حذف هذا المكتب؟')) return;
+    try {
+      const res = await deleteOffice(id);
+      if (res.success) {
+        await loadOffices();
+        setSuccess('تم حذف المكتب بنجاح');
+      }
+    } catch (err) { console.error('Error deleting office:', err); }
+  };
+
+  const [assignLoading, setAssignLoading] = useState('');
+
+  const handleToggleRole = async (emp) => {
+    const newRole = emp.role === 'employee' ? 'office_manager' : 'employee';
+    const label = newRole === 'office_manager' ? 'مدير مكتب' : 'موظف';
+    if (!confirm(`هل تريد تغيير دور "${emp.name}" إلى ${label}؟`)) return;
+    try {
+      setAssignLoading(emp._id);
+      const res = await updateUser(emp._id, { role: newRole });
+      if (res.success) {
+        setSuccess(`تم تغيير دور ${emp.name} إلى ${label}`);
+        fetchData();
+      } else {
+        alert(res.message || 'حدث خطأ');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'حدث خطأ');
+    } finally {
+      setAssignLoading('');
+    }
+  };
+
+  const handleAssignOM = async (empId, omId) => {
+    try {
+      setAssignLoading(empId);
+      if (!omId) {
+        const res = await unassignFromOfficeManager([empId]);
+        if (res.success) { setSuccess('تم إلغاء التعيين'); fetchData(); }
+      } else {
+        const res = await assignToOfficeManager([empId], omId);
+        if (res.success) { setSuccess('تم تعيين مدير المكتب'); fetchData(); }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAssignLoading('');
+    }
+  };
+
+  const openEditEmployee = (employee) => {
+    setEditingUser(employee);
+    setFormData({ name: employee.name, username: employee.username || '', email: employee.email, password: '', role: employee.role, department: employee.department || '', jobTitle: employee.jobTitle || '' });
     setShowModal(true);
   };
 
@@ -604,7 +747,9 @@ const AllEmployees = () => {
     <div className="animate-fade-in">
       <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center mb-6 md:mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-dark">الموظفين</h1>
-        <button onClick={openCreateModal} className="btn btn-primary w-full md:w-auto text-center">➕ إضافة مستخدم</button>
+        {(isAdmin || isHR) && (
+          <button onClick={openCreateModal} className="btn btn-primary w-full md:w-auto text-center">➕ إضافة مستخدم</button>
+        )}
       </div>
 
       <Card className="mb-6">
@@ -640,6 +785,49 @@ const AllEmployees = () => {
                   <button onClick={() => handleDeleteDepartment(dept.id)} className="text-error hover:text-red-700 ml-2">✕</button>
                 </div>
               ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Offices Management - only for admin or HR department manager */}
+      {(isAdmin || (isManager && (currentUser?.department?.toLowerCase().includes('موارد بشرية') || currentUser?.department === 'hr' || currentUser?.department === 'الموارد البشرية'))) && (
+        <Card className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-dark">المكاتب</h2>
+            <button onClick={openCreateOffice} className="btn btn-primary text-sm">➕ إضافة مكتب</button>
+          </div>
+          {offices.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">لا توجد مكاتب بعد</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-right table-responsive-cards">
+                <thead>
+                  <tr className="border-b-2 border-gray-300">
+                    <th className="p-3">اسم المكتب</th>
+                    <th className="p-3">القسم</th>
+                    <th className="p-3">الموظفون</th>
+                    <th className="p-3">الوصف</th>
+                    <th className="p-3">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {offices.map(office => (
+                    <tr key={office._id} className="border-b hover:bg-gray-50">
+                      <td className="p-3 font-semibold" data-label="اسم المكتب">{office.name}</td>
+                      <td className="p-3" data-label="القسم">{office.department}</td>
+                      <td className="p-3" data-label="الموظفون">{office.employees?.length || 0} موظف</td>
+                      <td className="p-3 text-gray-500" data-label="الوصف">{office.description || '—'}</td>
+                      <td className="p-3" data-label="إجراءات">
+                        <button onClick={() => openEditOffice(office)} className="text-interactive hover:underline ml-2 text-sm">تعديل</button>
+                        {(isAdmin || isHR) && (
+                          <button onClick={() => handleDeleteOffice(office._id)} className="text-primary hover:underline text-sm">حذف</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </Card>
@@ -718,6 +906,17 @@ const AllEmployees = () => {
         </Card>
       )}
 
+      {/* Office Manager Assignments Tab */}
+      {activeMainTab === 'office-manager-assignments' && isManagerOrAbove && (
+        <OfficeManagerAssignments
+          employees={employees}
+          offices={offices}
+          userDepartment={userDepartment}
+          onSuccess={setSuccess}
+        />
+      )}
+
+      {activeMainTab === 'employees' && (
       <Card>
         <h2 className="text-xl font-bold text-dark mb-4">الموظفين</h2>
         <div className="flex flex-col md:flex-row gap-3 mb-4">
@@ -730,6 +929,7 @@ const AllEmployees = () => {
               className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
             />
           </div>
+          {showDepartmentFilter && (
           <div className="md:w-64">
             <select
               value={filterDepartment}
@@ -764,6 +964,7 @@ const AllEmployees = () => {
               })()}
             </select>
           </div>
+          )}
         </div>
         {loading ? (
           <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary"></div></div>
@@ -773,10 +974,10 @@ const AllEmployees = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-right table-responsive-cards">
               <thead>
-                <tr className="border-b-2 border-gray-300">
-                  <th className="p-3">رقم</th><th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
-                  <th className="p-3">القسم</th><th className="p-3">المسمى الوظيفي</th><th className="p-3">نقاط الأداء</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th>
-                </tr>
+                  <tr className="border-b-2 border-gray-300">
+                    <th className="p-3">رقم</th><th className="p-3">الاسم</th><th className="p-3">اسم المستخدم</th><th className="p-3">البريد الإلكتروني</th>
+                    <th className="p-3">القسم</th><th className="p-3">المسمى الوظيفي</th><th className="p-3">مدير المكتب</th><th className="p-3">نقاط الأداء</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th>
+                  </tr>
               </thead>
               <tbody>
                 {employees.filter(emp => {
@@ -798,12 +999,53 @@ const AllEmployees = () => {
                     <td className="p-3 text-gray-600" data-label="البريد الإلكتروني">{emp.email}</td>
                     <td className="p-3" data-label="القسم">{getDepartmentName(emp.department)}</td>
                     <td className="p-3" data-label="المسمى الوظيفي">{emp.jobTitle || '-'}</td>
+                    <td className="p-3" data-label="مدير المكتب">
+                      {(isManagerOrAbove && emp.role === 'employee') ? (
+                        <select
+                          value={emp.supervisedBy || ''}
+                          onChange={(e) => handleAssignOM(emp._id, e.target.value)}
+                          disabled={assignLoading === emp._id}
+                          className="p-1.5 border border-gray-200 rounded text-xs w-full max-w-[150px]"
+                        >
+                          <option value="">— بدون —</option>
+                          {officeManagersList.map(om => (
+                            <option key={om._id} value={om._id}>{om.name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-xs text-gray-500">
+                          {officeManagersList.find(om => om._id === emp.supervisedBy)?.name || '—'}
+                        </span>
+                      )}
+                    </td>
                     <td className="p-3" data-label="نقاط الأداء"><span className={`badge ${emp.performanceScore >= 70 ? 'bg-secondary text-white' : emp.performanceScore >= 40 ? 'bg-primary text-white' : 'bg-dark text-white'}`}>{emp.performanceScore || 0}</span></td>
                     <td className="p-3" data-label="الحالة"><span className={`badge ${emp.isActive ? 'bg-secondary text-white' : 'bg-dark text-white'}`}>{emp.isActive ? 'نشط' : 'غير نشط'}</span></td>
                     <td className="p-3" data-label="إجراءات">
                       <button onClick={() => navigate(`/admin/employee-profile/${emp._id}`)} className="text-secondary hover:underline ml-2 whitespace-nowrap">عرض الملف</button>
-                      <button onClick={() => handleEdit(emp)} className="text-interactive hover:underline ml-2 whitespace-nowrap">تعديل</button>
-                      <button onClick={() => handleDelete(emp._id)} className="text-primary hover:underline whitespace-nowrap">حذف</button>
+                      {(isAdmin || isHR || isManager) && emp.role === 'employee' && (
+                        <button
+                          onClick={() => handleToggleRole(emp)}
+                          disabled={assignLoading === emp._id}
+                          className="text-green-600 hover:underline ml-2 whitespace-nowrap text-xs"
+                        >
+                          {assignLoading === emp._id ? '...' : 'تعيين كمدير مكتب'}
+                        </button>
+                      )}
+                      {(isAdmin || isHR || isManager) && emp.role === 'office_manager' && (
+                        <button
+                          onClick={() => handleToggleRole(emp)}
+                          disabled={assignLoading === emp._id}
+                          className="text-amber-600 hover:underline ml-2 whitespace-nowrap text-xs"
+                        >
+                          {assignLoading === emp._id ? '...' : 'إرجاع لموظف'}
+                        </button>
+                      )}
+                      {(isAdmin || isHR) && (
+                        <>
+                          <button onClick={() => handleEdit(emp)} className="text-interactive hover:underline ml-2 whitespace-nowrap">تعديل</button>
+                          <button onClick={() => handleDelete(emp._id)} className="text-primary hover:underline whitespace-nowrap">حذف</button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -812,11 +1054,12 @@ const AllEmployees = () => {
           </div>
         )}
       </Card>
+      )}
 
       <UserFormModal
         showModal={showModal} editingUser={editingUser} formData={formData}
         error={error} loading={loading} handleChange={handleChange}
-        handleSubmit={handleSubmit}         isAdmin={isAdmin || isHR}
+        handleSubmit={handleSubmit}         isAdmin={isAdmin || isHR} isManager={isManager}
         onClose={() => setShowModal(false)} customDepartments={customDepartments}
       />
       <DeptFormModal
@@ -824,6 +1067,17 @@ const AllEmployees = () => {
         setDeptForm={setDeptForm} deptLoading={deptLoading}
         handleAddDepartment={handleAddDepartment}
         onClose={() => setShowDeptModal(false)}
+      />
+      <OfficeFormModal
+        showModal={showOfficeModal}
+        formData={officeForm}
+        setFormData={setOfficeForm}
+        loading={officeLoading}
+        error={officeError}
+        isEdit={!!editingOffice}
+        onSubmit={handleOfficeSubmit}
+        onClose={() => { setShowOfficeModal(false); setEditingOffice(null); }}
+        employees={employees}
       />
     </div>
   );

@@ -92,6 +92,8 @@ const isAdminLike = (role) => role === 'admin' || role === 'general_manager' || 
 
 const isManagerLike = (role) => role === 'manager' || role === 'hr';
 
+const isOfficeManagerLike = (role) => role === 'office_manager';
+
 /**
  * Middleware to check if user is admin (General Manager) only
  */
@@ -162,6 +164,26 @@ const adminOrHR = (req, res, next) => {
 };
 
 /**
+ * Middleware to check if user can view an employee profile.
+ * Allows the profile owner, plus any management tier with authority over
+ * employees (admin/general_manager/administrator, hr, manager, office_manager, developer).
+ * This aligns profile access with GET /users/:id (managerOrAdmin).
+ */
+const profileViewerAccess = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  if (isAdminLike(role) || isManagerLike(role) || isOfficeManagerLike(role) || isDev(role)) {
+    return next();
+  }
+  if (req.user?._id && req.params?.id && req.user._id.toString() === req.params.id.toString()) {
+    return next();
+  }
+  return res.status(403).json({
+    success: false,
+    message: 'غير مصرح لك بالوصول لهذه الصفحة'
+  });
+};
+
+/**
  * Middleware to check if user is admin, hr, or an employee in HR department
  */
 const adminOrHRorHrEmployee = (req, res, next) => {
@@ -221,6 +243,9 @@ const workflowAccess = async (req, res, next) => {
   if (role === 'manager' || role === 'observer') {
     return next();
   }
+  if (role === 'office_manager') {
+    return next();
+  }
   if (role === 'employee') {
     const taskId = req.params.id || req.body.taskId;
     if (taskId) {
@@ -254,10 +279,60 @@ const departmentOnly = (req, res, next) => {
   req.departmentFilter = dept;
   next();
 };
+
+/**
+ * Middleware to check if user is office_manager or above (manager, hr, admin, developer)
+ */
+const officeManagerOrAbove = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  if (isOfficeManagerLike(role) || isManagerLike(role) || isAdminLike(role) || isDev(role)) {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+    });
+  }
+};
+
+/**
+ * Middleware to check if user is manager, hr, admin, developer, or office_manager
+ */
+const managerOrAbove = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  if (isManagerLike(role) || isAdminLike(role) || isDev(role) || isOfficeManagerLike(role)) {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'غير مصرح لك بالوصول لهذه الصفحة'
+    });
+  }
+};
+
+/**
+ * Middleware to check if user is General Manager OR a Department Manager of HR (الموارد البشرية)
+ * Used to restrict Office management features
+ */
+const generalManagerOrHrManager = (req, res, next) => {
+  const role = req.user?.role?.toLowerCase() || '';
+  const dept = (req.user?.department || '').toString().toLowerCase().trim();
+  const isHrDept = dept === 'hr' || dept === 'الموارد البشرية' || dept.includes('موارد بشرية');
+  if (isAdminLike(role) || isDev(role) || (role === 'manager' && isHrDept)) {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'غير مصرح لك بالوصول - هذه الصفحة للمدير العام ومدير الموارد البشرية فقط'
+    });
+  }
+};
+
 module.exports = {
   protect,
   adminOnly,
   adminOrHR,
+  profileViewerAccess,
   adminOrHRorHrEmployee,
   managerOrAdmin,
   employeeOnly,
@@ -265,6 +340,9 @@ module.exports = {
   workflowAccess,
   observerReadOnly,
   departmentOnly,
+  officeManagerOrAbove,
+  managerOrAbove,
+  generalManagerOrHrManager,
   generateToken,
   JWT_SECRET
 };

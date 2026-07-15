@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getStoredUser } from '../services/authService';
-import { getTodayReport, submitDailyReport, getDepartmentManager, getMyReports } from '../services/dailyReportService';
+import { getTodayReport, submitDailyReport, saveDailyReportDraft, getDepartmentManager, getMyReports } from '../services/dailyReportService';
 import { playNotificationSound } from '../utils/audioUtils';
 import Card from '../components/common/Card';
 
@@ -33,6 +33,7 @@ const DailyReport = () => {
   const user = getStoredUser();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
   const [message, setMessage] = useState(null);
 
   const departmentNames = {
@@ -48,16 +49,25 @@ const DailyReport = () => {
   const [directManager, setDirectManager] = useState('');
 
   const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-  const now = new Date();
-  const dateStr = `${arabicDayNames[now.getDay()]} - ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+  const todayStr = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; })();
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const [isOnVacation, setIsOnVacation] = useState(false);
+
+  const getDateDisplay = (dateVal) => {
+    const [y, m, d] = dateVal.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return `${arabicDayNames[dt.getDay()]} - ${d}/${m}/${y}`;
+  };
+  const dateDisplay = getDateDisplay(selectedDate);
 
   const [achievements, setAchievements] = useState([emptyAchievement()]);
   const [priorities, setPriorities] = useState({ first: '', second: '', third: '' });
   const [challenges, setChallenges] = useState({ obstacles: '', supportRequired: '' });
   const [suggestions, setSuggestions] = useState({ performanceVision: '' });
-  const isThursday = now.getDay() === 4;
+  const isThursday = (() => { const [y, m, d] = selectedDate.split('-').map(Number); return new Date(y, m - 1, d).getDay() === 4; })();
   const [bestWork, setBestWork] = useState({ items: [{ title: '', publishLink: '' }] });
   const BEST_WORK_MAX = 3;
+  const [reportStatus, setReportStatus] = useState('submitted');
 
   const [showHistory, setShowHistory] = useState(false);
   const [historyReports, setHistoryReports] = useState([]);
@@ -66,6 +76,7 @@ const DailyReport = () => {
   const [historyTotalPages, setHistoryTotalPages] = useState(1);
   const [historyTotal, setHistoryTotal] = useState(0);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [historyFilter, setHistoryFilter] = useState('all');
 
   const fetchHistory = useCallback(async (page = 1) => {
     try {
@@ -87,7 +98,7 @@ const DailyReport = () => {
   const fetchTodayReport = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await getTodayReport();
+      const response = await getTodayReport(selectedDate);
       if (response.success && response.data) {
         const r = response.data;
         setAchievements((r.achievements || []).map(a => ({ ...a, _tempId: Date.now() + Math.random() })));
@@ -96,13 +107,19 @@ const DailyReport = () => {
         setSuggestions(r.suggestions || { performanceVision: '' });
         if (r.bestWork) setBestWork(r.bestWork);
         if (r.directManager) setDirectManager(r.directManager);
+        setIsOnVacation(!!r.isOnVacation);
+        setReportStatus(r.status || 'submitted');
+      } else {
+        resetForm();
+        setIsOnVacation(false);
+        setReportStatus('submitted');
       }
     } catch (error) {
       console.error('Error fetching today report:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedDate]);
 
   const resetForm = useCallback(() => {
     setAchievements([emptyAchievement()]);
@@ -135,16 +152,17 @@ const DailyReport = () => {
     const interval = setInterval(() => {
       const now = new Date();
       const hours = now.getHours();
-      const todayStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-      if (hours >= 9 && lastRefreshDate.current !== todayStr) {
-        lastRefreshDate.current = todayStr;
-        resetForm();
-        fetchTodayReport();
-        fetchManager();
+      const curTodayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (hours >= 9 && lastRefreshDate.current !== curTodayStr) {
+        lastRefreshDate.current = curTodayStr;
+        if (selectedDate === todayStr) {
+          resetForm();
+          fetchManager();
+        }
       }
     }, 60000);
     return () => clearInterval(interval);
-  }, [fetchTodayReport, resetForm]);
+  }, [fetchTodayReport, resetForm, selectedDate, todayStr]);
 
   useEffect(() => {
     if (!loading) {
@@ -211,6 +229,7 @@ const DailyReport = () => {
   };
 
   const validate = () => {
+    if (isOnVacation) return true;
     const missingAchievement = achievements.find(a => !a.name.trim());
     if (missingAchievement) {
       setMessage({ type: 'error', text: 'يرجى تعبئة اسم الإنجاز لجميع الصفوف أو حذف الصفوف الفارغة' });
@@ -242,16 +261,17 @@ const DailyReport = () => {
     try {
       setSubmitting(true);
       const response = await submitDailyReport({
-        achievements: achievements.map(({ _tempId, ...rest }) => rest),
-        priorities,
-        challenges,
-        suggestions,
-        bestWork: isThursday ? bestWork : undefined
+        date: selectedDate,
+        isOnVacation,
+        achievements: isOnVacation ? [] : achievements.map(({ _tempId, ...rest }) => rest),
+        priorities: isOnVacation ? { first: '', second: '', third: '' } : priorities,
+        challenges: isOnVacation ? { obstacles: '', supportRequired: '' } : challenges,
+        suggestions: isOnVacation ? { performanceVision: '' } : suggestions,
+        bestWork: isThursday && !isOnVacation ? bestWork : undefined
       });
       if (response.success) {
         setMessage({ type: 'success', text: response.message });
         playNotificationSound();
-        // Refresh to show updated data
         fetchTodayReport();
       } else {
         setMessage({ type: 'error', text: response.message });
@@ -260,6 +280,33 @@ const DailyReport = () => {
       setMessage({ type: 'error', text: error.userMessage || 'حدث خطأ في حفظ التقرير' });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSaveDraft = async (e) => {
+    e.preventDefault();
+    try {
+      setSavingDraft(true);
+      const response = await saveDailyReportDraft({
+        date: selectedDate,
+        isOnVacation,
+        achievements: isOnVacation ? [] : achievements.map(({ _tempId, ...rest }) => rest),
+        priorities: isOnVacation ? { first: '', second: '', third: '' } : priorities,
+        challenges: isOnVacation ? { obstacles: '', supportRequired: '' } : challenges,
+        suggestions: isOnVacation ? { performanceVision: '' } : suggestions,
+        bestWork: isThursday && !isOnVacation ? bestWork : undefined,
+        directManager
+      });
+      if (response.success) {
+        setMessage({ type: 'success', text: 'تم حفظ المسودة بنجاح' });
+        fetchTodayReport();
+      } else {
+        setMessage({ type: 'error', text: response.message });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: error.userMessage || 'حدث خطأ في حفظ المسودة' });
+    } finally {
+      setSavingDraft(false);
     }
   };
 
@@ -275,7 +322,14 @@ const DailyReport = () => {
     <div className="p-3 md:p-6" dir="rtl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">التقرير اليومي للموظف</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold text-gray-800">التقرير اليومي للموظف</h2>
+            {reportStatus === 'draft' && (
+              <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium border border-amber-200">
+                مسودة
+              </span>
+            )}
+          </div>
           <p className="text-gray-500 text-sm mt-1">يرجى تعبئة التقرير اليومي لإدارة الأداء</p>
         </div>
         <button type="button" onClick={() => { setShowHistory(true); fetchHistory(1); }}
@@ -323,12 +377,28 @@ const DailyReport = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">تاريخ التقرير</label>
-              <input type="text" value={dateStr} readOnly
-                className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-700" />
+              <div className="flex items-center gap-2">
+                <input type="date" value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <span className="text-sm text-gray-500 whitespace-nowrap">{dateDisplay}</span>
+              </div>
             </div>
           </div>
         </Card>
 
+        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <button type="button" onClick={() => setIsOnVacation(!isOnVacation)}
+            className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none ${isOnVacation ? 'bg-amber-500' : 'bg-gray-300'}`}>
+            <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${isOnVacation ? 'translate-x-7' : 'translate-x-1'}`} />
+          </button>
+          <div>
+            <span className="text-sm font-semibold text-gray-800">إجازة</span>
+            <p className="text-xs text-gray-500">علم هذا اليوم كإجازة - لن يتم طلب تقرير يومي</p>
+          </div>
+        </div>
+
+        {!isOnVacation && (<>
         <Card>
           <div className="flex items-center justify-between mb-4 border-b pb-2">
             <h3 className="text-lg font-semibold text-gray-800">ملخص الإنجازات والمهام المكتملة</h3>
@@ -512,9 +582,9 @@ const DailyReport = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              )}
+              </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">عنوان المادة</label>
                       <input type="text" value={item.title}
@@ -539,10 +609,16 @@ const DailyReport = () => {
           </Card>
         )}
 
-        <div className="flex justify-center">
+        </>)}
+
+        <div className="flex justify-center gap-3">
+          <button type="button" onClick={handleSaveDraft} disabled={savingDraft}
+            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50 transition-colors text-base min-w-[160px]">
+            {savingDraft ? 'جاري الحفظ...' : 'حفظ كمسودة'}
+          </button>
           <button type="submit" disabled={submitting}
             className="px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark disabled:opacity-50 transition-colors text-lg min-w-[200px]">
-            {submitting ? 'جاري الحفظ...' : 'حفظ التقرير'}
+            {submitting ? 'جاري الحفظ...' : 'حفظ وارسال'}
           </button>
         </div>
       </form>
@@ -560,13 +636,36 @@ const DailyReport = () => {
               </button>
             </div>
 
+            <div className="flex items-center gap-1 px-4 md:px-6 pt-4 border-b bg-gray-50">
+              <button onClick={() => setHistoryFilter('all')}
+                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                  historyFilter === 'all' ? 'bg-white text-primary border border-b-0 border-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                الكل
+              </button>
+              <button onClick={() => setHistoryFilter('draft')}
+                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                  historyFilter === 'draft' ? 'bg-white text-amber-600 border border-b-0 border-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                المسودات
+              </button>
+              <button onClick={() => setHistoryFilter('submitted')}
+                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                  historyFilter === 'submitted' ? 'bg-white text-green-600 border border-b-0 border-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}>
+                المرسلة
+              </button>
+            </div>
+
             <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
               {historyLoading ? (
                 <div className="flex items-center justify-center h-32">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-3 border-primary"></div>
                 </div>
-              ) : historyReports.length === 0 ? (
-                <p className="text-gray-400 text-center py-8">لا توجد تقارير سابقة</p>
+              ) : historyReports.filter(report => historyFilter === 'all' || report.status === historyFilter).length === 0 ? (
+                <p className="text-gray-400 text-center py-8">
+                  {historyFilter === 'draft' ? 'لا توجد مسودات' : historyFilter === 'submitted' ? 'لا توجد تقارير مرسلة' : 'لا توجد تقارير سابقة'}
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse min-w-[700px]">
@@ -582,41 +681,58 @@ const DailyReport = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {historyReports.map((report, idx) => {
-                        const total = (report.achievements || []).length;
-                        const completed = (report.achievements || []).filter(a => a.status === 'completed').length;
-                        return (
-                          <tr key={report._id} className="hover:bg-gray-50 transition-colors">
-                            <td className="p-3 border text-sm text-gray-500">{(historyPage - 1) * 10 + idx + 1}</td>
-                            <td className="p-3 border text-sm font-medium text-gray-800">{report.reportDate}</td>
-                            <td className="p-3 border text-sm text-gray-600 max-w-[200px]">
-                              <div className="flex flex-wrap gap-1.5">
-                                {(report.achievements || []).slice(0, 2).map((a, i) => (
-                                  <span key={i} className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">{a.name}</span>
-                                ))}
-                                {total > 2 && <span className="text-xs text-gray-400">+{total - 2}</span>}
-                              </div>
-                            </td>
-                            <td className="p-3 border text-sm text-gray-600 max-w-[180px] truncate">{report.priorities?.first || '-'}</td>
-                            <td className="p-3 border text-sm text-gray-600 max-w-[180px] truncate">{report.challenges?.obstacles || '-'}</td>
-                            <td className="p-3 border text-center">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                total > 0 && completed === total
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'bg-amber-100 text-amber-700'
-                              }`}>
-                                {completed}/{total}
-                              </span>
-                            </td>
-                            <td className="p-3 border text-center">
-                              <button onClick={() => setSelectedReport(report)}
-                                className="text-xs px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-medium">
-                                عرض
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {historyReports
+                        .filter(report => {
+                          if (historyFilter === 'all') return true;
+                          const reportStatus = report.status || 'submitted';
+                          return reportStatus === historyFilter;
+                        })
+                        .map((report, idx) => {
+                          const total = (report.achievements || []).length;
+                          const completed = (report.achievements || []).filter(a => a.status === 'completed').length;
+                          const isDraft = report.status === 'draft';
+                          return (
+                            <tr key={report._id} className="hover:bg-gray-50 transition-colors">
+                              <td className="p-3 border text-sm text-gray-500">{(historyPage - 1) * 10 + idx + 1}</td>
+                              <td className="p-3 border text-sm font-medium text-gray-800">{report.reportDate}</td>
+                              <td className="p-3 border text-sm text-gray-600 max-w-[200px]">
+                                {report.isOnVacation ? (
+                                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">عطلة</span>
+                                ) : (
+                                <div className="flex flex-wrap gap-1.5">
+                                  {(report.achievements || []).slice(0, 2).map((a, i) => (
+                                    <span key={i} className="text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">{a.name}</span>
+                                  ))}
+                                  {total > 2 && <span className="text-xs text-gray-400">+{total - 2}</span>}
+                                </div>
+                                )}
+                              </td>
+                              <td className="p-3 border text-sm text-gray-600 max-w-[180px] truncate">{report.priorities?.first || '-'}</td>
+                              <td className="p-3 border text-sm text-gray-600 max-w-[180px] truncate">{report.challenges?.obstacles || '-'}</td>
+                              <td className="p-3 border text-center">
+                                {report.isOnVacation ? (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">عطلة</span>
+                                ) : isDraft ? (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">مسودة</span>
+                                ) : (
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  total > 0 && completed === total
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-amber-100 text-amber-700'
+                                }`}>
+                                  {completed}/{total}
+                                </span>
+                                )}
+                              </td>
+                              <td className="p-3 border text-center">
+                                <button onClick={() => setSelectedReport(report)}
+                                  className="text-xs px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-medium">
+                                  عرض
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
@@ -697,8 +813,21 @@ const DailyReport = () => {
                   <span className="text-xs text-gray-400">تاريخ التقرير</span>
                   <p className="text-sm font-medium text-gray-800">{selectedReport.reportDate}</p>
                 </div>
+                {selectedReport.isOnVacation && (
+                <div>
+                  <span className="text-xs text-gray-400">الحالة</span>
+                  <p className="text-sm font-medium text-amber-600">عطلة</p>
+                </div>
+                )}
               </div>
 
+              {selectedReport.isOnVacation ? (
+                <div className="text-center py-8">
+                  <span className="text-4xl">🏖️</span>
+                  <p className="text-gray-500 mt-2">هذا اليوم عطلة</p>
+                </div>
+              ) : (
+              <>
               <div>
                 <h4 className="text-base font-semibold text-gray-800 mb-3 border-b pb-2">الإنجازات والمهام</h4>
                 {(selectedReport.achievements || []).length === 0 ? (
@@ -808,18 +937,20 @@ const DailyReport = () => {
                             </svg>
                             رابط النشر
                           </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+               )}
+              </div>
+              ))}
+              </div>
+              </div>
+              )}
+              </>
               )}
             </div>
           </div>
-        </div>
-      )}
+      </div>
+        )}
     </div>
   );
-};
+  };
 
 export default DailyReport;

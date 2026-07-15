@@ -27,6 +27,7 @@ if (typeof window !== 'undefined') {
 }
 
 const playWav = (freq, dur, vol = 0.4, delay = 0) => {
+  if (!unlocked) return;
   try {
     const ctx = getCtx();
     if (ctx.state === 'suspended') {

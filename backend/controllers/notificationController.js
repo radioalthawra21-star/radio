@@ -45,7 +45,7 @@ const getMyNotifications = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('خطأ في جلب الإشعارات:', error.message);
+    console.error('خطأ في جلب الإشعارات:', error.message, error.stack);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ في الخادم'

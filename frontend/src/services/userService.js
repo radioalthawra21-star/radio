@@ -123,6 +123,70 @@ export const changePassword = async (passwordData) => {
   return response.data;
 };
 
+// --- Office Management ---
+export const getOffices = async () => {
+  const response = await api.get('/offices');
+  return response.data;
+};
+export const createOffice = async (data) => {
+  const response = await api.post('/offices', data);
+  return response.data;
+};
+export const updateOffice = async (id, data) => {
+  const response = await api.put(`/offices/${id}`, data);
+  return response.data;
+};
+export const deleteOffice = async (id) => {
+  const response = await api.delete(`/offices/${id}`);
+  return response.data;
+};
+export const assignEmployeesToOffice = async (officeId, employeeIds) => {
+  const response = await api.post(`/offices/${officeId}/assign-employees`, { employeeIds });
+  return response.data;
+};
+export const removeEmployeeFromOffice = async (officeId, employeeId) => {
+  const response = await api.post(`/offices/${officeId}/remove-employee`, { employeeId });
+  return response.data;
+};
+
+// --- Office Manager Team Management ---
+
+// Get team members assigned to the current office manager
+export const getMyTeam = async () => {
+  const response = await api.get('/users/my-team');
+  return response.data;
+};
+
+// Get office managers in the current manager's department
+export const getOfficeManagersInDepartment = async () => {
+  const response = await api.get('/users/office-managers');
+  return response.data;
+};
+
+// Assign employees to an office manager
+export const assignToOfficeManager = async (employeeIds, officeManagerId) => {
+  const response = await api.post('/users/assign-to-office-manager', { employeeIds, officeManagerId });
+  return response.data;
+};
+
+// Unassign employees from their office manager
+export const unassignFromOfficeManager = async (employeeIds) => {
+  const response = await api.delete('/users/unassign-from-office-manager', { data: { employeeIds } });
+  return response.data;
+};
+
+// Transfer employees between office managers
+export const transferOfficeManager = async (employeeIds, fromOfficeManagerId, toOfficeManagerId) => {
+  const response = await api.put('/users/transfer-office-manager', { employeeIds, fromOfficeManagerId, toOfficeManagerId });
+  return response.data;
+};
+
+// Get team assignments summary for a department
+export const getTeamAssignments = async () => {
+  const response = await api.get('/users/team-assignments');
+  return response.data;
+};
+
 export default {
   getAllEmployees,
   getEmployeesByDepartment,
@@ -138,5 +202,15 @@ export default {
   getPendingUsers,
   activateUser,
   getUserCounts,
-  changePassword
+  changePassword,
+  getMyTeam,
+  getOfficeManagersInDepartment,
+  assignToOfficeManager,
+  unassignFromOfficeManager,
+  transferOfficeManager,
+  getTeamAssignments,
+  getOffices,
+  createOffice,
+  updateOffice,
+  deleteOffice
 };

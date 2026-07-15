@@ -185,7 +185,8 @@ leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leave
     };
   }
 
-  // For annual/hourly: combine both types, convert to hours
+  // For annual/hourly: separate days (annual only) from hours (hourly only)
+  // 7 hourly leave hours = 1 day deduction
   if (effectiveType === 'annual') {
     const approvedLeaves = await this.find({
       employee: employeeId,
@@ -193,17 +194,36 @@ leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leave
       status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.SYNCED_TO_PAYROLL] },
       startDate: { '$gte': new Date(currentYear, 0, 1) },
     });
-    const usedDays = approvedLeaves.reduce((sum, l) => sum + (l.days || 0), 0);
-    const usedHours = approvedLeaves.reduce((sum, l) => sum + (l.hours || 0), 0);
-    const totalDays = defaultBalances.annual || 0;
-    const totalHours = totalDays * 8;
-    const consumedHours = (usedDays * 8) + usedHours;
-    const remainingHours = Math.max(0, totalHours - consumedHours);
-    const remainingDays = Math.floor(remainingHours / 8);
+    // Annual leaves: count days only
+    const annualLeaves = approvedLeaves.filter(l => l.type === 'annual');
+    const usedDays = annualLeaves.reduce((sum, l) => sum + (l.days || 0), 0);
+    // Hourly leaves: count hours only
+    const hourlyLeaves = approvedLeaves.filter(l => l.type === 'hourly');
+    const usedHours = hourlyLeaves.reduce((sum, l) => {
+      // If hours is set, use it
+      if (l.hours > 0) return sum + l.hours;
+      // Fallback: calculate from startTime/endTime
+      if (l.startTime && l.endTime) {
+        const [sh, sm] = l.startTime.split(':').map(Number);
+        const [eh, em] = l.endTime.split(':').map(Number);
+        return sum + Math.max(0, (eh + em / 60) - (sh + sm / 60));
+      }
+      // Last resort: old records with days=1 for hourly → assume 7 hours
+      return sum + (l.days || 0) * 7;
+    }, 0);
+    // Convert everything to hours, then back to days
+    const HOURS_PER_DAY = 7;
+    const totalBalanceHours = (defaultBalances.annual || 0) * HOURS_PER_DAY;
+    const usedHoursTotal = (usedDays * HOURS_PER_DAY) + usedHours;
+    const remainingHoursTotal = Math.max(0, totalBalanceHours - usedHoursTotal);
+    const remainingDays = Math.floor(remainingHoursTotal / HOURS_PER_DAY);
+    const remainingHours = remainingHoursTotal % HOURS_PER_DAY;
     return {
-      totalBalance: totalDays, usedDays, usedHours,
+      totalBalance: defaultBalances.annual || 0, usedDays, usedHours,
       remainingBalance: remainingDays, remainingHours,
-      hasSufficientBalance: leaveType === 'hourly' ? remainingHours > 0 : remainingDays > 0,
+      hasSufficientBalance: leaveType === 'hourly'
+        ? remainingHoursTotal > 0
+        : remainingDays > 0,
     };
   }
 

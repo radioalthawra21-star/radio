@@ -123,11 +123,7 @@ class ZKTecoService {
     try {
       if (!(await this.connect())) return [];
 
-      const timeoutMs = (this.config?.timeout || 10000);
-      const records = await Promise.race([
-        this.device.getAttendances(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs))
-      ]);
+      const records = await this.device.getAttendances();
       if (!records || !records.data || records.data.length === 0) {
         logger.info('لا توجد سجلات جديدة في الجهاز');
         return [];

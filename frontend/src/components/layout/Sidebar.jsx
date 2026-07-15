@@ -20,6 +20,17 @@ const menuItems = {
     { path: '/admin/supervisor', label: 'تقرير الموظفين', icon: '📊' },
     { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
   ],
+  office_manager: [
+    { path: '/', label: 'لوحة التحكم', icon: '🏠' },
+    { path: '/tasks', label: 'المهام', icon: '📋' },
+    { path: '/admin/employees', label: 'الفريق', icon: '👥' },
+    { path: '/messages', label: 'الرسائل', icon: '✉️' },
+    { path: '/chat', label: 'المحادثات', icon: '💬' },
+    { path: '/attendance', label: 'الحضور', icon: '🕐' },
+    { path: '/daily-report', label: 'التقرير اليومي', icon: '📋' },
+    { path: '/leave-request', label: 'طلب إجازة', icon: '📅' },
+    { path: '/well-being', label: 'الحالة اليومية', icon: '😊' },
+  ],
   manager: [
     { path: '/', label: 'لوحة التحكم', icon: '🏠' },
     { path: '/tasks', label: 'المهام', icon: '📋' },
@@ -38,7 +49,7 @@ const menuItems = {
     { path: '/chat', label: 'المحادثات', icon: '💬' },
     { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
-    { path: '/admin/supervisor', label: 'Temp-Supervisor', icon: '🔬' },
+    { path: '/admin/supervisor', label: 'جهاز البصمة', icon: '🔬' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/well-being', label: 'الحالة اليومية', icon: '😊' },
     { path: '/daily-report', label: 'التقرير اليومي', icon: '📋' },
@@ -52,7 +63,7 @@ const menuItems = {
     { path: '/chat', label: 'المحادثات', icon: '💬' },
     { path: '/admin/employees', label: 'الموظفين', icon: '👥' },
     { path: '/admin/reports', label: 'التقارير', icon: '📊' },
-    { path: '/admin/daily-reports', label: 'تقارير الموظفين اليومية', icon: '📊' },
+    { path: '/admin/daily-reports', label: 'التقارير اليومية', icon: '📊' },
     { path: '/admin/rankings', label: 'الترتيب', icon: '🏆' },
     { path: '/admin/bonuses', label: 'المكافآت', icon: '🎁' },
     { path: '/admin/manager-evaluation', label: 'تقييم المديرين', icon: '📊' },
@@ -61,7 +72,7 @@ const menuItems = {
     { path: '/payroll', label: 'لوحة الرواتب', icon: '💰' },
     { path: '/admin/leave-management', label: 'إدارة الإجازات', icon: '📝' },
     { path: '/admin/leave-settings', label: 'إعدادات الإجازات', icon: '⚙️' },
-    { path: '/admin/supervisor', label: 'Temp-Supervisor', icon: '🔬' },
+    { path: '/admin/supervisor', label: 'جهاز البصمة', icon: '🔬' },
     { path: '/admin/holidays', label: 'العطل الرسمية', icon: '🎉' },
     { path: '/admin/audit-logs', label: 'سجل التدقيق', icon: '📋' },
 
@@ -250,7 +261,8 @@ const Sidebar = ({ isOpen, setIsOpen, user, onToggleChat, isMobile }) => {
                 <p className="text-sm text-gray-300 truncate">
                   {role === 'admin' ? 'المدير العام' : 
                    role === 'hr' ? 'مسؤول الموارد البشرية' : 
-                   role === 'manager' ? `مدير ${departmentNames[user.department] || ''}` : 'موظف'}
+                   role === 'manager' ? `مدير ${departmentNames[user.department] || ''}` : 
+                   role === 'office_manager' ? 'مدير مكتب' : 'موظف'}
                 </p>
               </div>
             </div>

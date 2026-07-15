@@ -392,6 +392,7 @@ const getKanbanBoard = async (req, res) => {
       tasks = await Task.find(query)
         .populate('assignedTo', 'name department')
         .populate('createdBy', 'name')
+        .populate('currentDepartment', 'name')
         .populate('workflowId', 'name stages')
         .sort({ priority: -1, createdAt: -1 })
         .lean();
@@ -400,6 +401,7 @@ const getKanbanBoard = async (req, res) => {
       tasks = await Task.find(query)
         .populate('assignedTo', 'name department')
         .populate('createdBy', 'name')
+        .populate('currentDepartment', 'name')
         .sort({ priority: -1, createdAt: -1 })
         .lean();
     }

@@ -9,6 +9,19 @@ function getTodayRange() {
   return { today, tomorrow };
 }
 
+function getDateRange(dateStr) {
+  if (dateStr) {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      d.setHours(0, 0, 0, 0);
+      const next = new Date(d);
+      next.setDate(next.getDate() + 1);
+      return { today: d, tomorrow: next };
+    }
+  }
+  return getTodayRange();
+}
+
 function getDeptValues(dept) {
   if (!dept) return [];
   const d = dept.toString().toLowerCase().trim();
@@ -67,12 +80,25 @@ const canonicalDeptNames = {
 function normalizeDeptName(dept) {
   if (!dept) return 'غير محدد';
   const d = dept.toString().trim();
+  if (/^[0-9a-fA-F]{24}$/.test(d)) return 'غير محدد';
   return canonicalDeptNames[d] || d;
 }
 
 exports.getManager = async (req, res) => {
   try {
-    const userDept = req.user.department;
+    const user = req.user;
+    if (user.role === 'manager') {
+      const generalManager = await User.findOne({
+        role: 'general_manager',
+        isActive: true
+      }).select('name').lean();
+      return res.json({
+        success: true,
+        data: { managerName: generalManager ? generalManager.name : '' }
+      });
+    }
+
+    const userDept = user.department;
     if (!userDept) {
       return res.json({ success: true, data: { managerName: '' } });
     }
@@ -94,14 +120,14 @@ exports.getManager = async (req, res) => {
 
 exports.getStatus = async (req, res) => {
   try {
-    const { today, tomorrow } = getTodayRange();
+    const { today, tomorrow } = getDateRange(req.query.date);
     const existing = await DailyReport.findOne({
       userId: req.user._id,
       date: { $gte: today, $lt: tomorrow }
     });
     res.json({
       success: true,
-      data: { hasSubmitted: !!existing }
+      data: { hasSubmitted: !!existing, report: existing || null }
     });
   } catch (error) {
     console.error('Error checking daily report status:', error);
@@ -111,7 +137,7 @@ exports.getStatus = async (req, res) => {
 
 exports.getTodayReport = async (req, res) => {
   try {
-    const { today, tomorrow } = getTodayRange();
+    const { today, tomorrow } = getDateRange(req.query.date);
     const report = await DailyReport.findOne({
       userId: req.user._id,
       date: { $gte: today, $lt: tomorrow }
@@ -128,41 +154,46 @@ exports.getTodayReport = async (req, res) => {
 
 exports.submitReport = async (req, res) => {
   try {
-    const { today, tomorrow } = getTodayRange();
+    const { today, tomorrow } = getDateRange(req.body.date);
     const existing = await DailyReport.findOne({
       userId: req.user._id,
       date: { $gte: today, $lt: tomorrow }
     });
+
+    const isOnVacation = !!req.body.isOnVacation;
+    const reportStatus = req.body.status === 'draft' ? 'draft' : 'submitted';
+
+    const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const reportDateStr = `${arabicDayNames[today.getDay()]} - ${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+
     const updateData = {
       employeeName: req.user.name || '',
       department: req.user.department || '',
       jobTitle: req.user.jobTitle || '',
       directManager: req.body.directManager || '',
-      reportDate: (() => {
-        const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-        const n = new Date();
-        return `${arabicDayNames[n.getDay()]} - ${n.getDate()}/${n.getMonth() + 1}/${n.getFullYear()}`;
-      })(),
-      achievements: (req.body.achievements || []).map(a => ({
+      reportDate: reportDateStr,
+      status: reportStatus,
+      isOnVacation,
+      achievements: isOnVacation ? [] : (req.body.achievements || []).map(a => ({
         name: a.name,
         description: a.description || '',
         target: a.target || '',
         status: a.status || 'in_progress',
         completionPercentage: Math.min(100, Math.max(0, Number(a.completionPercentage) || 0))
       })),
-      priorities: {
+      priorities: isOnVacation ? { first: '', second: '', third: '' } : {
         first: req.body.priorities?.first || '',
         second: req.body.priorities?.second || '',
         third: req.body.priorities?.third || ''
       },
-      challenges: {
+      challenges: isOnVacation ? { obstacles: '', supportRequired: '' } : {
         obstacles: req.body.challenges?.obstacles || '',
         supportRequired: req.body.challenges?.supportRequired || ''
       },
-      suggestions: {
+      suggestions: isOnVacation ? { performanceVision: '' } : {
         performanceVision: req.body.suggestions?.performanceVision || ''
       },
-      bestWork: {
+      bestWork: isOnVacation ? { items: [] } : {
         items: (req.body.bestWork?.items || []).map(item => ({
           title: item.title || '',
           publishLink: item.publishLink || ''
@@ -172,7 +203,7 @@ exports.submitReport = async (req, res) => {
 
     const user = req.user;
     let mgrName = req.body.directManager || '';
-    if (!mgrName) {
+    if (!mgrName && !isOnVacation) {
       const deptValues = getDeptValues(user.department);
       const manager = await User.findOne({
         role: 'manager',
@@ -206,7 +237,7 @@ exports.submitReport = async (req, res) => {
 
 exports.getAdminTodaySummary = async (req, res) => {
   try {
-    const { today, tomorrow } = getTodayRange();
+    const { today, tomorrow } = getDateRange(req.query.date);
 
     const todayReports = await DailyReport.find({
       date: { $gte: today, $lt: tomorrow }
@@ -214,7 +245,7 @@ exports.getAdminTodaySummary = async (req, res) => {
 
     const allUsers = await User.find({
       isActive: true,
-      role: { $nin: ['admin', 'developer'] }
+      role: { $nin: ['admin', 'developer', 'general_manager'] }
     }).select('name department role').lean();
 
     const submittedUserIds = new Set(
@@ -225,7 +256,8 @@ exports.getAdminTodaySummary = async (req, res) => {
       _id: r.userId?._id || r.userId,
       name: r.employeeName || r.userId?.name || '',
       department: normalizeDeptName(r.department || r.userId?.department || ''),
-      reportId: r._id
+      reportId: r._id,
+      isOnVacation: !!r.isOnVacation
     }));
 
     const notSubmittedUsers = allUsers
@@ -260,6 +292,11 @@ exports.getAdminTodaySummary = async (req, res) => {
       percentage: d.total > 0 ? Math.round((d.submitted / d.total) * 100) : 0
     }));
 
+    const normalizedReports = todayReports.map(r => ({
+      ...r,
+      department: normalizeDeptName(r.department || r.userId?.department || '')
+    }));
+
     res.json({
       success: true,
       data: {
@@ -269,7 +306,7 @@ exports.getAdminTodaySummary = async (req, res) => {
         submittedUsers,
         notSubmittedUsers,
         departmentStats,
-        reports: todayReports
+        reports: normalizedReports
       }
     });
   } catch (error) {
@@ -292,7 +329,7 @@ exports.getReportById = async (req, res) => {
     const role = req.user.role?.toLowerCase();
     const isOwner = report.userId?._id?.toString() === req.user._id.toString() || 
                     report.userId?.toString() === req.user._id.toString();
-    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'manager' && !isOwner) {
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'manager' && role !== 'office_manager' && !isOwner) {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بعرض هذا التقرير' });
     }
 
@@ -310,7 +347,7 @@ exports.getEmployeeReports = async (req, res) => {
     
     // Access control: admin/HR/developer can see all, employees only their own, managers their department
     const role = req.user.role?.toLowerCase();
-    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'manager' && userId !== req.user._id.toString()) {
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'manager' && role !== 'office_manager' && userId !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بعرض تقارير هذا الموظف' });
     }
     
@@ -414,7 +451,7 @@ exports.deleteReport = async (req, res) => {
     // Only admin, HR, or the report owner can delete
     const role = req.user.role?.toLowerCase();
     const isOwner = report.userId?.toString() === req.user._id.toString();
-    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && !isOwner) {
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer' && role !== 'office_manager' && !isOwner) {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بحذف هذا التقرير' });
     }
     await DailyReport.findByIdAndDelete(req.params.id);
@@ -422,6 +459,53 @@ exports.deleteReport = async (req, res) => {
   } catch (error) {
     console.error('Error deleting daily report:', error.message);
     res.status(500).json({ success: false, message: 'خطأ في حذف التقرير' });
+  }
+};
+
+exports.getReportsByDate = async (req, res) => {
+  try {
+    const { date, page = 1, limit = 50 } = req.query;
+    const role = req.user.role?.toLowerCase();
+    if (role !== 'admin' && role !== 'hr' && role !== 'developer') {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول' });
+    }
+
+    let filter = {};
+    if (date) {
+      const { today, tomorrow } = getDateRange(date);
+      filter.date = { $gte: today, $lt: tomorrow };
+    }
+
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 50));
+    const skip = (parseInt(page) - 1) * limitNum;
+
+    const [reports, total] = await Promise.all([
+      DailyReport.find(filter)
+        .populate('userId', 'name department role jobTitle')
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      DailyReport.countDocuments(filter)
+    ]);
+
+    const normalized = reports.map(r => ({
+      ...r,
+      department: normalizeDeptName(r.department || r.userId?.department || '')
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        reports: normalized,
+        total,
+        page: parseInt(page),
+        pages: Math.ceil(total / limitNum)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching reports by date:', error);
+    res.status(500).json({ success: false, message: 'خطأ في جلب التقارير' });
   }
 };
 

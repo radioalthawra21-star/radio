@@ -31,7 +31,7 @@ const DailyReportDetail = React.lazy(() => import('../pages/Admin/DailyReportDet
 export const adminRoutes = (
   <>
     
-    <Route path="/admin/employees" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AllEmployees /></ProtectedRoute>} />
+    <Route path="/admin/employees" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'office_manager']}><AllEmployees /></ProtectedRoute>} />
     <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={['admin']}><AllReports /></ProtectedRoute>} />
     <Route path="/admin/reports/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceReports /></ProtectedRoute>} />
     <Route path="/admin/reports/leave" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveReports /></ProtectedRoute>} />
@@ -53,7 +53,7 @@ export const adminRoutes = (
     <Route path="/admin/well-being" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><WellBeingDashboard /></ProtectedRoute>} />
     <Route path="/manager/reports" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><DepartmentReports /></ProtectedRoute>} />
     <Route path="/manager/bonus" element={<ProtectedRoute allowedRoles={['manager', 'admin']}><BonusManagement /></ProtectedRoute>} />
-    <Route path="/admin/employee-profile/:id" element={<ProtectedRoute allowedRoles={['admin', 'hr']}><EmployeeProfilePage /></ProtectedRoute>} />
+    <Route path="/admin/employee-profile/:id" element={<ProtectedRoute allowedRoles={['admin', 'hr', 'manager']}><EmployeeProfilePage /></ProtectedRoute>} />
     <Route path="/admin/holidays" element={<HrDeptRoute><HolidayManagement /></HrDeptRoute>} />
     <Route path="/admin/supervisor" element={<HrDeptRoute><TempSupervisorPage /></HrDeptRoute>} />
     <Route path="/admin/daily-reports" element={<ProtectedRoute allowedRoles={['admin', 'developer', 'hr']}><DailyReportsDashboard /></ProtectedRoute>} />

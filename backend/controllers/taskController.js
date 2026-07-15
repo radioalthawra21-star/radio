@@ -77,6 +77,20 @@ const createTask = async (req, res) => {
     await task.populate('assignedTo', 'name email department');
     await task.populate('createdBy', 'name');
 
+    // Office Manager: validate all assigned users are in their team
+    if (req.user.role === 'office_manager' && assignedTo && assignedTo.length > 0) {
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id.toString());
+      const allInTeam = assignedTo.every(id => teamIds.includes(id.toString()));
+      if (!allInTeam) {
+        await task.deleteOne();
+        return res.status(403).json({
+          success: false,
+          message: 'غير مصرح لك بإسناد مهام لموظفين خارج فريقك'
+        });
+      }
+    }
+
     // Set journey tracking fields
     task.lastAction = 'created';
     task.lastActionAt = new Date();
@@ -266,12 +280,18 @@ const getCreatedTasks = async (req, res) => {
  */
 const getTasksToEvaluate = async (req, res) => {
   try {
-    // Get employees in manager's department
-    const employees = await User.find({
-      role: UserRole.EMPLOYEE,
-      department: req.user.department
-    });
+    let employeeQuery = { role: UserRole.EMPLOYEE };
 
+    if (req.user.role === 'office_manager') {
+      // Office manager sees only their team's tasks
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      employeeQuery = { _id: { $in: teamIds } };
+    } else if (req.user.role === 'manager') {
+      employeeQuery.department = req.user.department;
+    }
+
+    const employees = await User.find(employeeQuery);
     const employeeIds = employees.map(e => e._id);
 
     // Get completed tasks awaiting evaluation
@@ -833,6 +853,12 @@ const getDailySummary = async (req, res) => {
       filteredTasks = tasks.filter(t => 
         t.assignedTo.some(a => deptEmployeeIds.includes(a._id.toString()))
       );
+    } else if (req.user.role === 'office_manager') {
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id.toString());
+      filteredTasks = tasks.filter(t => 
+        t.assignedTo.some(a => teamIds.includes(a._id.toString()))
+      );
     }
 
     const summary = {
@@ -895,6 +921,12 @@ const getWeeklySummary = async (req, res) => {
       const deptEmployeeIds = deptEmployees.map(e => e._id);
       filteredTasks = tasks.filter(t => 
         t.assignedTo.some(a => deptEmployeeIds.includes(a._id.toString()))
+      );
+    } else if (req.user.role === 'office_manager') {
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      filteredTasks = tasks.filter(t => 
+        t.assignedTo.some(a => teamIds.includes(a._id.toString()))
       );
     }
 
@@ -960,6 +992,12 @@ const getTaskReports = async (req, res) => {
       const deptEmployeeIds = deptEmployees.map(e => e._id);
       tasks = tasks.filter(t => 
         t.assignedTo.some(a => deptEmployeeIds.includes(a._id.toString()))
+      );
+    } else if (req.user.role === 'office_manager') {
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      tasks = tasks.filter(t => 
+        t.assignedTo.some(a => teamIds.includes(a._id.toString()))
       );
     }
 
@@ -1032,6 +1070,12 @@ const getProposals = async (req, res) => {
     if (req.user.role === 'manager') {
       filtered = proposals.filter(p =>
         p.createdBy?.department === req.user.department
+      );
+    } else if (req.user.role === 'office_manager') {
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id.toString());
+      filtered = proposals.filter(p =>
+        teamIds.includes(p.createdBy?._id?.toString())
       );
     }
 
@@ -1183,6 +1227,11 @@ const getDepartmentTasks = async (req, res) => {
         employeeQuery.department = deptName;
       }
       // admin without department or 'all' => all employees
+    } else if (req.user.role === 'office_manager') {
+      // Office manager sees only their team's tasks
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      const teamIds = teamMembers.map(m => m._id);
+      employeeQuery._id = { $in: teamIds };
     } else {
       // Managers are limited to their own department
       employeeQuery.department = req.user.department;

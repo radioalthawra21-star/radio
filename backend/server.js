@@ -52,6 +52,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const taskHistoryRoutes = require('./routes/taskHistoryRoutes');
 const dailyReportRoutes = require('./routes/dailyReportRoutes');
 
+const officeRoutes = require('./routes/officeRoutes');
 const holidayRoutes = require('./routes/holidayRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const setupChatSocket = require('./services/chatSocket');
@@ -243,10 +244,11 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/tasks', taskHistoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+app.use('/api/offices', officeRoutes);
 app.use('/api/holidays', holidayRoutes);
 app.use('/api/daily-report', dailyReportRoutes);
 
-// Serve the Temp-Supervisor page
+// Serve the جهاز البصمة page
 app.use('/supervisor', express.static(path.join(__dirname, 'public')));
 
 // Serve built frontend

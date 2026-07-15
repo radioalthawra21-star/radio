@@ -9,6 +9,7 @@ const { Settings, DEFAULT_EVALUATION_WEIGHTS } = require('../models/Settings');
 const { Notification, NotificationType } = require('../models/Notification');
 const { Payroll, PayrollStatus } = require('../models/Payroll');
 const Department = require('../models/Department');
+const Office = require('../models/Office');
 
 /**
  * Get all employees
@@ -16,7 +17,7 @@ const Department = require('../models/Department');
  */
 const getAllEmployees = async (req, res) => {
   try {
-    const query = { role: UserRole.EMPLOYEE };
+    const query = { role: { $in: [UserRole.EMPLOYEE, UserRole.OFFICE_MANAGER] } };
 
     if (req.user.role === 'manager') {
       const hrDepts = ['hr', 'الموارد البشرية', 'موارد بشرية'];
@@ -51,7 +52,12 @@ const getAllEmployees = async (req, res) => {
  */
 const getEmployeesByDepartment = async (req, res) => {
   try {
-    const { department } = req.params;
+    let { department } = req.params;
+
+    // Office managers are restricted to their own department
+    if (req.user.role === 'office_manager') {
+      department = req.user.department;
+    }
 
     const deptDoc = await Department.findById(department).catch(() => null)
       || await Department.findOne({ name: department }).catch(() => null);
@@ -63,7 +69,7 @@ const getEmployeesByDepartment = async (req, res) => {
     }
 
     const employees = await User.find({ 
-      role: UserRole.EMPLOYEE,
+      role: { $in: [UserRole.EMPLOYEE, UserRole.OFFICE_MANAGER] },
       department: { $in: deptValues }
     })
       .select('-password')
@@ -175,8 +181,8 @@ const createUser = async (req, res) => {
 
     // For manager role, restrict to their department only
     if (req.user.role === 'manager') {
-      // Manager can only create employees (not other managers or admins)
-      if (role === 'manager' || role === 'admin') {
+      // Manager can only create employees and office_managers (not other managers or admins)
+      if (role === 'manager' || role === 'admin' || role === 'general_manager' || role === 'administrator') {
         return res.status(403).json({
           success: false,
           message: 'غير مصرح لك بإنشاء هذا الدور'
@@ -191,6 +197,20 @@ const createUser = async (req, res) => {
       }
       // Force department to be the manager's department
       department = req.user.department;
+    }
+
+    // Prevent assigning more than one manager per department
+    if (role === 'manager' && department) {
+      const existingManager = await User.findOne({
+        role: 'manager',
+        department: department
+      }).select('name');
+      if (existingManager) {
+        return res.status(400).json({
+          success: false,
+          message: `يوجد بالفعل رئيس قسم لهذا القسم: ${existingManager.name}`
+        });
+      }
     }
 
     // Create user
@@ -228,7 +248,7 @@ const createUser = async (req, res) => {
  */
 const updateUser = async (req, res) => {
   try {
-    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username, jobTitle } = req.body;
+    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username, jobTitle, supervisedBy } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -300,12 +320,21 @@ const updateUser = async (req, res) => {
     if (otherDeductions !== undefined) user.otherDeductions = Number(otherDeductions);
     if (hoursShortfall !== undefined) user.hoursShortfall = Number(hoursShortfall);
     if (role) {
-      const VALID_ROLES = ['employee', 'manager', 'admin', 'super_admin'];
+      const VALID_ROLES = ['employee', 'office_manager', 'manager', 'admin', 'hr', 'developer', 'general_manager', 'administrator'];
       if (!VALID_ROLES.includes(role)) {
         return res.status(400).json({
           success: false,
           message: 'دور غير صالح'
         });
+      }
+      if (currentRole === 'manager') {
+        const MANAGER_ALLOWED_ROLES = ['employee', 'office_manager'];
+        if (!MANAGER_ALLOWED_ROLES.includes(role)) {
+          return res.status(403).json({
+            success: false,
+            message: 'يمكنك فقط تعيين دور موظف أو مدير مكتب'
+          });
+        }
       }
       // If changing to manager, require department
       if (role === 'manager' && !department && !user.department) {
@@ -314,12 +343,54 @@ const updateUser = async (req, res) => {
           message: 'يجب تحديد القسم عند تعيين مدير قسم'
         });
       }
+      // Prevent assigning more than one manager per department
+      if (role === 'manager') {
+        const targetDept = department || user.department;
+        if (targetDept) {
+          const existingManager = await User.findOne({
+            role: 'manager',
+            department: targetDept,
+            _id: { $ne: user._id }
+          }).select('name');
+          if (existingManager) {
+            return res.status(400).json({
+              success: false,
+              message: `يوجد بالفعل رئيس قسم لهذا القسم: ${existingManager.name}`
+            });
+          }
+        }
+      }
       if (user.role !== role) {
         roleChanged = true;
       }
       user.role = role;
+
+      // If reverting away from office_manager, clean up supervision links
+      if (previousRole === UserRole.OFFICE_MANAGER && role !== UserRole.OFFICE_MANAGER) {
+        await User.updateMany(
+          { supervisedBy: user._id },
+          { $set: { supervisedBy: null } }
+        );
+        await Office.updateMany(
+          { manager: user._id },
+          { $set: { manager: null } }
+        );
+      }
     }
     if (isActive !== undefined) user.isActive = isActive;
+
+    // Handle supervisedBy field (office manager assignment)
+    if (supervisedBy !== undefined) {
+      if (supervisedBy === null || supervisedBy === '') {
+        user.supervisedBy = null;
+      } else {
+        const supervisor = await User.findById(supervisedBy);
+        if (!supervisor) {
+          return res.status(404).json({ success: false, message: 'مدير المكتب غير موجود' });
+        }
+        user.supervisedBy = supervisor._id;
+      }
+    }
 
     const passwordChanged = req.body.password && req.body.password.trim().length > 0;
     if (passwordChanged) {
@@ -420,7 +491,12 @@ const updateUser = async (req, res) => {
       const roleNames = {
         [UserRole.ADMIN]: 'المدير العام',
         [UserRole.MANAGER]: 'المدير',
-        [UserRole.EMPLOYEE]: 'موظف'
+        [UserRole.EMPLOYEE]: 'موظف',
+        [UserRole.OFFICE_MANAGER]: 'مدير مكتب',
+        [UserRole.HR]: 'مسؤول الموارد البشرية',
+        [UserRole.DEVELOPER]: 'مطور',
+        [UserRole.GENERAL_MANAGER]: 'المدير العام',
+        [UserRole.ADMINISTRATOR]: 'المسؤول'
       };
       
       await Notification.createNotification(
@@ -831,6 +907,249 @@ const changePassword = async (req, res) => {
   }
 };
 
+/**
+ * Get team members assigned to the current office manager
+ * GET /api/users/my-team
+ */
+const getMyTeam = async (req, res) => {
+  try {
+    const teamMembers = await User.find({ supervisedBy: req.user._id })
+      .select('-password')
+      .sort({ name: 1 });
+
+    res.json({
+      success: true,
+      data: {
+        teamMembers
+      }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب أعضاء الفريق:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في الخادم'
+    });
+  }
+};
+
+/**
+ * Get office managers in the current manager's department
+ * GET /api/users/office-managers
+ */
+const getOfficeManagersInDepartment = async (req, res) => {
+  try {
+    const query = { role: UserRole.OFFICE_MANAGER, isActive: true };
+    
+    if (req.user.role === 'manager') {
+      query.department = req.user.department;
+    }
+
+    const officeManagers = await User.find(query)
+      .select('-password')
+      .sort({ name: 1 });
+
+    res.json({
+      success: true,
+      data: {
+        officeManagers
+      }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب مديري المكاتب:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ في الخادم'
+    });
+  }
+};
+
+/**
+ * Assign employees to an office manager (department manager only)
+ * POST /api/users/assign-to-office-manager
+ */
+const assignToOfficeManager = async (req, res) => {
+  try {
+    const { employeeIds, officeManagerId } = req.body;
+
+    if (!employeeIds || !Array.isArray(employeeIds) || employeeIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'يرجى تحديد موظفين' });
+    }
+
+    if (!officeManagerId) {
+      return res.status(400).json({ success: false, message: 'يرجى تحديد مدير المكتب' });
+    }
+
+    // Verify office manager exists and is in the same department
+    const officeManager = await User.findById(officeManagerId);
+    if (!officeManager) {
+      return res.status(404).json({ success: false, message: 'مدير المكتب غير موجود' });
+    }
+    if (officeManager.role !== UserRole.OFFICE_MANAGER) {
+      return res.status(400).json({ success: false, message: 'المستخدم المحدد ليس مدير مكتب' });
+    }
+
+    // Department manager can only manage their own department
+    if (req.user.role === 'manager' && officeManager.department !== req.user.department) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك إدارة موظفين من قسم آخر' });
+    }
+
+    // Assign each employee
+    const results = [];
+    for (const empId of employeeIds) {
+      const employee = await User.findById(empId);
+      if (!employee) continue;
+      
+      // Ensure employee is in the same department
+      if (employee.department !== officeManager.department) continue;
+      
+      // Only assign employees (not managers, not other office managers)
+      if (employee.role !== UserRole.EMPLOYEE) continue;
+
+      employee.supervisedBy = officeManagerId;
+      await employee.save();
+      results.push({ _id: employee._id, name: employee.name, supervisedBy: officeManagerId });
+    }
+
+    res.json({
+      success: true,
+      message: `تم تعيين ${results.length} موظف(ين) لمدير المكتب`,
+      data: { assigned: results }
+    });
+  } catch (error) {
+    console.error('خطأ في تعيين الموظفين:', error.message);
+    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+  }
+};
+
+/**
+ * Unassign employees from their office manager
+ * DELETE /api/users/unassign-from-office-manager
+ */
+const unassignFromOfficeManager = async (req, res) => {
+  try {
+    const { employeeIds } = req.body;
+
+    if (!employeeIds || !Array.isArray(employeeIds) || employeeIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'يرجى تحديد موظفين' });
+    }
+
+    const results = [];
+    for (const empId of employeeIds) {
+      const employee = await User.findById(empId);
+      if (!employee) continue;
+
+      // Department manager can only manage their own department
+      if (req.user.role === 'manager' && employee.department !== req.user.department) continue;
+
+      employee.supervisedBy = null;
+      await employee.save();
+      results.push({ _id: employee._id, name: employee.name });
+    }
+
+    res.json({
+      success: true,
+      message: `تم إلغاء تعيين ${results.length} موظف(ين)`,
+      data: { unassigned: results }
+    });
+  } catch (error) {
+    console.error('خطأ في إلغاء التعيين:', error.message);
+    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+  }
+};
+
+/**
+ * Transfer employees from one office manager to another
+ * PUT /api/users/transfer-office-manager
+ */
+const transferOfficeManager = async (req, res) => {
+  try {
+    const { employeeIds, fromOfficeManagerId, toOfficeManagerId } = req.body;
+
+    if (!employeeIds || !Array.isArray(employeeIds) || employeeIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'يرجى تحديد موظفين' });
+    }
+
+    // Verify destination office manager
+    const toManager = await User.findById(toOfficeManagerId);
+    if (!toManager || toManager.role !== UserRole.OFFICE_MANAGER) {
+      return res.status(400).json({ success: false, message: 'مدير المكتب الوجهة غير صالح' });
+    }
+
+    // Department manager can only manage their own department
+    if (req.user.role === 'manager' && toManager.department !== req.user.department) {
+      return res.status(403).json({ success: false, message: 'غير مصرح لك النقل لقسم آخر' });
+    }
+
+    const results = [];
+    for (const empId of employeeIds) {
+      const employee = await User.findById(empId);
+      if (!employee) continue;
+      if (employee.department !== toManager.department) continue;
+      if (employee.role !== UserRole.EMPLOYEE) continue;
+
+      employee.supervisedBy = toOfficeManagerId;
+      await employee.save();
+      results.push({ _id: employee._id, name: employee.name, supervisedBy: toOfficeManagerId });
+    }
+
+    res.json({
+      success: true,
+      message: `تم نقل ${results.length} موظف(ين)`,
+      data: { transferred: results }
+    });
+  } catch (error) {
+    console.error('خطأ في النقل:', error.message);
+    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+  }
+};
+
+/**
+ * Get team assignments summary for a department
+ * GET /api/users/team-assignments
+ */
+const getTeamAssignments = async (req, res) => {
+  try {
+    const query = { role: UserRole.OFFICE_MANAGER, isActive: true };
+    
+    if (req.user.role === 'manager') {
+      query.department = req.user.department;
+    }
+
+    const officeManagers = await User.find(query).select('_id name department').lean();
+
+    const assignments = [];
+    for (const om of officeManagers) {
+      const teamMembers = await User.find({ supervisedBy: om._id, role: UserRole.EMPLOYEE })
+        .select('_id name department jobTitle')
+        .lean();
+      assignments.push({
+        officeManager: { _id: om._id, name: om.name, department: om.department },
+        teamMembers
+      });
+    }
+
+    // Also find unsupervised employees in the department
+    const deptQuery = { role: UserRole.EMPLOYEE, supervisedBy: null, isActive: true };
+    if (req.user.role === 'manager') {
+      deptQuery.department = req.user.department;
+    }
+    const unsupervisedEmployees = await User.find(deptQuery)
+      .select('_id name department jobTitle')
+      .lean();
+
+    res.json({
+      success: true,
+      data: {
+        assignments,
+        unsupervisedEmployees
+      }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب تعيينات الفريق:', error.message);
+    res.status(500).json({ success: false, message: 'حدث خطأ في الخادم' });
+  }
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeesByDepartment,
@@ -845,5 +1164,11 @@ module.exports = {
   getPendingUsers,
   activateUser,
   getUserCounts,
-  changePassword
+  changePassword,
+  getMyTeam,
+  getOfficeManagersInDepartment,
+  assignToOfficeManager,
+  unassignFromOfficeManager,
+  transferOfficeManager,
+  getTeamAssignments
 };

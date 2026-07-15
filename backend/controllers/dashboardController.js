@@ -4,6 +4,12 @@ const TaskTimeline = require('../models/TaskTimeline');
 const { User } = require('../models/User');
 
 async function getDeptFilter(user) {
+  if (user.role === 'office_manager') {
+    // Office manager: filter to tasks assigned to their team
+    const teamMembers = await User.find({ supervisedBy: user._id }).select('_id');
+    if (teamMembers.length === 0) return { assignedTo: { $in: [] } }; // no team = no results
+    return { assignedTo: { $in: teamMembers.map(m => m._id) } };
+  }
   if (user.role !== 'manager' || !user.department) return {};
   const Dept = require('../models/Department');
   const dept = await Dept.findOne({ name: user.department });
@@ -51,10 +57,16 @@ const getDashboardStats = async (req, res) => {
 const getEmployeePerformance = async (req, res) => {
   try {
     const filter = { role: 'employee' };
-    if (req.user.role === 'manager' && req.user.department) {
+    if (req.user.role === 'office_manager') {
+      // Office manager sees only their team
+      const teamMembers = await User.find({ supervisedBy: req.user._id }).select('_id');
+      if (teamMembers.length === 0) {
+        return res.json({ success: true, data: { performance: [] } });
+      }
+      filter._id = { $in: teamMembers.map(m => m._id) };
+    } else if (req.user.role === 'manager' && req.user.department) {
       filter.department = req.user.department;
     } else if (req.query.department && typeof req.query.department === 'string') {
-      // Only accept string department values, reject objects (NoSQL injection)
       filter.department = req.query.department;
     }
     const employees = await User.find(filter).select('name department role position avatar');
@@ -90,7 +102,15 @@ const getEmployeePerformance = async (req, res) => {
 const getDepartmentPerformance = async (req, res) => {
   try {
     let departments;
-    if (req.user.role === 'manager' && req.user.department) {
+    if (req.user.role === 'office_manager') {
+      // Office manager only sees their own department
+      const Dept = require('../models/Department');
+      if (req.user.department) {
+        departments = await Dept.find({ name: req.user.department });
+      } else {
+        departments = [];
+      }
+    } else if (req.user.role === 'manager' && req.user.department) {
       const Dept = require('../models/Department');
       departments = await Dept.find({ name: req.user.department });
     } else {

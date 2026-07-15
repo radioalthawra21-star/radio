@@ -30,7 +30,7 @@ const {
   rejectDepartmentTask,
   getDepartmentTasks
 } = require('../controllers/taskController');
-const { protect, managerOrAdmin, adminOnly, adminOrHR } = require('../middleware/authMiddleware');
+const { protect, managerOrAdmin, officeManagerOrAbove, adminOnly, adminOrHR } = require('../middleware/authMiddleware');
 
 // POST /api/tasks - Create task
 router.post('/', protect, createTask);
@@ -41,8 +41,8 @@ router.get('/my-tasks', protect, getMyTasks);
 // GET /api/tasks/created - Get tasks I created
 router.get('/created', protect, getCreatedTasks);
 
-// GET /api/tasks/to-evaluate - Get tasks to evaluate (manager)
-router.get('/to-evaluate', protect, managerOrAdmin, getTasksToEvaluate);
+// GET /api/tasks/to-evaluate - Get tasks to evaluate (manager or office manager)
+router.get('/to-evaluate', protect, officeManagerOrAbove, getTasksToEvaluate);
 
 // GET /api/tasks/to-approve - Get tasks to approve (admin or HR)
 router.get('/to-approve', protect, adminOrHR, getTasksToApprove);
@@ -53,17 +53,17 @@ router.get('/summary/daily', protect, getDailySummary);
 // GET /api/tasks/summary/weekly - Get weekly summary
 router.get('/summary/weekly', protect, getWeeklySummary);
 
-// GET /api/tasks/reports - Get task reports
-router.get('/reports', protect, managerOrAdmin, getTaskReports);
+// GET /api/tasks/reports - Get task reports (manager or office manager)
+router.get('/reports', protect, officeManagerOrAbove, getTaskReports);
 
 // GET /api/tasks/total - Get total tasks count (all time)
 router.get('/total', protect, getTotalTasks);
 
-// GET /api/tasks/proposals - Get pending proposals (manager)
-router.get('/proposals', protect, managerOrAdmin, getProposals);
+// GET /api/tasks/proposals - Get pending proposals (manager or office manager)
+router.get('/proposals', protect, officeManagerOrAbove, getProposals);
 
-// GET /api/tasks/department - Get department tasks (manager)
-router.get('/department', protect, managerOrAdmin, getDepartmentTasks);
+// GET /api/tasks/department - Get department tasks (manager or office manager)
+router.get('/department', protect, officeManagerOrAbove, getDepartmentTasks);
 
 // GET /api/tasks/:id - Get task by ID
 router.get('/:id', protect, getTaskById);

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAdminTodaySummary, downloadEmployeeReports, deleteDailyReport } from '../../services/dailyReportService';
+import { getAdminTodaySummary, getReportsByDate, downloadEmployeeReports, deleteDailyReport } from '../../services/dailyReportService';
 import { getStoredUser } from '../../services/authService';
 import Card from '../../components/common/Card';
 
@@ -28,26 +28,55 @@ const departmentNames = {
 
 const getDeptName = (dept) => departmentNames[dept] || dept || 'غير محدد';
 
-const statusLabels = {
-  completed: 'مكتمل',
-  in_progress: 'قيد التنفيذ',
-  not_completed: 'غير مكتمل',
-  stopped: 'متوقف',
-  postponed: 'مؤجل'
-};
-
-const statusColors = {
-  completed: 'bg-green-100 text-green-800',
-  in_progress: 'bg-blue-100 text-blue-800',
-  not_completed: 'bg-red-100 text-red-800',
-  stopped: 'bg-gray-100 text-gray-800',
-  postponed: 'bg-yellow-100 text-yellow-800'
-};
-
 const DailyReportsDashboard = () => {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
   const isGeneralManager = currentUser?.role === 'admin' || currentUser?.role === 'developer';
+  const [activeTab, setActiveTab] = useState('today');
+
+  const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  const now = new Date();
+  const todayStr = `${arabicDayNames[now.getDay()]} - ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+
+  return (
+    <div className="p-3 md:p-6" dir="rtl">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">التقارير اليومية</h1>
+      </div>
+
+      <div className="flex items-center gap-1 border-b-2 border-gray-200 mb-6">
+        <button
+          onClick={() => setActiveTab('today')}
+          className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-[2px] ${
+            activeTab === 'today'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          لوحة تحكم اليوم
+        </button>
+        <button
+          onClick={() => setActiveTab('logs')}
+          className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-[2px] ${
+            activeTab === 'logs'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          سجل التقارير
+        </button>
+      </div>
+
+      {activeTab === 'today' ? (
+        <TodayTab navigate={navigate} isGeneralManager={isGeneralManager} todayStr={todayStr} />
+      ) : (
+        <LogsTab navigate={navigate} />
+      )}
+    </div>
+  );
+};
+
+const TodayTab = ({ navigate, isGeneralManager, todayStr }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,24 +85,15 @@ const DailyReportsDashboard = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-  const now = new Date();
-  const todayStr = `${arabicDayNames[now.getDay()]} - ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-
-  useEffect(() => {
-    fetchSummary();
-  }, []);
+  useEffect(() => { fetchSummary(); }, []);
 
   const fetchSummary = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await getAdminTodaySummary();
-      if (response.success) {
-        setData(response.data);
-      } else {
-        setError(response.message || 'فشل في تحميل البيانات');
-      }
+      if (response.success) setData(response.data);
+      else setError(response.message || 'فشل في تحميل البيانات');
     } catch (err) {
       setError(err.userMessage || 'حدث خطأ في الاتصال بالخادم');
     } finally {
@@ -86,12 +106,8 @@ const DailyReportsDashboard = () => {
     try {
       setDeleting(true);
       const response = await deleteDailyReport(deleteConfirm);
-      if (response.success) {
-        setDeleteConfirm(null);
-        fetchSummary();
-      } else {
-        alert(response.message || 'فشل في حذف التقرير');
-      }
+      if (response.success) { setDeleteConfirm(null); fetchSummary(); }
+      else alert(response.message || 'فشل في حذف التقرير');
     } catch (err) {
       alert(err.userMessage || 'حدث خطأ في حذف التقرير');
     } finally {
@@ -99,68 +115,43 @@ const DailyReportsDashboard = () => {
     }
   };
 
-  const getProgressColor = (pct) => {
-    if (pct >= 80) return 'bg-green-500';
-    if (pct >= 50) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
-
-  const getRateColor = (pct) => {
-    if (pct >= 80) return 'text-green-600';
-    if (pct >= 50) return 'text-yellow-600';
-    return 'text-red-600';
-  };
+  const getProgressColor = (pct) => pct >= 80 ? 'bg-green-500' : pct >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+  const getRateColor = (pct) => pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-yellow-600' : 'text-red-600';
 
   const uniqueDepartments = data?.departmentStats
-    ? [...new Set(data.departmentStats.map(d => d.department))]
+    ? [...new Set(data.departmentStats.map(d => d.department).filter(d => d && d !== 'غير محدد' && !/^[0-9a-fA-F]{24}$/.test(d)))]
     : [];
 
   const filteredReports = data?.reports?.filter(r => {
     const name = (r.employeeName || r.userId?.name || '').toLowerCase();
     const dept = (r.department || r.userId?.department || '');
-    const matchesSearch = name.includes(searchTerm.toLowerCase());
-    const matchesDept = !deptFilter || dept === deptFilter;
-    return matchesSearch && matchesDept;
+    return name.includes(searchTerm.toLowerCase()) && (!deptFilter || dept === deptFilter);
   }) || [];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64" dir="rtl">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary"></div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary"></div>
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="p-6" dir="rtl">
-        <Card>
-          <div className="text-center py-12">
-            <div className="text-5xl mb-4">⚠️</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">خطأ في تحميل البيانات</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button onClick={fetchSummary} className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
-              إعادة المحاولة
-            </button>
-          </div>
-        </Card>
+  if (error) return (
+    <Card>
+      <div className="text-center py-12">
+        <div className="text-5xl mb-4">⚠️</div>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">خطأ في تحميل البيانات</h2>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <button onClick={fetchSummary} className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">إعادة المحاولة</button>
       </div>
-    );
-  }
+    </Card>
+  );
 
   if (!data) return null;
 
   return (
-    <div className="p-3 md:p-6" dir="rtl">
+    <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">لوحة تحكم التقارير اليومية</h1>
-          <p className="text-gray-500 text-sm mt-1">{todayStr}</p>
-        </div>
-        <button
-          onClick={fetchSummary}
-          className="mt-3 md:mt-0 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm flex items-center gap-2"
-        >
+        <p className="text-gray-500 text-sm">{todayStr}</p>
+        <button onClick={fetchSummary} className="mt-3 md:mt-0 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -182,7 +173,6 @@ const DailyReportsDashboard = () => {
             </div>
           </div>
         </Card>
-
         <Card>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-green-100">
@@ -196,7 +186,6 @@ const DailyReportsDashboard = () => {
             </div>
           </div>
         </Card>
-
         <Card>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-red-100">
@@ -210,7 +199,6 @@ const DailyReportsDashboard = () => {
             </div>
           </div>
         </Card>
-
         <Card>
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-purple-100">
@@ -246,10 +234,7 @@ const DailyReportsDashboard = () => {
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className={`h-2.5 rounded-full transition-all duration-500 ${getProgressColor(dept.percentage)}`}
-                        style={{ width: `${dept.percentage}%` }}
-                      />
+                      <div className={`h-2.5 rounded-full transition-all duration-500 ${getProgressColor(dept.percentage)}`} style={{ width: `${dept.percentage}%` }} />
                     </div>
                   </div>
                 ))}
@@ -257,7 +242,6 @@ const DailyReportsDashboard = () => {
             )}
           </Card>
         </div>
-
         <div>
           <Card>
             <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">ملخص سريع</h2>
@@ -293,17 +277,16 @@ const DailyReportsDashboard = () => {
           ) : (
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {data.submittedUsers.map((u) => (
-                <div
-                  key={u._id}
-                  className="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/admin/daily-report/${u.reportId}`)}
-                >
+                <div key={u._id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer" onClick={() => navigate(`/admin/daily-report/${u.reportId}`)}>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-bold text-sm">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${u.isOnVacation ? 'bg-amber-200 text-amber-700' : 'bg-green-200 text-green-700'}`}>
                       {u.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-800">{u.name}</p>
+                      <p className="text-sm font-medium text-gray-800">
+                        {u.name}
+                        {u.isOnVacation && <span className="mr-2 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">عطلة</span>}
+                      </p>
                       <p className="text-xs text-gray-500">{getDeptName(u.department)}</p>
                     </div>
                   </div>
@@ -354,18 +337,8 @@ const DailyReportsDashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 border-b pb-2">
           <h2 className="text-lg font-semibold text-gray-800 mb-3 md:mb-0">جميع التقارير</h2>
           <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="بحث باسم الموظف..."
-              className="p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary"
-            />
-            <select
-              value={deptFilter}
-              onChange={(e) => setDeptFilter(e.target.value)}
-              className="p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary"
-            >
+            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث باسم الموظف..." className="p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+            <select value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)} className="p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
               <option value="">جميع الأقسام</option>
               {uniqueDepartments.map(d => (
                 <option key={d} value={d}>{getDeptName(d)}</option>
@@ -403,24 +376,13 @@ const DailyReportsDashboard = () => {
                       <td className="p-3 border text-sm text-gray-600">{r.directManager || '-'}</td>
                       <td className="p-3 border text-sm text-center">
                         <span className="text-gray-700">{achievementCount}</span>
-                        {completedCount > 0 && (
-                          <span className="mr-1 text-xs text-green-600">({completedCount} مكتمل)</span>
-                        )}
+                        {completedCount > 0 && <span className="mr-1 text-xs text-green-600">({completedCount} مكتمل)</span>}
                       </td>
                       <td className="p-3 border text-center">
-                        <button
-                          onClick={() => navigate(`/admin/daily-report/${r._id}`)}
-                          className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-xs font-medium"
-                        >
-                          عرض التقرير
-                        </button>
+                        <button onClick={() => navigate(`/admin/daily-report/${r._id}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-xs font-medium">عرض التقرير</button>
                       </td>
                       <td className="p-3 border text-center">
-                        <button
-                          onClick={() => downloadEmployeeReports(r.userId?._id || r.userId, r.employeeName || r.userId?.name || 'تقرير')}
-                          className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium"
-                          title="تحميل سجل التقارير"
-                        >
+                        <button onClick={() => downloadEmployeeReports(r.userId?._id || r.userId, r.employeeName || r.userId?.name || 'تقرير')} className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium" title="تحميل سجل التقارير">
                           <svg className="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
@@ -429,11 +391,7 @@ const DailyReportsDashboard = () => {
                       </td>
                       {isGeneralManager && (
                         <td className="p-3 border text-center">
-                          <button
-                            onClick={() => setDeleteConfirm(r._id)}
-                            className="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
-                            title="حذف التقرير"
-                          >
+                          <button onClick={() => setDeleteConfirm(r._id)} className="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium" title="حذف التقرير">
                             <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -456,18 +414,8 @@ const DailyReportsDashboard = () => {
             <h3 className="text-xl font-bold text-gray-800 mb-2">تأكيد الحذف</h3>
             <p className="text-gray-600 mb-6">هل أنت متأكد من حذف هذا التقرير؟ هذا الإجراء لا يمكن التراجع عنه.</p>
             <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                disabled={deleting}
-                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                إلغاء
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-medium flex items-center gap-2"
-              >
+              <button onClick={() => setDeleteConfirm(null)} disabled={deleting} className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">إلغاء</button>
+              <button onClick={handleDelete} disabled={deleting} className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-medium flex items-center gap-2">
                 {deleting && <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white"></div>}
                 {deleting ? 'جاري الحذف...' : 'تأكيد الحذف'}
               </button>
@@ -475,7 +423,163 @@ const DailyReportsDashboard = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
+  );
+};
+
+const LogsTab = ({ navigate }) => {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const fetchReports = useCallback(async (p = 1) => {
+    try {
+      setLoading(true);
+      const response = await getReportsByDate(selectedDate || undefined, p, 50);
+      if (response.success) {
+        setReports(response.data.reports);
+        setTotalPages(response.data.pages);
+        setTotal(response.data.total);
+        setPage(response.data.page);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedDate]);
+
+  useEffect(() => { fetchReports(1); }, [fetchReports]);
+
+  const filteredReports = reports.filter(r => {
+    if (!searchTerm) return true;
+    const name = (r.employeeName || r.userId?.name || '').toLowerCase();
+    const dept = (r.department || '').toLowerCase();
+    return name.includes(searchTerm.toLowerCase()) || dept.includes(searchTerm.toLowerCase());
+  });
+
+  const groupedByDate = {};
+  filteredReports.forEach(r => {
+    const dateKey = r.reportDate || 'غير محدد';
+    if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
+    groupedByDate[dateKey].push(r);
+  });
+
+  return (
+    <>
+      <Card>
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-600 mb-1">فلتر التاريخ</label>
+            <div className="flex gap-2">
+              <input type="date" value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); setPage(1); }} className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+              {selectedDate && (
+                <button onClick={() => { setSelectedDate(''); setPage(1); }} className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm">عرض الكل</button>
+              )}
+            </div>
+          </div>
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-600 mb-1">بحث</label>
+            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث باسم الموظف أو القسم..." className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+          </div>
+        </div>
+        <p className="text-sm text-gray-500 mb-2">
+          إجمالي النتائج: <span className="font-semibold text-gray-700">{total}</span>
+          {selectedDate && ` | التاريخ: ${selectedDate}`}
+        </p>
+      </Card>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary"></div>
+        </div>
+      ) : filteredReports.length === 0 ? (
+        <Card>
+          <div className="text-center py-12">
+            <div className="text-5xl mb-4">📋</div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">لا توجد تقارير</h2>
+            <p className="text-gray-500">{selectedDate ? `لا توجد تقاريراريخ ${selectedDate}` : 'لا توجد تقارير بعد'}</p>
+          </div>
+        </Card>
+      ) : (
+        Object.entries(groupedByDate).map(([dateKey, dateReports]) => (
+          <div key={dateKey} className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {dateKey}
+              <span className="text-sm font-normal text-gray-400">({dateReports.length} تقرير)</span>
+            </h2>
+            <Card>
+              <div className="overflow-x-auto">
+                <table className="w-full text-right border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="p-3 border text-sm font-medium text-gray-600">#</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">الموظف</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">القسم</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">المسمى الوظيفي</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">المدير المباشر</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">الإنجازات</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">الأولوية الأولى</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600">الحالة</th>
+                      <th className="p-3 border text-sm font-medium text-gray-600 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dateReports.map((r, idx) => {
+                      const achievementCount = r.achievements?.length || 0;
+                      const completedCount = r.achievements?.filter(a => a.status === 'completed').length || 0;
+                      return (
+                        <tr key={r._id} className="hover:bg-gray-50 border-b transition-colors">
+                          <td className="p-3 border text-sm text-gray-500">{idx + 1}</td>
+                          <td className="p-3 border text-sm font-medium text-gray-800">{r.employeeName || r.userId?.name || '-'}</td>
+                          <td className="p-3 border text-sm text-gray-600">{getDeptName(r.department || r.userId?.department)}</td>
+                          <td className="p-3 border text-sm text-gray-600">{r.jobTitle || r.userId?.jobTitle || '-'}</td>
+                          <td className="p-3 border text-sm text-gray-600">{r.directManager || '-'}</td>
+                          <td className="p-3 border text-sm text-center">
+                            <span className="text-gray-700">{achievementCount}</span>
+                            {completedCount > 0 && <span className="mr-1 text-xs text-green-600">({completedCount} مكتمل)</span>}
+                          </td>
+                          <td className="p-3 border text-sm text-gray-600 max-w-[200px] truncate">{r.priorities?.first || '-'}</td>
+                          <td className="p-3 border text-center">
+                            {r.isOnVacation ? (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">عطلة</span>
+                            ) : (
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${achievementCount > 0 && completedCount === achievementCount ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                {completedCount}/{achievementCount}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3 border text-center">
+                            <button onClick={() => navigate(`/admin/daily-report/${r._id}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-xs font-medium">عرض التقرير</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        ))
+      )}
+
+      {totalPages > 1 && !loading && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button onClick={() => fetchReports(page - 1)} disabled={page <= 1} className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-30 hover:bg-gray-50 transition-colors">السابق</button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            <button key={p} onClick={() => fetchReports(p)} className={`w-8 h-8 text-sm rounded-lg transition-colors ${p === page ? 'bg-primary text-white' : 'hover:bg-gray-100 text-gray-600'}`}>{p}</button>
+          ))}
+          <button onClick={() => fetchReports(page + 1)} disabled={page >= totalPages} className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-30 hover:bg-gray-50 transition-colors">التالي</button>
+        </div>
+      )}
+    </>
   );
 };
 

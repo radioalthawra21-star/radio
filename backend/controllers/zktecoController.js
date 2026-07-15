@@ -301,14 +301,24 @@ async function getBridgeStatus(req, res) {
 
 async function syncDeviceAttendance(req, res) {
   try {
-    const records = await zktecoService.getAttendanceRecords();
-    if (!records || records.length === 0) {
+    const allRecords = await zktecoService.getAttendanceRecords();
+    if (!allRecords || allRecords.length === 0) {
       return res.json({
         success: true,
         message: 'لا توجد سجلات جديدة في الجهاز',
         data: { synced: 0, total: 0 }
       });
     }
+
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    twoMonthsAgo.setHours(0, 0, 0, 0);
+    const records = allRecords.filter(r => {
+      const t = r.recordTime || r.timestamp || r.time;
+      if (!t) return true;
+      return new Date(t) >= twoMonthsAgo;
+    });
+    console.log(`[zkteco] فلترة: ${allRecords.length} سجل إجمالاً → ${records.length} سجل (آخر شهرين)`);
 
     const mappedRecords = records.map(r => zktecoService.mapRecord(r));
 
@@ -570,11 +580,20 @@ async function pullDeviceAttendance(req, res) {
     const { startDate, endDate } = req.query;
 
     const deviceUsers = await zktecoService.getUsers();
-    const attendanceRecords = await zktecoService.getAttendanceRecords();
+    const allAttendanceRecords = await zktecoService.getAttendanceRecords();
 
-    if (!attendanceRecords || attendanceRecords.length === 0) {
+    if (!allAttendanceRecords || allAttendanceRecords.length === 0) {
       return res.json({ success: true, data: { records: [], count: 0, rawSample: null } });
     }
+
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    twoMonthsAgo.setHours(0, 0, 0, 0);
+    const attendanceRecords = allAttendanceRecords.filter(r => {
+      const t = r.recordTime || r.timestamp || r.time;
+      if (!t) return true;
+      return new Date(t) >= twoMonthsAgo;
+    });
 
     const deviceUserMap = {};
     if (deviceUsers && deviceUsers.length) {
@@ -668,10 +687,19 @@ async function getDeviceStatusMonitor(req, res) {
 
 async function cleanSyncDeviceAttendance(req, res) {
   try {
-    const records = await zktecoService.getAttendanceRecords();
-    if (!records || records.length === 0) {
+    const allRecords = await zktecoService.getAttendanceRecords();
+    if (!allRecords || allRecords.length === 0) {
       return res.json({ success: true, message: 'لا توجد سجلات في الجهاز', data: { deleted: 0, created: 0 } });
     }
+
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    twoMonthsAgo.setHours(0, 0, 0, 0);
+    const records = allRecords.filter(r => {
+      const t = r.recordTime || r.timestamp || r.time;
+      if (!t) return true;
+      return new Date(t) >= twoMonthsAgo;
+    });
 
     const mappedRecords = records.map(r => zktecoService.mapRecord(r));
 

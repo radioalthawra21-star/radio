@@ -89,6 +89,10 @@ const LeaveRequest = () => {
         return;
       }
     } else if (form.type === 'hourly') {
+      if (!form.startDate) {
+        setError('يرجى تحديد تاريخ الإجازة');
+        return;
+      }
       if (!form.startTime || !form.endTime) {
         setError('يرجى تحديد وقت البداية والنهاية');
         return;
@@ -123,9 +127,7 @@ const LeaveRequest = () => {
     try {
       const submitData = { ...form };
       if (form.type === 'hourly') {
-        const today = new Date().toISOString().split('T')[0];
-        submitData.startDate = today;
-        submitData.endDate = today;
+        submitData.endDate = submitData.startDate;
       }
       if (form.medicalReport) {
         submitData.documents = [{ url: form.medicalReport, description: 'تقرير طبي' }];
@@ -272,7 +274,14 @@ const LeaveRequest = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">نوع الطلب</label>
               <select
                 value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  const updates = { ...form, type: newType };
+                  if (newType === 'hourly' && !updates.startDate) {
+                    updates.startDate = new Date().toISOString().split('T')[0];
+                  }
+                  setForm(updates);
+                }}
                 className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
               >
                 {LEAVE_TYPES.map(t => (
@@ -389,6 +398,15 @@ const LeaveRequest = () => {
             ) : form.type === 'hourly' ? (
               <>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ الإجازة</label>
+                  <input
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    className="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">من الساعة</label>
                   <input
                     type="time"
@@ -407,7 +425,7 @@ const LeaveRequest = () => {
                   />
                 </div>
                 <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-800 md:col-span-2">
-                  ⏰ الإجازة الساعية for today — يتم احتسابها من اليوم الحالي فقط
+                  ⏰ الإجازة الساعية — عند تجميع 7 ساعات يُخصم يوم كامل من الرصيد الإداري
                 </div>
               </>
             ) : form.type === 'hajj' ? (
@@ -566,25 +584,50 @@ const LeaveRequest = () => {
             {mainBalanceTypes.slice(0, 5).map(({ value, label, icon, color, bg }) => {
               const bal = balances[value];
               const isShowBalance = value === 'annual' || value === 'hourly';
-              const remaining = bal ? (value === 'hourly' ? Math.max(0, bal.remainingHours) : Math.max(0, bal.remainingBalance)) : '–';
-              const used = bal ? (value === 'hourly' ? `${Math.round(bal.usedHours)} س` : `${bal.usedDays} يوم`) : '0';
               return (
                 <div key={value} className={`${bg} rounded-xl p-4 border border-gray-100`}>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-lg">{icon}</span>
                     <span className="text-xs text-gray-500">{label}</span>
                   </div>
-                  {isShowBalance ? (
+                  {isShowBalance && bal ? (
                     <>
-                      <div className="flex items-baseline gap-1">
-                        <span className={`text-2xl font-bold ${color}`}>{remaining}</span>
-                        <span className="text-xs text-gray-400">المتبقي</span>
-                      </div>
-                      <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-sm font-medium text-gray-500">{used}</span>
-                        <span className="text-xs text-gray-400">المستخدم</span>
-                      </div>
+                      {value === 'annual' ? (
+                        <>
+                          <div className="flex items-baseline gap-1">
+                            <span className={`text-2xl font-bold ${color}`}>{bal.remainingBalance}</span>
+                            <span className="text-xs text-gray-400">يوم</span>
+                            {bal.remainingHours > 0 && (
+                              <>
+                                <span className="text-sm font-bold text-gray-600 mx-0.5">{bal.remainingHours}</span>
+                                <span className="text-xs text-gray-400">ساعة</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-sm font-medium text-gray-500">{bal.usedDays} يوم</span>
+                            {bal.usedHours > 0 && (
+                              <span className="text-xs text-gray-400">+ {Math.round(bal.usedHours)} س</span>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-baseline gap-1">
+                            <span className={`text-2xl font-bold ${color}`}>
+                              {bal.remainingBalance * 7 + bal.remainingHours}
+                            </span>
+                            <span className="text-xs text-gray-400">ساعة متبقية</span>
+                          </div>
+                          <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-sm font-medium text-gray-500">{Math.round(bal.usedHours)} ساعة</span>
+                            <span className="text-xs text-gray-400">مستخدمة</span>
+                          </div>
+                        </>
+                      )}
                     </>
+                  ) : isShowBalance ? (
+                    <div className="text-xs text-gray-400">–</div>
                   ) : (
                     <div className="text-xs text-gray-400 leading-relaxed">
                       {value === 'sick' ? <><span>تحتاج تقرير طبي</span><br/><span>موافقة المدير العام</span></> : 
@@ -650,6 +693,14 @@ const LeaveRequest = () => {
                                   <span className="mx-1">·</span>
                                   {req.fingerprintType === 'in' ? 'دخول' : 'خروج'}
                                   {req.fingerprintTime && <><span className="mx-1">·</span>⏰ {req.fingerprintTime}</>}
+                                </>
+                              ) : req.type === 'hourly' ? (
+                                <>
+                                  {formatDate(req.startDate)}
+                                  <span className="mx-1">·</span>
+                                  {req.startTime} → {req.endTime}
+                                  <span className="mx-1">·</span>
+                                  {req.hours} ساعات
                                 </>
                               ) : (
                                 <>

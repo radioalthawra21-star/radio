@@ -1,17 +1,24 @@
 import api from './api';
 
-export const getDailyReportStatus = async () => {
-  const response = await api.get('/daily-report/status');
+export const getDailyReportStatus = async (date) => {
+  const params = date ? { date } : {};
+  const response = await api.get('/daily-report/status', { params });
   return response.data;
 };
 
-export const getTodayReport = async () => {
-  const response = await api.get('/daily-report/today');
+export const getTodayReport = async (date) => {
+  const params = date ? { date } : {};
+  const response = await api.get('/daily-report/today', { params });
   return response.data;
 };
 
 export const submitDailyReport = async (data) => {
   const response = await api.post('/daily-report/submit', data);
+  return response.data;
+};
+
+export const saveDailyReportDraft = async (data) => {
+  const response = await api.post('/daily-report/submit', { ...data, status: 'draft' });
   return response.data;
 };
 
@@ -27,6 +34,13 @@ export const getMyReports = async (page = 1, limit = 20) => {
 
 export const getAdminTodaySummary = async () => {
   const response = await api.get('/daily-report/admin/today-summary');
+  return response.data;
+};
+
+export const getReportsByDate = async (date, page = 1, limit = 50) => {
+  const params = { page, limit };
+  if (date) params.date = date;
+  const response = await api.get('/daily-report/admin/reports-by-date', { params });
   return response.data;
 };
 

@@ -20,6 +20,14 @@ const TABS = {
     { key: 'kanban', label: 'لوحة سير العمل', icon: '📌' },
     { key: 'task-history', label: 'سجل المهام', icon: '📜' },
   ],
+  office_manager: [
+    { key: 'my-tasks', label: 'مهماتي', icon: '📋' },
+    { key: 'add-task', label: 'إضافة مهمة', icon: '➕' },
+    { key: 'department-tasks', label: 'مهام الفريق', icon: '👥' },
+    { key: 'evaluate-tasks', label: 'تقييم المهام', icon: '⭐' },
+    { key: 'proposals', label: 'الاقتراحات', icon: '💡' },
+    { key: 'kanban', label: 'لوحة سير العمل', icon: '📌' },
+  ],
   manager: [
     { key: 'my-tasks', label: 'مهماتي', icon: '📋' },
     { key: 'add-task', label: 'إضافة مهمة', icon: '➕' },
@@ -32,6 +40,15 @@ const TABS = {
     { key: 'workflow-dashboard', label: 'إحصائيات سير العمل', icon: '📊' },
   ],
   admin: [
+    { key: 'proposals', label: 'الاقتراحات', icon: '💡' },
+    { key: 'assign-tasks', label: 'إسناد المهام', icon: '👥' },
+    { key: 'department-tasks', label: 'مهام القسم', icon: '🏢' },
+    { key: 'kanban', label: 'لوحة سير العمل', icon: '📌' },
+    { key: 'stage-approval', label: 'الموافقات', icon: '✅' },
+    { key: 'workflow-dashboard', label: 'إحصائيات سير العمل', icon: '📊' },
+    { key: 'task-history', label: 'سجل المهام', icon: '📜' },
+  ],
+  general_manager: [
     { key: 'proposals', label: 'الاقتراحات', icon: '💡' },
     { key: 'assign-tasks', label: 'إسناد المهام', icon: '👥' },
     { key: 'department-tasks', label: 'مهام القسم', icon: '🏢' },
@@ -55,7 +72,7 @@ const TaskManagement = () => {
   const [selectedDept, setSelectedDept] = useState('all');
 
   const tabItems = TABS[role] || TABS.employee;
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'general_manager';
 
   useEffect(() => {
     if (isAdmin) {

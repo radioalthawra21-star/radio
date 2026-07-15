@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getKanbanBoard, approveStage, rejectStage } from '../../services/workflowTaskService';
+import { getStoredUser } from '../../services/authService';
 import { formatDateArabic } from '../../utils/dateUtils';
 import Card from '../../components/common/Card';
 
@@ -8,6 +9,8 @@ const AWAITING_STATUSES = ['pending_review', 'pending_approval'];
 
 const StageApproval = () => {
   const navigate = useNavigate();
+  const user = getStoredUser();
+  const isHR = user?.role === 'hr';
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState(null);
@@ -18,12 +21,15 @@ const StageApproval = () => {
       setLoading(true);
       const res = await getKanbanBoard();
       if (res.success) {
-        const awaiting = AWAITING_STATUSES.flatMap(s => res.data.columns[s] || []);
+        let awaiting = AWAITING_STATUSES.flatMap(s => res.data.columns[s] || []);
+        if (isHR && user?.department) {
+          awaiting = awaiting.filter(t => t.currentDepartment?.name === user.department);
+        }
         setTasks(awaiting);
       }
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
-  }, []);
+  }, [isHR, user?.department]);
 
   useEffect(() => { fetchBoard(); }, [fetchBoard]);
 

@@ -50,7 +50,10 @@ const dailyReportSchema = new mongoose.Schema({
       title: { type: String, default: '' },
       publishLink: { type: String, default: '' }
     }]
-  }
+  },
+
+  isOnVacation: { type: Boolean, default: false },
+  status: { type: String, enum: ['draft', 'submitted'], default: 'submitted' }
 }, { timestamps: true });
 
 dailyReportSchema.index({ userId: 1, date: -1 }, { unique: true });

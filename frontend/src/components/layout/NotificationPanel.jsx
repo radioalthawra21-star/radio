@@ -83,7 +83,7 @@ const NotificationPanel = () => {
     };
   }, []);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (retryCount = 0) => {
     try {
       const response = await getMyNotifications(false, true);
       if (response.success) {
@@ -125,6 +125,10 @@ const NotificationPanel = () => {
         localStorage.setItem('lastNotifications', JSON.stringify(newNotifications.slice(0, 10)));
       }
     } catch (error) {
+      if (retryCount < 2 && error.response?.status === 500) {
+        setTimeout(() => fetchNotifications(retryCount + 1), 3000);
+        return;
+      }
       console.error('Error fetching notifications:', error);
     }
   };
@@ -138,7 +142,7 @@ const NotificationPanel = () => {
     }
   };
 
-  const checkNewMessages = async () => {
+  const checkNewMessages = async (retryCount = 0) => {
     try {
       const response = await getUnreadCount();
       if (response.success) {
@@ -154,6 +158,10 @@ const NotificationPanel = () => {
         setMessageUnreadCount(newCount);
       }
     } catch (error) {
+      if (retryCount < 2 && error.response?.status === 500) {
+        setTimeout(() => checkNewMessages(retryCount + 1), 3000);
+        return;
+      }
       console.error('Error checking messages:', error);
     }
   };

@@ -508,7 +508,21 @@ export default function TempSupervisorPage() {
               ci.setHours(9, 0, 0, 0);
               rec.checkIn = { time: ci.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
             }
-            if (!rec.checkOut?.time) {
+            // تعويض الخروج للإجازات الساعية: إذا خرج قبل 4:00 يتم تعديله لـ 4:00
+            const isHourlyLeave = lvRef && lvRef.type === 'hourly';
+            if (isHourlyLeave && rec.checkOut?.time) {
+              const checkoutTime = new Date(rec.checkOut.time);
+              const checkoutMinutes = checkoutTime.getHours() * 60 + checkoutTime.getMinutes();
+              const workEndMinutes = 16 * 60; // 4:00 PM
+              if (checkoutMinutes < workEndMinutes) {
+                const adjustedCheckout = new Date(rec.date);
+                adjustedCheckout.setHours(16, 0, 0, 0);
+                rec._originalCheckOut = rec.checkOut.time;
+                rec.checkOut = { time: adjustedCheckout.toISOString(), status: 'on_time', notes: 'تعويض لإجازة ساعية' };
+                rec._hourlyLeaveCompensated = true;
+                rec._compensationNote = `تم تعويض الخروج من ${safeTime(rec._originalCheckOut)} إلى 16:00 (إجازة ساعية)`;
+              }
+            } else if (!rec.checkOut?.time) {
               const co = new Date(rec.date);
               co.setHours(16, 0, 0, 0);
               rec.checkOut = { time: co.toISOString(), status: 'on_time', notes: 'تعويض بإجازة' };
@@ -1280,8 +1294,13 @@ export default function TempSupervisorPage() {
                       rowBg = 'bg-red-600/20 border-r-4 border-r-red-500';
                       statusDisplay = null;
                     } else if (compensated) {
-                      notes = `✅ تم تعويض النقص بإجازة ${leaveTypeLabel || ''}`;
-                      rowBg = 'bg-green-400/10 border-r-4 border-r-green-400';
+                      if (r._hourlyLeaveCompensated && r._compensationNote) {
+                        notes = `⏰ ${r._compensationNote}`;
+                        rowBg = 'bg-yellow-400/10 border-r-4 border-r-yellow-400';
+                      } else {
+                        notes = `✅ تم تعويض النقص بإجازة ${leaveTypeLabel || ''}`;
+                        rowBg = 'bg-green-400/10 border-r-4 border-r-green-400';
+                      }
                       statusDisplay = statusDisplay || 'on_leave';
                       if (!r.status) r.status = 'on_leave';
                     } else if (r.isMissing) {
@@ -1315,7 +1334,7 @@ export default function TempSupervisorPage() {
                         <td className={`p-3 ${diffClasses} ${lateArrival > 0 ? 'text-red-400' : 'text-gray-500'}`} data-label="تأخر الدخول">{lateArrival > 0 ? fmtMin(lateArrival) : '---'}</td>
                         <td className={`p-3 ${diffClasses} ${earlyDeparture > 0 ? 'text-yellow-400' : 'text-gray-500'}`} data-label="خروج مبكر">{earlyDeparture > 0 ? fmtMin(earlyDeparture) : '---'}</td>
                         <td className="p-3" data-label="إضافي">{r.overtime ? `${r.overtime.toFixed(1)} س` : '-'}</td>
-                        <td className="p-3 text-xs" data-label="ملاحظات" style={{ color: holiday ? '#ef4444' : compensated ? '#4ade80' : r._isWeeklyHoliday ? '#60a5fa' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
+                        <td className="p-3 text-xs" data-label="ملاحظات" style={{ color: holiday ? '#ef4444' : r._hourlyLeaveCompensated ? '#facc15' : compensated ? '#4ade80' : r._isWeeklyHoliday ? '#60a5fa' : r.isMissing ? '#a855f7' : '#fb923c' }}>{notes}</td>
                       </tr>
                     );
                   })}

@@ -153,8 +153,8 @@ const ApproveLeaves = () => {
                       <p className="text-xs text-gray-500 mt-1">
                         {formatDate(req.startDate)} → {formatDate(req.endDate)}
                         <span className="mx-1">·</span>
-                        {req.days} يوم
-                        {req.days >= 3 && (
+                        {req.type === 'hourly' ? `${req.hours} ساعات` : `${req.days} يوم`}
+                        {req.type !== 'hourly' && req.days >= 3 && (
                           <span className="mr-2 text-orange-600 font-medium">
                             (٣ أيام فأكثر - ستحتاج موافقة المدير العام بعدك)
                           </span>

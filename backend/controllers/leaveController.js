@@ -360,7 +360,7 @@ const createLeaveRequest = async (req, res) => {
 
     if (computedStartDate && computedEndDate && computedDays > 0) {
       leaveRequest.days = computedDays;
-    } else if (computedStartDate && computedEndDate && type !== 'development') {
+    } else if (computedStartDate && computedEndDate && type !== 'development' && type !== 'hourly') {
       leaveRequest.calculateDays();
     }
     if (computedHours > 0) leaveRequest.hours = computedHours;
@@ -369,8 +369,11 @@ const createLeaveRequest = async (req, res) => {
       const bal = await LeaveRequest.checkLeaveBalance(employeeId, type);
       if (type === 'annual' && leaveRequest.days > bal.remainingBalance)
         return res.status(400).json({ success: false, message: 'رصيد الإجازات غير كافٍ. المتاح: ' + bal.remainingBalance + ' أيام' });
-      if (type === 'hourly' && leaveRequest.hours > bal.remainingHours)
-        return res.status(400).json({ success: false, message: 'لا يمكن تجاوز ساعات الرصيد السنوي. المتبقي: ' + bal.remainingHours + ' ساعة' });
+      if (type === 'hourly') {
+        const totalAvailableHours = (bal.remainingBalance * 7) + bal.remainingHours;
+        if (leaveRequest.hours > totalAvailableHours)
+          return res.status(400).json({ success: false, message: 'لا يمكن تجاوز الرصيد. المتاح: ' + bal.remainingBalance + ' يوم و ' + bal.remainingHours + ' ساعة' });
+      }
     }
 
     if (startDate && type !== 'fingerprint_forgotten' && type !== 'development') {

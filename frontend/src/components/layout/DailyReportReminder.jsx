@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDailyReportStatus } from '../../services/dailyReportService';
+import { getStoredUser } from '../../services/authService';
 import { playNotificationSound } from '../../utils/audioUtils';
 
 const REMINDER_HOUR = 15;
@@ -9,10 +10,13 @@ const CHECK_INTERVAL = 60000;
 
 const DailyReportReminder = () => {
   const navigate = useNavigate();
+  const user = getStoredUser();
   const notifiedTodayRef = useRef(false);
   const checkedTodayRef = useRef('');
 
   const checkAndNotify = useCallback(async () => {
+    if (user?.role === 'general_manager' || user?.role === 'admin') return;
+
     const now = new Date();
     const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 
@@ -59,7 +63,7 @@ const DailyReportReminder = () => {
     } catch (error) {
       console.error('Daily report reminder check error:', error);
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   useEffect(() => {
     notifiedTodayRef.current = false;
