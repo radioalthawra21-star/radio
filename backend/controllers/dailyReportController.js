@@ -462,53 +462,6 @@ exports.deleteReport = async (req, res) => {
   }
 };
 
-exports.getReportsByDate = async (req, res) => {
-  try {
-    const { date, page = 1, limit = 50 } = req.query;
-    const role = req.user.role?.toLowerCase();
-    if (role !== 'admin' && role !== 'hr' && role !== 'developer') {
-      return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول' });
-    }
-
-    let filter = {};
-    if (date) {
-      const { today, tomorrow } = getDateRange(date);
-      filter.date = { $gte: today, $lt: tomorrow };
-    }
-
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 50));
-    const skip = (parseInt(page) - 1) * limitNum;
-
-    const [reports, total] = await Promise.all([
-      DailyReport.find(filter)
-        .populate('userId', 'name department role jobTitle')
-        .sort({ date: -1 })
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-      DailyReport.countDocuments(filter)
-    ]);
-
-    const normalized = reports.map(r => ({
-      ...r,
-      department: normalizeDeptName(r.department || r.userId?.department || '')
-    }));
-
-    res.json({
-      success: true,
-      data: {
-        reports: normalized,
-        total,
-        page: parseInt(page),
-        pages: Math.ceil(total / limitNum)
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching reports by date:', error);
-    res.status(500).json({ success: false, message: 'خطأ في جلب التقارير' });
-  }
-};
-
 exports.getMyReports = async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;

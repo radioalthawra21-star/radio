@@ -387,18 +387,7 @@ const DailyReport = () => {
           </div>
         </Card>
 
-        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <button type="button" onClick={() => setIsOnVacation(!isOnVacation)}
-            className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none ${isOnVacation ? 'bg-amber-500' : 'bg-gray-300'}`}>
-            <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${isOnVacation ? 'translate-x-7' : 'translate-x-1'}`} />
-          </button>
-          <div>
-            <span className="text-sm font-semibold text-gray-800">إجازة</span>
-            <p className="text-xs text-gray-500">علم هذا اليوم كإجازة - لن يتم طلب تقرير يومي</p>
-          </div>
-        </div>
-
-        {!isOnVacation && (<>
+        <>
         <Card>
           <div className="flex items-center justify-between mb-4 border-b pb-2">
             <h3 className="text-lg font-semibold text-gray-800">ملخص الإنجازات والمهام المكتملة</h3>
@@ -608,8 +597,7 @@ const DailyReport = () => {
             </div>
           </Card>
         )}
-
-        </>)}
+        </>
 
         <div className="flex justify-center gap-3">
           <button type="button" onClick={handleSaveDraft} disabled={savingDraft}

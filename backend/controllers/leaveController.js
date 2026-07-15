@@ -3,6 +3,7 @@ const { LeaveRequest, LeaveType, LeaveStatus } = require('../models/LeaveRequest
 
 const { User } = require('../models/User');
 const { Attendance } = require('../models/Attendance');
+const DailyReport = require('../models/DailyReport');
 const Department = require('../models/Department');
 
 const { Notification } = require('../models/Notification');
@@ -249,6 +250,34 @@ const approveWithPayrollSync = async (leaveRequest, req) => {
               department: leaveRequest.employee.department,
               status: 'on_leave', leave: leaveRequest._id,
               expectedHours: 7, duration: leaveRequest.isHalfDay ? 4 : 8,
+            }], { session });
+          }
+          
+          // Create DailyReport entry for approved leave day
+          const existingReport = await DailyReport.findOne({
+            userId: leaveRequest.employee._id,
+            date: { $gte: dayStart, $lt: dayEnd }
+          }).session(session);
+          
+          if (!existingReport) {
+            const arabicDayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            const reportDateStr = `${arabicDayNames[current.getDay()]} - ${current.getDate()}/${current.getMonth() + 1}/${current.getFullYear()}`;
+            
+            await DailyReport.create([{
+              userId: leaveRequest.employee._id,
+              date: new Date(current),
+              employeeName: leaveRequest.employee.name || '',
+              department: leaveRequest.employee.department || '',
+              jobTitle: leaveRequest.employee.jobTitle || '',
+              directManager: '',
+              reportDate: reportDateStr,
+              achievements: [],
+              priorities: { first: '', second: '', third: '' },
+              challenges: { obstacles: '', supportRequired: '' },
+              suggestions: { performanceVision: '' },
+              bestWork: { items: [] },
+              isOnVacation: true,
+              status: 'submitted'
             }], { session });
           }
         }

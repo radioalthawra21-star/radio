@@ -32,15 +32,9 @@ export const getMyReports = async (page = 1, limit = 20) => {
   return response.data;
 };
 
-export const getAdminTodaySummary = async () => {
-  const response = await api.get('/daily-report/admin/today-summary');
-  return response.data;
-};
-
-export const getReportsByDate = async (date, page = 1, limit = 50) => {
-  const params = { page, limit };
-  if (date) params.date = date;
-  const response = await api.get('/daily-report/admin/reports-by-date', { params });
+export const getAdminTodaySummary = async (date) => {
+  const params = date ? { date } : {};
+  const response = await api.get('/daily-report/admin/today-summary', { params });
   return response.data;
 };
 
