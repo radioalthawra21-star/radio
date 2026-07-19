@@ -208,6 +208,17 @@ const initializeData = async () => {
 
     // Seed default editorial prompts
     await Prompt.seedDefaults();
+
+    // Drop stale unique index on 'date' field from old Holiday schema
+    try {
+      const holidayCol = mongoose.connection.db.collection('holidays');
+      const indexes = await holidayCol.indexes();
+      const staleDateIndex = indexes.find(i => i.key && i.key.date === 1 && i.name === 'date_1');
+      if (staleDateIndex) {
+        await holidayCol.dropIndex('date_1');
+        console.log('✅ تم حذف الفهرس القديم date_1 من مجموعة holidays');
+      }
+    } catch (_) {}
   } catch (error) {
     console.error('خطأ في تهيئة البيانات:', error.message);
   }
@@ -313,11 +324,11 @@ const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0'; // مهم ليعمل على Render
 
 // دالة بدء التشغيل
-const startServer = () => {
+const startServer = async () => {
+  await initializeData();
   server.listen(PORT, HOST, () => {
     console.log(`✅ الخادم يعمل على ${HOST}:${PORT}`);
     console.log(`📌 Environment: ${process.env.NODE_ENV || 'development'}`);
-    initializeData();
   });
 };
 

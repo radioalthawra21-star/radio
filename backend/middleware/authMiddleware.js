@@ -114,7 +114,7 @@ const adminOnly = (req, res, next) => {
  */
 const managerOrAdmin = (req, res, next) => {
   const role = req.user?.role?.toLowerCase() || '';
-  if (isManagerLike(role) || isAdminLike(role) || isDev(role)) {
+  if (isManagerLike(role) || isAdminLike(role) || isDev(role) || isOfficeManagerLike(role)) {
     next();
   } else {
     return res.status(403).json({

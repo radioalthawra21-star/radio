@@ -16,6 +16,7 @@ const LEAVE_TYPES = [
 ];
 
 const STATUS_MAP = {
+  pending_office_manager: { label: 'بانتظار موافقة مدير المكتب', color: 'bg-blue-100 text-blue-800' },
   pending_manager: { label: 'بانتظار موافقة المدير', color: 'bg-yellow-100 text-yellow-800' },
   pending_general_manager: { label: 'بانتظار موافقة المدير العام', color: 'bg-orange-100 text-orange-800' },
   approved: { label: 'تمت الموافقة', color: 'bg-green-100 text-green-800' },
@@ -228,7 +229,7 @@ const LeaveRequest = () => {
     }
   };
 
-  const canCancel = (status) => ['pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(status);
+  const canCancel = (status) => ['pending_office_manager', 'pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(status);
 
   const canStop = (req) => ['approved', 'synced_to_payroll'].includes(req.status) && !req.stopRequested;
 

@@ -87,26 +87,42 @@ function normalizeDeptName(dept) {
 exports.getManager = async (req, res) => {
   try {
     const user = req.user;
-    if (user.role === 'manager') {
-      const generalManager = await User.findOne({
-        role: 'general_manager',
-        isActive: true
-      }).select('name').lean();
-      return res.json({
-        success: true,
-        data: { managerName: generalManager ? generalManager.name : '' }
-      });
+    const role = user.role;
+
+    // Top-level roles have no manager
+    if (['admin', 'developer', 'general_manager', 'administrator'].includes(role)) {
+      return res.json({ success: true, data: { managerName: '' } });
     }
 
+    // Manager → their manager is the general_manager or admin
+    if (role === 'manager' || role === 'department_manager') {
+      const gm = await User.findOne({
+        role: { $in: ['general_manager', 'admin'] },
+        isActive: true
+      }).select('name').lean();
+      return res.json({ success: true, data: { managerName: gm ? gm.name : '' } });
+    }
+
+    // HR → general_manager or admin
+    if (role === 'hr') {
+      const gm = await User.findOne({
+        role: { $in: ['general_manager', 'admin'] },
+        isActive: true
+      }).select('name').lean();
+      return res.json({ success: true, data: { managerName: gm ? gm.name : '' } });
+    }
+
+    // Employee, office_manager → department manager (exclude self)
     const userDept = user.department;
     if (!userDept) {
       return res.json({ success: true, data: { managerName: '' } });
     }
     const deptValues = getDeptValues(userDept);
     const manager = await User.findOne({
-      role: 'manager',
+      role: { $in: ['manager', 'department_manager'] },
       department: { $in: deptValues },
-      isActive: true
+      isActive: true,
+      _id: { $ne: user._id }
     }).select('name').lean();
     res.json({
       success: true,
@@ -179,7 +195,11 @@ exports.submitReport = async (req, res) => {
         description: a.description || '',
         target: a.target || '',
         status: a.status || 'in_progress',
-        completionPercentage: Math.min(100, Math.max(0, Number(a.completionPercentage) || 0))
+        completionPercentage: Math.min(100, Math.max(0, Number(a.completionPercentage) || 0)),
+        duration: {
+          hours: Math.max(0, Math.floor(Number(a.duration?.hours) || 0)),
+          minutes: Math.max(0, Math.min(59, Math.floor(Number(a.duration?.minutes) || 0)))
+        }
       })),
       priorities: isOnVacation ? { first: '', second: '', third: '' } : {
         first: req.body.priorities?.first || '',
@@ -204,13 +224,23 @@ exports.submitReport = async (req, res) => {
     const user = req.user;
     let mgrName = req.body.directManager || '';
     if (!mgrName && !isOnVacation) {
-      const deptValues = getDeptValues(user.department);
-      const manager = await User.findOne({
-        role: 'manager',
-        department: { $in: deptValues },
-        isActive: true
-      }).select('name').lean();
-      mgrName = manager ? manager.name : '';
+      const role = user.role;
+      if (['manager', 'department_manager', 'hr'].includes(role)) {
+        const gm = await User.findOne({
+          role: { $in: ['general_manager', 'admin'] },
+          isActive: true
+        }).select('name').lean();
+        mgrName = gm ? gm.name : '';
+      } else if (['employee', 'office_manager'].includes(role) && user.department) {
+        const deptValues = getDeptValues(user.department);
+        const manager = await User.findOne({
+          role: { $in: ['manager', 'department_manager'] },
+          department: { $in: deptValues },
+          isActive: true,
+          _id: { $ne: user._id }
+        }).select('name').lean();
+        mgrName = manager ? manager.name : '';
+      }
     }
     updateData.directManager = mgrName;
 
@@ -396,7 +426,8 @@ exports.exportEmployeeReports = async (req, res) => {
       { header: 'المعوقات', key: 'obstacles', width: 40 },
       { header: 'الدعم المطلوب', key: 'supportRequired', width: 40 },
       { header: 'رؤية الأداء', key: 'performanceVision', width: 40 },
-      { header: 'أفضل مواد (تقييم الخميس)', key: 'bestWork', width: 50 }
+      { header: 'نسبة الإكتمال', key: 'completionPercentage', width: 18 },
+      { header: 'مدة الإنجاز', key: 'duration', width: 20 },
     ];
 
     reports.forEach(r => {
@@ -416,6 +447,12 @@ exports.exportEmployeeReports = async (req, res) => {
         obstacles: r.challenges?.obstacles || '',
         supportRequired: r.challenges?.supportRequired || '',
         performanceVision: r.suggestions?.performanceVision || '',
+        completionPercentage: (r.achievements || []).map(a => a.completionPercentage + '%').join('\n'),
+        duration: (r.achievements || []).map(a => {
+          const h = a.duration?.hours || 0;
+          const m = a.duration?.minutes || 0;
+          return (h || m) ? `${h} س ${m} د` : '';
+        }).filter(Boolean).join('\n'),
         bestWork: (r.bestWork?.items || []).map(item =>
           `${item.title}${item.publishLink ? ' (' + item.publishLink + ')' : ''}`
         ).join('\n')

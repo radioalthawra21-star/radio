@@ -25,6 +25,7 @@ export const selfServiceRoutes = (
     <Route path="/timesheet/:employeeId" element={<ProtectedRoute><MonthlyTimesheet /></ProtectedRoute>} />
     <Route path="/leave-request" element={<ProtectedRoute><LeaveRequest /></ProtectedRoute>} />
     <Route path="/manager/approve-leaves" element={<ProtectedRoute allowedRoles={['manager']}><ApproveLeaves /></ProtectedRoute>} />
+    <Route path="/office-manager/approve-leaves" element={<ProtectedRoute allowedRoles={['office_manager']}><ApproveLeaves /></ProtectedRoute>} />
     <Route path="/daily-report" element={<ProtectedRoute><DailyReport /></ProtectedRoute>} />
   </>
 );

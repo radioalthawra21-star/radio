@@ -101,6 +101,9 @@ const AllEmployees = () => {
   const [officeForm, setOfficeForm] = useState({ name: '', department: '', description: '', employees: [] });
   const [officeLoading, setOfficeLoading] = useState(false);
   const [officeError, setOfficeError] = useState('');
+  const [showPromoteModal, setShowPromoteModal] = useState(false);
+  const [promoteEmployee, setPromoteEmployee] = useState(null);
+  const [selectedOfficeId, setSelectedOfficeId] = useState('');
 
   const [recruitmentSubTab, setRecruitmentSubTab] = useState('jobs');
   const [performanceSubTab, setPerformanceSubTab] = useState('reviews');
@@ -441,12 +444,17 @@ const AllEmployees = () => {
   const [assignLoading, setAssignLoading] = useState('');
 
   const handleToggleRole = async (emp) => {
-    const newRole = emp.role === 'employee' ? 'office_manager' : 'employee';
-    const label = newRole === 'office_manager' ? 'مدير مكتب' : 'موظف';
-    if (!confirm(`هل تريد تغيير دور "${emp.name}" إلى ${label}؟`)) return;
+    if (emp.role === 'employee') {
+      setPromoteEmployee(emp);
+      setSelectedOfficeId('');
+      setShowPromoteModal(true);
+      return;
+    }
+    const label = 'موظف';
+    if (!confirm(`هل تريد إرجاع "${emp.name}" إلى ${label}؟`)) return;
     try {
       setAssignLoading(emp._id);
-      const res = await updateUser(emp._id, { role: newRole });
+      const res = await updateUser(emp._id, { role: 'employee' });
       if (res.success) {
         setSuccess(`تم تغيير دور ${emp.name} إلى ${label}`);
         fetchData();
@@ -457,6 +465,30 @@ const AllEmployees = () => {
       alert(err.response?.data?.message || 'حدث خطأ');
     } finally {
       setAssignLoading('');
+    }
+  };
+
+  const handleConfirmPromote = async () => {
+    if (!promoteEmployee) return;
+    if (!selectedOfficeId) {
+      alert('يرجى اختيار مكتب');
+      return;
+    }
+    try {
+      setAssignLoading(promoteEmployee._id);
+      setShowPromoteModal(false);
+      const res = await updateUser(promoteEmployee._id, { role: 'office_manager', officeId: selectedOfficeId });
+      if (res.success) {
+        setSuccess(`تم تعيين ${promoteEmployee.name} كمدير مكتب`);
+        fetchData();
+      } else {
+        alert(res.message || 'حدث خطأ');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'حدث خطأ');
+    } finally {
+      setAssignLoading('');
+      setPromoteEmployee(null);
     }
   };
 
@@ -1079,6 +1111,54 @@ const AllEmployees = () => {
         onClose={() => { setShowOfficeModal(false); setEditingOffice(null); }}
         employees={employees}
       />
+
+      {showPromoteModal && promoteEmployee && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 md:p-4 modal-overlay">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-2 md:mx-4 modal-content p-6">
+            <h2 className="text-xl font-bold text-dark mb-2">تعيين كمدير مكتب</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              اختر المكتب الذي سيديره <strong>{promoteEmployee.name}</strong>
+            </p>
+            <div className="mb-4">
+              <label className="label">المكتب</label>
+              <select
+                value={selectedOfficeId}
+                onChange={(e) => setSelectedOfficeId(e.target.value)}
+                className="input min-h-[48px]"
+              >
+                <option value="">— اختر مكتب —</option>
+                {offices
+                  .filter(o => o.department === promoteEmployee.department)
+                  .map(office => (
+                    <option key={office._id} value={office._id}>
+                      {office.name}
+                    </option>
+                  ))}
+              </select>
+              {offices.filter(o => o.department === promoteEmployee.department).length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  لا يوجد مكاتب في قسم "{promoteEmployee.department}" — يُرجى إنشاء مكتب أولاً
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+              <button
+                onClick={handleConfirmPromote}
+                disabled={!selectedOfficeId || assignLoading === promoteEmployee._id}
+                className="btn btn-primary flex-1 min-h-[48px] disabled:opacity-50"
+              >
+                {assignLoading === promoteEmployee._id ? 'جاري التعيين...' : 'تأكيد التعيين'}
+              </button>
+              <button
+                onClick={() => { setShowPromoteModal(false); setPromoteEmployee(null); }}
+                className="btn btn-outline flex-1 min-h-[48px]"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

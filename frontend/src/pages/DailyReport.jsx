@@ -26,7 +26,8 @@ const emptyAchievement = () => ({
   description: '',
   target: '',
   status: 'in_progress',
-  completionPercentage: 0
+  completionPercentage: 0,
+  duration: { hours: 0, minutes: 0 }
 });
 
 const DailyReport = () => {
@@ -401,7 +402,7 @@ const DailyReport = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-[600px]">
+            <table className="w-full border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="text-right p-2 border text-sm font-medium text-gray-600">#</th>
@@ -410,6 +411,7 @@ const DailyReport = () => {
                   <th className="text-right p-2 border text-sm font-medium text-gray-600">المستهدف</th>
                   <th className="text-right p-2 border text-sm font-medium text-gray-600">حالة الإنجاز</th>
                   <th className="text-right p-2 border text-sm font-medium text-gray-600">نسبة الاكتمال</th>
+                  <th className="text-right p-2 border text-sm font-medium text-gray-600">مدة الإنجاز</th>
                   <th className="text-center p-2 border text-sm font-medium text-gray-600 w-12"></th>
                 </tr>
               </thead>
@@ -456,6 +458,18 @@ const DailyReport = () => {
                           onChange={(e) => updateAchievement(a._tempId, 'completionPercentage', parseInt(e.target.value))}
                           className={`flex-1 h-2 ${a.status === 'completed' ? 'accent-green-500' : 'accent-primary'}`} />
                         <span className={`text-sm font-medium min-w-[40px] text-center en-num ltr ${a.status === 'completed' ? 'text-green-600' : 'text-gray-700'}`}>{a.completionPercentage}%</span>
+                      </div>
+                    </td>
+                    <td className="p-2 border align-top">
+                      <div className="flex items-center gap-1">
+                        <input type="number" min="0" max="23" value={a.duration?.hours || 0}
+                          onChange={(e) => updateAchievement(a._tempId, 'duration', { ...a.duration, hours: parseInt(e.target.value) || 0 })}
+                          className="w-14 p-2 border border-gray-200 rounded text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary en-num ltr" />
+                        <span className="text-xs text-gray-500">س</span>
+                        <input type="number" min="0" max="59" value={a.duration?.minutes || 0}
+                          onChange={(e) => updateAchievement(a._tempId, 'duration', { ...a.duration, minutes: parseInt(e.target.value) || 0 })}
+                          className="w-14 p-2 border border-gray-200 rounded text-sm text-center focus:ring-2 focus:ring-primary/20 focus:border-primary en-num ltr" />
+                        <span className="text-xs text-gray-500">د</span>
                       </div>
                     </td>
                     <td className="p-2 border text-center">
@@ -831,6 +845,7 @@ const DailyReport = () => {
                           <th className="text-right p-2 border text-sm font-medium text-gray-600">المستهدف</th>
                           <th className="text-right p-2 border text-sm font-medium text-gray-600">الحالة</th>
                           <th className="text-center p-2 border text-sm font-medium text-gray-600">الإكتمال</th>
+                          <th className="text-right p-2 border text-sm font-medium text-gray-600">المدة</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -859,6 +874,7 @@ const DailyReport = () => {
                                 <span className="text-xs text-gray-600 en-num ltr">{a.completionPercentage}%</span>
                               </div>
                             </td>
+                            <td className="p-2 border text-sm text-gray-600">{(a.duration?.hours || a.duration?.minutes) ? `${a.duration.hours || 0} س ${a.duration.minutes || 0} د` : '-'}</td>
                           </tr>
                         ))}
                       </tbody>

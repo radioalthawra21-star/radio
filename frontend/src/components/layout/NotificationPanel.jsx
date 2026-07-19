@@ -4,6 +4,7 @@ import { getMyNotifications, markAsRead, markAllAsRead } from '../../services/no
 import { getUnreadCount } from '../../services/messageService';
 import { playTaskAssignedSound, playRoleChangeSound, playNotificationSound, playMessageSound } from '../../utils/audioUtils';
 import { formatDateTimeArabic } from '../../utils/dateUtils';
+import { getStoredUser } from '../../services/authService';
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -192,8 +193,15 @@ const NotificationPanel = () => {
       case 'new_user_registered': navigate('/admin/employees'); break;
       case 'new_message': navigate('/messages'); break;
       case 'role_change': navigate('/'); break;
+      case 'employee_updated':
+      case 'employee_department_transfer': navigate('/admin/employees'); break;
       case 'leave_requested':
-      case 'leave_cancelled': navigate('/manager/approve-leaves'); break;
+      case 'leave_cancelled': {
+        const storedUser = getStoredUser();
+        if (storedUser?.role === 'office_manager') navigate('/office-manager/approve-leaves');
+        else navigate('/manager/approve-leaves');
+        break;
+      }
       case 'leave_approved':
       case 'leave_rejected': navigate('/leave-request'); break;
       case 'leave_pending_gm':

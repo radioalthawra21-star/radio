@@ -12,6 +12,35 @@ const Department = require('../models/Department');
 const Office = require('../models/Office');
 
 /**
+ * Notify department manager about an employee change
+ * Only notifies when the action is done by admin/general_manager/hr (not by the manager themselves)
+ */
+const notifyDepartmentManager = async (employee, type, title, message, requesterRole) => {
+  try {
+    if (!employee || !employee.department) return;
+    if (!global.io) return;
+
+    if (['manager', 'office_manager'].includes(requesterRole)) return;
+
+    const deptDoc = await Department.findById(employee.department).catch(() => null)
+      || await Department.findOne({ name: employee.department }).catch(() => null);
+    const deptValues = [employee.department];
+    if (deptDoc) {
+      deptValues.push(deptDoc._id.toString());
+      deptValues.push(deptDoc.name);
+    }
+
+    const manager = await User.findOne({ role: 'manager', department: { $in: deptValues }, isActive: true });
+    if (!manager) return;
+
+    const notif = await Notification.createNotification(manager._id, type, title, message);
+    try { global.io.to(manager._id.toString()).emit('notification', notif); } catch (e) {}
+  } catch (e) {
+    console.error('notifyDepartmentManager error:', e.message);
+  }
+};
+
+/**
  * Get all employees
  * GET /api/users/employees
  */
@@ -226,6 +255,23 @@ const createUser = async (req, res) => {
       isActive: true
     });
 
+    // Notify department manager about new employee
+    try {
+      const roleNamesCreate = {
+        [UserRole.EMPLOYEE]: 'موظف', [UserRole.OFFICE_MANAGER]: 'مدير مكتب',
+        [UserRole.MANAGER]: 'مدير', [UserRole.HR]: 'مسؤول الموارد البشرية',
+        [UserRole.DEVELOPER]: 'مطور', [UserRole.GENERAL_MANAGER]: 'المدير العام',
+        [UserRole.ADMINISTRATOR]: 'المسؤول'
+      };
+      const deptName = department ? (await Department.findById(department).catch(() => null))?.name || department : 'غير محدد';
+      await notifyDepartmentManager(
+        user, NotificationType.EMPLOYEE_UPDATED,
+        'موظف جديد في القسم',
+        `قام ${req.user.name} بإضافة موظف جديد "${user.name}" في قسم ${deptName} بدور ${roleNamesCreate[user.role] || user.role}`,
+        req.user.role
+      );
+    } catch (e) { console.error('New employee notification error:', e.message); }
+
     res.status(201).json({
       success: true,
       message: 'تم إنشاء المستخدم بنجاح',
@@ -248,7 +294,7 @@ const createUser = async (req, res) => {
  */
 const updateUser = async (req, res) => {
   try {
-    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username, jobTitle, supervisedBy } = req.body;
+    const { name, phone, department, role, isActive, baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime, socialInsurance, tax, otherDeductions, hoursShortfall, username, jobTitle, supervisedBy, officeId } = req.body;
     
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -270,6 +316,7 @@ const updateUser = async (req, res) => {
     }
 
     const previousRole = user.role;
+    const previousDepartment = user.department;
     let roleChanged = false;
 
     // Validate financial fields are non-negative
@@ -375,6 +422,32 @@ const updateUser = async (req, res) => {
           { manager: user._id },
           { $set: { manager: null } }
         );
+      }
+
+      // If promoting to office_manager with an office selected, assign them as office manager
+      if (role === UserRole.OFFICE_MANAGER && officeId) {
+        const office = await Office.findById(officeId);
+        if (office) {
+          // Validate office belongs to the same department as the user
+          const userDept = department || user.department;
+          if (userDept && office.department === userDept) {
+            // Remove this user from any other office they might be managing
+            await Office.updateMany(
+              { manager: user._id },
+              { $set: { manager: null } }
+            );
+            // Assign as manager of selected office
+            office.manager = user._id;
+            await office.save();
+            // Set supervisedBy for all employees in this office
+            if (office.employees && office.employees.length > 0) {
+              await User.updateMany(
+                { _id: { $in: office.employees } },
+                { $set: { supervisedBy: user._id } }
+              );
+            }
+          }
+        }
       }
     }
     if (isActive !== undefined) user.isActive = isActive;
@@ -508,6 +581,49 @@ const updateUser = async (req, res) => {
       );
     }
 
+    // Notify department manager about changes made by admin/general_manager/hr
+    try {
+      const changes = [];
+      if (roleChanged) {
+        const roleNamesNotify = {
+          [UserRole.ADMIN]: 'المدير العام', [UserRole.MANAGER]: 'المدير',
+          [UserRole.EMPLOYEE]: 'موظف', [UserRole.OFFICE_MANAGER]: 'مدير مكتب',
+          [UserRole.HR]: 'مسؤول الموارد البشرية', [UserRole.DEVELOPER]: 'مطور',
+          [UserRole.GENERAL_MANAGER]: 'المدير العام', [UserRole.ADMINISTRATOR]: 'المسؤول'
+        };
+        changes.push(`الدور: ${roleNamesNotify[previousRole] || previousRole} ← ${roleNamesNotify[role] || role}`);
+      }
+      if (department !== undefined && department !== previousDepartment) {
+        const deptOld = await Department.findById(previousDepartment).catch(() => null);
+        const deptNew = await Department.findById(department).catch(() => null);
+        changes.push(`القسم: ${deptOld?.name || previousDepartment || 'غير محدد'} ← ${deptNew?.name || department || 'غير محدد'}`);
+      }
+      const salaryFieldsCheck = { baseSalary, housingAllowance, transportAllowance, otherAllowances, bonus, overtime };
+      for (const [key, val] of Object.entries(salaryFieldsCheck)) {
+        if (val !== undefined) { changes.push(`الرواتب/البدلات تم تعديلها`); break; }
+      }
+      if (isActive !== undefined && isActive !== user.isActive) {
+        changes.push(`الحالة: ${isActive ? 'تفعيل' : 'تعطيل'}`);
+      }
+      if (supervisedBy !== undefined) {
+        changes.push('تم تعديل مدير المكتب المعين');
+      }
+      if (jobTitle !== undefined && jobTitle !== user.jobTitle) {
+        changes.push(`المسمى الوظيفي: ${jobTitle || 'غير محدد'}`);
+      }
+      if (changes.length > 0) {
+        const notifType = (department !== undefined && department !== previousDepartment)
+          ? NotificationType.EMPLOYEE_DEPARTMENT_TRANSFER
+          : NotificationType.EMPLOYEE_UPDATED;
+        await notifyDepartmentManager(
+          user, notifType,
+          'تعديل بيانات موظف',
+          `قام ${req.user.name} بتعديل بيانات الموظف "${user.name}": ${changes.join(' | ')}`,
+          currentRole
+        );
+      }
+    } catch (e) { console.error('Department manager notification error:', e.message); }
+
     res.json({
       success: true,
       message: 'تم تحديث المستخدم بنجاح',
@@ -549,6 +665,16 @@ const deleteUser = async (req, res) => {
     }
 
     await user.deleteOne();
+
+    // Notify department manager about deleted employee
+    try {
+      await notifyDepartmentManager(
+        user, NotificationType.EMPLOYEE_UPDATED,
+        'حذف موظف من القسم',
+        `قام ${req.user.name} بحذف الموظف "${user.name}" من القسم`,
+        req.user.role
+      );
+    } catch (e) { console.error('Delete employee notification error:', e.message); }
 
     res.json({
       success: true,
@@ -809,6 +935,16 @@ const activateUser = async (req, res) => {
     user.isActive = true;
     await user.save();
 
+    // Notify department manager about account activation
+    try {
+      await notifyDepartmentManager(
+        user, NotificationType.EMPLOYEE_UPDATED,
+        'تفعيل حساب موظف',
+        `قام ${req.user.name} بتفعيل حساب الموظف "${user.name}"`,
+        req.user.role
+      );
+    } catch (e) { console.error('Activate user notification error:', e.message); }
+
     res.json({
       success: true,
       message: 'تم تفعيل الحساب بنجاح',
@@ -1010,6 +1146,21 @@ const assignToOfficeManager = async (req, res) => {
       results.push({ _id: employee._id, name: employee.name, supervisedBy: officeManagerId });
     }
 
+    // Notify department manager about assignment (for admin/hr actions)
+    if (results.length > 0) {
+      try {
+        const firstEmp = await User.findById(results[0]._id);
+        if (firstEmp) {
+          await notifyDepartmentManager(
+            firstEmp, NotificationType.EMPLOYEE_UPDATED,
+            'تعيين موظفين لمدير مكتب',
+            `قام ${req.user.name} بتعيين ${results.length} موظف(ين) لمدير المكتب "${officeManager.name}"`,
+            req.user.role
+          );
+        }
+      } catch (e) { console.error('Assign office manager notification error:', e.message); }
+    }
+
     res.json({
       success: true,
       message: `تم تعيين ${results.length} موظف(ين) لمدير المكتب`,
@@ -1090,6 +1241,21 @@ const transferOfficeManager = async (req, res) => {
       employee.supervisedBy = toOfficeManagerId;
       await employee.save();
       results.push({ _id: employee._id, name: employee.name, supervisedBy: toOfficeManagerId });
+    }
+
+    // Notify department manager about transfer (for admin/hr actions)
+    if (results.length > 0) {
+      try {
+        const firstEmp = await User.findById(results[0]._id);
+        if (firstEmp) {
+          await notifyDepartmentManager(
+            firstEmp, NotificationType.EMPLOYEE_UPDATED,
+            'نقل موظفين بين المكاتب',
+            `قام ${req.user.name} بنقل ${results.length} موظف(ين) من مكتب إلى مكتب آخر`,
+            req.user.role
+          );
+        }
+      } catch (e) { console.error('Transfer office manager notification error:', e.message); }
     }
 
     res.json({

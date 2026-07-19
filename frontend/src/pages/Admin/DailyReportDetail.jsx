@@ -210,6 +210,7 @@ const DailyReportDetail = () => {
                   <th className="p-3 border text-sm font-medium text-gray-600">المستهدف</th>
                   <th className="p-3 border text-sm font-medium text-gray-600">الحالة</th>
                   <th className="p-3 border text-sm font-medium text-gray-600">نسبة الإنجاز</th>
+                  <th className="p-3 border text-sm font-medium text-gray-600">المدة</th>
                 </tr>
               </thead>
               <tbody>
@@ -237,6 +238,7 @@ const DailyReportDetail = () => {
                         <span className="text-sm font-medium text-gray-700 min-w-[40px] text-center">{a.completionPercentage}%</span>
                       </div>
                     </td>
+                    <td className="p-3 border text-sm text-gray-600">{(a.duration?.hours || a.duration?.minutes) ? `${a.duration.hours || 0} س ${a.duration.minutes || 0} د` : '-'}</td>
                   </tr>
                 ))}
               </tbody>

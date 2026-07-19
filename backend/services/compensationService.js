@@ -88,7 +88,7 @@ const checkFinancialOverlap = async (employeeId, startDate, endDate, excludeId =
   const conflicts = [];
 
   // Status filter: exclude draft/cancelled/rejected
-  const activeStatuses = { '$in': ['pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'] };
+  const activeStatuses = { '$in': ['pending_office_manager', 'pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'] };
 
   // 1) Check overlapping leave requests (all types)
   const leaveQuery = { employee: employeeId, status: activeStatuses };

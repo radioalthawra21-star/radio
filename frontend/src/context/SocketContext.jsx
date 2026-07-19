@@ -130,6 +130,8 @@ export const SocketProvider = ({ children }) => {
           break;
         case 'role_change':
         case 'reward':
+        case 'employee_updated':
+        case 'employee_department_transfer':
           playRoleChangeSound();
           break;
         default:

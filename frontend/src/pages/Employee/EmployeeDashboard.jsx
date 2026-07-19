@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getMyTasks, getDailySummary } from '../../services/taskService';
+import { getMyTasks } from '../../services/taskService';
 import { getStoredUser } from '../../services/authService';
 import { getWeeklyHours } from '../../services/attendanceService';
 import Card from '../../components/common/Card';
@@ -29,16 +29,21 @@ const EmployeeDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [tasksRes, summaryRes, weeklyRes] = await Promise.allSettled([
+      const [tasksRes, weeklyRes] = await Promise.allSettled([
         getMyTasks(),
-        getDailySummary(),
         getWeeklyHours(),
       ]);
       if (tasksRes.status === 'fulfilled' && tasksRes.value?.success) {
-        setTasks(tasksRes.value.data.tasks.slice(0, 5));
-      }
-      if (summaryRes.status === 'fulfilled' && summaryRes.value?.success) {
-        setSummary(summaryRes.value.data.summary);
+        const allTasks = tasksRes.value.data.tasks || [];
+        setTasks(allTasks.slice(0, 5));
+        setSummary({
+          total: allTasks.length,
+          completed: allTasks.filter(t =>
+            t.status === 'completed' || t.status === 'approved' || t.status === 'final_approved'
+          ).length,
+          inProgress: allTasks.filter(t => t.status === 'in_progress').length,
+          pending: allTasks.filter(t => t.status === 'pending').length,
+        });
       }
       if (weeklyRes.status === 'fulfilled' && weeklyRes.value?.success) {
         setWeeklyHours(weeklyRes.value.data);

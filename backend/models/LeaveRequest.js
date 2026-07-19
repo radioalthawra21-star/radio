@@ -25,6 +25,7 @@ const LeaveType = {
 
 const LeaveStatus = {
   DRAFT: 'draft',
+  PENDING_OFFICE_MANAGER: 'pending_office_manager',
   PENDING_MANAGER: 'pending_manager',
   PENDING_GENERAL_MANAGER: 'pending_general_manager',
   APPROVED: 'approved',
@@ -170,7 +171,7 @@ leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leave
     const weekLeaves = await this.find({
       employee: employeeId,
       type: 'development',
-      status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.SYNCED_TO_PAYROLL, LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER] },
+      status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.SYNCED_TO_PAYROLL, LeaveStatus.PENDING_OFFICE_MANAGER, LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER] },
       startDate: { '$gte': monday, '$lte': sunday },
     });
 
@@ -246,7 +247,7 @@ leaveRequestSchema.statics.checkLeaveBalance = async function (employeeId, leave
 leaveRequestSchema.statics.getOverlappingLeaves = async function (employeeId, startDate, endDate, excludeId = null) {
   const query = {
     employee: employeeId,
-    status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER, LeaveStatus.SYNCED_TO_PAYROLL] },
+    status: { '$in': [LeaveStatus.APPROVED, LeaveStatus.PENDING_OFFICE_MANAGER, LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER, LeaveStatus.SYNCED_TO_PAYROLL] },
     '$or': [{ startDate: { '$lte': endDate }, endDate: { '$gte': startDate } }],
   };
   if (excludeId) query._id = { '$ne': excludeId };

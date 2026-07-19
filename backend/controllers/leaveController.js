@@ -55,6 +55,25 @@ const notifyManager = async (employeeId, leaveRequest) => {
   } catch (e) { console.error('notifyManager error:', e.message); return false; }
 };
 
+const notifyOfficeManager = async (employeeId, leaveRequest) => {
+  try {
+    const employee = await User.findById(employeeId);
+    if (!employee || !employee.supervisedBy) return false;
+
+    const officeManager = await User.findOne({ _id: employee.supervisedBy, role: 'office_manager', isActive: true });
+    if (!officeManager) return false;
+
+    const notif = await Notification.createNotification(
+      officeManager._id, NotificationType.LEAVE_REQUESTED,
+      'طلب إجازة جديد',
+      `تقديم ${employee.name} بطلب ${leaveLabel(leaveRequest.type)}${leaveRequest.startDate ? ' من ' + leaveRequest.startDate.toLocaleDateString('ar-EG') : ''}${leaveRequest.endDate ? ' إلى ' + leaveRequest.endDate.toLocaleDateString('ar-EG') : ''}`,
+      leaveRequest._id
+    );
+    emitSocket(officeManager._id, notif);
+    return true;
+  } catch (e) { console.error('notifyOfficeManager error:', e.message); return false; }
+};
+
 const notifyAdmin = async (leaveRequest, approvedInfo) => {
   try {
     const admins = await User.find({ role: { $in: ['admin', 'hr'] }, isActive: true });
@@ -412,11 +431,16 @@ const createLeaveRequest = async (req, res) => {
         return res.status(400).json({ success: false, message: overlap.conflicts.map(c => c.reason).join('; ') });
     }
 
-    // Hajj and leaves >= 3 days go directly to GM
+    // Hajj goes directly to GM
     if (type === 'hajj') {
       leaveRequest.status = LeaveStatus.PENDING_GENERAL_MANAGER;
       await leaveRequest.save();
       await notifyAdmin(leaveRequest);
+    } else if (employee.supervisedBy) {
+      // Employee has an office manager → office manager approves first
+      leaveRequest.status = LeaveStatus.PENDING_OFFICE_MANAGER;
+      await leaveRequest.save();
+      await notifyOfficeManager(employeeId, leaveRequest);
     } else {
       leaveRequest.status = LeaveStatus.PENDING_MANAGER;
       await leaveRequest.save();
@@ -446,9 +470,28 @@ const updateLeaveRequestStatus = async (req, res) => {
 
     const prevStatus = leaveRequest.status;
     const isManager = req.user.role === 'manager';
+    const isOfficeManager = req.user.role === 'office_manager';
     const isAdmin = req.user.role === 'admin' || req.user.role === 'hr';
 
     if (status === LeaveStatus.REJECTED) {
+      if (isOfficeManager && leaveRequest.status === LeaveStatus.PENDING_OFFICE_MANAGER) {
+        const empDoc = await User.findById(leaveRequest.employee._id || leaveRequest.employee).select('supervisedBy');
+        if (!empDoc || empDoc.supervisedBy?.toString() !== req.user._id.toString())
+          return res.status(403).json({ success: false, message: 'غير مصرح لك' });
+        leaveRequest.status = LeaveStatus.REJECTED;
+        leaveRequest.rejectionReason = rejectionReason || '';
+        leaveRequest.approvedBy = req.user._id;
+        leaveRequest.approvedAt = new Date();
+        await leaveRequest.save();
+        const rejectNotif = await Notification.createNotification(
+          leaveRequest.employee._id, NotificationType.LEAVE_REJECTED,
+          'تم رفض طلب الإجازة',
+          `تم رفض طلب ${leaveLabel(leaveRequest.type)} من قبل مدير المكتب${rejectionReason ? '. السبب: ' + rejectionReason : ''}`,
+          leaveRequest._id
+        );
+        emitSocket(leaveRequest.employee._id, rejectNotif);
+        return res.json({ success: true, message: 'تم الرفض', data: { leaveRequest } });
+      }
       if (isManager || isAdmin) {
         if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER) {
           const deptDoc = await Department.findById(req.user.department).catch(() => null)
@@ -483,6 +526,34 @@ const updateLeaveRequestStatus = async (req, res) => {
     }
 
     if (status === LeaveStatus.APPROVED) {
+      // Office manager approves → goes to department manager
+      if (isOfficeManager && leaveRequest.status === LeaveStatus.PENDING_OFFICE_MANAGER) {
+        const empDoc = await User.findById(leaveRequest.employee._id || leaveRequest.employee).select('supervisedBy department');
+        if (!empDoc || empDoc.supervisedBy?.toString() !== req.user._id.toString())
+          return res.status(403).json({ success: false, message: 'غير مصرح لك - هذا الموظف ليس تابعاً لك' });
+
+        leaveRequest.approvedBy = req.user._id;
+        leaveRequest.approvedAt = new Date();
+        leaveRequest.status = LeaveStatus.PENDING_MANAGER;
+        await leaveRequest.save();
+
+        const managerNotified = await notifyManager(leaveRequest.employee._id, leaveRequest);
+        if (!managerNotified) {
+          leaveRequest.status = LeaveStatus.PENDING_GENERAL_MANAGER;
+          await leaveRequest.save();
+          await notifyAdmin(leaveRequest);
+        }
+
+        const omApprovedNotif = await Notification.createNotification(
+          leaveRequest.employee._id, NotificationType.LEAVE_PENDING_GM,
+          'تمت موافقة مدير المكتب مبدئياً',
+          `طلب ${leaveLabel(leaveRequest.type)} تمت موافقة مدير المكتب عليه وهو بانتظار موافقة مدير القسم`,
+          leaveRequest._id
+        );
+        emitSocket(leaveRequest.employee._id, omApprovedNotif);
+        return res.json({ success: true, message: 'تمت الموافقة. الطلب انتقل لمدير القسم', data: { leaveRequest } });
+      }
+
       if (isManager && leaveRequest.status === LeaveStatus.PENDING_MANAGER) {
         const deptDoc = await Department.findById(req.user.department).catch(() => null)
           || await Department.findOne({ name: req.user.department }).catch(() => null);
@@ -606,7 +677,7 @@ const cancelLeaveRequest = async (req, res) => {
     const isOwner = leaveRequest.employee._id.toString() === req.user._id.toString();
     if (!isOwner && req.user.role !== 'admin' && req.user.role !== 'hr')
       return res.status(403).json({ success: false, message: 'غير مصرح لك' });
-    if (!['draft', 'pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(leaveRequest.status))
+    if (!['draft', 'pending_office_manager', 'pending_manager', 'pending_general_manager', 'approved', 'synced_to_payroll'].includes(leaveRequest.status))
       return res.status(400).json({ success: false, message: 'لا يمكن إلغاء الطلب بعد المعالجة' });
     const wasApproved = leaveRequest.status === LeaveStatus.APPROVED || leaveRequest.status === 'synced_to_payroll';
     leaveRequest.status = LeaveStatus.CANCELLED;
@@ -676,7 +747,13 @@ const getLeaveBalance = async (req, res) => {
 const getPendingLeaveRequests = async (req, res) => {
   try {
     let leaveRequests;
-    if (req.user.role === 'manager') {
+    if (req.user.role === 'office_manager') {
+      const teamIds = await User.find({ supervisedBy: req.user._id }).distinct('_id');
+      leaveRequests = await LeaveRequest.find({
+        status: LeaveStatus.PENDING_OFFICE_MANAGER,
+        employee: { $in: teamIds },
+      }).populate('employee', 'name email department').sort({ createdAt: -1 }).lean();
+    } else if (req.user.role === 'manager') {
       const deptDoc = await Department.findById(req.user.department).catch(() => null)
         || await Department.findOne({ name: req.user.department }).catch(() => null);
       const deptValues = [req.user.department];
@@ -691,7 +768,7 @@ const getPendingLeaveRequests = async (req, res) => {
       }).populate('employee', 'name email department').sort({ createdAt: -1 }).lean();
     } else if (req.user.role === 'admin' || req.user.role === 'hr') {
       leaveRequests = await LeaveRequest.find({
-        status: { $in: [LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER] },
+        status: { $in: [LeaveStatus.PENDING_OFFICE_MANAGER, LeaveStatus.PENDING_MANAGER, LeaveStatus.PENDING_GENERAL_MANAGER] },
       }).populate('employee', 'name email department').sort({ createdAt: -1 }).lean();
     } else {
       return res.status(403).json({ success: false, message: 'غير مصرح' });
@@ -723,26 +800,17 @@ const getLeaveRequests = async (req, res) => {
   try {
     const { status, employeeId, startDate, endDate, type, page = 1, limit = 50 } = req.query;
     const query = {};
-    if (req.user.role === 'employee') {
-      query.employee = req.user._id;
-    } else if (employeeId) {
+    if (employeeId) {
       query.employee = employeeId;
-    } else if (req.user.role === 'manager') {
-      const hrDepts = ['hr', 'الموارد البشرية', 'موارد بشرية'];
-      if (!hrDepts.includes((req.user.department || '').toLowerCase().trim())) {
-        const deptDoc = await Department.findById(req.user.department).catch(() => null)
-          || await Department.findOne({ name: req.user.department }).catch(() => null);
-        const deptValues = [req.user.department];
-        if (deptDoc) {
-          deptValues.push(deptDoc._id.toString());
-          deptValues.push(deptDoc.name);
-        }
-        query.department = { $in: deptValues };
-      }
+    } else if (req.user.role === 'admin' || req.user.role === 'hr') {
+      // admin/hr see all (used by LeaveManagement page)
+    } else {
+      // All other roles: own leaves only
+      query.employee = req.user._id;
     }
     if (status) {
       if (status === 'pending') {
-        query.status = { $in: ['pending', 'pending_manager', 'pending_general_manager'] };
+        query.status = { $in: ['pending', 'pending_office_manager', 'pending_manager', 'pending_general_manager'] };
       } else {
         query.status = status;
       }

@@ -42,6 +42,7 @@ const LEAVE_TYPE_ICONS = {
 };
 
 const STATUS_LABELS = {
+  pending_office_manager: { label: 'بانتظار مدير المكتب', color: 'bg-blue-100 text-blue-800' },
   pending_manager: { label: 'بانتظار المدير', color: 'bg-yellow-100 text-yellow-800' },
   pending_general_manager: { label: 'بانتظار المدير العام', color: 'bg-orange-100 text-orange-800' },
   approved: { label: 'تمت الموافقة', color: 'bg-green-100 text-green-800' },
@@ -184,7 +185,7 @@ const LeaveManagement = () => {
     const total = records.length;
     const approved = records.filter(r => r.status === 'approved').length;
     const rejected = records.filter(r => r.status === 'rejected').length;
-    const pending = records.filter(r => r.status === 'pending_manager' || r.status === 'pending_general_manager').length;
+    const pending = records.filter(r => r.status === 'pending_office_manager' || r.status === 'pending_manager' || r.status === 'pending_general_manager').length;
     const totalDays = records.reduce((sum, r) => sum + (r.days || 0), 0);
     const avgDays = totalDays / total;
     return { total, approved, rejected, pending, totalDays, avgDays };
@@ -322,12 +323,12 @@ const LeaveManagement = () => {
   };
 
   const canApprove = (status) => {
-    return status === 'pending_manager' || status === 'pending_general_manager';
+    return status === 'pending_office_manager' || status === 'pending_manager' || status === 'pending_general_manager';
   };
 
   const stats = {
     total: leaveRequests.length,
-    pending: leaveRequests.filter((r) => r.status === 'pending_manager').length,
+    pending: leaveRequests.filter((r) => r.status === 'pending_office_manager' || r.status === 'pending_manager').length,
     approval: leaveRequests.filter((r) => r.status === 'pending_general_manager').length,
     approved: leaveRequests.filter((r) => r.status === 'approved').length,
     rejected: leaveRequests.filter((r) => r.status === 'rejected').length,

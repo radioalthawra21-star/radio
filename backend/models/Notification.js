@@ -38,7 +38,9 @@ const NotificationType = {
   CHAT_MENTION: 'chat_mention',
   CHAT_ADDED: 'chat_added',
   CHAT_TASK_UPDATED: 'chat_task_updated',
-  TASK_UPDATED: 'task_updated'
+  TASK_UPDATED: 'task_updated',
+  EMPLOYEE_UPDATED: 'employee_updated',
+  EMPLOYEE_DEPARTMENT_TRANSFER: 'employee_department_transfer'
 };
 
 // Notification Schema

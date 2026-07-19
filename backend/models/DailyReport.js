@@ -9,7 +9,11 @@ const achievementSchema = new mongoose.Schema({
     enum: ['completed', 'in_progress', 'not_completed', 'stopped', 'postponed'],
     default: 'in_progress'
   },
-  completionPercentage: { type: Number, min: 0, max: 100, default: 0 }
+  completionPercentage: { type: Number, min: 0, max: 100, default: 0 },
+  duration: {
+    hours: { type: Number, default: 0 },
+    minutes: { type: Number, default: 0 }
+  }
 }, { _id: true });
 
 const dailyReportSchema = new mongoose.Schema({

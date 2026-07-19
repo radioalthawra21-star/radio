@@ -29,6 +29,7 @@ const menuItems = {
     { path: '/attendance', label: 'الحضور', icon: '🕐' },
     { path: '/daily-report', label: 'التقرير اليومي', icon: '📋' },
     { path: '/leave-request', label: 'طلب إجازة', icon: '📅' },
+    { path: '/office-manager/approve-leaves', label: 'الموافقة على الإجازات', icon: '✅' },
     { path: '/well-being', label: 'الحالة اليومية', icon: '😊' },
   ],
   manager: [
